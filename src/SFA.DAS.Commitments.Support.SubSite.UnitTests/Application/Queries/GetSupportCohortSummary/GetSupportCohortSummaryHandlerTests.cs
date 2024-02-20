@@ -436,7 +436,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetSupportCohortSummaryHandler(lazy, _mapper.Object, EmailOptionalService.Object);
+                var handler = new GetSupportCohortSummaryHandler(lazy, EmailOptionalService.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });

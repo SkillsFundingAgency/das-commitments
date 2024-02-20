@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
@@ -38,8 +32,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
                 fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
-            Assert.That(response, Is.InstanceOf<OkObjectResult>());
-            Assert.That((bool)((OkObjectResult)response).Value, Is.EqualTo(expected));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response, Is.InstanceOf<OkObjectResult>());
+                Assert.That((bool)((OkObjectResult)response).Value, Is.EqualTo(expected));
+            });
         }
 
         [Test]
@@ -73,8 +70,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var response = await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
-            Assert.That(response, Is.InstanceOf<OkObjectResult>());
-            Assert.That((long)((OkObjectResult)response).Value, Is.EqualTo(fixtures.AgreementId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response, Is.InstanceOf<OkObjectResult>());
+                Assert.That((long)((OkObjectResult)response).Value, Is.EqualTo(fixtures.AgreementId));
+            });
         }
 
         [Test]

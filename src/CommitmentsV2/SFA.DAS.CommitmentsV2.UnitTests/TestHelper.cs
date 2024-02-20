@@ -1,9 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
 {

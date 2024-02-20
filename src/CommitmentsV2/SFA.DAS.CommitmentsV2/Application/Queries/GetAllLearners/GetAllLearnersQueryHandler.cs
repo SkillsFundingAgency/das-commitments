@@ -1,11 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Data;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Data.SqlClient;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -122,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsUnapproved()
         {
-            Assert.That(Cohort.Approvals == Party.None, Is.True);
+            Assert.That(Cohort.Approvals, Is.EqualTo(Party.None));
         }
 
         public void VerifyCohortContainsDraftApprenticeship()
@@ -164,14 +159,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
-            Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+                Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            });
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
-            Assert.That(Cohort.TransferSenderId, Is.Null);
-            Assert.That(Cohort.TransferSender, Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.Null);
+                Assert.That(Cohort.TransferSender, Is.Null);
+            });
         }
 
         public void VerifyCohortHasPledgeApplicationId()

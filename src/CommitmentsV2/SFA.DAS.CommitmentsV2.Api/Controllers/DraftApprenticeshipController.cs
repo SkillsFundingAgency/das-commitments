@@ -1,6 +1,4 @@
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
@@ -13,186 +11,184 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
-using System.Threading.Tasks;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[Route("api/cohorts/{cohortId}/draft-apprenticeships")]
+[ApiController]
+[Authorize]
+public class DraftApprenticeshipController : Controller
 {
-    [Route("api/cohorts/{cohortId}/draft-apprenticeships")]
-    [ApiController]
-    [Authorize]
-    public class DraftApprenticeshipController : Controller
+    private readonly IMediator _mediator;
+    private readonly IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
+    private readonly IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
+    private readonly IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
+    private readonly IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
+    private readonly IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
+
+    public DraftApprenticeshipController(
+        IMediator mediator,
+        IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
+        IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
+        IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
+        IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
+        IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
+    )
     {
-        private readonly IMediator _mediator;
-        private readonly IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
-        private readonly IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
-        private readonly IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
-        private readonly IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
-        private readonly IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
+        _mediator = mediator;
+        _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
+        _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
+        _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
+        _getDraftApprenticeshipsResultMapper = getDraftApprenticeshipsResultMapper;
+        _deleteDraftApprenticeshipsMapper = deleteDraftApprenticeshipsMapper;
+    }
 
-        public DraftApprenticeshipController(
-            IMediator mediator,
-            IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
-            IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
-            IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
-            IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
-            IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
-            )
+    [HttpGet]
+    public async Task<IActionResult> GetAll(long cohortId)
+    {
+        var result = await _mediator.Send(new GetDraftApprenticeshipsQuery(cohortId));
+        var response = await _getDraftApprenticeshipsResultMapper.Map(result);
+
+        if (response.DraftApprenticeships == null)
         {
-            _mediator = mediator;
-            _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
-            _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
-            _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
-            _getDraftApprenticeshipsResultMapper = getDraftApprenticeshipsResultMapper;
-            _deleteDraftApprenticeshipsMapper = deleteDraftApprenticeshipsMapper;
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("{apprenticeshipId}")]
+    public async Task<IActionResult> Get(long cohortId, long apprenticeshipId)
+    {
+        var command = new GetDraftApprenticeshipQuery(cohortId, apprenticeshipId);
+
+        var response = await _mediator.Send(command);
+
+        if (response == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll(long cohortId)
-        {
-            var result = await _mediator.Send(new GetDraftApprenticeshipsQuery(cohortId));
-            var response = await _getDraftApprenticeshipsResultMapper.Map(result);
+        return Ok(await _getDraftApprenticeshipMapper.Map(response));
+    }
 
-            if (response.DraftApprenticeships == null)
-            {
-                return NotFound();
-            }
-            return Ok(response);
+    [HttpGet]
+    [Route("{apprenticeshipId}/prior-learning-summary")]
+    public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
+    {
+        var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
+
+        var response = await _mediator.Send(query);
+
+        if (response == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        [Route("{apprenticeshipId}")]
-        public async Task<IActionResult> Get(long cohortId, long apprenticeshipId)
+        return Ok(new GetDraftApprenticeshipPriorLearningSummaryResponse
         {
-            var command = new GetDraftApprenticeshipQuery(cohortId, apprenticeshipId);
+            ApprenticeshipId = apprenticeshipId,
+            CohortId = cohortId,
+            TrainingTotalHours = response.TrainingTotalHours,
+            DurationReducedByHours = response.DurationReducedByHours,
+            PriceReducedBy = response.PriceReducedBy,
+            PercentageOfPriorLearning = response.PercentageOfPriorLearning,
+            MinimumPercentageReduction = response.MinimumPercentageReduction,
+            MinimumPriceReduction = response.MinimumPriceReduction,
+            RplPriceReductionError = response.RplPriceReductionError,
+            FundingBandMaximum = response.FundingBandMaximum
+        }); 
+    }
+    
+    [HttpPut]
+    [Route("{apprenticeshipId}")]
+    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
+    {
+        var command = await _updateDraftApprenticeshipMapper.Map(request);
+        command.CohortId = cohortId;
+        command.ApprenticeshipId = apprenticeshipId;
 
-            var response = await _mediator.Send(command);
+        await _mediator.Send(command);
 
-            if (response == null)
-            {
-                return NotFound();
-            }
+        return Ok();
+    }
 
-            return Ok(await _getDraftApprenticeshipMapper.Map(response));
-        }
-
-        [HttpPut]
-        [Route("{apprenticeshipId}")]
-        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
+    [HttpPost]
+    [Route("{apprenticeshipId}/recognise-prior-learning")]
+    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
+    {
+        await _mediator.Send(new RecognisePriorLearningCommand
         {
-            var command = await _updateDraftApprenticeshipMapper.Map(request);
-            command.CohortId = cohortId;
-            command.ApprenticeshipId = apprenticeshipId;
+            ApprenticeshipId = apprenticeshipId, 
+            CohortId = cohortId,
+            RecognisePriorLearning = request.RecognisePriorLearning, 
+            UserInfo = request.UserInfo
+        });
+        return Ok();
+    }
 
-            await _mediator.Send(command);
-
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("{apprenticeshipId}/prior-learning-summary")]
-        public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
+    [HttpPost]
+    [Route("{apprenticeshipId}/prior-learning")]
+    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDetailsRequest request)
+    {
+        await _mediator.Send(new PriorLearningDetailsCommand
         {
-            var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
+            ApprenticeshipId = apprenticeshipId,
+            CohortId = cohortId,
+            DurationReducedBy = request.DurationReducedBy,
+            PriceReducedBy = request.PriceReducedBy,
+            DurationReducedByHours = request.DurationReducedByHours,
+            Rpl2Mode = request.Rpl2Mode,
+            UserInfo = request.UserInfo
+        });
+        return Ok();
+    }
 
-            var response = await _mediator.Send(query);
 
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new GetDraftApprenticeshipPriorLearningSummaryResponse
-            {
-                ApprenticeshipId = apprenticeshipId,
-                CohortId = cohortId,
-                TrainingTotalHours = response.TrainingTotalHours,
-                DurationReducedByHours = response.DurationReducedByHours,
-                PriceReducedBy = response.PriceReducedBy,
-                PercentageOfPriorLearning = response.PercentageOfPriorLearning,
-                MinimumPercentageReduction = response.MinimumPercentageReduction,
-                MinimumPriceReduction = response.MinimumPriceReduction,
-                RplPriceReductionError = response.RplPriceReductionError,
-                FundingBandMaximum = response.FundingBandMaximum
-            }); 
-        }
-
-        [HttpPost]
-        [Route("{apprenticeshipId}/recognise-prior-learning")]
-        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
+    [HttpPost]
+    [Route("{apprenticeshipId}/prior-learning-data")]
+    public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
+    {
+        await _mediator.Send(new PriorLearningDataCommand
         {
-            await _mediator.Send(new RecognisePriorLearningCommand
-            {
-                ApprenticeshipId = apprenticeshipId, 
-                CohortId = cohortId,
-                RecognisePriorLearning = request.RecognisePriorLearning, 
-                UserInfo = request.UserInfo
-            });
-            return Ok();
-        }
+            ApprenticeshipId = apprenticeshipId,
+            CohortId = cohortId,
+            DurationReducedBy = request.DurationReducedBy,
+            PriceReducedBy = request.PriceReducedBy,
+            DurationReducedByHours = request.DurationReducedByHours,
+            IsDurationReducedByRpl = request.IsDurationReducedByRpl,
+            TrainingTotalHours = request.TrainingTotalHours,
+            UserInfo = request.UserInfo
+        });
+        return Ok();
+    }
 
-        [HttpPost]
-        [Route("{apprenticeshipId}/prior-learning")]
-        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDetailsRequest request)
-        {
-            await _mediator.Send(new PriorLearningDetailsCommand
-            {
-                ApprenticeshipId = apprenticeshipId,
-                CohortId = cohortId,
-                DurationReducedBy = request.DurationReducedBy,
-                PriceReducedBy = request.PriceReducedBy,
-                DurationReducedByHours = request.DurationReducedByHours,
-                Rpl2Mode = request.Rpl2Mode,
-                UserInfo = request.UserInfo
-            });
-            return Ok();
-        }
+    [HttpPost]
+    public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
+    {
+        var command = await _addDraftApprenticeshipMapper.Map(request);
 
-
-        [HttpPost]
-        [Route("{apprenticeshipId}/prior-learning-data")]
-        public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
-        {
-            await _mediator.Send(new PriorLearningDataCommand
-            {
-                ApprenticeshipId = apprenticeshipId,
-                CohortId = cohortId,
-                DurationReducedBy = request.DurationReducedBy,
-                PriceReducedBy = request.PriceReducedBy,
-                DurationReducedByHours = request.DurationReducedByHours,
-                IsDurationReducedByRpl = request.IsDurationReducedByRpl,
-                TrainingTotalHours = request.TrainingTotalHours,
-                UserInfo = request.UserInfo
-            });
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
-        {
-            var command = await _addDraftApprenticeshipMapper.Map(request);
-
-            command.CohortId = cohortId;
+        command.CohortId = cohortId;
             
-            var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command);
             
-            return Ok(new AddDraftApprenticeshipResponse
-            {
-                DraftApprenticeshipId = result.Id
-            });
-        }
-
-        [HttpPost]
-        [Route("{apprenticeshipId}")]
-        public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
+        return Ok(new AddDraftApprenticeshipResponse
         {
-            var command = await _deleteDraftApprenticeshipsMapper.Map(request);
-            command.CohortId = cohortId;
-            command.ApprenticeshipId = apprenticeshipId;
+            DraftApprenticeshipId = result.Id
+        });
+    }
 
-            await _mediator.Send(command);
+    [HttpPost]
+    [Route("{apprenticeshipId}")]
+    public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
+    {
+        var command = await _deleteDraftApprenticeshipsMapper.Map(request);
+        command.CohortId = cohortId;
+        command.ApprenticeshipId = apprenticeshipId;
 
-            return Ok();
-        }
+        await _mediator.Send(command);
+
+        return Ok();
     }
 }

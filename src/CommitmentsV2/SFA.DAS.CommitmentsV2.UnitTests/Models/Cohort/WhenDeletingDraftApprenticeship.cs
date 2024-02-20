@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -164,25 +159,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyTransferRejectionReset()
             {
-                Assert.That(Cohort.TransferApprovalStatus, Is.Null);
-                Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.TransferApprovalStatus, Is.Null);
+                    Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
+                });
             }
 
             public void VerifyDeletion()
             {
-                Assert.That(Cohort.DraftApprenticeships.Contains(DeletionTarget), Is.False);
-                Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.DraftApprenticeships, Does.Not.Contain(DeletionTarget));
+                    Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
+                });
             }
 
             public void VerifyCohortIsUnapprovedByAllParties()
             {
-                Assert.That(Cohort.Approvals == Party.None, Is.True);
+                Assert.That(Cohort.Approvals, Is.EqualTo(Party.None));
             }
 
             public void VerifyCohortIsDeleted()
             {
-                Assert.That(Cohort.IsDeleted, Is.True);
-                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.IsDeleted, Is.True);
+                    Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent), Is.Not.Null);
+                });
             }
 
             public void VerifyCohortIsNotDeleted()

@@ -227,21 +227,21 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
 
             public void VerifyResultMapping()
             {
-                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(2));
+                Assert.That(_queryResult.Apprenticeships, Has.Count.EqualTo(2));
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship2.Uln)), Times.Once);
             }
 
             public void VerifyApprenticeship1UlnQueryResultMapping()
             {
-                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(1));
+                Assert.That(_queryResult.Apprenticeships, Has.Count.EqualTo(1));
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
             }
 
             public void VerifyNoResult()
             {
                 Assert.That(_queryResult.Apprenticeships, Is.Not.Null);
-                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(0));
+                Assert.That(_queryResult.Apprenticeships, Is.Empty);
             }
 
             private Apprenticeship CreateApprenticeship(string uln, long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)
@@ -292,6 +292,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 

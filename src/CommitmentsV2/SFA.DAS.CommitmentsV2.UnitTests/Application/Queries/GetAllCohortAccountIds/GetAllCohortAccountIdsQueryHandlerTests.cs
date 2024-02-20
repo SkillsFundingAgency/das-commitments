@@ -1,21 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccountIds
 {
@@ -31,8 +20,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
 
             var result = await fixture.Handle();
 
-            result.ShouldNotBeNull();
-            result.AccountIds.Count().Should().Be(2);
+            result.Should().NotBeNull();
+            result.AccountIds.Count.Should().Be(2);
             result.AccountIds[0].Should().Be(1);
             result.AccountIds[1].Should().Be(2);
         }
@@ -99,6 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

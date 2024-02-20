@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -27,10 +23,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(true, _parameters).ToList();
 
             //Assert
-            Assert.That(result.Count, Is.EqualTo(3));
-            Assert.That(result[0].Id, Is.EqualTo(1));
-            Assert.That(result[1].Id, Is.EqualTo(3));
-            Assert.That(result[2].Id, Is.EqualTo(10));
+            Assert.That(result, Has.Count.EqualTo(3));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].Id, Is.EqualTo(1));
+                Assert.That(result[1].Id, Is.EqualTo(3));
+                Assert.That(result[2].Id, Is.EqualTo(10));
+            });
         }
 
         [Test]
@@ -40,14 +39,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(false, _parameters).ToList();
 
             //Assert
-            Assert.That(result.Count, Is.EqualTo(6));
+            Assert.That(result, Has.Count.EqualTo(6));
 
-            Assert.That(result[0].Id, Is.EqualTo(2));
-            Assert.That(result[1].Id, Is.EqualTo(4));
-            Assert.That(result[2].Id, Is.EqualTo(5));
-            Assert.That(result[3].Id, Is.EqualTo(6));
-            Assert.That(result[4].Id, Is.EqualTo(7));
-            Assert.That(result[5].Id, Is.EqualTo(9));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].Id, Is.EqualTo(2));
+                Assert.That(result[1].Id, Is.EqualTo(4));
+                Assert.That(result[2].Id, Is.EqualTo(5));
+                Assert.That(result[3].Id, Is.EqualTo(6));
+                Assert.That(result[4].Id, Is.EqualTo(7));
+                Assert.That(result[5].Id, Is.EqualTo(9));
+            });
         }
 
         private static IQueryable<Apprenticeship> GetTestData()

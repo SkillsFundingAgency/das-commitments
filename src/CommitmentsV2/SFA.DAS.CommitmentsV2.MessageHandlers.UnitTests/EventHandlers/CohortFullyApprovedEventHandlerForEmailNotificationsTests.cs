@@ -1,12 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;

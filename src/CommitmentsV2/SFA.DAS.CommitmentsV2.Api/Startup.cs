@@ -1,17 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -76,8 +70,8 @@ public class Startup
             .AddMvc(o =>
             {
                 o.AddAuthorization();
-                o.Filters.Add<ValidateModelStateFilter>();
-                o.Filters.Add<StopwatchFilter>();
+                o.Filters.Add<ValidateModelStateFilterAttribute>();
+                o.Filters.Add<StopwatchFilterAttribute>();
             });
 
         services

@@ -1,10 +1,7 @@
-﻿using AutoFixture;
-using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
+﻿using KellermanSoftware.CompareNetObjects;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
 {

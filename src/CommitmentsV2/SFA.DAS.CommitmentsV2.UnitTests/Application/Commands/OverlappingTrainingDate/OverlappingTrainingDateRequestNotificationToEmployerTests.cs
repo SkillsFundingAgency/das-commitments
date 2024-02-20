@@ -1,20 +1,11 @@
-﻿using System;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NServiceBus;
+﻿using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.Builders;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Threading;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
-using System.Linq;
-
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 
@@ -246,9 +237,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
                 var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 Assert.That(overlappingTrainingDateRequest, Is.Not.Null);
-                Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
-                Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
-                Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
+                });
             }
 
             private void SeedData()
@@ -329,6 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             public void Dispose()
             {
                 Db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

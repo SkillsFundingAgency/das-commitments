@@ -1,11 +1,6 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture.NUnit3;
-using MediatR;
+﻿using AutoFixture.NUnit3;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
@@ -110,18 +105,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
-                   r.SearchFilters.SearchTerm.Equals(request.SearchTerm) &&
-                   r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
-                   r.SearchFilters.CourseName.Equals(request.CourseName) &&
-                   r.SearchFilters.Status.Equals(request.Status) &&
-                   r.SearchFilters.StartDate.Equals(request.StartDate) &&
-                   r.SearchFilters.EndDate.Equals(request.EndDate) &&
-                   r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
-                   r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
-                   r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo) &&
-                   r.SearchFilters.Alert == request.Alert &&
-                   r.SearchFilters.IsOnFlexiPaymentPilot == request.IsOnFlexiPaymentPilot),
+                It.Is<GetApprenticeshipsQuery>(getApprenticeshipsQuery => 
+                   getApprenticeshipsQuery.SearchFilters.SearchTerm.Equals(request.SearchTerm) &&
+                   getApprenticeshipsQuery.SearchFilters.EmployerName.Equals(request.EmployerName) &&
+                   getApprenticeshipsQuery.SearchFilters.CourseName.Equals(request.CourseName) &&
+                   getApprenticeshipsQuery.SearchFilters.Status.Equals(request.Status) &&
+                   getApprenticeshipsQuery.SearchFilters.StartDate.Equals(request.StartDate) &&
+                   getApprenticeshipsQuery.SearchFilters.EndDate.Equals(request.EndDate) &&
+                   getApprenticeshipsQuery.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
+                   getApprenticeshipsQuery.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
+                   getApprenticeshipsQuery.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo) &&
+                   getApprenticeshipsQuery.SearchFilters.Alert == request.Alert &&
+                   getApprenticeshipsQuery.SearchFilters.IsOnFlexiPaymentPilot == request.IsOnFlexiPaymentPilot),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -173,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ThenTheQueryResultIsMapped()
         {
             //Arrange
-            var expectedProviderId = 10;
+            const int expectedProviderId = 10;
             var request = new GetApprenticeshipsRequest
             {
                 ProviderId = expectedProviderId
@@ -200,7 +195,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.That(result, Is.Not.Null);
         }
-
 
         [Test, MoqAutoData]
         public async Task StopApprenticeship(StopApprenticeshipRequest request, long apprenticeshipId)
@@ -336,13 +330,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
 
-            //Assert
-            Assert.That(response.NeedReapproval, Is.EqualTo(true));
-            Assert.That(response.ApprenticeshipId, Is.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                //Assert
+                Assert.That(response.NeedReapproval, Is.EqualTo(true));
+                Assert.That(response.ApprenticeshipId, Is.EqualTo(1));
+            });
         }
 
         [Test, MoqAutoData]
-        public async Task EditApprenticeshpNotFound(EditApprenticeshipApiRequest request)
+        public async Task EditApprenticeshipNotFound(EditApprenticeshipApiRequest request)
         {
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 

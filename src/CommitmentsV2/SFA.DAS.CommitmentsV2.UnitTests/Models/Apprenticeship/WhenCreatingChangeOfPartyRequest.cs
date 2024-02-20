@@ -1,181 +1,180 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship;
+
+[TestFixture]
+public class WhenCreatingChangeOfPartyRequest
 {
-    [TestFixture]
-    public class WhenCreatingChangeOfPartyRequest
+    private WhenCreatingChangeOfPartyRequestFixture _fixture;
+
+    [SetUp]
+    public void Arrange()
     {
-        private WhenCreatingChangeOfPartyRequestFixture _fixture;
+        _fixture = new WhenCreatingChangeOfPartyRequestFixture();
+    }
 
-        [SetUp]
-        public void Arrange()
+    [Test]
+    public void ThenChangeOfPartyRequestIsCreated()
+    {
+        _fixture.CreateChangeOfPartyRequest();
+        _fixture.VerifyResult();
+    }
+
+    [TestCase(PaymentStatus.Active)]
+    [TestCase(PaymentStatus.Paused)]
+    [TestCase(PaymentStatus.Completed)]
+    public void ThenApprenticeshipMustAlreadyBeStopped(PaymentStatus status)
+    {
+        _fixture
+            .WithStatus(status)
+            .CreateChangeOfPartyRequest();
+
+        _fixture.VerifyException<DomainException>();
+    }
+
+    [Test]
+    public void ThenHasOverlappingTrainingDatesCanAllowLiveApprenticeship()
+    {
+        _fixture
+            .CreateChangeOfPartyRequest(true);
+
+        _fixture.VerifyNoException<DomainException>();
+    }
+
+    [TestCase("2019-06-01", true, Description = "Before stop")]
+    [TestCase("2020-02-29", true, Description = "Day before stop")]
+    [TestCase("2020-03-01", false, Description = "Day of stop")]
+    [TestCase("2020-06-01", false, Description = "After stop")]
+    public void ThenStartDateMustBeOnOrAfterStopDate(DateTime? startDate, bool expectThrow)
+    {
+        _fixture
+            .WithStartDate(startDate)
+            .CreateChangeOfPartyRequest();
+
+        if (expectThrow)
         {
-            _fixture = new WhenCreatingChangeOfPartyRequestFixture();
-        }
-
-        [Test]
-        public void ThenChangeOfPartyRequestIsCreated()
-        {
-            _fixture.CreateChangeOfPartyRequest();
-            _fixture.VerifyResult();
-        }
-
-        [TestCase(PaymentStatus.Active)]
-        [TestCase(PaymentStatus.Paused)]
-        [TestCase(PaymentStatus.Completed)]
-        public void ThenApprenticeshipMustAlreadyBeStopped(PaymentStatus status)
-        {
-            _fixture
-                .WithStatus(status)
-                .CreateChangeOfPartyRequest();
-
             _fixture.VerifyException<DomainException>();
         }
-
-        [Test]
-        public void ThenHasOverlappingTrainingDatesCanAllowLiveApprenticeship()
+        else
         {
-            _fixture
-                .CreateChangeOfPartyRequest(true);
+            _fixture.VerifyResult();
+        }
+    }
 
-            _fixture.VerifyNoException<DomainException>();
+    [TestCase(ChangeOfPartyRequestStatus.Pending, true)]
+    [TestCase(ChangeOfPartyRequestStatus.Approved, true)]
+    [TestCase(ChangeOfPartyRequestStatus.Rejected, false)]
+    [TestCase(ChangeOfPartyRequestStatus.Withdrawn, false)]
+    public void ThenApprenticeshipMustNotAlreadyHaveAPendingOrApprovedRequest(ChangeOfPartyRequestStatus status, bool expectThrow)
+    {
+        _fixture
+            .WithExistingChangeOfPartyRequest(status)
+            .CreateChangeOfPartyRequest();
+
+        if (expectThrow)
+        {
+            _fixture.VerifyException<DomainException>();
+        }
+        else
+        {
+            _fixture.VerifyResult();
+        }
+    }
+
+    private class WhenCreatingChangeOfPartyRequestFixture
+    {
+        public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
+        public PaymentStatus PaymentStatus { get; private set; }
+        public DateTime? StopDate { get; private set; }
+        public DateTime? StartDate { get; private set; }
+        public List<CommitmentsV2.Models.ChangeOfPartyRequest> PreviousChangeOfPartyRequests { get; private set; }
+        public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
+        public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+        public Exception Exception { get; private set; }
+
+        public WhenCreatingChangeOfPartyRequestFixture()
+        {
+            UnitOfWorkContext = new UnitOfWorkContext();
+
+            PaymentStatus = PaymentStatus.Withdrawn;
+            StopDate = new DateTime(2020, 03, 01);
+            StartDate = StopDate.Value;
+            PreviousChangeOfPartyRequests = new List<CommitmentsV2.Models.ChangeOfPartyRequest>();
         }
 
-        [TestCase("2019-06-01", true, Description = "Before stop")]
-        [TestCase("2020-02-29", true, Description = "Day before stop")]
-        [TestCase("2020-03-01", false, Description = "Day of stop")]
-        [TestCase("2020-06-01", false, Description = "After stop")]
-        public void ThenStartDateMustBeOnOrAfterStopDate(DateTime? startDate, bool expectThrow)
+        public WhenCreatingChangeOfPartyRequestFixture WithStatus(PaymentStatus paymentStatus)
         {
-            _fixture
-                .WithStartDate(startDate)
-                .CreateChangeOfPartyRequest();
-
-            if (expectThrow)
-            {
-                _fixture.VerifyException<DomainException>();
-            }
-            else
-            {
-                _fixture.VerifyResult();
-            }
+            PaymentStatus = paymentStatus;
+            StopDate = paymentStatus == PaymentStatus.Withdrawn ? new DateTime(2020, 03, 01) : default;
+            return this;
         }
 
-        [TestCase(ChangeOfPartyRequestStatus.Pending, true)]
-        [TestCase(ChangeOfPartyRequestStatus.Approved, true)]
-        [TestCase(ChangeOfPartyRequestStatus.Rejected, false)]
-        [TestCase(ChangeOfPartyRequestStatus.Withdrawn, false)]
-        public void ThenApprenticeshipMustNotAlreadyHaveAPendingOrApprovedRequest(ChangeOfPartyRequestStatus status, bool expectThrow)
+        public WhenCreatingChangeOfPartyRequestFixture WithStopDate(DateTime? stopDate)
         {
-            _fixture
-                .WithExistingChangeOfPartyRequest(status)
-                .CreateChangeOfPartyRequest();
-
-            if (expectThrow)
-            {
-                _fixture.VerifyException<DomainException>();
-            }
-            else
-            {
-                _fixture.VerifyResult();
-            }
+            StopDate = stopDate;
+            return this;
         }
 
-        private class WhenCreatingChangeOfPartyRequestFixture
+        public WhenCreatingChangeOfPartyRequestFixture WithStartDate(DateTime? startDate)
         {
-            public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
-            public PaymentStatus PaymentStatus { get; private set; }
-            public DateTime? StopDate { get; private set; }
-            public DateTime? StartDate { get; private set; }
-            public List<CommitmentsV2.Models.ChangeOfPartyRequest> PreviousChangeOfPartyRequests { get; private set; }
-            public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
-            public UnitOfWorkContext UnitOfWorkContext { get; private set; }
-            public Exception Exception { get; private set; }
+            StartDate = startDate;
+            return this;
+        }
 
-            public WhenCreatingChangeOfPartyRequestFixture()
+        public WhenCreatingChangeOfPartyRequestFixture WithExistingChangeOfPartyRequest(ChangeOfPartyRequestStatus status)
+        {
+            var request = new CommitmentsV2.Models.ChangeOfPartyRequest();
+
+            var t = typeof(CommitmentsV2.Models.ChangeOfPartyRequest);
+            t.GetProperty("Status").SetValue(request, status, null);
+
+            PreviousChangeOfPartyRequests.Add(request);
+
+            return this;
+        }
+
+        public void CreateChangeOfPartyRequest(bool hasOverlappingTrainingDates = false)
+        {
+            try
             {
-                UnitOfWorkContext = new UnitOfWorkContext();
-
-                PaymentStatus = PaymentStatus.Withdrawn;
-                StopDate = new DateTime(2020, 03, 01);
-                StartDate = StopDate.Value;
-                PreviousChangeOfPartyRequests = new List<CommitmentsV2.Models.ChangeOfPartyRequest>();
-            }
-
-            public WhenCreatingChangeOfPartyRequestFixture WithStatus(PaymentStatus paymentStatus)
-            {
-                PaymentStatus = paymentStatus;
-                StopDate = paymentStatus == PaymentStatus.Withdrawn ? new DateTime(2020, 03, 01) : default;
-                return this;
-            }
-
-            public WhenCreatingChangeOfPartyRequestFixture WithStopDate(DateTime? stopDate)
-            {
-                StopDate = stopDate;
-                return this;
-            }
-
-            public WhenCreatingChangeOfPartyRequestFixture WithStartDate(DateTime? startDate)
-            {
-                StartDate = startDate;
-                return this;
-            }
-
-            public WhenCreatingChangeOfPartyRequestFixture WithExistingChangeOfPartyRequest(ChangeOfPartyRequestStatus status)
-            {
-                var request = new CommitmentsV2.Models.ChangeOfPartyRequest();
-
-                var t = typeof(CommitmentsV2.Models.ChangeOfPartyRequest);
-                t.GetProperty("Status").SetValue(request, status, null);
-
-                PreviousChangeOfPartyRequests.Add(request);
-
-                return this;
-            }
-
-            public void CreateChangeOfPartyRequest(bool hasOverlappingTrainingDates = false)
-            {
-                try
+                Apprenticeship = new CommitmentsV2.Models.Apprenticeship
                 {
-                    Apprenticeship = new CommitmentsV2.Models.Apprenticeship
-                    {
-                        PaymentStatus = PaymentStatus,
-                        StopDate = StopDate,
-                        Cohort = new CommitmentsV2.Models.Cohort(),
-                        ChangeOfPartyRequests = PreviousChangeOfPartyRequests
-                    };
+                    PaymentStatus = PaymentStatus,
+                    StopDate = StopDate,
+                    Cohort = new CommitmentsV2.Models.Cohort(),
+                    ChangeOfPartyRequests = PreviousChangeOfPartyRequests
+                };
 
-                    Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
-                        1000, StartDate, DateTime.UtcNow, null, null, null, hasOverlappingTrainingDates, new UserInfo(), DateTime.UtcNow);
+                Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
+                    1000, StartDate, DateTime.UtcNow, null, null, null, hasOverlappingTrainingDates, new UserInfo(), DateTime.UtcNow);
 
-                }
-                catch (Exception e)
-                {
-                    Exception = e;
-                }
             }
+            catch (Exception e)
+            {
+                Exception = e;
+            }
+        }
 
-            public void VerifyResult()
+        public void VerifyResult()
+        {
+            Assert.Multiple(() =>
             {
                 Assert.That(Exception, Is.Null);
                 Assert.That(Result, Is.Not.Null);
-            }
+            });
+        }
 
-            public void VerifyException<T>()
-            {
-                Assert.That(Exception, Is.Not.Null);
-                Assert.That(Exception, Is.InstanceOf<T>());
-            }
+        public void VerifyException<T>()
+        {
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
+        }
 
-            public void VerifyNoException<T>()
-            {
-                Assert.IsNull(Exception);
-            }
+        public void VerifyNoException<T>()
+        {
+            Assert.That(Exception, Is.Null);
         }
     }
 }

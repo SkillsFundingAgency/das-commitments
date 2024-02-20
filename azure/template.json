@@ -138,6 +138,7 @@
         "workerV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
+        "configNames": "SFA.DAS.CommitmentsV2,SFA.DAS.Encoding",
         "serviceBusName": "[concat(variables('resourceNamePrefix'), '-ns')]"
     },
     "resources": [
@@ -326,6 +327,10 @@
                               "value": "[parameters('loggingRedisKey')]"
                             },
                             {
+                              "name": "ConfigNames",
+                              "value": "[variables('configNames')]"
+                            },
+                            {
                               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                               "value": "[reference(concat(variables('workerV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
                             },
@@ -448,8 +453,12 @@
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },
                                 {
-                                    "name": "LoggingRedisKey",
-                                    "value": "[parameters('loggingRedisKey')]"
+                                  "name": "LoggingRedisKey",
+                                  "value": "[parameters('loggingRedisKey')]"
+                                },
+                                {
+                                  "name": "ConfigNames",
+                                  "value": "[variables('configNames')]"
                                 },
                                 {
                                     "name": "APPINSIGHTS_INSTRUMENTATIONKEY",

@@ -1,14 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.Kernel;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -29,8 +20,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             await fixture.Handle();
 
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy, Is.EqualTo(fixture.Command.DurationReducedBy));
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy, Is.EqualTo(fixture.Command.PriceReducedBy));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy, Is.EqualTo(fixture.Command.DurationReducedBy));
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy, Is.EqualTo(fixture.Command.PriceReducedBy));
+            });
         }
 
         [Test]
@@ -197,6 +191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

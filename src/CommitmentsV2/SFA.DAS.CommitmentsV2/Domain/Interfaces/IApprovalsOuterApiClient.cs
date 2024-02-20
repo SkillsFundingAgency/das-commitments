@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {

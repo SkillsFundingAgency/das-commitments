@@ -1,15 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -82,10 +71,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Cost = x.Cost
             }).ToArray();
 
-            Assert.That(list.Count, Is.EqualTo(1));
-            Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
-            Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
-            Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            });
         }
     }
 
@@ -231,6 +223,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

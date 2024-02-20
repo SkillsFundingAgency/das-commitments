@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -86,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 
             public void VerifyResultMapping()
             {
-                Assert.That(_result.PriceEpisodes.Count, Is.EqualTo(_priceEpisodes.Count));
+                Assert.That(_result.PriceEpisodes, Has.Count.EqualTo(_priceEpisodes.Count));
 
                 foreach (var sourceItem in _priceEpisodes)
                 {
@@ -97,19 +89,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 
         private static void AssertEquality(PriceHistory source, GetPriceEpisodesQueryResult.PriceEpisode result)
         {
-            Assert.That(result.Id, Is.EqualTo(source.Id));
-
-            Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
-            Assert.That(result.FromDate, Is.EqualTo(source.FromDate));
-            Assert.That(result.ToDate, Is.EqualTo(source.ToDate));
-            Assert.That(result.Cost, Is.EqualTo(source.Cost));
-            Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
-            Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.AssessmentPrice));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(source.Id));
+                Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                Assert.That(result.FromDate, Is.EqualTo(source.FromDate));
+                Assert.That(result.ToDate, Is.EqualTo(source.ToDate));
+                Assert.That(result.Cost, Is.EqualTo(source.Cost));
+                Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
+                Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.AssessmentPrice));
+            });
         }
     }
 }

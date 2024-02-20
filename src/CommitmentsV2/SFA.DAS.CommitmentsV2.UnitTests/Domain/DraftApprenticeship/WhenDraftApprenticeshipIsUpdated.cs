@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -167,8 +165,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
             var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.Regular, flexibleEmployment).ApplyUpdate(flexibleEmployment);
-            Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.Null);
-            Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.Null);
+                Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.Null);
+            });
         }
 
         [TestCase(Party.Provider)]
@@ -177,8 +178,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
             var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.PortableFlexiJob, flexibleEmployment).ApplyUpdate(flexibleEmployment);
-            Assert.That(flexibleEmployment.EmploymentEndDate, Is.EqualTo(result.FlexibleEmployment.EmploymentEndDate));
-            Assert.That(flexibleEmployment.EmploymentPrice, Is.EqualTo(result.FlexibleEmployment.EmploymentPrice));
+            Assert.Multiple(() =>
+            {
+                Assert.That(flexibleEmployment.EmploymentEndDate, Is.EqualTo(result.FlexibleEmployment.EmploymentEndDate));
+                Assert.That(flexibleEmployment.EmploymentPrice, Is.EqualTo(result.FlexibleEmployment.EmploymentPrice));
+            });
         }
 
         private class DraftApprenticeshipUpdateTestFixture

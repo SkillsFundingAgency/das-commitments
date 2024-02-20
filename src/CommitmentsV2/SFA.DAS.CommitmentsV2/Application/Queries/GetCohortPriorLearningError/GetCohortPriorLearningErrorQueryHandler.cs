@@ -1,13 +1,5 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
 {

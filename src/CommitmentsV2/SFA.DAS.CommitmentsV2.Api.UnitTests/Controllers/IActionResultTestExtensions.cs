@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NUnit.Framework;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;

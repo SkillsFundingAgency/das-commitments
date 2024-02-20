@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class DateOfBirthValidationTests
     {
@@ -14,9 +11,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The Date of birth is not valid"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The Date of birth is not valid"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            });
         }
 
         [Test]
@@ -29,9 +29,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The apprentice must be at least 15 years old at the start of their training"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The apprentice must be at least 15 years old at the start of their training"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            });
         }
 
         [Test]
@@ -44,9 +47,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The apprentice must be younger than 115 years old at the start of their training"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The apprentice must be younger than 115 years old at the start of their training"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            });
         }
 
         [Test]
@@ -60,9 +66,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The Date of birth is not valid"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The Date of birth is not valid"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
+            });
         }
     }
 }

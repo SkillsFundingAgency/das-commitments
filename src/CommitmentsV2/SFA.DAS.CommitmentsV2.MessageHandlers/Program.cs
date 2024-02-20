@@ -1,36 +1,32 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Startup;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers
-{
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var hostBuilder = new HostBuilder();
-            try
-            {
-                hostBuilder
-                    .UseDasEnvironment()
-                    .ConfigureDasAppConfiguration(args)
-                    .UseConsoleLifetime()
-                    .ConfigureLogging(b => b.AddNLog())
-                    .ConfigureMessageHandlerServices();
+namespace SFA.DAS.CommitmentsV2.MessageHandlers;
 
-                using (var host = hostBuilder.Build())
-                {
-                    await host.RunAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        var hostBuilder = new HostBuilder();
+        try
+        {
+            hostBuilder
+                .UseDasEnvironment()
+                .ConfigureDasAppConfiguration(args)
+                .UseConsoleLifetime()
+                .ConfigureLogging(b => b.AddNLog())
+                .ConfigureMessageHandlerServices();
+
+            using var host = hostBuilder.Build();
+            
+            await host.RunAsync();
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            throw;
         }
     }
 }

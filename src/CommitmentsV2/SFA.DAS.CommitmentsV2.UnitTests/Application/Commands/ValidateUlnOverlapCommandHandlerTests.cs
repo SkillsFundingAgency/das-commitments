@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -23,8 +17,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             var result = await fixture.Handle();
 
-            Assert.That(result.HasOverlappingEndDate, Is.EqualTo(expectedResult));
-            Assert.That(result.HasOverlappingStartDate, Is.EqualTo(expectedResult));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.HasOverlappingEndDate, Is.EqualTo(expectedResult));
+                Assert.That(result.HasOverlappingStartDate, Is.EqualTo(expectedResult));
+            });
         }
     }
 

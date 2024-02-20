@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation.Results;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+﻿using FluentValidation.Results;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
-using SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRequests
 {

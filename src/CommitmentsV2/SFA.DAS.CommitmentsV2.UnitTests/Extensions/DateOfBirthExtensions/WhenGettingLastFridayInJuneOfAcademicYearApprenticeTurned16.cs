@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Extensions;
-using System;
+﻿using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DateOfBirthExtensions
 {
@@ -14,9 +12,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DateOfBirthExtensions
         public void ThenShouldReturnCorrectDate(int dobYear, int dobMonth, int dobDay, int expectedYear, int expectedMonth, int expectedDay)
         {
             var result = new DateTime(dobYear, dobMonth, dobDay).GetLastFridayInJuneOfSchoolYearApprenticeTurned16();
-            Assert.That(result.Year, Is.EqualTo(expectedYear));
-            Assert.That(result.Month, Is.EqualTo(expectedMonth));
-            Assert.That(result.Day, Is.EqualTo(expectedDay));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Year, Is.EqualTo(expectedYear));
+                Assert.That(result.Month, Is.EqualTo(expectedMonth));
+                Assert.That(result.Day, Is.EqualTo(expectedDay));
+            });
         }
     }
 }

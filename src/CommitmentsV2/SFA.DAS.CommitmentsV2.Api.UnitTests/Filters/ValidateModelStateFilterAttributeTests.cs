@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +7,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.Types.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
@@ -19,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
 {
     [TestFixture]
-    public class ValidateModelStateFilterTests
+    public class ValidateModelStateFilterAttributeTests
     {
         private ValidateModelStateFilterTestsFixture _fixture;
 
@@ -53,10 +48,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
             var badRequestObjectResult = _fixture.ActionExecutingContext.Result as BadRequestObjectResult;
             var errorResponse = badRequestObjectResult?.Value as ErrorResponse;
 
-            Assert.That(_fixture.ActionExecutingContext.Result, Is.Not.Null);
-            Assert.That(badRequestObjectResult, Is.Not.Null);
-            Assert.That(badRequestObjectResult.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest));
-            Assert.That(errorResponse, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ActionExecutingContext.Result, Is.Not.Null);
+                Assert.That(badRequestObjectResult, Is.Not.Null);
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.That(badRequestObjectResult.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest));
+                Assert.That(errorResponse, Is.Not.Null);
+            });
             Assert.That(errorResponse.Errors.Exists(e => e.Field == "Foo" && e.Message == "Bar"));
         }
     }
@@ -71,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
         public ModelStateDictionary ModelState { get; set; }
         public ActionContext ActionContext { get; set; }
         public ActionExecutingContext ActionExecutingContext { get; set; }
-        public ValidateModelStateFilter ValidateModelStateFilter { get; set; }
+        public ValidateModelStateFilterAttribute ValidateModelStateFilterAttribute { get; set; }
         public HttpSubStatusCode DomainExceptionHttpSubStatusCode { get; set; }
         public string DomainExceptionHttpSubStatusCodeHeaderValue { get; set; }
 
@@ -93,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
             ModelState = new ModelStateDictionary();
             ActionContext = new ActionContext(HttpContext.Object, new RouteData(),  ActionDescriptor, ModelState);
             ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(), new Dictionary<string, object>(), null);
-            ValidateModelStateFilter = new ValidateModelStateFilter();
+            ValidateModelStateFilterAttribute = new ValidateModelStateFilterAttribute();
             DomainExceptionHttpSubStatusCode = HttpSubStatusCode.DomainException;
             DomainExceptionHttpSubStatusCodeHeaderValue = ((int)DomainExceptionHttpSubStatusCode).ToString();
 
@@ -102,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
 
         public void OnActionExecuting()
         {
-            ValidateModelStateFilter.OnActionExecuting(ActionExecutingContext);
+            ValidateModelStateFilterAttribute.OnActionExecuting(ActionExecutingContext);
         }
 
         public ValidateModelStateFilterTestsFixture SetInvalidModelState()

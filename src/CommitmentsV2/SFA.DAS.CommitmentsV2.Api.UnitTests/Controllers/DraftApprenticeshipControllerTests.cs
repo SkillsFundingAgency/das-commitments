@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -183,16 +177,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var obj = okObjectResult.Value as GetDraftApprenticeshipPriorLearningSummaryResponse;
             Assert.That(obj, Is.Not.Null);
 
-            Assert.That(obj.ApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
-            Assert.That(obj.CohortId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.CohortId));
-            Assert.That(obj.TrainingTotalHours, Is.EqualTo(expected.TrainingTotalHours));
-            Assert.That(obj.DurationReducedByHours, Is.EqualTo(expected.DurationReducedByHours));
-            Assert.That(obj.PriceReducedBy, Is.EqualTo(expected.PriceReducedBy));
-            Assert.That(obj.FundingBandMaximum, Is.EqualTo(expected.FundingBandMaximum));
-            Assert.That(obj.PercentageOfPriorLearning, Is.EqualTo(expected.PercentageOfPriorLearning));
-            Assert.That(obj.MinimumPercentageReduction, Is.EqualTo(expected.MinimumPercentageReduction));
-            Assert.That(obj.MinimumPriceReduction, Is.EqualTo(expected.MinimumPriceReduction));
-            Assert.That(obj.RplPriceReductionError, Is.EqualTo(expected.RplPriceReductionError));
+            Assert.Multiple(() =>
+            {
+                Assert.That(obj.ApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
+                Assert.That(obj.CohortId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.CohortId));
+                Assert.That(obj.TrainingTotalHours, Is.EqualTo(expected.TrainingTotalHours));
+                Assert.That(obj.DurationReducedByHours, Is.EqualTo(expected.DurationReducedByHours));
+                Assert.That(obj.PriceReducedBy, Is.EqualTo(expected.PriceReducedBy));
+                Assert.That(obj.FundingBandMaximum, Is.EqualTo(expected.FundingBandMaximum));
+                Assert.That(obj.PercentageOfPriorLearning, Is.EqualTo(expected.PercentageOfPriorLearning));
+                Assert.That(obj.MinimumPercentageReduction, Is.EqualTo(expected.MinimumPercentageReduction));
+                Assert.That(obj.MinimumPriceReduction, Is.EqualTo(expected.MinimumPriceReduction));
+                Assert.That(obj.RplPriceReductionError, Is.EqualTo(expected.RplPriceReductionError));
+            });
         }
 
         [Test]

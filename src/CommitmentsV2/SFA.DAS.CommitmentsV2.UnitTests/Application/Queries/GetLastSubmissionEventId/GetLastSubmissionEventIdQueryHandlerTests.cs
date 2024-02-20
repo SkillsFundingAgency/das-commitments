@@ -1,12 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetLastSubmissionEventId;
 using SFA.DAS.CommitmentsV2.Data;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionEventId
 {
@@ -60,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

@@ -3,37 +3,32 @@ using System.Threading.Tasks;
 using CommandLine;
 using SFA.DAS.CommitmentsV2.TestSubscriber.CommandLines;
 
-namespace SFA.DAS.CommitmentsV2.TestSubscriber
+namespace SFA.DAS.CommitmentsV2.TestSubscriber;
+
+public class Program
 {
-    class Program
+    private static Task Main(string[] args)
     {
-        private static Task Main(string[] args)
-        {
-            Task task = null;
+        Task task = null;
+        Console.Title = Constants.AppName;
 
-            Parser.Default.ParseArguments<StartSubscriberCommandLineArgs>(args)
-                .WithParsed(commandLineArguments => task = new Program().StartSubscriber(commandLineArguments))
-                .WithNotParsed(parserResult =>
+        Parser.Default.ParseArguments<StartSubscriberCommandLineArgs>(args)
+            .WithParsed(commandLineArguments => task = StartSubscriber(commandLineArguments))
+            .WithNotParsed(parserResult =>
+            {
+                Console.WriteLine("The command line is incorrect:");
+                foreach (var error in parserResult)
                 {
-                    Console.WriteLine("The command line is incorrect:");
-                    foreach (Error error in parserResult)
-                    {
-                        Console.WriteLine((object)error.Tag);
-                    }
-                });
+                    Console.WriteLine(error.Tag);
+                }
+            });
 
-            return task ?? Task.CompletedTask;
-        }
+        return task ?? Task.CompletedTask;
+    }
 
-        public Program()
-        {
-            Console.Title = Constants.AppName;
-        }
-
-        private Task StartSubscriber(StartSubscriberCommandLineArgs args)
-        {
-            var runner = new NServiceBusRunner();
-            return runner.StartNServiceBusBackgroundTask(args.ConnectionString);
-        }
+    private static Task StartSubscriber(StartSubscriberCommandLineArgs args)
+    {
+        var runner = new NServiceBusRunner();
+        return runner.StartNServiceBusBackgroundTask(args.ConnectionString);
     }
 }

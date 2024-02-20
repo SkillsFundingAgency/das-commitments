@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Domain;
+﻿using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
@@ -22,9 +20,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the agreed price for this employment"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the agreed price for this employment"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            });
         }
 
         [Test]
@@ -39,9 +40,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This price must not be more than the total agreed apprenticeship price"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This price must not be more than the total agreed apprenticeship price"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            });
         }
 
         [Test]
@@ -56,9 +60,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(2));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The agreed price for this employment must be £100,000 or less"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The agreed price for this employment must be £100,000 or less"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
+            });
         }
     }
 }

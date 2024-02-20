@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace SFA.DAS.CommitmentsV2.Models
 {
     public class Framework

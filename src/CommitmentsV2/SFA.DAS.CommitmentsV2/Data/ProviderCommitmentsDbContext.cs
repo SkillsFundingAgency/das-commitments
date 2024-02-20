@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Data.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Data.Configuration;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data

@@ -264,8 +264,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
         {
             var viewModel =  fixture.Map();
 
-            Assert.That(viewModel.FirstName, Is.EqualTo(fixture.ApprenticeshipUpdate.FirstName));
-            Assert.That(viewModel.LastName, Is.EqualTo(fixture.ApprenticeshipUpdate.LastName));
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.FirstName, Is.EqualTo(fixture.ApprenticeshipUpdate.FirstName));
+                Assert.That(viewModel.LastName, Is.EqualTo(fixture.ApprenticeshipUpdate.LastName));
+            });
         }
 
         [Test]

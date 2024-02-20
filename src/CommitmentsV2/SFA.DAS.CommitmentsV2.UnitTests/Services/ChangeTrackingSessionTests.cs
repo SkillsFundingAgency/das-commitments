@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutoFixture;
-using Moq;
-using Newtonsoft.Json;
-using NUnit.Framework;
+﻿using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -152,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyInsertedItemInitialStateIsNull()
             {
                 var trackedItem = ChangeTrackingSession.TrackedItems.Single(x => x.Operation == ChangeTrackingOperation.Insert);
-                Assert.That(trackedItem.InitialState == null, Is.True);
+                Assert.That(trackedItem.InitialState, Is.EqualTo(null));
             }
 
             public void VerifyUpdateInitialState()

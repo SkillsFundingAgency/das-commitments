@@ -1,7 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

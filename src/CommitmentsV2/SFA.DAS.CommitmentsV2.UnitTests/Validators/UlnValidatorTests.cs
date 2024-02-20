@@ -1,6 +1,4 @@
-﻿using Moq;
-using NUnit.Framework;
-using IUlnValidator = SFA.DAS.Learners.Validators.IUlnValidator;
+﻿using IUlnValidator = SFA.DAS.Learners.Validators.IUlnValidator;
 using UlnValidationResult = SFA.DAS.CommitmentsV2.Domain.Entities.UlnValidationResult;
 using UlnValidator = SFA.DAS.CommitmentsV2.Services.UlnValidator;
 

@@ -1,10 +1,5 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
@@ -52,11 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 .VerifyReturnsModel()
                 .WithModel<AccountLegalEntityResponse>();
 
-            Assert.That(model.AccountId, Is.EqualTo(1));
-            Assert.That(model.MaLegalEntityId, Is.EqualTo(234));
-            Assert.That(model.AccountName, Is.EqualTo("AccountName"));
-            Assert.That(model.LegalEntityName, Is.EqualTo("ABC"));
-            Assert.That(model.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.AccountId, Is.EqualTo(1));
+                Assert.That(model.MaLegalEntityId, Is.EqualTo(234));
+                Assert.That(model.AccountName, Is.EqualTo("AccountName"));
+                Assert.That(model.LegalEntityName, Is.EqualTo("ABC"));
+                Assert.That(model.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
+            });
         }
 
         [Test]
@@ -107,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public async Task<IActionResult> CallControllerMethod(long accountLegalEntityId)
         {
-            var controller = new AccountLegalEntityController(Logger, Mediator);
+            var controller = new AccountLegalEntityController(Mediator);
 
             var response = await controller.GetAccountLegalEntity(accountLegalEntityId);
 

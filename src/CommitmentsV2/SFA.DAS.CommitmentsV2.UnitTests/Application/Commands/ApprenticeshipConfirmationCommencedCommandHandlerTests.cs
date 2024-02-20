@@ -1,18 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmationCommenced;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -42,10 +31,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(command.CommitmentsApprovedOn);
             status.ConfirmationOverdueOn.Should().Be(command.ConfirmationOverdueOn);
-            status.ApprenticeshipConfirmedOn.ShouldBeNull();
+            status.ApprenticeshipConfirmedOn.Should().BeNull();
         }
 
         [Test]
@@ -61,10 +50,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(command.CommitmentsApprovedOn);
             status.ConfirmationOverdueOn.Should().Be(command.ConfirmationOverdueOn);
-            status.ApprenticeshipConfirmedOn.ShouldBeNull();
+            status.ApprenticeshipConfirmedOn.Should().BeNull();
         }
 
 
@@ -82,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(_fixture.ConfirmationStatus.CommitmentsApprovedOn);
             status.ApprenticeshipConfirmedOn.Should().Be(_fixture.ConfirmationStatus.ApprenticeshipConfirmedOn);
             status.ConfirmationOverdueOn.Should().Be(_fixture.ConfirmationStatus.ConfirmationOverdueOn);
@@ -134,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

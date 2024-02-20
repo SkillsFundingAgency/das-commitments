@@ -1,8 +1,4 @@
-﻿using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.ApprenticeCommitments.Messages.Events;
+﻿using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers

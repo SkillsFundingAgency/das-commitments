@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeships
 {

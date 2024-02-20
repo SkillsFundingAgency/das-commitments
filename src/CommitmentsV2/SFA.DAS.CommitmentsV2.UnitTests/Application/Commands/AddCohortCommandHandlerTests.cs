@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -16,154 +8,154 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
+
+[TestFixture]
+[Parallelizable]
+public class AddCohortCommandHandlerTests
 {
-    [TestFixture]
-    [Parallelizable]
-    public class AddCohortCommandHandlerTests
+    [Test]
+    public async Task ShouldCreateCohort()
     {
-        [Test]
-        public async Task ShouldCreateCohort()
-        {
-            const string expectedHash = "ABC123";
+        const string expectedHash = "ABC123";
 
-            const long providerId = 1;
-            const long accountId = 2;
-            const long accountLegalEntityId = 3;
-            long? transferSenderId = 4;
-            int? pledgeApplicationId = 5;
+        const long providerId = 1;
+        const long accountId = 2;
+        const long accountLegalEntityId = 3;
+        long? transferSenderId = 4;
+        int? pledgeApplicationId = 5;
 
-            using var fixtures = new AddCohortCommandHandlerTestFixture()
-                                .WithGeneratedHash(expectedHash);
+        using var fixtures = new AddCohortCommandHandlerTestFixture()
+            .WithGeneratedHash(expectedHash);
 
-            var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1");
+        var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1");
 
-            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId,
-                It.IsAny<DraftApprenticeshipDetails>(),
-                fixtures.UserInfo,
-                fixtures.RequestingParty,
-                It.IsAny<CancellationToken>()));
+        fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId,
+            It.IsAny<DraftApprenticeshipDetails>(),
+            fixtures.UserInfo,
+            AddCohortCommandHandlerTestFixture.RequestingParty,
+            It.IsAny<CancellationToken>()));
 
-            Assert.That(response.Reference, Is.EqualTo(expectedHash));
-        }
+        Assert.That(response.Reference, Is.EqualTo(expectedHash));
+    }
+}
+
+public class TestLogger : ILogger<AddCohortHandler>
+{
+    private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages = new List<(LogLevel logLevel, Exception exception, string message)>();
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+        _logMessages.Add((logLevel, exception, formatter(state, exception)));
     }
 
-    public class TestLogger : ILogger<AddCohortHandler>
+    public bool IsEnabled(LogLevel logLevel)
     {
-        private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages = new List<(LogLevel logLevel, Exception exception, string message)>();
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            _logMessages.Add((logLevel, exception, formatter(state, exception)));
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return true;
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
-        }
+        return true;
     }
 
-    public class AddCohortCommandHandlerTestFixture : IDisposable
+    public IDisposable BeginScope<TState>(TState state)
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        throw new NotImplementedException();
+    }
+}
 
-        public AddCohortCommandHandlerTestFixture()
-        {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                                                    .Options);
+public class AddCohortCommandHandlerTestFixture : IDisposable
+{
+    public ProviderCommitmentsDbContext Db { get; set; }
 
-            EncodingServiceMock = new Mock<IEncodingService>();
+    public AddCohortCommandHandlerTestFixture()
+    {
+        Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+            .Options);
 
-            DraftApprenticeshipDetailsMapperMock =
-                new Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
-            DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
-                .ReturnsAsync(() => new DraftApprenticeshipDetails());
+        EncodingServiceMock = new Mock<IEncodingService>();
 
-            var commitment = new Cohort();
-            commitment.Apprenticeships.Add(new DraftApprenticeship());
+        DraftApprenticeshipDetailsMapperMock =
+            new Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
+        DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
+            .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
-            CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(commitment);
+        var commitment = new Cohort();
+        commitment.Apprenticeships.Add(new DraftApprenticeship());
 
-            Logger = new TestLogger();
-            UserInfo = new UserInfo();
-        }
+        CohortDomainServiceMock = new Mock<ICohortDomainService>();
+        CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
+                It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(commitment);
 
-        public Mock<IEncodingService> EncodingServiceMock { get; }
-        public IEncodingService EncodingService => EncodingServiceMock.Object;
+        Logger = new TestLogger();
+        UserInfo = new UserInfo();
+    }
 
-        public Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+    public Mock<IEncodingService> EncodingServiceMock { get; }
+    public IEncodingService EncodingService => EncodingServiceMock.Object;
 
-        public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
+    public Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
-        public TestLogger Logger { get; }
-        public UserInfo UserInfo { get; }
-        public Party RequestingParty => Party.Provider;
+    public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
-        public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
-        {
-            EncodingServiceMock
-                .Setup(hs => hs.Encode(It.IsAny<long>(), It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
-                .Returns(hash);
+    public TestLogger Logger { get; }
+    public UserInfo UserInfo { get; }
+    public const Party RequestingParty = Party.Provider;
 
-            return this;
-        }
+    public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
+    {
+        EncodingServiceMock
+            .Setup(hs => hs.Encode(It.IsAny<long>(), It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
+            .Returns(hash);
 
-        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, int? pledgeApplicationId, string courseCode)
-        {
-            Db.SaveChanges();
+        return this;
+    }
+
+    public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, int? pledgeApplicationId, string courseCode)
+    {
+        await Db.SaveChangesAsync();
             
-            var command = new AddCohortCommand(
-                RequestingParty,
-                accountId,
-                accountLegalEntity,
-                providerId,
-                courseCode, 
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                transferSenderId,
-                pledgeApplicationId,
-                null,
-                null,
-                UserInfo,
-                false,
-                false,
-                null,
-                null);
+        var command = new AddCohortCommand(
+            RequestingParty,
+            accountId,
+            accountLegalEntity,
+            providerId,
+            courseCode, 
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            transferSenderId,
+            pledgeApplicationId,
+            null,
+            null,
+            UserInfo,
+            false,
+            false,
+            null,
+            null);
 
-            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                EncodingService,
-                Logger,
-                DraftApprenticeshipDetailsMapperMock.Object,
-                CohortDomainServiceMock.Object);
+        var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+            EncodingService,
+            Logger,
+            DraftApprenticeshipDetailsMapperMock.Object,
+            CohortDomainServiceMock.Object);
 
-            var response = await handler.Handle(command, CancellationToken.None);
-            await Db.SaveChangesAsync();
+        var response = await handler.Handle(command, CancellationToken.None);
+        await Db.SaveChangesAsync();
 
-            return response;
-        }
+        return response;
+    }
 
-        public void Dispose()
-        {
-            Db?.Dispose();
-        }
+    public void Dispose()
+    {
+        Db?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

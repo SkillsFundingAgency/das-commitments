@@ -1,14 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -219,22 +209,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var emittedEvent = (CohortDeletedEvent)UnitOfWorkContext.GetEvents().Single(x => x is CohortDeletedEvent);
 
-            Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
-            Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
-            Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
-            Assert.That(emittedEvent.ApprovedBy.HasFlag(party), Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
+                Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
+                Assert.That(emittedEvent.ApprovedBy.HasFlag(party), Is.True);
+            });
         }
 
         public void VerifProviderRejectedChangeOfPartyRequestEvent()
         {
             var emittedEvent = (ProviderRejectedChangeOfPartyRequestEvent)UnitOfWorkContext.GetEvents().Single(x => x is ProviderRejectedChangeOfPartyRequestEvent);
 
-            Assert.That(emittedEvent.EmployerAccountId, Is.EqualTo(Cohort.EmployerAccountId));
-            Assert.That(emittedEvent.TrainingProviderName, Is.EqualTo(Cohort.Provider.Name));
-            Assert.That(emittedEvent.ChangeOfPartyRequestId, Is.EqualTo(Cohort.ChangeOfPartyRequestId));
-            Assert.That(emittedEvent.RecipientEmailAddress, Is.EqualTo(Cohort.LastUpdatedByEmployerEmail));
-            Assert.That(emittedEvent.EmployerName, Is.EqualTo(Cohort.AccountLegalEntity.Name));
-            Assert.That(emittedEvent.ApprenticeName, Is.EqualTo($"Test Test"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(emittedEvent.EmployerAccountId, Is.EqualTo(Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.TrainingProviderName, Is.EqualTo(Cohort.Provider.Name));
+                Assert.That(emittedEvent.ChangeOfPartyRequestId, Is.EqualTo(Cohort.ChangeOfPartyRequestId));
+                Assert.That(emittedEvent.RecipientEmailAddress, Is.EqualTo(Cohort.LastUpdatedByEmployerEmail));
+                Assert.That(emittedEvent.EmployerName, Is.EqualTo(Cohort.AccountLegalEntity.Name));
+                Assert.That(emittedEvent.ApprenticeName, Is.EqualTo($"Test Test"));
+            });
         }
 
         public void VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished()
@@ -251,6 +247,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

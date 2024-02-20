@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using MoreLinq;
-using NUnit.Framework;
+﻿using MoreLinq;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -854,14 +850,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyTrainingPriceAndEPAPriceAreNull()
             {
-                Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Null);
-                Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Null);
+                    Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Null);
+                });
             }
 
             public void VerifyTrainingPriceAndEPAPriceAreNotNull()
             {
-                Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Not.Null);
-                Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Not.Null);
+                    Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Not.Null);
+                });
             }
 
             private static DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship)

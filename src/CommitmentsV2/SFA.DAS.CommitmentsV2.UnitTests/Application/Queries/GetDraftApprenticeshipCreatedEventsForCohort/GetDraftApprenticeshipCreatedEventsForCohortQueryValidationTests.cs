@@ -1,6 +1,4 @@
-﻿using System;
-using FluentValidation.Results;
-using NUnit.Framework;
+﻿using FluentValidation.Results;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort

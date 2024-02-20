@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -138,14 +133,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         }
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
-            Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+                Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            });
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
-            Assert.That(Cohort.TransferSenderId, Is.Null);
-            Assert.That(Cohort.TransferSender, Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.Null);
+                Assert.That(Cohort.TransferSender, Is.Null);
+            });
         }
 
         public void VerifyCohortTracking()

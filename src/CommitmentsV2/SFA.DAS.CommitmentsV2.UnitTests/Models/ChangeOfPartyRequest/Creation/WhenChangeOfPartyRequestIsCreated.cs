@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -52,13 +48,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             if (originatingParty == Party.Provider)
             {
-                Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(_fixture.NewPartyId));
-                Assert.That(_fixture.Result.ProviderId, Is.EqualTo(null));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(_fixture.NewPartyId));
+                    Assert.That(_fixture.Result.ProviderId, Is.EqualTo(null));
+                });
             }
             else
             {
-                Assert.That(_fixture.Result.ProviderId, Is.EqualTo(_fixture.NewPartyId));
-                Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(null));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_fixture.Result.ProviderId, Is.EqualTo(_fixture.NewPartyId));
+                    Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(null));
+                });
             }
         }
 

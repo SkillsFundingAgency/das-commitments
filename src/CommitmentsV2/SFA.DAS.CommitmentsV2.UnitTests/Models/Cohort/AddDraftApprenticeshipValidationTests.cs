@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services.Shared;
@@ -469,11 +464,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
         }
 
-        DateTime? TryParseNullableDateTime(string date)
+        private static DateTime? TryParseNullableDateTime(string date)
         {
             return DateTime.TryParse(date, out var parsed)
                 ? parsed
-                : (DateTime?)null;
+                : null;
         }
     }
 
@@ -533,8 +528,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
             catch (DomainException ex)
             {
-                Assert.That(expected, Is.False);
-                Assert.That(ex.DomainErrors.Select(x => x.PropertyName).ToList(), Does.Contain(propertyName));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(expected, Is.False);
+                    Assert.That(ex.DomainErrors.Select(x => x.PropertyName).ToList(), Does.Contain(propertyName));
+                });
             }
         }
 

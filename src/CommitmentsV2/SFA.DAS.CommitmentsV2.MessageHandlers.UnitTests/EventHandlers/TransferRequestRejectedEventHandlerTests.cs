@@ -1,12 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
+﻿using System.Linq;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -98,7 +90,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 .AddTransferRequest(autoApprove);
             
             Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
-
             Assert.That(fixture.Logger.HasErrors, Is.True);
         }
     }
@@ -200,12 +191,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var list = UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Where(x => x.StateChangeType == UserAction.RejectTransferRequest).ToList();
 
-            Assert.That(list.Count, Is.EqualTo(1));
-
-            Assert.That(list[0].StateChangeType, Is.EqualTo(UserAction.RejectTransferRequest));
-            Assert.That(list[0].EntityId, Is.EqualTo(Cohort.Id));
-            Assert.That(list[0].UpdatingUserName, Is.EqualTo(TransferRequestRejectedEvent.UserInfo.UserDisplayName));
-            Assert.That(list[0].UpdatingParty, Is.EqualTo(Party.TransferSender));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list, Has.Count.EqualTo(1));
+                Assert.That(list[0].StateChangeType, Is.EqualTo(UserAction.RejectTransferRequest));
+                Assert.That(list[0].EntityId, Is.EqualTo(Cohort.Id));
+                Assert.That(list[0].UpdatingUserName, Is.EqualTo(TransferRequestRejectedEvent.UserInfo.UserDisplayName));
+                Assert.That(list[0].UpdatingParty, Is.EqualTo(Party.TransferSender));
+            });
         }
 
         public void VerifyMessageNotRelayed()
@@ -216,6 +209,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

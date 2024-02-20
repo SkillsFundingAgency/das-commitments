@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipsWithEpaOrgId;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateCacheOfAssessmentOrganisations;
@@ -7,8 +6,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetLastSubmissionEventId;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {

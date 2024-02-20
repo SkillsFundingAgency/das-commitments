@@ -1,11 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -184,21 +177,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             public void VerifyResultMapping()
             {
-                Assert.That(_result.Apprenticeships.First().ApprenticeshipId, Is.EqualTo(_apprenticeship.Id));
-                Assert.That(_result.Apprenticeships.First().Uln, Is.EqualTo(_apprenticeship.Uln));
-                Assert.That(_result.Apprenticeships.First().TrainingCode, Is.EqualTo(_apprenticeship.CourseCode));
-                Assert.That(_result.Apprenticeships.First().StandardUId, Is.EqualTo(_apprenticeship.StandardUId));
-                Assert.That(_result.Apprenticeships.First().StartDate, Is.EqualTo(_apprenticeship.StartDate));
-                Assert.That(_result.Apprenticeships.First().EndDate, Is.EqualTo(_apprenticeship.EndDate));
-                Assert.That(_result.Apprenticeships.First().StopDate, Is.EqualTo(_apprenticeship.StopDate));
-                Assert.That(_result.Apprenticeships.First().PaymentStatus, Is.EqualTo(_apprenticeship.PaymentStatus));
-                Assert.That(_result.Apprenticeships.First().EmployerName, Is.EqualTo(_apprenticeship.Cohort.AccountLegalEntity.Name));
-                Assert.That(_result.Apprenticeships.First().Ukprn, Is.EqualTo(_apprenticeship.Cohort.ProviderId));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_result.Apprenticeships.First().ApprenticeshipId, Is.EqualTo(_apprenticeship.Id));
+                    Assert.That(_result.Apprenticeships.First().Uln, Is.EqualTo(_apprenticeship.Uln));
+                    Assert.That(_result.Apprenticeships.First().TrainingCode, Is.EqualTo(_apprenticeship.CourseCode));
+                    Assert.That(_result.Apprenticeships.First().StandardUId, Is.EqualTo(_apprenticeship.StandardUId));
+                    Assert.That(_result.Apprenticeships.First().StartDate, Is.EqualTo(_apprenticeship.StartDate));
+                    Assert.That(_result.Apprenticeships.First().EndDate, Is.EqualTo(_apprenticeship.EndDate));
+                    Assert.That(_result.Apprenticeships.First().StopDate, Is.EqualTo(_apprenticeship.StopDate));
+                    Assert.That(_result.Apprenticeships.First().PaymentStatus, Is.EqualTo(_apprenticeship.PaymentStatus));
+                    Assert.That(_result.Apprenticeships.First().EmployerName, Is.EqualTo(_apprenticeship.Cohort.AccountLegalEntity.Name));
+                    Assert.That(_result.Apprenticeships.First().Ukprn, Is.EqualTo(_apprenticeship.Cohort.ProviderId));
+                });
             }
 
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

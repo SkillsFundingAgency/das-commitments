@@ -1,15 +1,11 @@
 ﻿using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using NServiceBus;
 using SFA.DAS.NServiceBus.Hosting;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
@@ -19,24 +15,24 @@ using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
-
 [ExcludeFromCodeCoverage]
 public static class NServiceBusServiceRegistrations
 {
+    private const string EndPointName = "SFA.DAS.CommitmentsV2.API";
+    
     public static void StartNServiceBus(this UpdateableServiceProvider services, bool isDevOrLocal)
     {
-        var endPointName = "SFA.DAS.CommitmentsV2.API";
         var commitmentsConfiguration = services.GetService<CommitmentsV2Configuration>();
 
         var databaseConnectionString = commitmentsConfiguration.DatabaseConnectionString;
 
         if (string.IsNullOrEmpty(databaseConnectionString))
         {
-            throw new Exception("DatabaseConnectionString");
+            throw new NullConnectionStringException("The DatabaseConnectionString provided is null or empty.");
         }
 
-        var endpointConfiguration = new EndpointConfiguration(endPointName)
-            .UseErrorQueue($"{endPointName}-errors")
+        var endpointConfiguration = new EndpointConfiguration(EndPointName)
+            .UseErrorQueue($"{EndPointName}-errors")
             .UseInstallers()
             .UseMessageConventions()
             .UseServicesBuilder(services)
@@ -59,3 +55,4 @@ public static class NServiceBusServiceRegistrations
             .AddHostedService<NServiceBusHostedService>();
     }
 }
+

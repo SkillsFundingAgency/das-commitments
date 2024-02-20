@@ -1,12 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
@@ -115,6 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

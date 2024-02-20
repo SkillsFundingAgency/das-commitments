@@ -1,17 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using AutoFixture;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
@@ -177,10 +168,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var emittedEvent = (CohortDeletedEvent)UnitOfWorkContext.GetEvents().Single(x => x is CohortDeletedEvent);
 
-            Assert.That(Cohort.IsDeleted, Is.True, "Cohort is not marked as deleted");
-            Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
-            Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
-            Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.IsDeleted, Is.True, "Cohort is not marked as deleted");
+                Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
+                Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
+            });
         }
 
         public void VerifyDraftApprenticeshipDeletedAndEventEmitted()
@@ -202,6 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

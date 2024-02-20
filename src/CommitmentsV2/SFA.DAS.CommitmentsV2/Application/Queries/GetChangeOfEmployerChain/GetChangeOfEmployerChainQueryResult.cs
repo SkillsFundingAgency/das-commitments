@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
 {
     public class GetChangeOfEmployerChainQueryResult
     {

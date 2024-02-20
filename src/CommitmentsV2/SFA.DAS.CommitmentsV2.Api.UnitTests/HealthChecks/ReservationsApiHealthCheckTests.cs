@@ -1,9 +1,4 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.Reservations.Api.Types;
 
@@ -34,8 +29,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         {
             var healthCheckResult = await _fixture.SetPingFailure().CheckHealthAsync();
 
-            Assert.That(healthCheckResult.Status, Is.EqualTo(HealthStatus.Degraded));
-            Assert.That(healthCheckResult.Description, Is.EqualTo(_fixture.Exception.Message));
+            Assert.Multiple(() =>
+            {
+                Assert.That(healthCheckResult.Status, Is.EqualTo(HealthStatus.Degraded));
+                Assert.That(healthCheckResult.Description, Is.EqualTo(_fixture.Exception.Message));
+            });
         }
 
         private class ReservationsApiHealthCheckTestsFixture

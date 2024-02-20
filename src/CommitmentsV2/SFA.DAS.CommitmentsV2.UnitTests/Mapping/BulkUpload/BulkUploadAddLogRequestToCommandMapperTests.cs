@@ -1,10 +1,7 @@
-using AutoFixture;
 using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog;
 using SFA.DAS.CommitmentsV2.Mapping.BulkUpload;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
 {

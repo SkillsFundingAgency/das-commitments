@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Authentication;
+﻿using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -249,8 +240,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyResult()
         {
-            Assert.That(Exception, Is.Null);
-            Assert.That(Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Exception, Is.Null);
+                Assert.That(Result, Is.Not.Null);
+            });
             Assert.That(Result, Is.EqualTo(ApprenticeshipChangeOfPartyRequestResult));
         }
 
@@ -267,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyNotException<T>()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
     }
 }

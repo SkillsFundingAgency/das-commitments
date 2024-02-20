@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using System.Reflection;
 using AutoFixture.Kernel;
 using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;

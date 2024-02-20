@@ -1,9 +1,3 @@
-using System;
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using MoreLinq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -109,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .WithApproval(modifyingParty.GetOtherParty())
                 .AddDraftApprenticeship();
 
-            Assert.That(_fixture.Cohort.Approvals == Party.None, Is.True);
+            Assert.That(_fixture.Cohort.Approvals, Is.EqualTo(Party.None));
         }
 
         [TestCase(Party.Employer)]

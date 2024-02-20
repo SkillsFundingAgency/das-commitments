@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipStatusSummary
 {   

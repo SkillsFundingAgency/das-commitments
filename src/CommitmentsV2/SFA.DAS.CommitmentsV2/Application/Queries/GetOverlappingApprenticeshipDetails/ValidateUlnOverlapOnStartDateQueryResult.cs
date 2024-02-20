@@ -1,6 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
 {
     public class ValidateUlnOverlapOnStartDateQueryResult
     {

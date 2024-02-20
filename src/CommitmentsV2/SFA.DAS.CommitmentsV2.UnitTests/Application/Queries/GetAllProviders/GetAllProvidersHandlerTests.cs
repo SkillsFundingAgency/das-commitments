@@ -1,14 +1,6 @@
-﻿using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
 {
@@ -35,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
 
             var result = await _fixture.Handle();
 
-            Assert.That(result.Providers.Count, Is.EqualTo(3));
+            Assert.That(result.Providers, Has.Count.EqualTo(3));
         }
     }
 
@@ -81,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
         public void Dispose()
         {
             _dbContext?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

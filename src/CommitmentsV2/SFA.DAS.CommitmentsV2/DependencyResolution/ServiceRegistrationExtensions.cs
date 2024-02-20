@@ -15,7 +15,6 @@ using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Mapping;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
@@ -29,9 +28,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client;
-using System;
 using SFA.DAS.CommitmentsV2.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -58,7 +55,7 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddReservationsApiClient(this IServiceCollection services)
     {
         services.AddTransient<IReservationsApiClientFactory, ReservationsApiClientFactory>();
-        services.AddSingleton(s=> (s.GetRequiredService<IReservationsApiClientFactory>()).CreateClient());
+        services.AddSingleton(s=> s.GetRequiredService<IReservationsApiClientFactory>().CreateClient());
 
         return services;
     }
@@ -154,10 +151,10 @@ public static class ServiceRegistrationExtensions
     private static IServiceCollection AddMappers(this IServiceCollection services)
     {
         var mappingAssembly = typeof(ReservationValidationRequestToValidationReservationMessageMapper).Assembly;
-
+        
         var mappingTypes = mappingAssembly
             .GetTypes()
-            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapper<,>)));
+            .Where(type => type.GetInterfaces().ToList().Exists(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapper<,>)));
 
         foreach (var mapperType in mappingTypes)
         {

@@ -1,6 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Common.Domain.Types;
-using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary
 {

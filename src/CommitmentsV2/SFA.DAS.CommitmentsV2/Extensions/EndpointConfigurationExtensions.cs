@@ -1,5 +1,4 @@
 ﻿using NServiceBus;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;

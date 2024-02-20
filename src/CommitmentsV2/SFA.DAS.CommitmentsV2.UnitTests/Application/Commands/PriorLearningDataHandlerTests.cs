@@ -1,11 +1,5 @@
-using AutoFixture;
 using AutoFixture.Kernel;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -14,11 +8,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -34,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture = new PriorLearningDataHandlerTestsFixture();
             await fixture.Handle();
 
-            fixture.Exception.ShouldNotBeNull();
+            fixture.Exception.Should().NotBeNull();
         }
 
         [TestCase(277, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
@@ -50,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "trainingTotalHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -68,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "DurationReducedByHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -86,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "DurationReducedByHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -105,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e => 
             e.PropertyName == "durationReducedBy" && 
             e.ErrorMessage == error).Should().Be(true);
@@ -122,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "isDurationReducedByRpl" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -140,7 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e => 
             e.PropertyName == "priceReduced" && 
             e.ErrorMessage == error).Should().Be(true);
@@ -287,7 +276,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyRplDataMatchesCommand()
         {
             var first = Db.DraftApprenticeships.First();
-            first.PriorLearning.ShouldNotBeNull();
+            first.PriorLearning.Should().NotBeNull();
 
             first.TrainingTotalHours.Should().Be(Command.TrainingTotalHours);
 

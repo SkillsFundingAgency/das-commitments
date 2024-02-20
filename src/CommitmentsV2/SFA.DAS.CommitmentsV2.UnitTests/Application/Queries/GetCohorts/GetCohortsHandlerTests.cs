@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -27,11 +19,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(fixtures.SeedCohorts.Count));
-            Assert.That(response.Cohorts[0].AccountId, Is.EqualTo(fixtures.AccountId));
-            Assert.That(response.Cohorts[0].ProviderId, Is.EqualTo(fixtures.SeedCohorts[0].ProviderId));
-            Assert.That(response.Cohorts[0].CohortId, Is.EqualTo(fixtures.SeedCohorts[0].Id));
-            Assert.That(response.Cohorts[0].CreatedOn, Is.EqualTo(fixtures.SeedCohorts[0].CreatedOn));
+            Assert.That(response.Cohorts, Has.Length.EqualTo(fixtures.SeedCohorts.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].AccountId, Is.EqualTo(fixtures.AccountId));
+                Assert.That(response.Cohorts[0].ProviderId, Is.EqualTo(fixtures.SeedCohorts[0].ProviderId));
+                Assert.That(response.Cohorts[0].CohortId, Is.EqualTo(fixtures.SeedCohorts[0].Id));
+                Assert.That(response.Cohorts[0].CreatedOn, Is.EqualTo(fixtures.SeedCohorts[0].CreatedOn));
+            });
         }
 
         [Test]
@@ -42,8 +37,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
 
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
-            Assert.That(response.Cohorts[0].LatestMessageFromEmployer, Is.Null);
-            Assert.That(response.Cohorts[0].LatestMessageFromProvider, Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].LatestMessageFromEmployer, Is.Null);
+                Assert.That(response.Cohorts[0].LatestMessageFromProvider, Is.Null);
+            });
         }
 
         [Test]
@@ -55,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.NonMatchingId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -67,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -79,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -91,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -103,9 +101,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(1));
-            Assert.That(response.Cohorts[0].TransferSenderId, Is.EqualTo(fixtures.TransferSenderId));
-            Assert.That(response.Cohorts[0].TransferSenderName, Is.EqualTo("TransferSender"));
+            Assert.That(response.Cohorts, Has.Length.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].TransferSenderId, Is.EqualTo(fixtures.TransferSenderId));
+                Assert.That(response.Cohorts[0].TransferSenderName, Is.EqualTo("TransferSender"));
+            });
         }
 
         [Test]
@@ -120,13 +121,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(2));
-            Assert.That(response.Cohorts[0].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
-            Assert.That(response.Cohorts[0].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
-            Assert.That(response.Cohorts[0].NumberOfDraftApprentices, Is.EqualTo(2));
-            Assert.That(response.Cohorts[1].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
-            Assert.That(response.Cohorts[1].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
-            Assert.That(response.Cohorts[1].NumberOfDraftApprentices, Is.EqualTo(2));
+            Assert.That(response.Cohorts, Has.Length.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
+                Assert.That(response.Cohorts[0].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
+                Assert.That(response.Cohorts[0].NumberOfDraftApprentices, Is.EqualTo(2));
+                Assert.That(response.Cohorts[1].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
+                Assert.That(response.Cohorts[1].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
+                Assert.That(response.Cohorts[1].NumberOfDraftApprentices, Is.EqualTo(2));
+            });
         }
 
         [Test]
@@ -138,11 +142,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.ProviderId));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(fixtures.SeedCohorts.Count));
-            Assert.That(response.Cohorts[0].AccountId, Is.EqualTo(fixtures.AccountId));
-            Assert.That(response.Cohorts[0].ProviderId, Is.EqualTo(fixtures.SeedCohorts[0].ProviderId));
-            Assert.That(response.Cohorts[0].CohortId, Is.EqualTo(fixtures.SeedCohorts[0].Id));
-            Assert.That(response.Cohorts[0].CreatedOn, Is.EqualTo(fixtures.SeedCohorts[0].CreatedOn));
+            Assert.That(response.Cohorts, Has.Length.EqualTo(fixtures.SeedCohorts.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].AccountId, Is.EqualTo(fixtures.AccountId));
+                Assert.That(response.Cohorts[0].ProviderId, Is.EqualTo(fixtures.SeedCohorts[0].ProviderId));
+                Assert.That(response.Cohorts[0].CohortId, Is.EqualTo(fixtures.SeedCohorts[0].Id));
+                Assert.That(response.Cohorts[0].CreatedOn, Is.EqualTo(fixtures.SeedCohorts[0].CreatedOn));
+            });
         }
 
         [Test]
@@ -154,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.NonMatchingId));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -166,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.ProviderId));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(0));
+            Assert.That(response.Cohorts, Is.Empty);
         }
 
         [Test]
@@ -181,13 +188,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Cohorts.Length, Is.EqualTo(2));
-            Assert.That(response.Cohorts[0].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
-            Assert.That(response.Cohorts[0].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
-            Assert.That(response.Cohorts[0].NumberOfDraftApprentices, Is.EqualTo(2));
-            Assert.That(response.Cohorts[1].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
-            Assert.That(response.Cohorts[1].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
-            Assert.That(response.Cohorts[1].NumberOfDraftApprentices, Is.EqualTo(2));
+            Assert.That(response.Cohorts, Has.Length.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Cohorts[0].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
+                Assert.That(response.Cohorts[0].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
+                Assert.That(response.Cohorts[0].NumberOfDraftApprentices, Is.EqualTo(2));
+                Assert.That(response.Cohorts[1].LatestMessageFromEmployer.Text, Is.EqualTo("EmployerLast"));
+                Assert.That(response.Cohorts[1].LatestMessageFromProvider.Text, Is.EqualTo("ProviderLast"));
+                Assert.That(response.Cohorts[1].NumberOfDraftApprentices, Is.EqualTo(2));
+            });
         }
     }
 

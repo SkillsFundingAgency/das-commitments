@@ -10,13 +10,11 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderRelationships.Api.Client.Http;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
 public static class ServiceRegistrationExtensions
 {
-
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
         services.AddTransient<IAcademicYearDateProvider, AcademicYearDateProvider>();
@@ -37,7 +35,7 @@ public static class ServiceRegistrationExtensions
         return services;
     }
 
-    public static IServiceCollection AddEncodingServices(this IServiceCollection services)
+    private static IServiceCollection AddEncodingServices(this IServiceCollection services)
     {
         services.AddSingleton<IEncodingService, EncodingService>();
 
@@ -46,10 +44,9 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddEmployerAccountServices(this IServiceCollection services, IConfiguration config)
     {
-        // TODO Not sure why the sub is a singleton and the real client is transient, but it was like that in StructureMap
         if (config["UseStubAccountApiClient"] != null && config["UseStubAccountApiClient"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
         {
-            services.AddSingleton<IAccountApiClient, StubAccountApiClient>();
+            services.AddTransient<IAccountApiClient, StubAccountApiClient>();
         }
         else
         {

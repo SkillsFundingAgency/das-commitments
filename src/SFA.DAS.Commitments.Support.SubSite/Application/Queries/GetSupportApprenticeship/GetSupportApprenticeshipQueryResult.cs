@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship
 {
