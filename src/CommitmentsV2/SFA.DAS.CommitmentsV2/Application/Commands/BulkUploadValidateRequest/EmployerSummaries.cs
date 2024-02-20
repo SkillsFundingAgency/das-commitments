@@ -15,7 +15,7 @@ public partial class BulkUploadValidateCommandHandler
         }
     }
 
-    private class EmployerSummary
+    private sealed class EmployerSummary
     {
         public EmployerSummary(string agreementId, long? legalEntityId, bool? isLevy, string name, bool? isSigned, string accountLegalEntityId)
         {

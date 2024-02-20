@@ -2,35 +2,34 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
+namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
+
+public class PriorLearningDetailsHandler : IRequestHandler<PriorLearningDetailsCommand>
 {
-    public class PriorLearningDetailsHandler : IRequestHandler<PriorLearningDetailsCommand>
+    private readonly ILogger<PriorLearningDetailsHandler> _logger;
+    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+
+    public PriorLearningDetailsHandler(
+        Lazy<ProviderCommitmentsDbContext> dbContext,
+        ILogger<PriorLearningDetailsHandler> logger)
     {
-        private readonly ILogger<PriorLearningDetailsHandler> _logger;
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        _dbContext = dbContext;
+        _logger = logger;
+    }
 
-        public PriorLearningDetailsHandler(
-            Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<PriorLearningDetailsHandler> logger)
+    public async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
+    {
+        var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
+
+        if (command.Rpl2Mode)
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            apprenticeship.SetPriorLearningDetailsExtended(command.DurationReducedByHours, command.PriceReducedBy);
+        }
+        else
+        {
+            apprenticeship.SetPriorLearningDetails(command.DurationReducedBy, command.PriceReducedBy);
         }
 
-        public async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
-        {
-            var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
-
-            if (command.Rpl2Mode)
-            {
-                apprenticeship.SetPriorLearningDetailsExtended(command.DurationReducedByHours, command.PriceReducedBy);
-            }
-            else
-            {
-                apprenticeship.SetPriorLearningDetails(command.DurationReducedBy, command.PriceReducedBy);
-            }
-
-            _logger.LogInformation($"Set PriorLearning details set for draft Apprenticeship:{command.ApprenticeshipId}, Rpl Extended Mode: {command.Rpl2Mode}");
-        }
+        _logger.LogInformation("Set PriorLearning details set for draft Apprenticeship:{ApprenticeshipId}, Rpl Extended Mode: {Rpl2Mode}", command.ApprenticeshipId, command.Rpl2Mode);
     }
 }

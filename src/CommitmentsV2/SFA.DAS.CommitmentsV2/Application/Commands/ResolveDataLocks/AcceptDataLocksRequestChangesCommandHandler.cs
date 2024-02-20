@@ -44,7 +44,9 @@ public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<Accep
         }
 
         if (!dataLocksToBeAccepted.Any())
+        {
             return;
+        }
 
         var dataLockPasses = apprenticeship.DataLockStatus.Where(x => x.Status == Status.Pass || x.PreviousResolvedPriceDataLocks());
 
@@ -78,7 +80,7 @@ public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<Accep
 
     private void ReplacePriceHistory(Apprenticeship apprenticeship, List<PriceHistory> updatedPriceHistory, UserInfo userInfo, List<PriceHistory> currentPriceHistory)
     {
-        // price history entries are only identified for a given apprenticeship by thier from date and to date; 
+        // price history entries are only identified for a given apprenticeship by their from date and to date; 
         // therefore it would be difficult to replace only the ones that have changed when there can be duplicate
         // entries with the same from date and to date
         foreach (var item in apprenticeship.PriceHistory)

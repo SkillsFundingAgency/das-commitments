@@ -40,7 +40,7 @@ public class TriageDataLocksCommandHandler : IRequestHandler<TriageDataLocksComm
             dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockStatusExtensions.IsPriceOnly).ToList();
         }
 
-        if (dataLocksToBeUpdated.Any(m => m.TriageStatus == request.TriageStatus))
+        if (dataLocksToBeUpdated.Exists(m => m.TriageStatus == request.TriageStatus))
         {                
             throw new InvalidOperationException($"Trying to update data lock for apprenticeship: {request.ApprenticeshipId} with the same TriageStatus ({request.TriageStatus}) ");
         }

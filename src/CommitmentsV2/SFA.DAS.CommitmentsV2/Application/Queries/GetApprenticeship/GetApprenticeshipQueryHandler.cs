@@ -61,8 +61,8 @@ public class GetApprenticeshipQueryHandler: IRequestHandler<GetApprenticeshipQue
                         OriginalStartDate = apprenticeship.OriginalStartDate,
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
                         MadeRedundant = apprenticeship.MadeRedundant,
-                        EmailAddressConfirmedByApprentice = (apprenticeship.EmailAddressConfirmed == true),
-                        EmailShouldBePresent = (apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null),
+                        EmailAddressConfirmedByApprentice = apprenticeship.EmailAddressConfirmed == true,
+                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null,
                         ConfirmationStatus = Models.Apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,

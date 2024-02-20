@@ -15,7 +15,9 @@ public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandl
     {
         if (request?.ResolutionType == null)
         {
-            throw new NullReferenceException(nameof(ResolveOverlappingTrainingDateRequestCommand.ResolutionType));
+#pragma warning disable CA2208
+            throw new ArgumentNullException(nameof(ResolveOverlappingTrainingDateRequestCommand.ResolutionType));
+#pragma warning restore CA2208
         }
 
         await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, request.ResolutionType.Value);
