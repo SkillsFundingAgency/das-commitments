@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
             var options = new CookieOptions
             {
+                Secure = true,
                 IsEssential = true,
                 HttpOnly = true,
                 Expires = DateTimeOffset.Now.AddDays(expiryDays)
