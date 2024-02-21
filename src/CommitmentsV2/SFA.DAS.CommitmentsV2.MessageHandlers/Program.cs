@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers;
 
-public class Program
+public static class Program
 {
     public static async Task Main(string[] args)
     {

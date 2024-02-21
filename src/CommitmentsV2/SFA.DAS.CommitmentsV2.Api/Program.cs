@@ -6,7 +6,7 @@ using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 
 namespace SFA.DAS.CommitmentsV2.Api;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {

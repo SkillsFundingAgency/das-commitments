@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers
 {
-    public class Program
+    public static class Program
     {
         public static async Task Main(string[] args)
         {
