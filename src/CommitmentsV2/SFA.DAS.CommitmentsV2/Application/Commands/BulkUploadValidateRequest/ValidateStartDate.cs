@@ -17,7 +17,7 @@ public partial class BulkUploadValidateCommandHandler
             return domainErrors;
         }
 
-        if (!Regex.IsMatch(csvRecord.StartDateAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
+        if (!Regex.IsMatch(csvRecord.StartDateAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
         {
             domainErrors.Add(new Error("StartDate", "Enter the <b>start date</b> using the format yyyy-mm-dd, for example 2017-09-01"));
             return domainErrors;

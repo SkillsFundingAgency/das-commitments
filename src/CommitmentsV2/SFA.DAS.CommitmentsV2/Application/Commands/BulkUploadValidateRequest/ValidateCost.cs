@@ -25,7 +25,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             domainErrors.Add(new Error("TotalPrice", "The <b>total cost</b> must be £100,000 or less"));
         }
-        else if (!Regex.IsMatch(csvRecord.CostAsString, "^([1-9]{1}([0-9]{1,2})?)+(,[0-9]{3})*$|^[1-9]{1}[0-9]*$"))
+        else if (!Regex.IsMatch(csvRecord.CostAsString, "^([1-9]{1}([0-9]{1,2})?)+(,[0-9]{3})*$|^[1-9]{1}[0-9]*$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
         {
             domainErrors.Add(new Error("TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only"));
         }

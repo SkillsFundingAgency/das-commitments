@@ -25,7 +25,7 @@ public partial class BulkUploadValidateCommandHandler
             {
                 domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
             }
-            else if (!Regex.IsMatch(csvRecord.Uln, "^[1-9]{1}[0-9]{9}$"))
+            else if (!Regex.IsMatch(csvRecord.Uln, "^[1-9]{1}[0-9]{9}$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
             {
                 domainErrors.Add(new Error("Uln", $"Enter a 10-digit <b>unique learner number</b>"));
             }

@@ -13,7 +13,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             domainErrors.Add(new Error("EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02"));
         }
-        else if (!Regex.IsMatch(csvRecord.EndDateAsString, "^\\d\\d\\d\\d-\\d\\d$"))
+        else if (!Regex.IsMatch(csvRecord.EndDateAsString, "^\\d\\d\\d\\d-\\d\\d$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
         {
             domainErrors.Add(new Error("EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02"));
         }

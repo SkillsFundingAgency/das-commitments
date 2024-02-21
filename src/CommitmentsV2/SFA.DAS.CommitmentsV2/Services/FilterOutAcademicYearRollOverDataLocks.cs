@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public sealed class FilterOutAcademicYearRollOverDataLocks : IFilterOutAcademicYearRollOverDataLocks
 {
-    private static readonly Regex AugustPricePeriodFormat = new(@"08\/\d{4}$");
+    private static readonly Regex AugustPricePeriodFormat = new(@"08\/\d{4}$", RegexOptions.None, new TimeSpan(0, 0, 0, 1));
     private readonly Lazy<ProviderCommitmentsDbContext> _db;
     private readonly ILogger<FilterOutAcademicYearRollOverDataLocks> _logger;
 

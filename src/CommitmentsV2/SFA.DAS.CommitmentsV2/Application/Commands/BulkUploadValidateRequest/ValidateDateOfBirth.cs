@@ -14,7 +14,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
         }
-        else if (!Regex.IsMatch(csvRecord.DateOfBirthAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
+        else if (!Regex.IsMatch(csvRecord.DateOfBirthAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
         {
             domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
 
