@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void EnsureAccountLegalEntityHasBeenAdded(AccountLegalEntity accountLegalEntity)
         {
-            if (_accountLegalEntities.All(ale => ale.Id != accountLegalEntity.Id))
+            if (_accountLegalEntities.TrueForAll(ale => ale.Id != accountLegalEntity.Id))
             {
                 throw new InvalidOperationException("Requires account legal entity has been added");
             }
@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void EnsureAccountLegalEntityHasNotAlreadyBeenAdded(long accountLegalEntityId)
         {
-            if (_accountLegalEntities.Any(ale => ale.Id == accountLegalEntityId))
+            if (_accountLegalEntities.Exists(ale => ale.Id == accountLegalEntityId))
             {
                 throw new InvalidOperationException("Requires account legal entity has not already been added");
             }

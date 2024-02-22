@@ -177,7 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
+            Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
 
             TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.StartDate.Value))
                 .ReturnsAsync(TrainingProgrammeStandard);

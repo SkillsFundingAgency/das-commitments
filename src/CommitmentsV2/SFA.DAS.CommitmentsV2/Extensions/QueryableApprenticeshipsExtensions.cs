@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 {
                     var found = new List<long>();
 
-                    if (!filters.SearchTerm.Contains(" "))
+                    if (!filters.SearchTerm.Contains(' '))
                     {
                         found.AddRange(apprenticeships.Where(app =>
                                 app.FirstName.StartsWith(filters.SearchTerm))

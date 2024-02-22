@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 HashedReceivingEmployerAccountId = _encodingService.Encode(source.ReceivingEmployerAccountId, EncodingType.AccountId),
                 HashedSendingEmployerAccountId = _encodingService.Encode(source.SendingEmployerAccountId, EncodingType.AccountId),
                 HashedTransferRequestId = _encodingService.Encode(source.TransferRequestId, EncodingType.AccountId),
-                Status = (TransferApprovalStatus)source.Status,
+                Status = source.Status,
                 TransferCost = source.TransferCost,
                 TransferType = source.TransferType
             };

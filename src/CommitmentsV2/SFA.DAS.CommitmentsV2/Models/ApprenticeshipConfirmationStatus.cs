@@ -8,6 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
+        public ApprenticeshipConfirmationStatus(long apprenticeshipId, DateTime commitmentsApprovedOn, DateTime? confirmationOverdueOn, DateTime? apprenticeshipConfirmedOn)
+        {
+            ApprenticeshipId = apprenticeshipId;
+            CommitmentsApprovedOn = commitmentsApprovedOn;
+            ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
+            ConfirmationOverdueOn = confirmationOverdueOn;
+        }
+
         public ApprenticeshipConfirmationStatus Copy()
         {
             return new ApprenticeshipConfirmationStatus
@@ -16,14 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ApprenticeshipConfirmedOn = this.ApprenticeshipConfirmedOn,
                 ConfirmationOverdueOn = this.ConfirmationOverdueOn,
             };
-        }
-
-        public ApprenticeshipConfirmationStatus(long apprenticeshipId, DateTime commitmentsApprovedOn, DateTime? confirmationOverdueOn, DateTime? apprenticeshipConfirmedOn)
-        {
-            ApprenticeshipId = apprenticeshipId;
-            CommitmentsApprovedOn = commitmentsApprovedOn;
-            ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
-            ConfirmationOverdueOn = confirmationOverdueOn;
         }
 
         public long ApprenticeshipId { get; set; }

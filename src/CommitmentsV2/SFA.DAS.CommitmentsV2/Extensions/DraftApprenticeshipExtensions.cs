@@ -48,12 +48,9 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         private static IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.Email != null)
+            if (draftApprenticeshipDetails.Email != null && !draftApprenticeshipDetails.Email.IsAValidEmailAddress())
             {
-                if (!draftApprenticeshipDetails.Email.IsAValidEmailAddress())
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
-                }
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
             }
         }
 

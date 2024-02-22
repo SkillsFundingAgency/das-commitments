@@ -129,8 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard,
                 DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object,
-                TrainingProgrammeLookup.Object);
+            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
 
             int standardCodeOut;
             TrainingProgrammeLookup

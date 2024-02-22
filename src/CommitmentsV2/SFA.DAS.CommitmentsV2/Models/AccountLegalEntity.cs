@@ -80,16 +80,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo)
         {
             return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer,userInfo);
-       }
-
-        public virtual Cohort CreateCohortWithOtherParty(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId, string message, UserInfo userInfo)
-        {
-            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, Party.Employer, message, userInfo);
         }
 
         public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)
         {
             throw new NotImplementedException();
+        }
+
+        public virtual Cohort CreateCohortWithOtherParty(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId, string message, UserInfo userInfo)
+        {
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, Party.Employer, message, userInfo);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
 
         public async Task<PledgeApplication> GetPledgeApplication(int id)
         {
-            _logger.LogInformation($"Getting pledge application {id}");
+            _logger.LogInformation("Getting pledge application {id}", id);
 
             if (!_httpClient.BaseAddress.IsLoopback)
             {
