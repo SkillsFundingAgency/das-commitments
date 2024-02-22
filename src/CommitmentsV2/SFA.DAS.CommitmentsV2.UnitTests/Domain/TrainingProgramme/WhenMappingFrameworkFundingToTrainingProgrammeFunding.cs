@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.TrainingProgramme
         public void Then_The_Fields_Are_Mapped(FrameworkFundingPeriod source)
         {
             //Act
-            var actual =  new TrainingProgrammeFundingPeriod().Map(source);
+            var actual =  TrainingProgrammeFundingPeriod.Map(source);
             
             //Assert
             actual.Should().BeEquivalentTo(source, options => options

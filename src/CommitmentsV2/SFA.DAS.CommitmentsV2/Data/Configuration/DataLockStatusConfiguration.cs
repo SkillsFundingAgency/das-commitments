@@ -28,10 +28,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.DataLockStatus)
                 .HasForeignKey(d => d.ApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-
-            //builder.HasOne(d => d.ApprenticeshipUpdate)
-            //    .WithMany(p => p.DataLockStatus)
-            //    .HasForeignKey(d => d.ApprenticeshipUpdateId);
         }
     }
 }

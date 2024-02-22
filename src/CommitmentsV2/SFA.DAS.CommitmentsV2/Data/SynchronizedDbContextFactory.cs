@@ -5,7 +5,6 @@ using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    // TODO Feels like this should no longer be needed
     public class SynchronizedDbContextFactory : IDbContextFactory
     {
         private readonly IUnitOfWorkContext _unitOfWorkContext;

@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
             }
             catch (Exception e)
             {
-                _logger.LogInformation(e, $"Standard not found: {request.StandardUId}");
+                _logger.LogInformation(e, "Standard not found: {StandardUId}", request.StandardUId);
             }
             return new GetTrainingProgrammeVersionQueryResult
             {

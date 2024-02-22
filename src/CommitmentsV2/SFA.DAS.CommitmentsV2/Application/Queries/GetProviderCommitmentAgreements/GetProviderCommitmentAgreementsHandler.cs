@@ -78,7 +78,7 @@ public class GetProviderCommitmentAgreementsHandler : IRequestHandler<GetProvide
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, exception.Message);
+            _logger.LogError(exception, "{message}", exception.Message);
             throw;
         }
     }

@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.OverlappingTrainingDateRequests)
                 .HasForeignKey(d => d.PreviousApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .IsRequired(false); ;
+                .IsRequired(false);
         }
     }
 }
