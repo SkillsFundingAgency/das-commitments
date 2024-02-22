@@ -65,6 +65,6 @@ public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsA
 
     private sealed class AccountProviderLegalEntityDtoWrapper : AccountProviderLegalEntityDto
     {
-        public List<Operation> Permissions { get; }
+        public List<Operation> Permissions { get; } = new ();
     }
 }

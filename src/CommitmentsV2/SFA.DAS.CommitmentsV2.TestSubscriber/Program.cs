@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.TestSubscriber.CommandLines;
 
 namespace SFA.DAS.CommitmentsV2.TestSubscriber;
 
-public class Program
+public static class Program
 {
     private static Task Main(string[] args)
     {

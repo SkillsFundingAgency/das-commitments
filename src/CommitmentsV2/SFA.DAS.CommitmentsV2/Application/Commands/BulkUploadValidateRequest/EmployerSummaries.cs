@@ -6,7 +6,7 @@ public partial class BulkUploadValidateCommandHandler
     {
         internal bool ContainsKey(string agreementId)
         {
-            return this.Any(x => x.AgreementId == agreementId);
+            return Exists(x => x.AgreementId == agreementId);
         }
 
         internal EmployerSummary GetValueOrDefault(string agreementId)

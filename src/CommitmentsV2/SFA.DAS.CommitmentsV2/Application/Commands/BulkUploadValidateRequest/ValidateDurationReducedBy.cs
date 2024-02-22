@@ -13,30 +13,34 @@ public partial class BulkUploadValidateCommandHandler
             yield break;
         }
 
-        if (!string.IsNullOrEmpty(csvRecord.DurationReducedByAsString) && !string.IsNullOrEmpty(csvRecord.IsDurationReducedByRPLAsString))
+        if (string.IsNullOrEmpty(csvRecord.DurationReducedByAsString) ||
+            string.IsNullOrEmpty(csvRecord.IsDurationReducedByRPLAsString))
         {
-            if (csvRecord.IsDurationReducedByRPL == true)
+            yield break;
+        }
+
+        if (csvRecord.IsDurationReducedByRPL == true)
+        {
+            if (csvRecord.DurationReducedBy != null)
             {
-                if (csvRecord.DurationReducedBy != null)
+                switch (csvRecord.DurationReducedBy.Value)
                 {
-                    if (csvRecord.DurationReducedBy.Value > 260)
-                    {
+                    case > 260:
                         yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
-                    }
-                    else if (csvRecord.DurationReducedBy.Value < 1)
-                    {
+                        break;
+                    case < 1:
                         yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
-                    }
-                }
-                else
-                {
-                    yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
+                        break;
                 }
             }
             else
             {
-                yield return new Error("DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
+                yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
             }
+        }
+        else
+        {
+            yield return new Error("DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
         }
     }
 }

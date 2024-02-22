@@ -114,13 +114,11 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         }
 
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-        if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) && !IsFundedByTransfer(csvRecord.CohortRef))
+        if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) 
+            && !IsFundedByTransfer(csvRecord.CohortRef) && !await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
         {
-            if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
-            {
-                // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
-                return domainErrors;
-            }
+            // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
+            return domainErrors;
         }
 
         return domainErrors;
@@ -261,9 +259,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         {
             return null;
         }
-        
-        int.TryParse(stdCode, out var result);
 
-        return _dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result);
-   }
+        return int.TryParse(stdCode, out var result) ? _dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
+    }
 }
