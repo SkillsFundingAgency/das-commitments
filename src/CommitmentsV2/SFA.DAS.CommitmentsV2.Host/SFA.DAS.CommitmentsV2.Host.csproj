@@ -4,7 +4,6 @@
     <LangVersion>latest</LangVersion>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <MSDeployPackagePublishDependsOn>CopyWebJobs</MSDeployPackagePublishDependsOn>
     <WebJobProjects>
@@ -13,21 +12,22 @@
       $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.ExternalHandlers\SFA.DAS.CommitmentsV2.ExternalHandlers.csproj;
     </WebJobProjects>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebJobs.Publish" Version="17.1.361" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
+      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.MessageHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\SFA.DAS.CommitmentsV2.Jobs\bin\**\*" CopyToOutputDirectory="PreserveNewest">
+      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.Jobs\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
+      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.ExternalHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Include="App_Data\jobs\continuous\**" CopyToOutputDirectory="Always" />
   </ItemGroup>
-
-
-  <Target Name="CopyWebJobs">
-    <MSBuild Projects="$(WebJobProjects)" Targets="Restore;Build" Properties="DeployOnBuild=true;Configuration=$(Configuration);WebPublishMethod=FileSystem;PublishUrl=$(PublishIntermediateOutputPath)" RunEachTargetSeparately="true" StopOnFirstFailure="true" />
-  </Target>
-
-
 </Project>
