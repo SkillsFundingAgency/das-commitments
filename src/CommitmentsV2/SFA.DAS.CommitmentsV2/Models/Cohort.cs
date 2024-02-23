@@ -573,12 +573,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
             }
 
-            if (party == Party.Employer || party == Party.Provider)
+            if (party is Party.Employer or Party.Provider && DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
             {
-                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
-                {
-                    throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
-                }
+                throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
             }
         }
 
