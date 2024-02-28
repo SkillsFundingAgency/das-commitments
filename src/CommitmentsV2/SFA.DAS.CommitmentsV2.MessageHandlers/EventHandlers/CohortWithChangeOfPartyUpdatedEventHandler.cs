@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Models;
 using Microsoft.Azure.ServiceBus;
+using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -41,13 +42,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         cohort.ProviderId, message.UserInfo, cohort.WithParty);
                 }
             }
-            catch (InvalidOperationException e)
+            catch (CohortAlreadyApprovedException e)
             {
-                _logger.LogError(e, $"InvalidOperationException processing CohortWithChangeOfPartyUpdatedEvent", e);
-                if (!e.Message.EndsWith("is approved by all parties and can't be modified"))
-                {
-                    throw;
-                }
+                _logger.LogError(e, $"CohortAlreadyApprovedException processing CohortWithChangeOfPartyUpdatedEvent", e);
             }
             catch (Exception e)
             {
