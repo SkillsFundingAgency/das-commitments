@@ -37,6 +37,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
                 changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
             }
+            catch (InvalidOperationException e)
+            {
+                _logger.LogError(e, $"InvalidOperationException processing CohortWithChangeOfPartyCreatedEvent", e);
+                if (!e.Message.EndsWith("is approved by all parties and can't be modified"))
+                {
+                    throw;
+                }
+            }
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error processing CohortWithChangeOfPartyCreatedEvent", e);
