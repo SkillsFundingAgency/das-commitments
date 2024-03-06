@@ -1,4 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
@@ -6,11 +11,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -152,14 +152,26 @@ namespace SFA.DAS.CommitmentsV2.Services
                     .SingleAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestSummary(long accountId, CancellationToken cancellationToken)
+        public async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestSummary(long accountId, TransferType? originator, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Getting Transfer Request Summary for employer account {accountId}");
 
-            var receiverRequests = await GetTransferRequestsForReceiver(accountId);
-            var senderTransfers = await GetTransferRequestsForSender(accountId);
+            IEnumerable<TransferRequestsSummaryQueryResult> result = Enumerable.Empty<TransferRequestsSummaryQueryResult>();
 
-            var result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
+            if (originator == null)
+            {
+                var receiverRequests = await GetTransferRequestsForReceiver(accountId);
+                var senderTransfers = await GetTransferRequestsForSender(accountId);
+                result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
+            }
+            else if (originator == TransferType.AsSender)
+            {
+                result = (await GetTransferRequestsForSender(accountId)).TransferRequestsSummaryQueryResult;
+            }
+            else if (originator == TransferType.AsReceiver)
+            {
+                result = (await GetTransferRequestsForReceiver(accountId)).TransferRequestsSummaryQueryResult;
+            }
 
             if (result.Any())
             {
@@ -213,7 +225,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
             };
-        }      
+        }
 
         private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForSender(long accountId)
         {
@@ -252,11 +264,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
             };
-        }        
+        }
 
         public static IEnumerable<T> Concatenate<T>(params IEnumerable<T>[] lists)
         {
             return lists.SelectMany(x => x);
-        }       
+        }
     }
 }
