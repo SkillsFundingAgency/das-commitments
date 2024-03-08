@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -92,6 +93,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
                     Times.Once));
         }
+        
+        [Test]
+        public void Handle_WhenHandlingCommandForFlexiPaymentScenario_ThenShouldPublishPriceBreakdown()
+        {
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
+                .SetApprovedApprenticeships(false)
+                .Handle();
+            
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => fixture.IsValidCostBreakdown(a, e))),
+                    Times.Once));
+        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -101,20 +117,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IAccountApiClient> AccountApiClient { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public Mock<IEventPublisher> EventPublisher { get; set; }
+        public Mock<IEncodingService> EncodingService { get; set; }
         public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
+        public string ExpectedApprenticeshipHashedId { get; set; }
         
+
+
         public ProcessFullyApprovedCohortCommandFixture()
         {
             AutoFixture = new Fixture();
+            EncodingService = new Mock<IEncodingService>();
+            ExpectedApprenticeshipHashedId = AutoFixture.Create<string>();
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>())).Returns(ExpectedApprenticeshipHashedId);
             Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
             Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
             Apprenticeships = new List<Apprenticeship>();
-            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
+            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, EncodingService.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
             
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
@@ -254,7 +277,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
                           apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                           apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
-                          apprenticeshipCreatedEvent.LastName == apprenticeship.LastName;
+                          apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
+                          apprenticeshipCreatedEvent.ApprenticeshipHashedId == ExpectedApprenticeshipHashedId;
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {
@@ -274,6 +298,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return apprenticeship.Id == changeOfPartyCreatedEvent.ApprenticeshipId
             && Command.ChangeOfPartyRequestId == changeOfPartyCreatedEvent.ChangeOfPartyRequestId;
+        }
+
+        public bool IsValidCostBreakdown(Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        {
+            var priceEpisode = apprenticeshipCreatedEvent.PriceEpisodes.First();
+            return priceEpisode.TrainingPrice == apprenticeship.TrainingPrice && priceEpisode.EndPointAssessmentPrice == apprenticeship.EndPointAssessmentPrice;
         }
     }
 }
