@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -6,10 +9,8 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -20,8 +21,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly IEncodingService _encodingService;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
-        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger, 
-            IEncodingService encodingService, CommitmentsV2Configuration commitmentsV2Configuration)
+        public const string EmailTemplateName = "ProviderApprenticeshipPauseNotification";
+
+        public ApprenticeshipPausedEventHandler(
+            Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<ApprenticeshipPausedEventHandler> logger,
+            IEncodingService encodingService,
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -31,9 +37,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation($"Received {nameof(ApprenticeshipPausedEventHandler)} for apprentice {message?.ApprenticeshipId}");
+            _logger.LogInformation("Received {HandlerName} for apprentice {ApprenticeshipId}", nameof(ApprenticeshipPausedEventHandler), message?.ApprenticeshipId);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+
+            if (apprenticeship.PaymentStatus != PaymentStatus.Paused)
+            {
+                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.",
+                    apprenticeship.Id,
+                    apprenticeship.PaymentStatus.ToString());
+
+                return;
+            }
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
 
@@ -42,17 +57,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
         {
-            var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
-                "ProviderApprenticeshipPauseNotification",
-                      new Dictionary<string, string>
-                      {
-                                  {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
-                                  {"APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                                  {"DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy")},
-                                  {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
-                      });
+            var providerCommitmentsBaseUrl = _commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith("/")
+                ? _commitmentsV2Configuration.ProviderCommitmentsBaseUrl
+                : $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/";
 
-            return sendEmailToProviderCommand;
+            return new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId, EmailTemplateName,
+                new Dictionary<string, string>
+                {
+                    { "EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name },
+                    { "APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}" },
+                    { "DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy") },
+                    { "URL", $"{providerCommitmentsBaseUrl}{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
+                });
         }
     }
 }

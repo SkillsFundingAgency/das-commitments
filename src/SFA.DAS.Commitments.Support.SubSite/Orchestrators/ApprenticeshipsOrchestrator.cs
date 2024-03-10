@@ -1,20 +1,21 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
-using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
-using System.Threading;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -28,11 +29,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         private readonly ICommitmentMapper _commitmentMapper;
 
         public ApprenticeshipsOrchestrator(ILogger<ApprenticeshipsOrchestrator> logger,
-                                            IMediator mediator,
-                                            IApprenticeshipMapper apprenticeshipMapper,
-                                            IValidator<ApprenticeshipSearchQuery> searchValidator,
-                                            IEncodingService encodingService,
-                                            ICommitmentMapper commitmentMapper)
+            IMediator mediator,
+            IApprenticeshipMapper apprenticeshipMapper,
+            IValidator<ApprenticeshipSearchQuery> searchValidator,
+            IEncodingService encodingService,
+            ICommitmentMapper commitmentMapper)
         {
             _logger = logger;
             _mediator = mediator;
@@ -54,8 +55,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
-                CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, ApprenticeshipUpdateStatus.Pending));
 
             if (response == null)
             {
@@ -70,16 +70,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
             result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
 
-            var overlappingTrainingDateRequest = (await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None))?.OverlappingTrainingDateRequests?.
-                Where(x => x.Status == CommitmentsV2.Types.OverlappingTrainingDateRequestStatus.Pending)?.FirstOrDefault();
+            var overlappingTrainingDateResult = await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None);
+            var overlappingTrainingDateRequest = overlappingTrainingDateResult?.OverlappingTrainingDateRequests?
+                .Where(x => x.Status == OverlappingTrainingDateRequestStatus.Pending)
+                .FirstOrDefault();
+            
             result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
-
-            if (result.ApprenticeshipUpdates?.Cost != null)
+            
+            var priceEpisodesResult = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+            if (priceEpisodesResult.PriceEpisodes != null && priceEpisodesResult.PriceEpisodes.Any())
             {
-                var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
-                result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
+                result.TrainingCost = priceEpisodesResult.PriceEpisodes.GetPrice();    
             }
-
+            
             return result;
         }
 

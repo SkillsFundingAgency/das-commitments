@@ -1,25 +1,27 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using System.Threading;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 
-namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
+namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.ApprenticeshipOrchestratorTests
 {
     [TestFixture]
     [Parallelizable]
@@ -42,9 +44,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             _commitmentMapper = new Mock<ICommitmentMapper>();
 
             _apprenticeshipMapper
-              .Setup(o => o.MapToUlnResultView(It.IsAny<GetSupportApprenticeshipQueryResult>()))
-              .Returns(new UlnSummaryViewModel())
-              .Verifiable();
+                .Setup(o => o.MapToUlnResultView(It.IsAny<GetSupportApprenticeshipQueryResult>()))
+                .Returns(new UlnSummaryViewModel())
+                .Verifiable();
 
             _sut = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                 _mediator.Object,
@@ -55,17 +57,93 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task GivenValidApprenticeshipIdShouldCallRequiredServices()
+        public async Task GivenNoPriceUpdatesTotalCostIsUnchanged()
         {
-            // Arrasnge
-            string hashedApprenticeshipId = "ABC001";
-            string hashedAccountId = "ACCOUNT001";
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
+            const decimal totalCost = 324;
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
+                .Returns(new ApprenticeshipViewModel { TrainingCost = totalCost })
+                .Verifiable();
+
+            // Act
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.TrainingCost.Should().Be(totalCost);
+        }
+
+        [Test]
+        public async Task GivenPriceUpdatesTotalCostIsUpdated()
+        {
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
+            const decimal totalCost = 622;
+            const decimal priceChangeCost = 2234;
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult { Apprenticeships = GetApprenticeships() }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult
+                {
+                    PriceEpisodes = new Collection<GetPriceEpisodesQueryResult.PriceEpisode>
+                    {
+                        new GetPriceEpisodesQueryResult.PriceEpisode
+                        {
+                            ApprenticeshipId = 1,
+                            Cost = priceChangeCost,
+                            FromDate = DateTime.Today.AddDays(-10),
+                            ToDate = DateTime.Today.AddDays(10),
+                            TrainingPrice = 100,
+                            Id = 11,
+                        }
+                    }
+                }).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
+                .Returns(new ApprenticeshipViewModel
+                {
+                    TrainingCost = totalCost
+                })
+                .Verifiable();
+
+            // Act
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.TrainingCost.Should().Be(priceChangeCost);
+        }
+
+        [Test]
+        public async Task GivenValidApprenticeshipIdShouldCallRequiredServices()
+        {
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
@@ -73,38 +151,40 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Verifiable();
 
             _encodingService
-              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
-              .Returns(100);
+                .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+                .Returns(100);
 
             _encodingService
-              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+                .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+                .Returns(100);
 
             // Act
-            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
-            // Arrange
+            // Assert
             _encodingService.Verify(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
             _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
 
-            _mediator
-                .Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
-            _apprenticeshipMapper
-                .Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()), Times.Once);
+            _mediator.Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
+            _mediator.Verify(x => x.Send(It.Is<GetPriceEpisodesQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
+            _apprenticeshipMapper.Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()), Times.Once);
         }
 
         [Test]
         public async Task GivenValidApprenticeshipIdShouldGetApprenticeshipUpdate()
         {
-            // Arrasnge
-            string hashedApprenticeshipId = "ABC001";
-            string hashedAccountId = "ACCOUNT001";
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
@@ -112,19 +192,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Verifiable();
 
             _apprenticeshipMapper
-              .Setup(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()))
-              .Returns(new ApprenticeshipUpdateViewModel());
+                .Setup(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()))
+                .Returns(new ApprenticeshipUpdateViewModel());
 
             _encodingService
-              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
-              .Returns(100);
+                .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+                .Returns(100);
 
             _encodingService
-              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+                .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+                .Returns(100);
 
             // Act
-            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             _apprenticeshipMapper.Verify(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()), Times.Once);
         }
@@ -132,8 +212,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task GivenValidUlnShouldCallRequiredServices()
         {
-            // Arrasnge
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            // Arrange
+            var searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
                 SearchType = ApprenticeshipSearchType.SearchByUln,
@@ -141,10 +221,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -159,13 +239,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Verifiable();
 
             _encodingService
-              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+                .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+                .Returns(100);
 
             // Act
-            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
+            await _sut.GetApprenticeshipsByUln(searchQuery);
 
-            // Arrange
+            // Assert
             _encodingService.Verify(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId), Times.Once);
 
             _searchValidator.VerifyAll();
@@ -176,18 +256,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task GivenInvalidHashedAccountIdReturnErrorResponseMessage()
         {
-            // Arrasnge
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            // Arrange
+            var searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
                 SearchType = ApprenticeshipSearchType.SearchByUln
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            });
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                });
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -197,8 +277,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Verifiable();
 
             _encodingService
-              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
-              .Throws(new Exception());
+                .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+                .Throws(new Exception());
 
             // Act
             var result = await _sut.GetApprenticeshipsByUln(searchQuery);
@@ -217,22 +297,22 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task GivenInvalidUlnShouldReturnResponseMessageAndNotCallSearchService()
         {
-            // Arrasnge
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            // Arrange
+            var searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "000000001",
                 SearchType = ApprenticeshipSearchType.SearchByUln
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            });
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                });
 
             var validationFailures = new List<ValidationFailure>
             {
-                new ValidationFailure("SearchTerm","Invalid Uln")
+                new ValidationFailure("SearchTerm", "Invalid Uln")
             };
 
             var validationResult = new ValidationResult(validationFailures);
@@ -258,18 +338,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task WhenNoUlnRecordIsFoundShouldReturnResponseMessages()
         {
-            // Arrasnge
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            // Arrange
+            var searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
                 SearchType = ApprenticeshipSearchType.SearchByUln
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-             .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-             {
-                 Apprenticeships = null
-             });
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = null
+                });
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -292,14 +372,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             result.ReponseMessages.Should().HaveCount(1);
         }
 
-        private List<SupportApprenticeshipDetails> GetApprenticeships()
+        private static List<SupportApprenticeshipDetails> GetApprenticeships()
         {
             return new List<SupportApprenticeshipDetails>
             {
                 new SupportApprenticeshipDetails
                 {
                     FirstName = "Testoo1",
-                    StartDate = new DateTime(2020,1,1)
+                    StartDate = new DateTime(2020, 1, 1)
                 }
             };
         }
