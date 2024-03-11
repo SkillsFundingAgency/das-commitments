@@ -441,35 +441,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.AddDraftApprenticeship());
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.AddDraftApprenticeship());
         }
         
         [Test]
         public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.UpdateDraftApprenticeship());
         }
 
         [Test]
         public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendCohortToOtherParty());
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.SendCohortToOtherParty());
         }
 
         [Test]
         public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.ApproveCohort());
         }
 
         [Test]
         public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
         {
             _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.ApproveCohort());
         }
 
         [Test]
