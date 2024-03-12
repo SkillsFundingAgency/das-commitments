@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -40,6 +41,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task When_HandlingCommand_And_IsChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsNotUpdated()
         {
             _fixture.AddChangeOfEmployerRequest();
+
+            await _fixture.Handle();
+
+            _fixture.VerifyChangeOfPartyNotUpdated();
+        }
+
+        [Test]
+        public async Task When_HandlingCommand_And_Cohort_Is_Already_Fully_Approved_Then_ChangeOfPartyRequestIsNotUpdated_And_Message_Is_Swallowed()
+        {
+            _fixture.AddChangeOfProviderRequest()
+                .AddFullyApprovedCohort();
 
             await _fixture.Handle();
 
@@ -110,6 +122,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 return this;
             }
+
+            public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddFullyApprovedCohort()
+            {
+                _cohort.SetValue(x => x.WithParty, null); 
+                return this;
+            }
+
             public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddChangeOfEmployerRequest()
             {
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_cohort.ChangeOfPartyRequestId.Value);
