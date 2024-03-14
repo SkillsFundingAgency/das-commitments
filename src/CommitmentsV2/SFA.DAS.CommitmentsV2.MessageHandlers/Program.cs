@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
+using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers;
@@ -16,7 +17,7 @@ public static class Program
                 .UseDasEnvironment()
                 .ConfigureDasAppConfiguration(args)
                 .UseConsoleLifetime()
-                .ConfigureLogging(b => b.AddNLog())
+                .ConfigureDasLogging()
                 .ConfigureMessageHandlerServices();
 
             using var host = hostBuilder.Build();
