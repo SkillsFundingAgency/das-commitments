@@ -24,20 +24,20 @@ public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
     private readonly IApprenticeshipMapper _apprenticeshipMapper;
     private readonly ICommitmentMapper _commitmentMapper;
 
-    public ApprenticeshipsOrchestrator(ILogger<ApprenticeshipsOrchestrator> logger,
-        IMediator mediator,
-        IApprenticeshipMapper apprenticeshipMapper,
-        IValidator<ApprenticeshipSearchQuery> searchValidator,
-        IEncodingService encodingService,
-        ICommitmentMapper commitmentMapper)
-    {
-        _logger = logger;
-        _mediator = mediator;
-        _searchValidator = searchValidator;
-        _encodingService = encodingService;
-        _apprenticeshipMapper = apprenticeshipMapper;
-        _commitmentMapper = commitmentMapper;
-    }
+        public ApprenticeshipsOrchestrator(ILogger<ApprenticeshipsOrchestrator> logger,
+            IMediator mediator,
+            IApprenticeshipMapper apprenticeshipMapper,
+            IValidator<ApprenticeshipSearchQuery> searchValidator,
+            IEncodingService encodingService,
+            ICommitmentMapper commitmentMapper)
+        {
+            _logger = logger;
+            _mediator = mediator;
+            _searchValidator = searchValidator;
+            _encodingService = encodingService;
+            _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
+        }
 
     public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId)
     {
@@ -51,8 +51,7 @@ public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
             ApprenticeshipId = apprenticeshipId
         });
 
-        var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
-            ApprenticeshipUpdateStatus.Pending));
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, ApprenticeshipUpdateStatus.Pending));
 
         if (response == null)
         {
@@ -63,25 +62,24 @@ public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
 
         var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
 
-        var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
-        result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships[0]);
+            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
+            result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
 
-        var overlappingTrainingDateRequestQueryResult = await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None);
-        var overlappingTrainingDateRequest = overlappingTrainingDateRequestQueryResult?.OverlappingTrainingDateRequests?.
-            FirstOrDefault(x => x.Status == OverlappingTrainingDateRequestStatus.Pending);
-        
-        result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
-
-        if (result.ApprenticeshipUpdates?.Cost == null)
-        {
+            var overlappingTrainingDateResult = await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None);
+            var overlappingTrainingDateRequest = overlappingTrainingDateResult?.OverlappingTrainingDateRequests?
+                .Where(x => x.Status == OverlappingTrainingDateRequestStatus.Pending)
+                .FirstOrDefault();
+            
+            result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
+            
+            var priceEpisodesResult = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+            if (priceEpisodesResult.PriceEpisodes != null && priceEpisodesResult.PriceEpisodes.Any())
+            {
+                result.TrainingCost = priceEpisodesResult.PriceEpisodes.GetPrice();    
+            }
+            
             return result;
         }
-        
-        var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
-        result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
-
-        return result;
-    }
 
     public async Task<UlnSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery)
     {

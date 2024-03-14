@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
-using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -16,41 +19,57 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private ApprenticeshipPausedEventHandlerTestsFixture _fixture;
 
         [SetUp]
-        public void Arrange()
-        {
-            _fixture = new ApprenticeshipPausedEventHandlerTestsFixture();
+        public void Arrange() => _fixture = new ApprenticeshipPausedEventHandlerTestsFixture();
 
-        }
+        [TearDown]
+        public void TearDown() => _fixture.Dispose();
 
         [Test]
         public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
         {
             await _fixture.Handle();
+
             _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
         }
 
         [Test]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled()
+        [TestCaseSource(nameof(GetAllPaymentStatus))]
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled_OnlyWhen_PaymentStatus_Is_Paused(PaymentStatus status)
         {
-            await _fixture.Handle();
+            _fixture.SetPaymentStatus(status);
 
-            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == "ProviderApprenticeshipPauseNotification" &&
-                    c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
-                    )
-                  , It.IsAny<SendOptions>()), Times.Once);
+            await _fixture.Handle();
+            
+            if (status == PaymentStatus.Paused)
+            {
+                _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                    command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                    command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                    command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                    command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                    command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+                ), It.IsAny<SendOptions>()), Times.Once);
+            }
+            else
+            {
+                _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                    command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                    command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                    command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                    command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                    command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+                ), It.IsAny<SendOptions>()), Times.Never);
+            }
         }
+
+        private static List<PaymentStatus> GetAllPaymentStatus() => Enum.GetValues(typeof(PaymentStatus)).Cast<PaymentStatus>().ToList();
     }
 
     public class ApprenticeshipPausedEventHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipPausedEvent, ApprenticeshipPausedEventHandler>
     {
-        public Mock<ILogger<ApprenticeshipPausedEventHandler>> Logger { get; set; }
-        public Mock<IEncodingService> MockEncodingService { get; set; }
-
-        public ApprenticeshipPausedEvent Event { get; set; }
+        public Mock<ILogger<ApprenticeshipPausedEventHandler>> Logger { get; }
+        public Mock<IEncodingService> MockEncodingService { get; }
+        public ApprenticeshipPausedEvent Event { get; }
 
         private readonly Apprenticeship _apprenticeship;
         private readonly ProviderCommitmentsDbContext _db;
@@ -61,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public const string HashedApprenticeshipId = "ABC";
         public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
-        public ApprenticeshipPausedEventHandlerTestsFixture() : base((m) => null)
+        public ApprenticeshipPausedEventHandlerTestsFixture() : base(m => null)
         {
             Logger = new Mock<ILogger<ApprenticeshipPausedEventHandler>>();
             PausedDate = DateTime.UtcNow;
@@ -84,6 +103,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ProviderId = 1
             });
 
+            _apprenticeship.PaymentStatus = PaymentStatus.Paused;
+
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
@@ -98,9 +119,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
-        public override Task Handle()
-        {
-            return Handler.Handle(Event, MessageHandlerContext.Object);
-        }
+        public void SetPaymentStatus(PaymentStatus status) => _apprenticeship.PaymentStatus = status;
+
+        public void Dispose() => _db?.Dispose();
+
+        public override Task Handle() => Handler.Handle(Event, MessageHandlerContext.Object);
     }
 }

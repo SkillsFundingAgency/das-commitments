@@ -427,40 +427,40 @@ public class CohortDomainServiceTests
         _fixture.VerifyLastUpdatedFieldsAreNotSet();
     }
 
-    [Test]
-    public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
-    {
-        _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-        Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.AddDraftApprenticeship());
-    }
+        [Test]
+        public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.AddDraftApprenticeship());
+        }
+        
+        [Test]
+        public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.UpdateDraftApprenticeship());
+        }
 
-    [Test]
-    public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
-    {
-        _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-        Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
-    }
+        [Test]
+        public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.SendCohortToOtherParty());
+        }
 
-    [Test]
-    public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
-    {
-        _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-        Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendCohortToOtherParty());
-    }
+        [Test]
+        public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.ApproveCohort());
+        }
 
-    [Test]
-    public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
-    {
-        _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-        Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
-    }
-
-    [Test]
-    public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
-    {
-        _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
-        Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
-    }
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
+            Assert.ThrowsAsync<CohortAlreadyApprovedException>(() => _fixture.ApproveCohort());
+        }
 
     [Test]
     [Ignore("Test is faulty. No setup is provided for getting ALE as required. Previous test passed due to expecting InvalidOperationExeption, the condition for which was met but not by the right error in the right place.")]

@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportAppr
                 query = query.Where(x => x.CommitmentId == request.CohortId.Value);
             }
 
-            var apprenticeships = await query.ToListAsync(CancellationToken.None);
+            var apprenticeships = await query.ToListAsync(cancellationToken);
 
             var response = new GetSupportApprenticeshipQueryResult();
             var mappedApprenticeshipsTask = apprenticeships.Select(_mapper.Map).ToList();

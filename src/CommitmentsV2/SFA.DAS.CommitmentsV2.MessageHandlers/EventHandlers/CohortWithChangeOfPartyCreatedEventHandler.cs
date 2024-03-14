@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -32,6 +33,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 }
 
                 changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
+            }
+            catch (CohortAlreadyApprovedException e)
+            {
+                _logger.LogError(e, $"CohortAlreadyApprovedException processing CohortWithChangeOfPartyCreatedEvent", e);
             }
             catch (Exception e)
             {

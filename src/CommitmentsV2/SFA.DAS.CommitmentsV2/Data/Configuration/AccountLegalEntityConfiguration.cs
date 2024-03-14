@@ -19,7 +19,8 @@ public class AccountLegalEntityConfiguration : IEntityTypeConfiguration<AccountL
             
         builder.HasOne(ale => ale.Account)
             .WithMany(a => a.AccountLegalEntities)
-            .HasPrincipalKey(c=>c.Id).HasForeignKey(c=>c.AccountId);
+            .HasPrincipalKey(c=>c.Id).HasForeignKey(c=>c.AccountId);//.Metadata.DeleteBehavior = DeleteBehavior.Restrict;
+
 
         builder.HasQueryFilter(ale => ale.Deleted == null);
     }

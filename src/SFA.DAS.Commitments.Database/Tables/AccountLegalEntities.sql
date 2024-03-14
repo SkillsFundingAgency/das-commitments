@@ -6,7 +6,7 @@
     [AccountId] BIGINT NOT NULL, 
     [Name] NVARCHAR(100) NOT NULL, 
 	[OrganisationType] SMALLINT NOT NULL,
-    [Address] NVARCHAR(256) NOT NULL,
+    [Address] NVARCHAR(256) NULL,
     [Created] DATETIME2 NOT NULL,
     [Updated] DATETIME2 NULL,
     [Deleted] DATETIME2 NULL,

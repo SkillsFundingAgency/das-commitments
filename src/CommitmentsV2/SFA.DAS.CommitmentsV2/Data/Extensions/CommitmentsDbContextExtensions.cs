@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
                 .Include(c => c.TransferRequests)
                 .SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
-            if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            if (cohort.IsApprovedByAllParties) throw new CohortAlreadyApprovedException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return cohort;
         }
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
                 .Include(a => a.PriorLearning)
                 .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
             if (draftApprenticeship == null) throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
-            if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new CohortAlreadyApprovedException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return draftApprenticeship;
         }
 
