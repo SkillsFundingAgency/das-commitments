@@ -1,16 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-
-    <MSDeployPackagePublishDependsOn>CopyWebJobs</MSDeployPackagePublishDependsOn>
-    <WebJobProjects>
-      $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;
-      $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.Jobs\SFA.DAS.CommitmentsV2.Jobs.csproj;
-      $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.ExternalHandlers\SFA.DAS.CommitmentsV2.ExternalHandlers.csproj;
-    </WebJobProjects>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
@@ -28,6 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="App_Data\jobs\continuous\**" CopyToOutputDirectory="Always" />
+    <None Include="app_data\Jobs\Continuous\**" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>
