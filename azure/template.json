@@ -86,6 +86,9 @@
     "sharedSQLServerName": {
       "type": "string"
     },
+    "sharedStorageAccountConnectionString": {
+        "type": "securestring"
+    },
     "elasticPoolName": {
       "type": "string"
     },
@@ -345,8 +348,13 @@
                         "value": {
                             "array": [
                                 {
+                                    "name": "AzureWebJobsDashboard",
+                                    "connectionString": "[parameters('sharedStorageAccountConnectionString')]",
+                                    "type": "Custom"
+                                },
+                                {
                                     "name": "AzureWebJobsStorage",
-                                    "connectionString": "[reference(concat(variables('workerStorageAccountName'), '-', parameters('utcValue'))).outputs.storageConnectionString.value]",
+                                    "connectionString": "[parameters('sharedStorageAccountConnectionString')]",
                                     "type": "Custom"
                                 }
                             ]
