@@ -35,10 +35,10 @@
     <PackageReference Include="SFA.DAS.EmailValidationService" Version="1.0.17" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.20">
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
+    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
