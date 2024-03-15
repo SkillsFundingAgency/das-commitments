@@ -26,12 +26,7 @@ public static class ServiceCollectionExtensions
                 var hostingEnvironment = serviceProvider.GetService<IHostEnvironment>();
                 var configuration = serviceProvider.GetService<CommitmentsV2Configuration>();
                 var isDevelopment = hostingEnvironment.IsDevelopment();
-
-                var logger = serviceProvider.GetService<ILogger<Program>>();
-
-                logger.LogWarning("AddNServiceBus. IsDevelopment:{IsDevelopment}", isDevelopment);
-                logger.LogWarning("AddNServiceBus. Service Bus connection string :{ConnectionString}", configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl);
-
+             
                 var endpointConfiguration = new EndpointConfiguration(EndpointName)
                     .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
                     .UseErrorQueue($"{EndpointName}-errors")
@@ -46,17 +41,13 @@ public static class ServiceCollectionExtensions
 
                 if (isDevelopment)
                 {
-                    logger.LogWarning("AddNServiceBus. Using learning transport");
                     endpointConfiguration.UseLearningTransport(s => s.AddRouting());
                 }
                 else
                 {
-                    logger.LogWarning("AddNServiceBus. Using Azure ServiceBus transport");
                     endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
                 }
-
-                logger.LogWarning("AddNServiceBus. Starting endpoint.");
-
+                
                 return Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
             })
             .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
