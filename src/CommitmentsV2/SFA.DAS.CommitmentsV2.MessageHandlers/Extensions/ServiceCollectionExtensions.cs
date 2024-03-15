@@ -30,12 +30,12 @@ public static class ServiceCollectionExtensions
                 var endpointConfiguration = new EndpointConfiguration(EndpointName)
                     .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
                     .UseErrorQueue($"{EndpointName}-errors")
-                    .UseMessageConventions()
                     .UseInstallers()
-                    .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
+                    .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
-                    .UseOutbox()
                     .UseNLogFactory()
+                    .UseOutbox()
+                    .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
                     .UseUnitOfWork()
                     .UseServicesBuilder(new UpdateableServiceProvider(services));
 
