@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Jobs.NServiceBus;
+using SFA.DAS.CommitmentsV2.Jobs.Extensions;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Services.Shared;

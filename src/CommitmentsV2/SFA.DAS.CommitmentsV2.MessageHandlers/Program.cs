@@ -11,23 +11,16 @@ public static class Program
     public static async Task Main(string[] args)
     {
         var hostBuilder = new HostBuilder();
-        try
-        {
-            hostBuilder
-                .UseDasEnvironment()
-                .ConfigureDasAppConfiguration(args)
-                .UseConsoleLifetime()
-                .ConfigureDasLogging()
-                .ConfigureMessageHandlerServices();
 
-            using var host = hostBuilder.Build();
-            
-            await host.RunAsync();
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-            throw;
-        }
+        hostBuilder
+            .UseDasEnvironment()
+            .ConfigureDasAppConfiguration(args)
+            .UseConsoleLifetime()
+            .ConfigureDasLogging()
+            .ConfigureMessageHandlerServices();
+
+        using var host = hostBuilder.Build();
+
+        await host.RunAsync();
     }
 }

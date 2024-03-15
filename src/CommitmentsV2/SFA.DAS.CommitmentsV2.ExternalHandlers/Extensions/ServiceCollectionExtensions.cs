@@ -15,7 +15,7 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions
 {
     public static class ServiceCollectionExtensions
     {

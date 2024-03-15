@@ -11,7 +11,7 @@ using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
+namespace SFA.DAS.CommitmentsV2.Jobs.Extensions
 {
     public static class ServiceCollectionExtensions
     {
