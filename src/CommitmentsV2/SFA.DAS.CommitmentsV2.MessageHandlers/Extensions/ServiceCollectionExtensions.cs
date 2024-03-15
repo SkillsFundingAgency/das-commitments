@@ -20,13 +20,17 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddNServiceBus(this IServiceCollection services)
     {
-            
         return services
-            .AddSingleton(p =>
+            .AddSingleton(serviceProvider =>
             {
-                var hostingEnvironment = p.GetService<IHostEnvironment>();
-                var configuration = p.GetService<CommitmentsV2Configuration>();
+                var hostingEnvironment = serviceProvider.GetService<IHostEnvironment>();
+                var configuration = serviceProvider.GetService<CommitmentsV2Configuration>();
                 var isDevelopment = hostingEnvironment.IsDevelopment();
+
+                var logger = serviceProvider.GetService<ILogger<Program>>();
+
+                logger.LogWarning("AddNServiceBus. IsDevelopment:{IsDevelopment}", isDevelopment);
+                logger.LogWarning("AddNServiceBus. Service Bus connection string :{ConnectionString}", configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl);
 
                 var endpointConfiguration = new EndpointConfiguration(EndpointName)
                     .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
@@ -42,16 +46,18 @@ public static class ServiceCollectionExtensions
 
                 if (isDevelopment)
                 {
+                    logger.LogWarning("AddNServiceBus. Using learning transport");
                     endpointConfiguration.UseLearningTransport(s => s.AddRouting());
                 }
                 else
                 {
-                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl,s => s.AddRouting());
+                    logger.LogWarning("AddNServiceBus. Using Azure ServiceBus transport");
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
                 }
-                    
-                var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
-                return endpoint;
+                logger.LogWarning("AddNServiceBus. Starting endpoint.");
+
+                return Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
             })
             .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
             .AddHostedService<NServiceBusHostedService>();
