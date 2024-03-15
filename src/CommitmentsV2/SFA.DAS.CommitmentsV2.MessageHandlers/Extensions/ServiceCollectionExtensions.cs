@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
                 }
                 else
                 {
-                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.ServiceBusConnectionString, s => s.AddRouting());
                 }
                 
                 return Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
