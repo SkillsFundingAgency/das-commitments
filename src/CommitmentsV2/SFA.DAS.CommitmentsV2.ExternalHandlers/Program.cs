@@ -16,7 +16,7 @@ public class Program
         
         var logger = host.Services.GetService<ILogger<Program>>();
         
-        logger.LogInformation("SFA.DAS.EmployerAccounts.MessageHandlers starting up ...");
+        logger.LogInformation("SFA.DAS.EmployerAccounts.ExternalHandlers starting up ...");
 
         await host.RunAsync();
     }
