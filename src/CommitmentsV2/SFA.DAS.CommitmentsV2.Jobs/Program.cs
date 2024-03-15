@@ -6,22 +6,28 @@ using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.Jobs;
 
-public static class Program
+public class Program
 {
     public static async Task Main(string[] args)
     {
-        var hostBuilder = new HostBuilder();
+        using var host = CreateHost(args);
+        
+        var logger = host.Services.GetService<ILogger<Program>>();
+        
+        logger.LogInformation("SFA.DAS.CommitmentsV2.Jobs starting up ...");
 
-        hostBuilder
+        await host.RunAsync();
+    }
+
+    private static IHost CreateHost(string[] args)
+    {
+        return new HostBuilder()
             .UseDasEnvironment()
             .ConfigureDasAppConfiguration(args)
             .ConfigureDasWebJobs()
             .ConfigureDasLogging()
             .UseConsoleLifetime()
-            .ConfigureJobsServices();
-
-        using var host = hostBuilder.Build();
-
-        await host.RunAsync();
+            .ConfigureJobsServices()
+            .Build();
     }
 }

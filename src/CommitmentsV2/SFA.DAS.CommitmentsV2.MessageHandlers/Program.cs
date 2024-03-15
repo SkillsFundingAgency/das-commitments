@@ -1,26 +1,32 @@
-﻿using Microsoft.Extensions.Hosting;
-using NLog.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers;
 
-public static class Program
+public class Program
 {
     public static async Task Main(string[] args)
     {
-        var hostBuilder = new HostBuilder();
+        using var host = CreateHost(args);
+        
+        var logger = host.Services.GetService<ILogger<Program>>();
+        
+        logger.LogInformation("SFA.DAS.CommitmentsV2.MessageHandlers starting up ...");
 
-        hostBuilder
+        await host.RunAsync();
+    }
+
+    private static IHost CreateHost(string[] args)
+    {
+        return new HostBuilder()
             .UseDasEnvironment()
             .ConfigureDasAppConfiguration(args)
             .UseConsoleLifetime()
             .ConfigureDasLogging()
-            .ConfigureMessageHandlerServices();
-
-        using var host = hostBuilder.Build();
-
-        await host.RunAsync();
+            .ConfigureMessageHandlerServices()
+            .Build();
     }
 }
