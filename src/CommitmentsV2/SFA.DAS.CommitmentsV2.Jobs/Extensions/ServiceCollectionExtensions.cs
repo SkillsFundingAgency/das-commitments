@@ -11,48 +11,47 @@ using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.Jobs.Extensions
+namespace SFA.DAS.CommitmentsV2.Jobs.Extensions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    private const string EndpointName = "SFA.DAS.CommitmentsV2.Jobs";
+
+    public static IServiceCollection AddNServiceBus(this IServiceCollection services)
     {
-        private const string EndpointName = "SFA.DAS.CommitmentsV2.Jobs";
+        return services
+            .AddSingleton(p =>
+            {
+                var hostingEnvironment = p.GetService<IHostEnvironment>();
+                var configuration = p.GetService<CommitmentsV2Configuration>();
+                var isDevelopment = hostingEnvironment.IsDevelopment();
 
-        public static IServiceCollection AddNServiceBus(this IServiceCollection services)
-        {
-            return services
-                .AddSingleton(p =>
+                var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                    .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
+                    .UseErrorQueue($"{EndpointName}-errors")
+                    .UseInstallers()
+                    .UseMessageConventions()
+                    .UseNewtonsoftJsonSerializer()
+                    .UseNLogFactory()
+                    .UseOutbox(true)
+                    .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
+                    .UseSendOnly()
+                    .UseServicesBuilder(new UpdateableServiceProvider(services));
+
+                if (isDevelopment)
                 {
-                    var hostingEnvironment = p.GetService<IHostEnvironment>();
-                    var configuration = p.GetService<CommitmentsV2Configuration>();
-                    var isDevelopment = hostingEnvironment.IsDevelopment();
-
-                    var endpointConfiguration = new EndpointConfiguration(EndpointName)
-                        .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
-                        .UseErrorQueue($"{EndpointName}-errors")
-                        .UseInstallers()
-                        .UseMessageConventions()
-                        .UseNewtonsoftJsonSerializer()
-                        .UseNLogFactory()
-                        .UseOutbox(true)
-                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
-                        .UseSendOnly()
-                        .UseServicesBuilder(new UpdateableServiceProvider(services));
-
-                    if (isDevelopment)
-                    {
-                        endpointConfiguration.UseLearningTransport(s => s.AddRouting());
-                    }
-                    else
-                    {
-                        endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
-                    }
+                    endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+                }
+                else
+                {
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
+                }
                     
-                    var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+                var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
-                    return endpoint;
-                })
-                .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
-                .AddHostedService<NServiceBusHostedService>();
-        }
+                return endpoint;
+            })
+            .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
+            .AddHostedService<NServiceBusHostedService>();
     }
 }
