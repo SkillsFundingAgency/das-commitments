@@ -1,135 +1,135 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
     "contentVersion": "1.0.0.0",
-  "parameters": {
-    "serviceName": {
-      "type": "string"
+    "parameters": {
+        "serviceName": {
+            "type": "string"
+        },
+        "tags": {
+            "type": "object"
+        },
+        "resourceGroupLocation": {
+            "type": "string"
+        },
+        "configurationStorageConnectionString": {
+            "type": "securestring"
+        },
+        "environmentName": {
+            "type": "string"
+        },
+        "resourceEnvironmentName": {
+            "type": "string"
+        },
+        "sharedServiceBusName": {
+            "type": "string"
+        },
+        "sharedEnvResourceGroup": {
+            "type": "string"
+        },
+        "sharedBackEndAppServicePlanName": {
+            "type": "string"
+        },
+        "sharedBackEndSubnetResourceId": {
+            "type": "string"
+        },
+        "sharedApimResourceGroup": {
+            "type": "string"
+        },
+        "sharedApimName": {
+            "type": "string"
+        },
+        "aspSize": {
+            "type": "string",
+            "defaultValue": "1"
+        },
+        "aspInstances": {
+            "type": "int",
+            "defaultValue": 1
+        },
+        "aspSku": {
+            "type": "string",
+            "defaultValue": "Standard"
+        },
+        "loggingRedisConnectionString": {
+            "type": "securestring"
+        },
+        "loggingRedisKey": {
+            "type": "string"
+        },
+        "apiV2CustomHostName": {
+            "type": "string"
+        },
+        "apiV2CertificateName": {
+            "type": "string"
+        },
+        "supportCustomHostName": {
+            "type": "string"
+        },
+        "supportCertificateName": {
+            "type": "string"
+        },
+        "backEndAccessRestrictions": {
+            "type": "array"
+        },
+        "workerAccessRestrictions": {
+            "type": "array"
+        },
+        "supportAppAccessRestrictions": {
+            "type": "array"
+        },
+        "sharedKeyVaultName": {
+            "type": "string"
+        },
+        "sharedManagementResourceGroup": {
+            "type": "string"
+        },
+        "sharedSQLServerName": {
+            "type": "string"
+        },
+        "sharedStorageAccountConnectionString": {
+            "type": "securestring"
+        },
+        "elasticPoolName": {
+            "type": "string"
+        },
+        "databaseSkuName": {
+            "type": "string",
+            "defaultValue": "S0"
+        },
+        "databaseTier": {
+            "type": "string",
+            "defaultValue": "Standard"
+        },
+        "logAnalyticsSubscriptionId": {
+            "type": "string",
+            "defaultValue": "[subscription().subscriptionId]"
+        },
+        "logAnalyticsWorkspaceName": {
+            "type": "string"
+        },
+        "serviceBusTopicsArray": {
+            "type": "array"
+        },
+        "sharedEnvVirtualNetworkName": {
+            "type": "string"
+        },
+        "subnetObject": {
+            "type": "object"
+        },
+        "subnetServiceEndpointList": {
+            "type": "array"
+        },
+        "subnetDelegations": {
+            "type": "array"
+        },
+        "deploySupportApp": {
+            "type": "bool"
+        },
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }
     },
-    "tags": {
-      "type": "object"
-    },
-    "resourceGroupLocation": {
-      "type": "string"
-    },
-    "configurationStorageConnectionString": {
-      "type": "securestring"
-    },
-    "environmentName": {
-      "type": "string"
-    },
-    "resourceEnvironmentName": {
-      "type": "string"
-    },
-    "sharedServiceBusName": {
-      "type": "string"
-    },
-    "sharedEnvResourceGroup": {
-      "type": "string"
-    },
-    "sharedBackEndAppServicePlanName": {
-      "type": "string"
-    },
-    "sharedBackEndSubnetResourceId": {
-      "type": "string"
-    },
-    "sharedApimResourceGroup": {
-      "type": "string"
-    },
-    "sharedApimName": {
-      "type": "string"
-    },
-    "aspSize": {
-      "type": "string",
-      "defaultValue": "1"
-    },
-    "aspInstances": {
-      "type": "int",
-      "defaultValue": 1
-    },
-    "aspSku": {
-      "type": "string",
-      "defaultValue": "Standard"
-    },
-    "loggingRedisConnectionString": {
-      "type": "securestring"
-    },
-    "loggingRedisKey": {
-      "type": "string"
-    },
-    "apiV2CustomHostName": {
-      "type": "string"
-    },
-    "apiV2CertificateName": {
-      "type": "string"
-    },
-    "supportCustomHostName": {
-      "type": "string"
-    },
-    "supportCertificateName": {
-      "type": "string"
-    },
-    "backEndAccessRestrictions": {
-      "type": "array"
-    },
-    "workerAccessRestrictions": {
-      "type": "array"
-    },
-    "supportAppAccessRestrictions": {
-      "type": "array"
-    },
-    "sharedKeyVaultName": {
-      "type": "string"
-    },
-    "sharedManagementResourceGroup": {
-      "type": "string"
-    },
-    "sharedSQLServerName": {
-      "type": "string"
-    },
-    "sharedStorageAccountConnectionString": {
-        "type": "securestring"
-    },
-    "elasticPoolName": {
-      "type": "string"
-    },
-    "databaseSkuName": {
-      "type": "string",
-      "defaultValue": "S0"
-    },
-    "databaseTier": {
-      "type": "string",
-      "defaultValue": "Standard"
-    },
-    "logAnalyticsSubscriptionId": {
-      "type": "string",
-      "defaultValue": "[subscription().subscriptionId]"
-    },
-    "logAnalyticsWorkspaceName": {
-      "type": "string"
-    },
-    "serviceBusTopicsArray": {
-      "type": "array"
-    },
-    "sharedEnvVirtualNetworkName": {
-      "type": "string"
-    },
-    "subnetObject": {
-      "type": "object"
-    },
-    "subnetServiceEndpointList": {
-      "type": "array"
-    },
-    "subnetDelegations": {
-      "type": "array"
-    },
-    "deploySupportApp": {
-      "type": "bool"
-    },
-    "utcValue": {
-      "type": "string",
-      "defaultValue": "[utcNow()]"
-    }
-  },
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
@@ -151,8 +151,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "location": "[parameters('resourceGroupLocation')]",
             "tags": "[parameters('tags')]",
-            "properties": {
-            }
+            "properties": {}
         },
         {
             "apiVersion": "2021-04-01",
@@ -312,36 +311,40 @@
                     },
                     "appServiceAppSettings": {
                         "value": {
-                          "array": [
-                            {
-                              "name": "ConfigurationStorageConnectionString",
-                              "value": "[parameters('configurationStorageConnectionString')]"
-                            },
-                            {
-                              "name": "EnvironmentName",
-                              "value": "[parameters('environmentName')]"
-                            },
-                            {
-                              "name": "LoggingRedisConnectionString",
-                              "value": "[parameters('loggingRedisConnectionString')]"
-                            },
-                            {
-                              "name": "LoggingRedisKey",
-                              "value": "[parameters('loggingRedisKey')]"
-                            },
-                            {
-                              "name": "ConfigNames",
-                              "value": "[variables('configNames')]"
-                            },
-                            {
-                              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                              "value": "[reference(concat(variables('workerV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
-                            },
-                            {
-                              "name": "FUNCTIONS_WORKER_RUNTIME",
-                              "value": "dotnet"
-                            }
-                          ]
+                            "array": [
+                                {
+                                    "name": "ConfigurationStorageConnectionString",
+                                    "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "EnvironmentName",
+                                    "value": "[parameters('environmentName')]"
+                                },
+                                {
+                                    "name": "LoggingRedisConnectionString",
+                                    "value": "[parameters('loggingRedisConnectionString')]"
+                                },
+                                {
+                                    "name": "LoggingRedisKey",
+                                    "value": "[parameters('loggingRedisKey')]"
+                                },
+                                {
+                                    "name": "ConfigNames",
+                                    "value": "[variables('configNames')]"
+                                },
+                                {
+                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                    "value": "[reference(concat(variables('workerV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
+                                },
+                                {
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[reference(concat(variables('workerAppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
+                                },
+                                {
+                                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                                    "value": "dotnet"
+                                }
+                            ]
                         }
                     },
                     "appServiceConnectionStrings": {
@@ -461,12 +464,12 @@
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },
                                 {
-                                  "name": "LoggingRedisKey",
-                                  "value": "[parameters('loggingRedisKey')]"
+                                    "name": "LoggingRedisKey",
+                                    "value": "[parameters('loggingRedisKey')]"
                                 },
                                 {
-                                  "name": "ConfigNames",
-                                  "value": "[variables('configNames')]"
+                                    "name": "ConfigNames",
+                                    "value": "[variables('configNames')]"
                                 },
                                 {
                                     "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
