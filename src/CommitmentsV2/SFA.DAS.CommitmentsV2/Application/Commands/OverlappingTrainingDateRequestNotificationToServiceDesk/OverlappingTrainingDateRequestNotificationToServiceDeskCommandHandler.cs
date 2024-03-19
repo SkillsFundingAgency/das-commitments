@@ -1,16 +1,15 @@
 ﻿using System;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Notifications.Messages.Commands;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk
 {
@@ -19,20 +18,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         public const string TemplateId = "ExpiredOverlappingTrainingDateForServiceDesk";
         private readonly ICurrentDateTime _currentDateTime;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IMessageSession _messageSession;
+        private readonly IApprovalsOuterApiClient _apiClient;
         private readonly CommitmentsV2Configuration _configuration;
         private readonly ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> _logger;
 
         public OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
             ICurrentDateTime currentDateTime,
-            IMessageSession messageSession,
             CommitmentsV2Configuration configuration,
+            IApprovalsOuterApiClient apiClient,
             ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> logger)
         {
             _dbContext = commitmentsDbContext;
             _currentDateTime = currentDateTime;
-            _messageSession = messageSession;
             _configuration = configuration;
+            _apiClient = apiClient;
             _logger = logger;
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
@@ -57,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
                             && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
-                            : x.CreatedOn < currentDate.AddDays(-14).Date))                            
+                            : x.CreatedOn < currentDate.AddDays(-13).Date)) //WILLO TODO revert to 14
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
@@ -66,23 +65,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             {
                 if (pendingRecord.DraftApprenticeship != null)
                 {
-                    var tokens = new Dictionary<string, string>
+                    var body = new StopApprenticeshipRequestRequest.Body
                     {
-                        { "RequestCreatedByProviderEmail", string.IsNullOrWhiteSpace(pendingRecord.RequestCreatedByProviderEmail) ? "Not available" : pendingRecord.RequestCreatedByProviderEmail },
-                        { "LastUpdatedByProviderEmail", pendingRecord.DraftApprenticeship?.Cohort?.LastUpdatedByProviderEmail },
-                        { "ULN", pendingRecord.DraftApprenticeship?.Uln },
-                        { "NewProviderUkprn", pendingRecord.DraftApprenticeship?.Cohort?.ProviderId.ToString() },
-                        { "OldProviderUkprn", pendingRecord.PreviousApprenticeship?.Cohort?.ProviderId.ToString() }
+                        AccountId = pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,
+                        MadeRedundant = false,
+                        StopDate = pendingRecord.DraftApprenticeship.StartDate.Value,
+                        UserInfo = Types.UserInfo.System
                     };
 
-                    var emailCommand = new SendEmailCommand(TemplateId, _configuration.ZenDeskEmailAddress, tokens);
-                    await _messageSession.Send(emailCommand);
+                    var stopRequest = new StopApprenticeshipRequestRequest(
+                        pendingRecord.PreviousApprenticeshipId,
+                        body
+                        );
 
-                    pendingRecord.NotifiedServiceDeskOn = _currentDateTime.UtcNow;
+                    _logger.LogInformation($"Sending StopApprenticeshipRequest for ApprenticeshipId {pendingRecord.PreviousApprenticeshipId}");
+
+                    await _apiClient.PostAsync<StopApprenticeshipRequestRequest>(stopRequest);
                 }
             }
-
-            await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }    
+        }
     }
 }
