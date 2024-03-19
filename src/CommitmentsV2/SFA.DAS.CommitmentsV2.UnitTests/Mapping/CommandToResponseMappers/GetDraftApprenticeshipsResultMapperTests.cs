@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.DraftApprenticeships, _result.DraftApprenticeships);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

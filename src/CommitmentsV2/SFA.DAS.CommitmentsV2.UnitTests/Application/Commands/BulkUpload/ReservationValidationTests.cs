@@ -27,9 +27,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.Command.ReservationValidationResults.ValidationErrors.Add(new Api.Types.Requests.BulkReservationValidation { Reason = "The employer has reached their reservations limit. Contact the employer.", RowNumber = 1 });
 
             var errors = await fixture.Handle();
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(2, errors.BulkUploadValidationErrors.First().Errors.Count);
-            Assert.IsTrue(errors.BulkUploadValidationErrors.All(x => x.RowNumber == 1));
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
+            Assert.That(errors.BulkUploadValidationErrors.First().Errors.Count, Is.EqualTo(2));
+            Assert.That(errors.BulkUploadValidationErrors.All(x => x.RowNumber == 1), Is.True);
         }
     }
 

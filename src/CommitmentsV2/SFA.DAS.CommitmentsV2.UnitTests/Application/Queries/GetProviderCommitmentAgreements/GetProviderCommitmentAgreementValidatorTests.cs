@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             var actualIsValid = validationResults.IsValid;
 
             // Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
+            Assert.That(actualIsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

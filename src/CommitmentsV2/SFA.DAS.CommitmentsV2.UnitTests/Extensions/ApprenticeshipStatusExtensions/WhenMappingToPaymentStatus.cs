@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.ApprenticeshipStatusExtensi
             var result = source.MapToPaymentStatus();
 
             //Assert
-            Assert.AreEqual(target, result);
+            Assert.That(result, Is.EqualTo(target));
         }
 
         [Test]

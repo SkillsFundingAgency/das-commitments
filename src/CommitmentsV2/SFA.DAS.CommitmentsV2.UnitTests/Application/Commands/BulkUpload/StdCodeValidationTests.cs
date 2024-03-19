@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetMainProvider(false);
             fixture.SetStandardsEmpty();
             var errors = await fixture.Handle();
-            Assert.AreEqual(0, errors.BulkUploadValidationErrors.Count);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(0));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.SetAccount()
                 .Handle();
 
-            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.Levy));
+            Assert.That(fixture.IsValid(ApprenticeshipEmployerType.Levy), Is.True);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.Command.AccountId = 2;
             fixture.Handle();
 
-            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.NonLevy));
+            Assert.That(fixture.IsValid(ApprenticeshipEmployerType.NonLevy), Is.True);
         }
     }
 

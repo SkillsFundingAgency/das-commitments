@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         {
             var validationResult = _fixture.Validate(accountId);
             
-            Assert.AreEqual(isValid, validationResult.IsValid);
+            Assert.That(validationResult.IsValid, Is.EqualTo(isValid));
         }
     }
 

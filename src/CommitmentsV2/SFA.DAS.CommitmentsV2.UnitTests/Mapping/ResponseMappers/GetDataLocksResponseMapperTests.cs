@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             var compare = new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = 100 });
             var compareResult = compare.Compare(_source.DataLocks, _result.DataLocks);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

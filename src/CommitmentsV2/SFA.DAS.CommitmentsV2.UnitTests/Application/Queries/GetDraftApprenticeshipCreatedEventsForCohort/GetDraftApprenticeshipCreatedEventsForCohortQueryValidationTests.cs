@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             var validationResult = _fixture.Validate(providerId, 1);
 
-            Assert.AreEqual(isValid, validationResult.IsValid);
+            Assert.That(validationResult.IsValid, Is.EqualTo(isValid));
         }
         [TestCase(-1, false)]
         [TestCase(0, false)]
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public void Validate_WhenValidatingCohortId_ThenShouldValidate(int cohortId, bool isValid)
         {
             var validationResult = _fixture.Validate(1, cohortId);
-            Assert.AreEqual(isValid, validationResult.IsValid);
+            Assert.That(validationResult.IsValid, Is.EqualTo(isValid));
         }
     }
 

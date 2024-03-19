@@ -71,10 +71,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.PriceEpisodeController
 
             public void VerifyResult()
             {
-                Assert.IsInstanceOf<OkObjectResult>(Result);
+                Assert.That(Result, Is.InstanceOf<OkObjectResult>());
                 var resultObject = (OkObjectResult) Result;
-                Assert.IsInstanceOf<GetPriceEpisodesResponse>(resultObject.Value);
-                Assert.AreSame(MapperResult, resultObject.Value);
+                Assert.That(resultObject.Value, Is.InstanceOf<GetPriceEpisodesResponse>());
+                Assert.That(resultObject.Value, Is.SameAs(MapperResult));
             }
         }
     }

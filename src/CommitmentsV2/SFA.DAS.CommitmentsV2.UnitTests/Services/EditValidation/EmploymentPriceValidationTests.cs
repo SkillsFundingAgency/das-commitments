@@ -22,9 +22,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("You must add the agreed price for this employment", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the agreed price for this employment"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
         }
 
         [Test]
@@ -39,9 +39,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("This price must not be more than the total agreed apprenticeship price", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This price must not be more than the total agreed apprenticeship price"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
         }
 
         [Test]
@@ -56,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(2, result.Errors.Count);
-            Assert.AreEqual("The agreed price for this employment must be £100,000 or less", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The agreed price for this employment must be £100,000 or less"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentPrice"));
         }
     }
 }

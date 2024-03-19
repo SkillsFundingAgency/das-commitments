@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using MoreLinq;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models

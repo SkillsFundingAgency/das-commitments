@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 fixtures.RequestingParty,
                 It.IsAny<CancellationToken>()));
 
-            Assert.AreEqual(expectedHash, response.Reference);
+            Assert.That(response.Reference, Is.EqualTo(expectedHash));
         }
     }
 

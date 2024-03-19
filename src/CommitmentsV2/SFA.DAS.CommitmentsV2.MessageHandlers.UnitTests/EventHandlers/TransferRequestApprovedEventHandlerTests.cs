@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
 
-            Assert.IsTrue(fixture.Logger.HasErrors);
+            Assert.That(fixture.Logger.HasErrors, Is.True);
         }
     }
 
@@ -151,8 +151,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyCohortApprovalPropertiesAreSet()
         {
-            Assert.AreEqual(Cohort.TransferApprovalStatus, TransferApprovalStatus.Approved);
-            Assert.AreEqual(Cohort.TransferApprovalActionedOn, TransferRequestApprovedEvent.ApprovedOn);
+            Assert.That(TransferApprovalStatus.Approved, Is.EqualTo(Cohort.TransferApprovalStatus));
+            Assert.That(TransferRequestApprovedEvent.ApprovedOn, Is.EqualTo(Cohort.TransferApprovalActionedOn));
         }
 
         public void VerifyLegacyEventCohortApprovedByTransferSenderIsPublished()

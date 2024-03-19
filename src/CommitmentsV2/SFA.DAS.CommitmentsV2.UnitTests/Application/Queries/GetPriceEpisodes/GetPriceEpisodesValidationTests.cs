@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             {
                 var validator = new GetPriceEpisodesQueryValidator();
                 var validationResults = validator.Validate(new GetPriceEpisodesQuery(apprenticeshipId));
-                Assert.AreEqual(expectedIsValid, validationResults.IsValid);
+                Assert.That(validationResults.IsValid, Is.EqualTo(expectedIsValid));
             }
     }
 }

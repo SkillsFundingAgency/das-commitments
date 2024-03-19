@@ -1,19 +1,26 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using NServiceBus.Settings;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Configuration.StructureMap;
+using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.NServiceBus.Hosting;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using StructureMap;
+using StructureMap.Pipeline;
 
 namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
 {
@@ -23,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
 
         public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {
-            return services
+            services
                 .AddSingleton(p =>
                 {
                     var container = p.GetService<IContainer>();
@@ -58,10 +65,21 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
+                    // This is to replace the ClientOutboxPersisterV2 class in NSB with our local version
+                    // as the local class is compatible with the EF concurrency issues
+                    container.EjectAllInstancesOf<IClientOutboxStorageV2>();
+                    container.Configure(config =>
+                        {
+                            config.For<IClientOutboxStorageV2>().Use<ClientOutboxPersisterV2>().LifecycleIs<UniquePerRequestLifecycle>();
+                        }
+                    );
+                    
                     return endpoint;
                 })
                 .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
                 .AddHostedService<NServiceBusHostedService>();
+
+            return services;
         }
     }
 }

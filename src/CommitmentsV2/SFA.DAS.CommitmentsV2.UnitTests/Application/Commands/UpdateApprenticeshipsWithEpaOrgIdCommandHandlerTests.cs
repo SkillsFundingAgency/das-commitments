@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             internal void VerifyEpaoOrgIdUpdated()
             {
                 var apprenticeship = _db.Apprenticeships.FirstOrDefault(x => x.Id == ApprenticeshipId);
-                Assert.AreEqual(_command.SubmissionEvents.First().EPAOrgId, apprenticeship.EpaOrgId);
+                Assert.That(apprenticeship.EpaOrgId, Is.EqualTo(_command.SubmissionEvents.First().EPAOrgId));
             }
 
             public void Dispose()

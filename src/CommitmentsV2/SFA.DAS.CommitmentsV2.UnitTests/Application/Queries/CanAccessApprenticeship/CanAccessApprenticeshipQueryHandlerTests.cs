@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsTrue(response);
+            Assert.That(response, Is.True);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsTrue(response);
+            Assert.That(response, Is.True);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsFalse(response);
+            Assert.That(response, Is.False);
         }
 
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsFalse(response);
+            Assert.That(response, Is.False);
         }
     }
 

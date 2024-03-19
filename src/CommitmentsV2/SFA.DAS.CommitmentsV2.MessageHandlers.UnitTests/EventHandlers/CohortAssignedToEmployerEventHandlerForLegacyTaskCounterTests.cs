@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             using var fixture = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().LastAssignedParty(Party.Provider);
             Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
-            Assert.IsTrue(fixture.Logger.HasErrors);
+            Assert.That(fixture.Logger.HasErrors, Is.True);
         }
     }
 

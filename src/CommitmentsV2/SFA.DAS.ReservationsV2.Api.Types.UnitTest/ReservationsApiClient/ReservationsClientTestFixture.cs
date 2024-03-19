@@ -32,9 +32,9 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             var expectedUri = new Uri(expected, UriKind.Absolute);
             var actualUri = new Uri(actual, UriKind.Absolute);
 
-            Assert.AreEqual(expectedUri.Host, actualUri.Host, "Host is wrong");
-            Assert.AreEqual(expectedUri.AbsolutePath, actualUri.AbsolutePath, "Path is wrong");
-            Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
+            Assert.That(actualUri.Host, Is.EqualTo(expectedUri.Host), "Host is wrong");
+            Assert.That(actualUri.AbsolutePath, Is.EqualTo(expectedUri.AbsolutePath), "Path is wrong");
+            Assert.That(actualUri.Scheme, Is.EqualTo(expectedUri.Scheme), "Scheme is wrong");
 
             return true;
         }

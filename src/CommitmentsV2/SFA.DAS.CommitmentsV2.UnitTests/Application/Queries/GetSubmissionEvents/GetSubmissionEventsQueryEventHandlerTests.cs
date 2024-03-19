@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvent
 
             internal void VerifySubmissionEventsAreReturned()
             {
-                Assert.AreEqual(_expectedResult, _result);
+                Assert.That(_result, Is.EqualTo(_expectedResult));
             }
 
             internal void VerifyOuterApiIsCalled()

@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_priceEpisodes.Count, _result.PriceEpisodes.Count);
+                Assert.That(_result.PriceEpisodes.Count, Is.EqualTo(_priceEpisodes.Count));
 
                 foreach (var sourceItem in _priceEpisodes)
                 {
@@ -102,14 +102,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 
         private static void AssertEquality(PriceHistory source, GetPriceEpisodesQueryResult.PriceEpisode result)
         {
-            Assert.AreEqual(source.Id, result.Id);
+            Assert.That(result.Id, Is.EqualTo(source.Id));
 
-            Assert.AreEqual(source.ApprenticeshipId, result.ApprenticeshipId);
-            Assert.AreEqual(source.FromDate, result.FromDate);
-            Assert.AreEqual(source.ToDate, result.ToDate);
-            Assert.AreEqual(source.Cost, result.Cost);
-            Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
-            Assert.AreEqual(source.AssessmentPrice, result.EndPointAssessmentPrice);
+            Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+            Assert.That(result.FromDate, Is.EqualTo(source.FromDate));
+            Assert.That(result.ToDate, Is.EqualTo(source.ToDate));
+            Assert.That(result.Cost, Is.EqualTo(source.Cost));
+            Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
+            Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.AssessmentPrice));
         }
     }
 }

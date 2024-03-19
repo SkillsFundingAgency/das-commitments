@@ -38,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var result = await _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(ProviderId, CohortId, 0, _loadedOn));
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.DraftApprenticeshipCreatedEvents.Count(), 0);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.DraftApprenticeshipCreatedEvents.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -50,12 +50,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var result = await _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(ProviderId, CohortId, 1, _loadedOn));
 
             // Assert
-            Assert.AreEqual(result.DraftApprenticeshipCreatedEvents.Count(), _fixture.DraftApprentices.Count);
-            Assert.AreEqual(CohortId, result.DraftApprenticeshipCreatedEvents.First().CohortId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].Id, result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].ReservationId, result.DraftApprenticeshipCreatedEvents.First().ReservationId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].Uln, result.DraftApprenticeshipCreatedEvents.First().Uln);
-            Assert.AreEqual(_loadedOn, result.DraftApprenticeshipCreatedEvents.First().CreatedOn);
+            Assert.That(_fixture.DraftApprentices.Count, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
+            Assert.That(_fixture.DraftApprentices[0].Id, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId));
+            Assert.That(_fixture.DraftApprentices[0].ReservationId, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().ReservationId));
+            Assert.That(_fixture.DraftApprentices[0].Uln, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().Uln));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().CreatedOn, Is.EqualTo(_loadedOn));
         }
 
         [Test]

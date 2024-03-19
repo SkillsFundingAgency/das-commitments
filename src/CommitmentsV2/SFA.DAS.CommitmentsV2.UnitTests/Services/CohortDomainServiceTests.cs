@@ -516,8 +516,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
 
-            Assert.AreEqual(1, _fixture.DomainErrors.Count);
-            Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
+            Assert.That(_fixture.DomainErrors[0].ErrorMessage, Is.EqualTo("Cannot approve this cohort because one or more emails are failing the overlap check"));
         }
 
         [Test]
@@ -529,8 +529,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(1, _fixture.DomainErrors.Count);
-            Assert.AreEqual("Cohort must be complete for Provider", _fixture.DomainErrors[0].ErrorMessage);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
+            Assert.That(_fixture.DomainErrors[0].ErrorMessage, Is.EqualTo("Cohort must be complete for Provider"));
         }
 
         [Test]
@@ -543,7 +543,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -558,7 +558,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(1, _fixture.DomainErrors.Count);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -571,7 +571,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -584,7 +584,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -597,7 +597,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -1657,66 +1657,66 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyProviderDraftApprenticeshipAdded()
             {
-                Assert.IsTrue(Cohort.DraftApprenticeships.Any());
+                Assert.That(Cohort.DraftApprenticeships.Any(), Is.True);
             }
 
             public void VerifyDraftApprenticeshipUpdated()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x=>x.Id == DraftApprenticeshipId);
 
-                Assert.IsNotNull(updated, "No draft apprenticeship record found");
-                Assert.AreEqual(updated.FirstName, DraftApprenticeshipDetails.FirstName);
-                Assert.AreEqual(updated.LastName, DraftApprenticeshipDetails.LastName);
+                Assert.That(updated, Is.Not.Null, "No draft apprenticeship record found");
+                Assert.That(DraftApprenticeshipDetails.FirstName, Is.EqualTo(updated.FirstName));
+                Assert.That(DraftApprenticeshipDetails.LastName, Is.EqualTo(updated.LastName));
             }
 
             public void VerifyPriorLearningIsNull()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
-                Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
-                Assert.IsNull(updated.TrainingTotalHours);
-                Assert.IsNull(updated.PriorLearning.DurationReducedByHours);
-                Assert.IsNull(updated.PriorLearning.IsDurationReducedByRpl);
-                Assert.IsNull(updated.PriorLearning.DurationReducedBy);
-                Assert.IsNull(updated.PriorLearning.PriceReducedBy);
+                Assert.That(updated.PriorLearning, Is.Not.Null, "No prior learning found");
+                Assert.That(updated.TrainingTotalHours, Is.Null);
+                Assert.That(updated.PriorLearning.DurationReducedByHours, Is.Null);
+                Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.Null);
+                Assert.That(updated.PriorLearning.DurationReducedBy, Is.Null);
+                Assert.That(updated.PriorLearning.PriceReducedBy, Is.Null);
             }
 
             public void VerifyPriorLearningIsStillPresent()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
-                Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
+                Assert.That(updated.PriorLearning, Is.Not.Null, "No prior learning found");
 
-                Assert.IsNotNull(updated.PriorLearning.DurationReducedByHours);
-                Assert.AreEqual(PriorLearning.DurationReducedByHours, updated.PriorLearning.DurationReducedByHours);
-                Assert.IsNotNull(updated.PriorLearning.IsDurationReducedByRpl);
-                Assert.AreEqual(PriorLearning.IsDurationReducedByRpl, updated.PriorLearning.IsDurationReducedByRpl);
-                Assert.IsNotNull(updated.PriorLearning.DurationReducedBy);
-                Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
-                Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
-                Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
+                Assert.That(updated.PriorLearning.DurationReducedByHours, Is.Not.Null);
+                Assert.That(updated.PriorLearning.DurationReducedByHours, Is.EqualTo(PriorLearning.DurationReducedByHours));
+                Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.Not.Null);
+                Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.EqualTo(PriorLearning.IsDurationReducedByRpl));
+                Assert.That(updated.PriorLearning.DurationReducedBy, Is.Not.Null);
+                Assert.That(updated.PriorLearning.DurationReducedBy, Is.EqualTo(PriorLearning.DurationReducedBy));
+                Assert.That(updated.PriorLearning.PriceReducedBy, Is.Not.Null);
+                Assert.That(updated.PriorLearning.PriceReducedBy, Is.EqualTo(PriorLearning.PriceReducedBy));
             }
 
             public void VerifyPriorLearningIsNotSetToNewRPLValues()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
-                Assert.IsFalse(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
+                Assert.That(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.TrainingTotalHours != DraftApprenticeshipDetails.TrainingTotalHours &&
                                updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.IsDurationReducedByRpl != DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy, Is.False);
             }
 
             public void VerifyPriorLearningIsSetToNewRPLValues()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
-                Assert.IsFalse(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
+                Assert.That(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.TrainingTotalHours == DraftApprenticeshipDetails.TrainingTotalHours &&
                                updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.IsDurationReducedByRpl == DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy, Is.False);
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
@@ -1724,12 +1724,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 switch (withParty)
                 {
                     case Party.Employer:
-                        Assert.AreEqual(Cohort.LastUpdatedByEmployerName, UserInfo.UserDisplayName);
-                        Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, UserInfo.UserEmail);
+                        Assert.That(UserInfo.UserDisplayName, Is.EqualTo(Cohort.LastUpdatedByEmployerName));
+                        Assert.That(UserInfo.UserEmail, Is.EqualTo(Cohort.LastUpdatedByEmployerEmail));
                         break;
                     case Party.Provider:
-                        Assert.AreEqual(Cohort.LastUpdatedByProviderName, UserInfo.UserDisplayName);
-                        Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, UserInfo.UserEmail);
+                        Assert.That(UserInfo.UserDisplayName, Is.EqualTo(Cohort.LastUpdatedByProviderName));
+                        Assert.That(UserInfo.UserEmail, Is.EqualTo(Cohort.LastUpdatedByProviderEmail));
                         break;
                     default:
                         Assert.Fail("Party must be provider or Employer");
@@ -1739,86 +1739,86 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyLastUpdatedFieldsAreNotSet()
             {
-                Assert.IsNull(Cohort.LastUpdatedByEmployerName);
-                Assert.IsNull(Cohort.LastUpdatedByEmployerEmail);
-                Assert.IsNull(Cohort.LastUpdatedByProviderName);
-                Assert.IsNull(Cohort.LastUpdatedByProviderEmail);
+                Assert.That(Cohort.LastUpdatedByEmployerName, Is.Null);
+                Assert.That(Cohort.LastUpdatedByEmployerEmail, Is.Null);
+                Assert.That(Cohort.LastUpdatedByProviderName, Is.Null);
+                Assert.That(Cohort.LastUpdatedByProviderEmail, Is.Null);
             }
             public void VerifyStartDateException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate"), Is.True);
             }
 
             public void VerifyActualStartDateException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "ActualStartDate"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "ActualStartDate"), Is.True);
             }
 
             public void VerifyEndDateException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "EndDate"), Is.True);
             }
 
             public void VerifyUlnException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Uln"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "Uln"), Is.True);
             }
 
             public void VerifyEmailException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "Email"), Is.True);
             }
 
             public void VerifyReservationException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "TEST"), Is.True);
             }
 
             public void VerifyCourseException(bool passes)
             {
                 if (passes)
                 {
-                    Assert.IsFalse(DomainErrors.Any());
+                    Assert.That(DomainErrors.Any(), Is.False);
                     return;
                 }
 
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "CourseCode"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "CourseCode"), Is.True);
             }
 
             public void VerifyReservationValidationNotPerformed()
@@ -1830,12 +1830,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyOverlapExceptionOnStartDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")), Is.True);
             }
 
             public void VerifyOverlapExceptionOnEndDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "EndDate" && x.ErrorMessage.Contains($"contact the {otherParty}")), Is.True);
             }
 
             public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
@@ -1843,24 +1843,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var expectedErrorMessage = isApproved
                     ? "This email address is in use on another apprentice record. You need to enter a different email address."
                     : "You need to enter a unique email address for each apprentice.";
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage), Is.True);
             }
 
             public void VerifyNoUlnOverlaps()
             {
-                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "StartDate"));
-                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "EndDate"));
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate"), Is.False);
+                Assert.That(DomainErrors.Any(x => x.PropertyName == "EndDate"), Is.False);
             }
 
             public void VerifyException<T>()
             {
-                Assert.IsNotNull(Exception);
-                Assert.IsInstanceOf<T>(Exception);
+                Assert.That(Exception, Is.Not.Null);
+                Assert.That(Exception, Is.InstanceOf<T>());
             }
 
             public void VerifyNoException()
             {
-                Assert.IsNull(Exception);
+                Assert.That(Exception, Is.Null);
             }
 
             public void VerifyIsAgreementSignedIsCalledCorrectly()
@@ -1873,7 +1873,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var deleted = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
-                Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
+                Assert.That(deleted, Is.Null, "Draft apprenticeship record not deleted");
             }
 
             public void TearDown()

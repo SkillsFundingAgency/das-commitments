@@ -44,8 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
-            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
+            Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
         }
         [Test, MoqAutoData]
         public async Task Then_Downloads_Are_Restricted_To_Twelve_Months_Normal_Sort(
@@ -76,8 +76,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
-            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
+            Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
         }
         [Test, MoqAutoData]
         public async Task Then_Downloads_Are_Restricted_To_Twelve_Months_For_Reverse_Sort(
@@ -108,8 +108,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
-            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
+            Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
         }
     }
 }

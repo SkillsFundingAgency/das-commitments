@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 foreach (var org in _epaoResponse.Epaos)
                 {
                     var organisatinInDb = _db.AssessmentOrganisations.FirstOrDefault(x => x.EpaOrgId == org.Id && x.Name == org.Name);
-                    Assert.NotNull(organisatinInDb);
+                    Assert.That(organisatinInDb, Is.Not.Null);
                 }
             }
 

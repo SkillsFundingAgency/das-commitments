@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var result = ulnValidator.Validate("");
 
             //Assert
-            Assert.AreEqual(result, validationResult);
+            Assert.That(validationResult, Is.EqualTo(result));
         }
     }
 }

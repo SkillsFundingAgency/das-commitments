@@ -148,27 +148,27 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
             public void VerifyApprenticeCompleteWasCalled()
             {
-                Assert.AreEqual(_apprenticeship.ValuePassedToComplete, _event.EventTime.UtcDateTime);
+                Assert.That(_event.EventTime.UtcDateTime, Is.EqualTo(_apprenticeship.ValuePassedToComplete));
             }
 
             public void VerifyApprenticeUpdateCompletionDateWasCalled()
             {
-                Assert.AreEqual(_apprenticeship.ValuePassedToUpdateCompletionDate, _event.EventTime.UtcDateTime);
+                Assert.That(_event.EventTime.UtcDateTime, Is.EqualTo(_apprenticeship.ValuePassedToUpdateCompletionDate));
             }
 
             public void VerifyHasError()
             {
-                Assert.IsTrue(_logger.HasErrors);
+                Assert.That(_logger.HasErrors, Is.True);
             }
 
             public void VerifyHasWarning()
             {
-                Assert.IsTrue(_logger.HasWarnings);
+                Assert.That(_logger.HasWarnings, Is.True);
             }
 
             public void VerifyHasInfo()
             {
-                Assert.IsTrue(_logger.HasInfo);
+                Assert.That(_logger.HasInfo, Is.True);
             }
         }
 

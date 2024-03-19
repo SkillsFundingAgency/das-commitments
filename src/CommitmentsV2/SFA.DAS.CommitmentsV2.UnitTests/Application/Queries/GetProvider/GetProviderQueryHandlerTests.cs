@@ -32,19 +32,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         [Test]
         public async Task Handle_WhenProviderDoesExist_ThenShouldReturnResult()
         {
-            var result = await _fixture.SetProvider().Handle(); 
-            
-            Assert.IsNotNull(result);
-            Assert.AreEqual(_fixture.Provider.UkPrn, result.ProviderId);
-            Assert.AreEqual(_fixture.Provider.Name, result.Name);
+            var result = await _fixture.SetProvider().Handle();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ProviderId, Is.EqualTo(_fixture.Provider.UkPrn));
+            Assert.That(result.Name, Is.EqualTo(_fixture.Provider.Name));
         }
 
         [Test]
         public async Task Handle_WhenProviderDoesNotExist_ThenShouldReturnNull()
         {
-            var result = await _fixture.Handle(); 
-            
-            Assert.IsNull(result);
+            var result = await _fixture.Handle();
+
+            Assert.That(result, Is.Null);
         }
     }
 

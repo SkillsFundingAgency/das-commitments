@@ -28,8 +28,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     {
         private ProviderCommitmentsDbContext Db { get; set; }
         private Mock<IApprovalsOuterApiClient> _outerApiClient;
-        private CommitmentPaymentsWebJobConfiguration _config;
-        private Mock<IFilterOutAcademicYearRollOverDataLocks> _filterOutAcademicYearRollOverDataLocks;
         private Fixture _fixture;
         private DataLockUpdaterService _dataLockUpdater;
         private long _seedDataLockEventId;
@@ -89,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void CleanUp()
         {
             Db.Database.EnsureDeleted();
+            Db?.Dispose();
         }
 
         [Test]
@@ -257,8 +256,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var apprenticeshipHasNotHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasNotHadDataLockSuccessApprenticeshipId);
             var apprenticeshipHasHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasHadDataLockSuccessApprenticeshipId);
 
-            Assert.IsTrue(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess);
-            Assert.IsTrue(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess);
+            Assert.That(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
+            Assert.That(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
         }
 
         [TestCase(200, DataLockErrorCode.None, true)]
@@ -324,7 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.IsTrue(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId && x.ErrorCode == expectSavedErrorCode));
+            Assert.That(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId && x.ErrorCode == expectSavedErrorCode), Is.True);
         }
 
         [TestCase(10, DataLockErrorCode.None, true)]
@@ -362,10 +361,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == objectId);
-            Assert.AreEqual(apprenticeship.PendingUpdateOriginator == null, expectExpiry);
+            Assert.That(expectExpiry, Is.EqualTo(apprenticeship.PendingUpdateOriginator == null));
 
             var apprenticeshipUpdate = Db.ApprenticeshipUpdates.First(x => x.Id == objectId);
-            Assert.AreEqual(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Expired, expectExpiry);
+            Assert.That(expectExpiry, Is.EqualTo(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Expired));
         }
 
         [TestCase(10, DataLockErrorCode.None)]
@@ -410,10 +409,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == objectId);
-            Assert.IsTrue(apprenticeship.PendingUpdateOriginator == Originator.Unknown);
+            Assert.That(apprenticeship.PendingUpdateOriginator == Originator.Unknown, Is.True);
 
             var apprenticeshipUpdate = Db.ApprenticeshipUpdates.First(x => x.Id == objectId);
-            Assert.IsTrue(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Pending);
+            Assert.That(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Pending, Is.True);
         }
 
         [Test]
@@ -495,7 +494,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.IsFalse(Db.DataLocks.Any(x => x.Id == dataLockEventId2));
+            Assert.That(Db.DataLocks.Any(x => x.Id == dataLockEventId2), Is.False);
         }
 
         [TestCase(10, "TEST-01/05/2017", false)]
@@ -525,7 +524,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.AreEqual(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId), expectUpdate);
+            Assert.That(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId), Is.EqualTo(expectUpdate));
 
             SeedDataLocks.Clear();
         }
@@ -675,19 +674,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
               .Where(x => dataLockEventIds.Contains(x.DataLockEventId))
               .ToList();
 
-            Assert.AreEqual(dataLocks.Count, dataLockEventIds.Count);
+            Assert.That(dataLockEventIds.Count, Is.EqualTo(dataLocks.Count));
 
-            Assert.True(dataLocks.All(x => x.IsResolved));
+            Assert.That(dataLocks.All(x => x.IsResolved), Is.True);
         }
 
         private void VerifyDataLockIsNotUpdated(long dataLockEventId, bool expectDataLock)
         {
-            Assert.AreEqual(expectDataLock, Db.DataLocks.Any(x => dataLockEventId == x.DataLockEventId));
+            Assert.That(Db.DataLocks.Any(x => dataLockEventId == x.DataLockEventId), Is.EqualTo(expectDataLock));
         }
 
         private void VerifyJobHistoryCreated()
         {
-            Assert.IsTrue(Db.DataLockUpdaterJobHistory.Any());
+            Assert.That(Db.DataLockUpdaterJobHistory.Any(), Is.True);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                     .Select(p => p.Value);
 
                 var results = await fixture.Handle(expectedOutput.Key);
-                Assert.IsTrue(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfProviderChain, filteredExpectedOutputs));
+                Assert.That(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfProviderChain, filteredExpectedOutputs), Is.True);
             }
         }
     }

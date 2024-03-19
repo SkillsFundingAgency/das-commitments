@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             AddEpaToApprenticeshipsService _sut;
             private PageOfResults<SubmissionEvent> _pageOfResult;
             Mock<IMediator> _mediator;
-            long _lastSubmissionEventId;
+            readonly long _lastSubmissionEventId = 0;
             long? _pageLastId;
 
             public AddEpaToApprenticeshipsServiceTestFixture()

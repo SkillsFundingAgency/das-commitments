@@ -86,6 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void TearDown()
         {
             _dbContext?.Dispose();
+            _confirmationDbContext?.Dispose();
         }
 
         [Test]

@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     {
         [Test, MoqAutoData]
         public async Task ShouldRunAllTasks(
-            [Frozen]Mock<ICurrentDateTime> currentDateTimeMock,
-            [Frozen]Mock<IAcademicYearDateProvider> academicYearDateProvider,
-            [Frozen]Mock<IAcademicYearEndExpiryProcessorService> academicYearProcessorMock,
+            [Frozen] Mock<ICurrentDateTime> currentDateTimeMock,
+            [Frozen] Mock<IAcademicYearDateProvider> academicYearDateProvider,
+            [Frozen] Mock<IAcademicYearEndExpiryProcessorService> academicYearProcessorMock,
             AcademicYearEndExpiryProcessorJob sut)
         {
             var academicYearStart = GetCurrentAcademicYearStartDate();

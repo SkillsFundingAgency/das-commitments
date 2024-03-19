@@ -162,10 +162,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var emittedEvent = (CohortDeletedEvent)UnitOfWorkContext.GetEvents().Single(x => x is CohortDeletedEvent);
 
-            Assert.IsTrue(Cohort.IsDeleted, "Cohort is not marked as deleted");
-            Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
-            Assert.AreEqual(Cohort.EmployerAccountId, emittedEvent.AccountId);
-            Assert.AreEqual(Cohort.ProviderId, emittedEvent.ProviderId);
+            Assert.That(Cohort.IsDeleted, Is.True, "Cohort is not marked as deleted");
+            Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
+            Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
+            Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
         }
 
         public void VerifyDraftApprenticeshipDeletedAndEventEmitted()
@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 (DraftApprenticeshipDeletedEvent)UnitOfWorkContext.GetEvents()
                     .Single(x => x is DraftApprenticeshipDeletedEvent);
 
-            Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
+            Assert.That(deleted, Is.Null, "Draft apprenticeship record not deleted");
 
             emittedEvent.DraftApprenticeshipId = DraftApprenticeship.Id;
             emittedEvent.CohortId = Cohort.Id;

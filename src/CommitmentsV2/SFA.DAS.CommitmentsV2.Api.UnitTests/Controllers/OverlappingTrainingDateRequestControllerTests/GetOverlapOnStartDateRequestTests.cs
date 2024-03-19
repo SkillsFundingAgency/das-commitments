@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                 var vm = _actionResult as ViewResult;
                 //Assert
 
-                Assert.IsNull(vm);
+                Assert.That(vm, Is.Null);
             }
         }
     }

@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Enter the total agreed training cost", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Enter the total agreed training cost"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Cost"));
         }
 
         [Test]
@@ -30,9 +30,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Enter the total agreed training cost", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Enter the total agreed training cost"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Cost"));
         }
 
         [TestCase(0.10, false)]
@@ -51,14 +51,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             if (isValid)
-            {
-                Assert.AreEqual(0, result.Errors.Count);
+            {   
+                Assert.That(result.Errors.Count, Is.EqualTo(0));
             }
             else
             {
-                Assert.AreEqual(1, result.Errors.Count);
-                Assert.AreEqual("Enter the total agreed training cost", result.Errors[0].ErrorMessage);
-                Assert.AreEqual("Cost", result.Errors[0].PropertyName);
+                Assert.That(result.Errors.Count, Is.EqualTo(1));
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Enter the total agreed training cost"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Cost"));
             }
         }
 
@@ -71,9 +71,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The total cost must be £100,000 or less", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The total cost must be £100,000 or less"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Cost"));
         }
     }
 }

@@ -1,15 +1,9 @@
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using NLog.Web;
-using SFA.DAS.Commitments.Support.SubSite.Extentions;
-using StructureMap.AspNetCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -24,11 +18,15 @@ namespace SFA.DAS.Commitments.Support.SubSite
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
                 .ConfigureDasAppConfiguration()
                 .UseNLog()
                 .UseStructureMap()
-                .UseStartup<Startup>();
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+
     }
 }

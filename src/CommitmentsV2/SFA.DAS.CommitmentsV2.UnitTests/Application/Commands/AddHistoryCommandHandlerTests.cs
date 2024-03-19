@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             var history = await Db.History.FirstOrDefaultAsync(x => x.ApprenticeshipId == expectedApprenticeshipId);
-            Assert.IsNotNull(history);
+            Assert.That(history, Is.Not.Null);
         }
 
         public async Task VerifyApprenticeshipIdIsNull()
@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             var history = await Db.History.FirstOrDefaultAsync();
-            Assert.IsNull(history.ApprenticeshipId);
+            Assert.That(history.ApprenticeshipId, Is.Null);
         }
 
         public void Dispose()

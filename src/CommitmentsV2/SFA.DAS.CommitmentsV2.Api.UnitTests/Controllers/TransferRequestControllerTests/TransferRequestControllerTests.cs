@@ -107,15 +107,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             public void VerifyGetTransferRequestForSenderResult()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-                Assert.IsInstanceOf<GetTransferRequestResponse>(objectResult.Value);
+                Assert.That(objectResult.Value, Is.InstanceOf<GetTransferRequestResponse>());
 
                 var response = (GetTransferRequestResponse) objectResult.Value;
 
-                Assert.AreEqual(GetTransferRequestResponse.TransferRequestId, response.TransferRequestId);
+                Assert.That(response.TransferRequestId, Is.EqualTo(GetTransferRequestResponse.TransferRequestId));
             }
 
             public void VerifyGetTransferRequestForSenderCallsMediator()
@@ -133,15 +133,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             public void VerifyGetTransferRequestForReceiverResult()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-                Assert.IsInstanceOf<GetTransferRequestResponse>(objectResult.Value);
+                Assert.That(objectResult.Value, Is.InstanceOf<GetTransferRequestResponse>());
 
                 var response = (GetTransferRequestResponse)objectResult.Value;
 
-                Assert.AreEqual(GetTransferRequestResponse.TransferRequestId, response.TransferRequestId);
+                Assert.That(response.TransferRequestId, Is.EqualTo(GetTransferRequestResponse.TransferRequestId));
             }
 
             public void VerifyGetTransferRequestForReceiverCallsMediator()

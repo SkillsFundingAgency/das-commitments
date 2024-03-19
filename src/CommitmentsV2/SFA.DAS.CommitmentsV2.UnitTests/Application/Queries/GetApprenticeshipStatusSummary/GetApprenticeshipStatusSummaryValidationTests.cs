@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipS
         {
             var validator = new GetApprenticeshipStatusSummaryQueryValidator();
             var validationResults = validator.Validate(new GetApprenticeshipStatusSummaryQuery(employerAccountId));
-            Assert.AreEqual(expectedIsValid, validationResults.IsValid);
+            Assert.That(validationResults.IsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeshipsFilterValues(request) as OkObjectResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
 
             var filterValues = result.Value as GetApprenticeshipsFilterValuesQueryResult;
 
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeshipsFilterValues(request) as OkObjectResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
 
             var filterValues = result.Value as GetApprenticeshipsFilterValuesQueryResult;
 
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeshipsFilterValues(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
         }
 
     }

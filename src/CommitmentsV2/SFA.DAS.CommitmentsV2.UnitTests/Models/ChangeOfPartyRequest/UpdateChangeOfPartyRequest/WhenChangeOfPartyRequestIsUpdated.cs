@@ -95,17 +95,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
 
             public void VerifyPriceIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.Cost, _changeOfPartyRequest.Price);
+                Assert.That(_changeOfPartyRequest.Price, Is.EqualTo(_draftApprenticeship.Cost));
             }
 
             public void VerifyStartDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.StartDate, _changeOfPartyRequest.StartDate);
+                Assert.That(_changeOfPartyRequest.StartDate, Is.EqualTo(_draftApprenticeship.StartDate));
             }
 
             public void VerifyEndDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.EndDate, _changeOfPartyRequest.EndDate);
+                Assert.That(_changeOfPartyRequest.EndDate, Is.EqualTo(_draftApprenticeship.EndDate));
             }
         }
     }

@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             var fixture = new DeleteTestsFixture();
             var response = await fixture.Send();
 
-            Assert.IsInstanceOf<NoContentResult>(response);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]

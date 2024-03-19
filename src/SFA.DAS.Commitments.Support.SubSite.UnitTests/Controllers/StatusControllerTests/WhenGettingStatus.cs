@@ -16,13 +16,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusContro
             var sut = new StatusController();
             var viewResult = sut.Get();
 
-            Assert.AreEqual(typeof(OkObjectResult), viewResult.GetType());
+            Assert.That(viewResult.GetType(), Is.EqualTo(typeof(OkObjectResult)));
             var objectResult = (OkObjectResult)viewResult;
-            Assert.AreEqual(200, objectResult.StatusCode);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
             var result = objectResult.Value as ServiceStatusViewModel;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ApplicationConstants.ServiceName, result.ServiceName);
+            Assert.That(result.ServiceName, Is.EqualTo(ApplicationConstants.ServiceName));
         }
     }
 }

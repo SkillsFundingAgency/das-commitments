@@ -33,11 +33,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             var response = await fixtures.GetResponse(new GetAccountLegalEntityQuery {AccountLegalEntityId = accountLegalEntityId });
 
             // Assert
-            Assert.IsNotNull(response);
-            Assert.AreEqual(accountId, response.AccountId);
-            Assert.AreEqual(maLegalEntityId, response.MaLegalEntityId);
-            Assert.AreEqual("Account123", response.AccountName);
-            Assert.AreEqual(levyStatus, response.LevyStatus);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.AccountId, Is.EqualTo(accountId));
+            Assert.That(response.MaLegalEntityId, Is.EqualTo(maLegalEntityId));
+            Assert.That(response.AccountName, Is.EqualTo("Account123"));
+            Assert.That(response.LevyStatus, Is.EqualTo(levyStatus));
         }
     }
 

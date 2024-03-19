@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Update();
 
             //Assert
-            Assert.IsTrue(response is OkResult);
+            Assert.That(response is OkResult);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var addDraftApprenticeshipResponse = okObjectResult?.Value as AddDraftApprenticeshipResponse;
 
             //Assert
-            Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId, addDraftApprenticeshipResponse?.DraftApprenticeshipId);
+            Assert.That(addDraftApprenticeshipResponse?.DraftApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
         }
 
         [Test]
@@ -64,9 +64,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Get();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
+            Assert.That(okObjectResult.Value is GetDraftApprenticeshipResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Get();
 
             //Assert
-            Assert.IsTrue(response is NotFoundResult, $"Get method did not return a {nameof(NotFoundResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response is NotFoundResult, $"Get method did not return a {nameof(NotFoundResult)} - returned a {response.GetType().Name} instead");
         }
 
         [Test]
@@ -92,11 +92,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetAll();
 
             //Assert
-            Assert.IsNotNull(response);
-            Assert.IsTrue(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Delete();
 
             //Assert
-            Assert.IsTrue(response is OkResult);
+            Assert.That(response is OkResult);
         }
 
         [Test]
@@ -177,22 +177,22 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetApprenticeshipPriorLearningSummary();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult);
+            Assert.That(response is OkObjectResult);
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsNotNull(okObjectResult);
+            Assert.That(okObjectResult, Is.Not.Null);
             var obj = okObjectResult.Value as GetDraftApprenticeshipPriorLearningSummaryResponse;
-            Assert.IsNotNull(obj);
+            Assert.That(obj, Is.Not.Null);
 
-            Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId, obj.ApprenticeshipId);
-            Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.CohortId, obj.CohortId);
-            Assert.AreEqual(expected.TrainingTotalHours, obj.TrainingTotalHours);
-            Assert.AreEqual(expected.DurationReducedByHours, obj.DurationReducedByHours);
-            Assert.AreEqual(expected.PriceReducedBy, obj.PriceReducedBy);
-            Assert.AreEqual(expected.FundingBandMaximum, obj.FundingBandMaximum);
-            Assert.AreEqual(expected.PercentageOfPriorLearning, obj.PercentageOfPriorLearning);
-            Assert.AreEqual(expected.MinimumPercentageReduction, obj.MinimumPercentageReduction);
-            Assert.AreEqual(expected.MinimumPriceReduction, obj.MinimumPriceReduction);
-            Assert.AreEqual(expected.RplPriceReductionError, obj.RplPriceReductionError);
+            Assert.That(obj.ApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
+            Assert.That(obj.CohortId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.CohortId));
+            Assert.That(obj.TrainingTotalHours, Is.EqualTo(expected.TrainingTotalHours));
+            Assert.That(obj.DurationReducedByHours, Is.EqualTo(expected.DurationReducedByHours));
+            Assert.That(obj.PriceReducedBy, Is.EqualTo(expected.PriceReducedBy));
+            Assert.That(obj.FundingBandMaximum, Is.EqualTo(expected.FundingBandMaximum));
+            Assert.That(obj.PercentageOfPriorLearning, Is.EqualTo(expected.PercentageOfPriorLearning));
+            Assert.That(obj.MinimumPercentageReduction, Is.EqualTo(expected.MinimumPercentageReduction));
+            Assert.That(obj.MinimumPriceReduction, Is.EqualTo(expected.MinimumPriceReduction));
+            Assert.That(obj.RplPriceReductionError, Is.EqualTo(expected.RplPriceReductionError));
         }
 
         [Test]
@@ -205,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetApprenticeshipPriorLearningSummary();
 
             //Assert
-            Assert.IsTrue(response is NotFoundResult);
+            Assert.That(response is NotFoundResult);
         }
     }
 

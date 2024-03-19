@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
             var actual = dateMonth.IsValidMonthYear();
 
             //Assert
-            Assert.AreEqual(isValid, actual);
+            Assert.That(actual, Is.EqualTo(isValid));
         }
     }
 }

@@ -143,12 +143,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             try
             {
                 Cohort.UpdateDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo);
-                Assert.AreEqual(expected, true);
+                Assert.That(expected, Is.True);
             }
             catch (DomainException ex)
             {
-                Assert.AreEqual(expected, false);
-                Assert.Contains(propertyName, ex.DomainErrors.Select(x => x.PropertyName).ToList());
+                Assert.That(expected, Is.False);
+                Assert.That(ex.DomainErrors.Select(x => x.PropertyName).ToList(), Does.Contain(propertyName));
             }
         }
 

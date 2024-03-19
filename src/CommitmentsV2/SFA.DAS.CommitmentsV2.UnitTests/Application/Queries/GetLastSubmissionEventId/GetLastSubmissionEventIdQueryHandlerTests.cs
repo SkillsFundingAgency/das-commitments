@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             using var fixture = new GetLastSubmissionEventIdQueryHandlerTestsFixture();
             var result = await fixture.Handle();
 
-            Assert.AreEqual(fixture.AddEpaLastSubmissionEventId, result.Value);
+            Assert.That(result.Value, Is.EqualTo(fixture.AddEpaLastSubmissionEventId));
         }
 
         private class GetLastSubmissionEventIdQueryHandlerTestsFixture : IDisposable

@@ -14,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DateOfBirthExtensions
         public void ThenShouldReturnCorrectDate(int dobYear, int dobMonth, int dobDay, int expectedYear, int expectedMonth, int expectedDay)
         {
             var result = new DateTime(dobYear, dobMonth, dobDay).GetLastFridayInJuneOfSchoolYearApprenticeTurned16();
-            Assert.AreEqual(expectedYear, result.Year);
-            Assert.AreEqual(expectedMonth, result.Month);
-            Assert.AreEqual(expectedDay, result.Day);
+            Assert.That(result.Year, Is.EqualTo(expectedYear));
+            Assert.That(result.Month, Is.EqualTo(expectedMonth));
+            Assert.That(result.Day, Is.EqualTo(expectedDay));
         }
     }
 }

@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             var compare = new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true });
             var compareResult = compare.Compare(_source.ChangeOfPartyRequests, _result.ChangeOfPartyRequests);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using SFA.DAS.Commitments.Support.SubSite.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 
-namespace SFA.DAS.Commitments.Support.SubSite.Extentions
+namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 {
-    public static class IWebHostBuilderExtensions
+    public static class IHostBuilderExtensions
     {
-        public static IWebHostBuilder ConfigureDasAppConfiguration(this IWebHostBuilder hostBuilder)
+        public static IHostBuilder ConfigureDasAppConfiguration(this IHostBuilder hostBuilder)
         {
             return hostBuilder.ConfigureAppConfiguration(c => c
                 .AddAzureTableStorage(

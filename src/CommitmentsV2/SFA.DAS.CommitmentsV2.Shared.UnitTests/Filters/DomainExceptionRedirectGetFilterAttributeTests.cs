@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -27,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Filters
             var fixture = new DomainExceptionRedirectGetFilterAttributeTestsFixture();
             fixture.WithDomainException();
             fixture.OnException();
-            Assert.IsInstanceOf<RedirectToRouteResult>(fixture.ExceptionContext.Result);
+            Assert.That(fixture.ExceptionContext.Result, Is.InstanceOf<RedirectToRouteResult>());
         }
 
         [Test]
@@ -36,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Filters
             var fixture = new DomainExceptionRedirectGetFilterAttributeTestsFixture();
             fixture.WithDomainException();
             fixture.OnException();
-            Assert.AreEqual(fixture.RouteData.Values.Count, fixture.QueryString.Count);
+            Assert.That(fixture.QueryString.Count, Is.EqualTo(fixture.RouteData.Values.Count));
         }
 
         [Test]
@@ -130,12 +131,12 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Filters
                 var actualErrors = JsonConvert.DeserializeObject<SerializableModelStateDictionary>(serializedModelState);
 
                 var expectedDomainException = (CommitmentsApiModelException)ExceptionContext.Exception;
-                Assert.AreEqual(expectedDomainException.Errors.Count, actualErrors.Data.Count);
+                Assert.That(actualErrors.Data.Count, Is.EqualTo(expectedDomainException.Errors.Count));
 
                 foreach (var expectedError in expectedDomainException.Errors)
                 {
                     var actualError = actualErrors.Data.First(x => x.Key == expectedError.Field);
-                    Assert.AreEqual(expectedError.Message, actualError.ErrorMessages.First());
+                    Assert.That(actualError.ErrorMessages.First(), Is.EqualTo(expectedError.Message));
                 }
             }
         }

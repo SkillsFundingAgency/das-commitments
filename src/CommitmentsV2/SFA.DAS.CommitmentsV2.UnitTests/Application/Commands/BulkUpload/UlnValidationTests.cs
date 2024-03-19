@@ -77,12 +77,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetOverlappingDate(true, true);
             var errors = await fixture.Handle();
 
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(2, errors.BulkUploadValidationErrors[0].Errors.Count);
-            Assert.AreEqual("The <b>start date</b> overlaps with existing training dates for the same apprentice", errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
-            Assert.AreEqual("The <b>end date</b> overlaps with existing training dates for the same apprentice", errors.BulkUploadValidationErrors[0].Errors[1].ErrorText);
-            Assert.AreEqual("Uln", errors.BulkUploadValidationErrors[0].Errors[0].Property);
-            Assert.AreEqual("Uln", errors.BulkUploadValidationErrors[0].Errors[1].Property);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors.Count, Is.EqualTo(2));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo("The <b>start date</b> overlaps with existing training dates for the same apprentice"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].ErrorText, Is.EqualTo("The <b>end date</b> overlaps with existing training dates for the same apprentice"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo("Uln"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].Property, Is.EqualTo("Uln"));
         }
     }
 }

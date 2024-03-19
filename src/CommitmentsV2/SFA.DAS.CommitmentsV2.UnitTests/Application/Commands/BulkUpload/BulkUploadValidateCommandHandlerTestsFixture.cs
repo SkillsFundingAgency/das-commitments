@@ -295,10 +295,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         public void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
         {
-            Assert.AreEqual(numberOfErrors, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(numberOfErrors, errors.BulkUploadValidationErrors[0].Errors.Count);
-            Assert.AreEqual(errorText, errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
-            Assert.AreEqual(property, errors.BulkUploadValidationErrors[0].Errors[0].Property);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(numberOfErrors));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors.Count, Is.EqualTo(numberOfErrors));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo(errorText));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo(property));
         }
 
         public void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
@@ -314,7 +314,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         public void ValidateNoErrorsFound(BulkUploadValidateApiResponse errors)
         {
-            Assert.AreEqual(0, errors.BulkUploadValidationErrors.Count);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(0));
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetCohortRef(string cohortRef)

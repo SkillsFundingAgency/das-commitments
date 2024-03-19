@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             };
 
             var to = await mapper.Map(from);
-            Assert.AreEqual(dm, to.DeliveryModel);
+            Assert.That(to.DeliveryModel, Is.EqualTo(dm));
         }
 
         [Test]
@@ -198,7 +198,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_RecognisingPriorLearningStillNeedsToBeConsidered_ShouldBeSet()
         {
-            bool rplConsidered = true;
             return AssertPropertySet(input => input.RecognisingPriorLearningStillNeedsToBeConsidered, true);
         }
 		

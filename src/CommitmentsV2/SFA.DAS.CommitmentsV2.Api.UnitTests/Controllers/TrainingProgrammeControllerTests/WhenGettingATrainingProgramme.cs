@@ -27,11 +27,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             mediator.Setup(x => x.Send(It.Is<GetTrainingProgrammeQuery>(c=>c.Id.Equals(id)), CancellationToken.None)).ReturnsAsync(result);
 
             var actual = await controller.GetTrainingProgramme(id) as OkObjectResult;;
-            
+
             //actual
-            Assert.IsNotNull(actual);
+            Assert.That(actual, Is.Not.Null);
             var model = actual.Value as GetTrainingProgrammeResponse;
-            Assert.IsNotNull(model);
+            Assert.That(model, Is.Not.Null);
             model.TrainingProgramme.Should().BeEquivalentTo(result.TrainingProgramme);
         }
         

@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle(); 
             
-            Assert.AreEqual(expectedReference, result.Reference);
+            Assert.That(result.Reference, Is.EqualTo(expectedReference));
             result.HasStandardOptions.Should().BeFalse();
         }
 

@@ -628,9 +628,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
-                                                                                nameof(Cohort)));
+                                                                                nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(Party modifyingParty)
@@ -638,21 +638,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var emittedEvent = (CohortWithChangeOfPartyFullyApprovedEvent) UnitOfWorkContext.GetEvents()
                 .Single(x => x is CohortWithChangeOfPartyFullyApprovedEvent);
 
-            Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
-            Assert.AreEqual(Cohort.ChangeOfPartyRequestId, emittedEvent.ChangeOfPartyRequestId);
-            Assert.AreEqual(UserInfo, emittedEvent.UserInfo);
-            Assert.AreEqual(modifyingParty, emittedEvent.ApprovedBy);
+            Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
+            Assert.That(emittedEvent.ChangeOfPartyRequestId, Is.EqualTo(Cohort.ChangeOfPartyRequestId));
+            Assert.That(emittedEvent.UserInfo, Is.EqualTo(UserInfo));
+            Assert.That(emittedEvent.ApprovedBy, Is.EqualTo(modifyingParty));
         }
 
         public void VerifyEmployerAndProviderApprovedOnDate(bool expectValue)
         {
             if (expectValue)
             {
-                Assert.AreEqual(DateTime.UtcNow.Date, Cohort.EmployerAndProviderApprovedOn?.Date);
+                Assert.That(Cohort.EmployerAndProviderApprovedOn?.Date, Is.EqualTo(DateTime.UtcNow.Date));
             }
             else
             {
-                Assert.IsNull(Cohort.EmployerAndProviderApprovedOn);
+                Assert.That(Cohort.EmployerAndProviderApprovedOn, Is.Null);
             }
         }
     }

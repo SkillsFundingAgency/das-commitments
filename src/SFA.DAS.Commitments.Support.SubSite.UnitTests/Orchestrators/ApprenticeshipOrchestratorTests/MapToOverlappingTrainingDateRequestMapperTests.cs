@@ -74,12 +74,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
 
             public void Verify_ViewModel_IsNull()
             {
-                Assert.IsNull(_overlappingTrainingDateRequestViewModel);
+                Assert.That(_overlappingTrainingDateRequestViewModel, Is.Null);
             }
 
             public void Verify_CreatedOn_IsMapped()
             {
-                Assert.AreEqual(_overlappingTrainingDateRequest.CreatedOn, _overlappingTrainingDateRequestViewModel.CreatedOn);
+                Assert.That(_overlappingTrainingDateRequestViewModel.CreatedOn, Is.EqualTo(_overlappingTrainingDateRequest.CreatedOn));
             }
         }
     }

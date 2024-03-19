@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(761, (int)result.MinimumPriceReduction);
+            Assert.That((int)result.MinimumPriceReduction, Is.EqualTo(761));
         }
 
         [TestCase(null, null)]
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result.FundingBandMaximum);
+            Assert.That(result.FundingBandMaximum, Is.Null);
         }
 
         [TestCase(3200, 2000,  false)]
@@ -100,10 +100,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
+            Assert.That(result.FundingBandMaximum, Is.EqualTo(maxFundingBand));
+            Assert.That(result.PercentageOfPriorLearning, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100));
+            Assert.That(result.MinimumPercentageReduction, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2));
+            Assert.That(result.RplPriceReductionError, Is.EqualTo(reductionIsInError));
         }
 
         [TestCase(null,  false)]
@@ -127,10 +127,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(expectedToHaveAValue, result.PercentageOfPriorLearning.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPercentageReduction.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPriceReduction.HasValue);
-            Assert.IsFalse(result.RplPriceReductionError);
+            Assert.That(result.PercentageOfPriorLearning.HasValue, Is.EqualTo(expectedToHaveAValue));
+            Assert.That(result.MinimumPercentageReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
+            Assert.That(result.MinimumPriceReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
+            Assert.That(result.RplPriceReductionError, Is.False);
         }
 
         [TestCase(3200, 2000, false)]
@@ -153,10 +153,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
+            Assert.That(result.FundingBandMaximum, Is.EqualTo(maxFundingBand));
+            Assert.That(result.PercentageOfPriorLearning, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100));
+            Assert.That(result.MinimumPercentageReduction, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2));
+            Assert.That(result.RplPriceReductionError, Is.EqualTo(reductionIsInError));
         }
     }
 

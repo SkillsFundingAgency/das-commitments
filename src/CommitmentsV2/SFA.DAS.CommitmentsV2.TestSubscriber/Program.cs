@@ -2,14 +2,11 @@
 using System.Threading.Tasks;
 using CommandLine;
 using SFA.DAS.CommitmentsV2.TestSubscriber.CommandLines;
-using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.TestSubscriber
 {
     class Program
     {
-        private readonly IContainer _container;
-
         private static Task Main(string[] args)
         {
             Task task = null;
@@ -31,13 +28,11 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         public Program()
         {
             Console.Title = Constants.AppName;
-            _container = IoC.InitializeIoC();
         }
 
         private Task StartSubscriber(StartSubscriberCommandLineArgs args)
         {
-            var runner = _container.GetInstance<INServiceBusRunner>();
-
+            var runner = new NServiceBusRunner();
             return runner.StartNServiceBusBackgroundTask(args.ConnectionString);
         }
     }

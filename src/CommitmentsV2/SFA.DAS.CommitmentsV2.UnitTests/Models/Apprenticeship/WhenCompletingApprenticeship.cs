@@ -141,13 +141,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         public void VerifyPaymentStatusChanged()
         {
-            Assert.AreEqual(PaymentStatus.Completed, _apprenticeship.PaymentStatus);
+            Assert.That(_apprenticeship.PaymentStatus, Is.EqualTo(PaymentStatus.Completed));
         }
 
 
         public void VerifyCompletionDateChanged()
         {
-            Assert.AreEqual(_completionDate, _apprenticeship.CompletionDate);
+            Assert.That(_apprenticeship.CompletionDate, Is.EqualTo(_completionDate));
         }
 
         public void VerifyApprenticeshipCompletedEventIsPublished()
@@ -159,15 +159,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     x.CompletionDate == _completionDate &&
                     x.ApprenticeshipId == _apprenticeship.Id);
 
-            Assert.NotNull(apprenticeshipCompletedEvent);
+            Assert.That(apprenticeshipCompletedEvent, Is.Not.Null);
         }
 
         public void VerifyApprenticeshipTracking()
         {
-            Assert.IsNotNull(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType == nameof(CommitmentsV2.Models.Apprenticeship)
                                                                                 && @event.ProviderId == _apprenticeship.Cohort.ProviderId
-                                                                                && @event.EmployerAccountId == _apprenticeship.Cohort.EmployerAccountId));
+                                                                                && @event.EmployerAccountId == _apprenticeship.Cohort.EmployerAccountId), Is.Not.Null);
         }
     }
 }

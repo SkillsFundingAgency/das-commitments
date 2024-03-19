@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
 
             var result = await _fixture.Handle();
 
-            Assert.AreEqual(3, result.Providers.Count);
+            Assert.That(result.Providers.Count, Is.EqualTo(3));
         }
     }
 

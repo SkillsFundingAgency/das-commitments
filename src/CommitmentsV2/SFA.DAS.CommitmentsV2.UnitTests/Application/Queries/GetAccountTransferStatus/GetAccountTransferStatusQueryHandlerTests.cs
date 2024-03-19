@@ -116,12 +116,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransfer
 
             public void VerifyIsTransferSender(bool isSender)
             {
-                Assert.AreEqual(isSender, Result.IsTransferSender);
+                Assert.That(Result.IsTransferSender, Is.EqualTo(isSender));
             }
 
             public void VerifyIsTransferReceiver(bool isReceiver)
             {
-                Assert.AreEqual(isReceiver, Result.IsTransferReceiver);
+                Assert.That(Result.IsTransferReceiver, Is.EqualTo(isReceiver));
             }
 
             public GetAccountTransferStatusQueryHandlerTestsFixture WithNoActiveApprenticeshipsForEmployer()

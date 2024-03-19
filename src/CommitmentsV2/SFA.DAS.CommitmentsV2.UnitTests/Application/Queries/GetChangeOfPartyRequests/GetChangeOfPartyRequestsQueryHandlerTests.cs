@@ -98,13 +98,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_changeOfPartyRequests.Count(), _result.ChangeOfPartyRequests.Count);
+                Assert.That(_result.ChangeOfPartyRequests.Count, Is.EqualTo(_changeOfPartyRequests.Count()));
 
                 foreach (var sourceItem in _changeOfPartyRequests)
                 {
                     var resultItem = _result.ChangeOfPartyRequests.Single(x => x.Id == sourceItem.Id);
                     AssertEquality(sourceItem, resultItem);
-                    Assert.AreEqual(_employerName, resultItem.EmployerName);
+                    Assert.That(resultItem.EmployerName, Is.EqualTo(_employerName));
                 }
             }
 
@@ -116,15 +116,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
         private static void AssertEquality(ChangeOfPartyRequest source, GetChangeOfPartyRequestsQueryResult.ChangeOfPartyRequest result)
         {
-            Assert.AreEqual(source.Id, result.Id);
-            Assert.AreEqual(source.ChangeOfPartyType, result.ChangeOfPartyType);
-            Assert.AreEqual(source.OriginatingParty, result.OriginatingParty);
-            Assert.AreEqual(source.Status, result.Status);
-            Assert.AreEqual(source.StartDate, result.StartDate);
-            Assert.AreEqual(source.EndDate, result.EndDate);
-            Assert.AreEqual(source.Price, result.Price);
-            Assert.AreEqual(source.NewApprenticeshipId, result.NewApprenticeshipId);
-            Assert.AreEqual(source.ProviderId, result.ProviderId);
+            Assert.That(result.Id, Is.EqualTo(source.Id));
+            Assert.That(result.ChangeOfPartyType, Is.EqualTo(source.ChangeOfPartyType));
+            Assert.That(result.OriginatingParty, Is.EqualTo(source.OriginatingParty));
+            Assert.That(result.Status, Is.EqualTo(source.Status));
+            Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
+            Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
+            Assert.That(result.Price, Is.EqualTo(source.Price));
+            Assert.That(result.NewApprenticeshipId, Is.EqualTo(source.NewApprenticeshipId));
+            Assert.That(result.ProviderId, Is.EqualTo(source.ProviderId));
         }
     }
 }

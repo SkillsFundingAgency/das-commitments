@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         [TestCase(PaymentStatus.Paused, ApprenticeshipStatus.Paused)]
         [TestCase(PaymentStatus.Withdrawn, ApprenticeshipStatus.Stopped)]
         [TestCase(PaymentStatus.Completed, ApprenticeshipStatus.Completed)]
-        [TestCase(null, ApprenticeshipStatus.Unknown)]
         public async Task And_Has_Started_The_Payment_Status_Is_Mapped_To_Apprenticeship_Status(PaymentStatus paymentStatus, ApprenticeshipStatus expected)
         {
             //Arrange
@@ -33,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(expected, actual.ApprenticeshipStatus);
+            Assert.That(actual.ApprenticeshipStatus, Is.EqualTo(expected));
         }
 
         [Test]
@@ -49,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(ApprenticeshipStatus.WaitingToStart, actual.ApprenticeshipStatus);
+            Assert.That(actual.ApprenticeshipStatus, Is.EqualTo(ApprenticeshipStatus.WaitingToStart));
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus, actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.EqualTo(apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus));
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(ConfirmationStatus.Unconfirmed, actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Unconfirmed));
         }
 
         [Test]
@@ -93,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.IsNull(actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.Null);
         }
 
         private static Apprenticeship CreateApprenticeship()

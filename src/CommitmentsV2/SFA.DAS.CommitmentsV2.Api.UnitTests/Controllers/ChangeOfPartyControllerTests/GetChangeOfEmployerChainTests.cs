@@ -72,13 +72,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
 
             public void VerifyResult()
             {
-                Assert.IsNotNull(_result);
+                Assert.That(_result, Is.Not.Null);
                 var okObject = _result as OkObjectResult;
-                Assert.IsNotNull(okObject);
+                Assert.That(okObject, Is.Not.Null);
                 var objectValue = okObject.Value as GetChangeOfEmployerChainResponse;
-                Assert.IsNotNull(objectValue);
+                Assert.That(objectValue, Is.Not.Null);
 
-                Assert.AreEqual(_mapperResult, objectValue);
+                Assert.That(objectValue, Is.EqualTo(_mapperResult));
             }
         }
     }

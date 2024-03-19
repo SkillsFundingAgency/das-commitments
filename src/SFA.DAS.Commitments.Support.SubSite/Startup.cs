@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Support.SubSite
                 {
                     options.Filters.Add(new AuthorizeFilter("default"));
                 }
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            });
 
             services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
             services.AddMemoryCache();

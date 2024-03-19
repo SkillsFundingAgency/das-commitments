@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
             }
             catch(Exception e)
             {
-                _logger.LogError("Error Deleting Apprenticeship", e);
+                _logger.LogError(e, "Error Deleting Apprenticeship");
                 throw;
             }
         }

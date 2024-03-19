@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
 
             var result = await controller.GetNewerTrainingProgrammeVersions(standardUId) as OkObjectResult;
 
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
 
             var model = result.Value as GetNewerTrainingProgrammeVersionsResponse;
 
