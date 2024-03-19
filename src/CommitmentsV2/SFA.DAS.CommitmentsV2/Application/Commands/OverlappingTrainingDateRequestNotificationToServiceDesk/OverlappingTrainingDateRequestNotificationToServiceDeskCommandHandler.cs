@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
                             && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
-                            : x.CreatedOn < currentDate.AddDays(-13).Date)) //WILLO TODO revert to 14
+                            : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
