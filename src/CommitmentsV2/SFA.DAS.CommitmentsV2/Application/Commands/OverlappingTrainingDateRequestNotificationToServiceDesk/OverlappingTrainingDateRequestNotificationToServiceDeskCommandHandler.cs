@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
 
                     _logger.LogInformation($"Sending StopApprenticeshipRequest for ApprenticeshipId {pendingRecord.PreviousApprenticeshipId}");
 
-                    await _apiClient.PostAsync<StopApprenticeshipRequestRequest>(stopRequest);
+                    await _apiClient.PostAsync<string>(stopRequest);
                 }
             }
         }

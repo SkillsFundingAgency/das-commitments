@@ -74,8 +74,15 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
 
             var jsonRequest = JsonConvert.SerializeObject(request.Data);
             var content = new StringContent(jsonRequest, System.Text.Encoding.UTF8, "application/json");
+           
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, request.PostUrl)
+            {
+                Content = content,
+            };
 
-            var response = await _httpClient.PostAsync(request.PostUrl, content).ConfigureAwait(false);
+            AddHeaders(requestMessage);
+
+            var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
