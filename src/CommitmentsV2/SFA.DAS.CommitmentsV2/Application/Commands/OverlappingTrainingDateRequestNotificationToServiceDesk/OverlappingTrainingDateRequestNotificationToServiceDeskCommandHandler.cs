@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data;   
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                         body
                         );
 
-                    _logger.LogInformation($"Sending StopApprenticeshipRequest for ApprenticeshipId {pendingRecord.PreviousApprenticeshipId}");
+                    _logger.LogInformation("Sending StopApprenticeshipRequest for ApprenticeshipId {PreviousApprenticeshipId}", pendingRecord.PreviousApprenticeshipId);
 
                     await _apiClient.PostAsync<string>(stopRequest);
                 }
