@@ -7,5 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         Task<TResponse> Get<TResponse>(IGetApiRequest request);
         Task<TResponse> GetWithRetry<TResponse>(IGetApiRequest request);
+        Task<TResponse> PostAsync<TData, TResponse>(IPostApiRequest<TData> request);
+        Task<TResponse> PostAsync<TResponse>(IPostApiRequest request);
     }
 }
