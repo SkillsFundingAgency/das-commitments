@@ -60,6 +60,7 @@ jobs:
             TargetFileName: '*.schema.json'
             TableName: Configuration
             ConfigurationSecrets:
+              CommitmentsMessageServiceBusString: $(CommitmentsMessageServiceBusString)
               CompaniesHouseKey: $(CompaniesHouseKey)
               NotificationsClientToken: $(NotificationsClientToken)
               DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
