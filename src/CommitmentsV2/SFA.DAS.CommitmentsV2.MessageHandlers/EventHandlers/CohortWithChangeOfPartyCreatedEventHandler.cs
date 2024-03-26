@@ -37,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             catch (CohortAlreadyApprovedException e)
             {
                 _logger.LogError(e, $"CohortAlreadyApprovedException processing CohortWithChangeOfPartyCreatedEvent", e);
+                throw;
             }
             catch (Exception e)
             {
