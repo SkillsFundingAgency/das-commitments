@@ -33,6 +33,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
         {
+            _logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler received ChangeOfPartyRequestId {id}", message.ChangeOfPartyRequestId);
+
             var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(changeOfPartyRequest.ApprenticeshipId, default);
 
@@ -40,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOverlappingTrainingDates);
 
+            _logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler adding Cohort");
             _dbContext.Value.Cohorts.Add(cohort);
             await _dbContext.Value.SaveChangesAsync();
 
