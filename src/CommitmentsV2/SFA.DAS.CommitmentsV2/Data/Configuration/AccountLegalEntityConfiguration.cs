@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(ale => ale.PublicHashedId).IsRequired().HasColumnType("nchar(6)");
             builder.Property(ale => ale.Name).IsRequired().HasColumnType("nvarchar(100)");
             builder.Property(ale => ale.OrganisationType).IsRequired().HasConversion(new EnumToNumberConverter< OrganisationType,short>());
-            builder.Property(ale => ale.Address).IsRequired().HasColumnType("nvarchar(256)");
+            builder.Property(ale => ale.Address).HasColumnType("nvarchar(256)");
             builder.Property(ale => ale.MaLegalEntityId).IsRequired();
             builder.Property(ale => ale.AccountId).IsRequired();
             

@@ -43,6 +43,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyCohortIdIsNotUpdated();
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingEvent_If_CohortId_Already_Fully_Approved_Then_Message_Is_Swallowed_And_No_Update()
+        {
+            _fixture.WithCohortAlreadyFullyApproved();
+            await _fixture.Handle();
+            _fixture.VerifyCohortIdIsNotUpdated();
+        }
+
         private class CohortWithChangeOfPartyCreatedEventHandlerTestsFixture
         {
             private readonly CohortWithChangeOfPartyCreatedEventHandler _handler;
@@ -86,6 +94,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public CohortWithChangeOfPartyCreatedEventHandlerTestsFixture WithCohortIdAlreadySet()
             {
                 _changeOfPartyRequest.Setup(x => x.CohortId).Returns(123);
+                return this;
+            }
+            public CohortWithChangeOfPartyCreatedEventHandlerTestsFixture WithCohortAlreadyFullyApproved()
+            {
+                _cohort.SetValue(x => x.WithParty, null);
                 return this;
             }
 
