@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
@@ -12,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidEditStatusMapping(Party party, EditStatus expectedResult)
         {
             var result = party.ToEditStatus();
-            Assert.IsTrue(result == expectedResult);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(Party.TransferSender)]
@@ -27,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidOriginatorMapping(Party party, Originator expectedResult)
         {
             var result = party.ToOriginator();
-            Assert.IsTrue(result == expectedResult);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(Party.TransferSender)]
@@ -42,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidGetOtherParty(Party party, Party expectedResult)
         {
             var result = party.GetOtherParty();
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(Party.TransferSender)]

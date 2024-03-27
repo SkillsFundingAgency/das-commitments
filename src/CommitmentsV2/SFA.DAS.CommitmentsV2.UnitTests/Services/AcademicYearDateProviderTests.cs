@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Services.Shared;
+﻿using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -16,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var academicYearDateProvider = new AcademicYearDateProvider(new CurrentDateTime(currentDate));
             var result = academicYearDateProvider.CurrentAcademicYearStartDate;
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }      
     }
 }

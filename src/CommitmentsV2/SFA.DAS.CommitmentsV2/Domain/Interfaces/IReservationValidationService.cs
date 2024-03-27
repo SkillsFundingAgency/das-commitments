@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {

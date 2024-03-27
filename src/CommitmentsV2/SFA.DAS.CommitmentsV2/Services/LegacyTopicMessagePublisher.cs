@@ -1,9 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;

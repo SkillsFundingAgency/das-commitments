@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-using System.Threading.Tasks;
-using Moq;
+﻿using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressChangedByApprentice;

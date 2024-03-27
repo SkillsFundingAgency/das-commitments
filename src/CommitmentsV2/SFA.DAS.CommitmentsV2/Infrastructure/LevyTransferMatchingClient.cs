@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -29,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
 
         public async Task<PledgeApplication> GetPledgeApplication(int id)
         {
-            _logger.LogInformation($"Getting pledge application {id}");
+            _logger.LogInformation("Getting pledge application {id}", id);
 
             if (!_httpClient.BaseAddress.IsLoopback)
             {

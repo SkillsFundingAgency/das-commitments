@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
 {
     public class GetProviderPaymentsPriorityQuery : IRequest<GetProviderPaymentsPriorityQueryResult>
     {

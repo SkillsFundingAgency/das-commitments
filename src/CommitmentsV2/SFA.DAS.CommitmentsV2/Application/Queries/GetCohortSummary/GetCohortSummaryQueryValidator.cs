@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {

@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -10,12 +8,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails>
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 
-        public ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(IAuthorizationService authorizationService, ITrainingProgrammeLookup trainingProgrammeLookup)
+        public ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
         {
-            _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 

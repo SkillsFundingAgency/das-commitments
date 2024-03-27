@@ -1,11 +1,5 @@
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressChangedByApprentice;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -15,11 +9,6 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -50,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.Email.Should().Be(_fixture.CurrentEmailAddress);
         }
 
@@ -63,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.Email.Should().Be(_fixture.CurrentEmailAddress);
         }
 
@@ -76,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.EmailAddressConfirmed.Should().BeTrue();
             apprenticeship.Email.Should().Be(_fixture.NewEmailAddress);
         }
@@ -97,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var errors = e.DomainErrors.ToList();
                 errors.Count.Should().Be(1);
                 errors[0].PropertyName.Should().Be("Email");
-                errors[0].ErrorMessage.ShouldStartWith("Email Address cannot be updated for");
+                errors[0].ErrorMessage.Should().StartWith("Email Address cannot be updated for");
             }
         }
     }
@@ -127,8 +116,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(ApprenticeResponse);
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
                 .Options);
 
             Handler = new ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(
@@ -179,6 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

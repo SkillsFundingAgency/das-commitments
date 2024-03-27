@@ -1,6 +1,4 @@
-﻿using Moq;
-using NUnit.Framework;
-using IUlnValidator = SFA.DAS.Learners.Validators.IUlnValidator;
+﻿using IUlnValidator = SFA.DAS.Learners.Validators.IUlnValidator;
 using UlnValidationResult = SFA.DAS.CommitmentsV2.Domain.Entities.UlnValidationResult;
 using UlnValidator = SFA.DAS.CommitmentsV2.Services.UlnValidator;
 
@@ -26,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var result = ulnValidator.Validate("");
 
             //Assert
-            Assert.AreEqual(result, validationResult);
+            Assert.That(validationResult, Is.EqualTo(result));
         }
     }
 }

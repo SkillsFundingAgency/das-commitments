@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Configuration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration
 {
     public class CommitmentsV2Configuration
     {

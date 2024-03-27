@@ -1,12 +1,7 @@
-﻿using AutoFixture;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvents
 {
@@ -58,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvent
 
             internal void VerifySubmissionEventsAreReturned()
             {
-                Assert.AreEqual(_expectedResult, _result);
+                Assert.That(_result, Is.EqualTo(_expectedResult));
             }
 
             internal void VerifyOuterApiIsCalled()

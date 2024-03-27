@@ -1,14 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.Kernel;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -32,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(expected, fixture.DraftApprenticeshipFromDb.RecognisePriorLearning);
+            Assert.That(fixture.DraftApprenticeshipFromDb.RecognisePriorLearning, Is.EqualTo(expected));
         }
 
         [Test]
@@ -53,9 +44,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy, Is.Null);
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy, Is.Null);
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours, Is.Null);
+            });
         }
     }
 
@@ -165,13 +159,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

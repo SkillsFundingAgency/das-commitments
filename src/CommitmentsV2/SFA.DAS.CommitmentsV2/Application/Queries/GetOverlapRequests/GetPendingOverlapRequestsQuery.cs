@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests
 {
     public class GetPendingOverlapRequestsQuery : IRequest<GetPendingOverlapRequestsQueryResult>
     {

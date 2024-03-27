@@ -1,9 +1,3 @@
-using System;
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using MoreLinq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -109,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .WithApproval(modifyingParty.GetOtherParty())
                 .AddDraftApprenticeship();
 
-            Assert.IsTrue(_fixture.Cohort.Approvals == Party.None);
+            Assert.That(_fixture.Cohort.Approvals, Is.EqualTo(Party.None));
         }
 
         [TestCase(Party.Employer)]
@@ -198,16 +192,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyDraftApprenticeshipTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                       && @event.EntityType ==
-                                                                      nameof(DraftApprenticeship)));
+                                                                      nameof(DraftApprenticeship)), Is.Not.Null);
             }
 
             public void VerifyCohortTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                       && @event.EntityType ==
-                                                                      nameof(Cohort)));
+                                                                      nameof(Cohort)), Is.Not.Null);
             }
         }
     }

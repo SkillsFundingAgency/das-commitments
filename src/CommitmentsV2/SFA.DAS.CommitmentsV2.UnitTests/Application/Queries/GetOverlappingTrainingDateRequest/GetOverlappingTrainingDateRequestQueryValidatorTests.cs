@@ -1,5 +1,4 @@
 ﻿using FluentValidation.Results;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrainingDateRequest
@@ -23,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
         {
             var validationResult = _fixture.Validate(accountId);
 
-            Assert.AreEqual(isValid, validationResult.IsValid);
+            Assert.That(validationResult.IsValid, Is.EqualTo(isValid));
         }
     }
 

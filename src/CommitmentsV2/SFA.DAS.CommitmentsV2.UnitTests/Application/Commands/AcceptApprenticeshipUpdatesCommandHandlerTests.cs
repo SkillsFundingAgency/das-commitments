@@ -1,14 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -26,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class AcceptApprenticeshipUpdatesCommandHandlerTests 
+    public class AcceptApprenticeshipUpdatesCommandHandlerTests
     {
-        AcceptApprenticeshipUpdatesCommandHandlerTestsFixture _fixture;
+        private AcceptApprenticeshipUpdatesCommandHandlerTestsFixture _fixture;
 
         [TearDown]
         public void TearDown()
@@ -45,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual("XXX", _fixture.ApprenticeshipFromDb.FirstName);
+            Assert.That(_fixture.ApprenticeshipFromDb.FirstName, Is.EqualTo("XXX"));
         }
 
         [Test]
@@ -57,19 +47,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual("XXX", _fixture.ApprenticeshipFromDb.LastName);
+            Assert.That(_fixture.ApprenticeshipFromDb.LastName, Is.EqualTo("XXX"));
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_DoBIsUpdated()
         {
             _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            _fixture.ApprenticeshipUpdate.DateOfBirth = new DateTime(2000,1,1);
+            _fixture.ApprenticeshipUpdate.DateOfBirth = new DateTime(2000, 1, 1);
             await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DateOfBirth, _fixture.ApprenticeshipFromDb.DateOfBirth);
+            Assert.That(_fixture.ApprenticeshipFromDb.DateOfBirth, Is.EqualTo(_fixture.ApprenticeshipUpdate.DateOfBirth));
         }
 
         [Test]
@@ -81,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual("XXX@XX.com", _fixture.ApprenticeshipFromDb.Email);
+            Assert.That(_fixture.ApprenticeshipFromDb.Email, Is.EqualTo("XXX@XX.com"));
         }
 
         [Test]
@@ -93,8 +83,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.StartDate, _fixture.ApprenticeshipFromDb.StartDate);
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.StartDate, _fixture.PriceHistoryFromDb.FromDate);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ApprenticeshipFromDb.StartDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.StartDate));
+                Assert.That(_fixture.PriceHistoryFromDb.FromDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.StartDate));
+            });
         }
 
         [Test]
@@ -106,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EndDate, _fixture.ApprenticeshipFromDb.EndDate);
+            Assert.That(_fixture.ApprenticeshipFromDb.EndDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.EndDate));
         }
 
         [Test]
@@ -114,15 +107,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
             _fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.PortableFlexiJob;
-            _fixture.ApprenticeshipUpdate.EmploymentEndDate = DateTime.UtcNow;;
-            _fixture.ApprenticeshipUpdate.EmploymentPrice = 10001;;
+            _fixture.ApprenticeshipUpdate.EmploymentEndDate = DateTime.UtcNow;
+            ;
+            _fixture.ApprenticeshipUpdate.EmploymentPrice = 10001;
+            ;
             await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DeliveryModel, _fixture.ApprenticeshipFromDb.DeliveryModel);
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EmploymentEndDate, _fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentEndDate);
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EmploymentPrice, _fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentPrice);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ApprenticeshipFromDb.DeliveryModel, Is.EqualTo(_fixture.ApprenticeshipUpdate.DeliveryModel));
+                Assert.That(_fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentEndDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.EmploymentEndDate));
+                Assert.That(_fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentPrice, Is.EqualTo(_fixture.ApprenticeshipUpdate.EmploymentPrice));
+            });
         }
 
         [Test]
@@ -134,9 +132,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DeliveryModel, _fixture.ApprenticeshipFromDb.DeliveryModel);
-            Assert.IsNull(_fixture.ApprenticeshipUpdate.EmploymentEndDate);
-            Assert.IsNull(_fixture.ApprenticeshipUpdate.EmploymentPrice);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ApprenticeshipFromDb.DeliveryModel, Is.EqualTo(_fixture.ApprenticeshipUpdate.DeliveryModel));
+                Assert.That(_fixture.ApprenticeshipUpdate.EmploymentEndDate, Is.Null);
+                Assert.That(_fixture.ApprenticeshipUpdate.EmploymentPrice, Is.Null);
+            });
         }
 
         [Test]
@@ -149,8 +150,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual("195", _fixture.ApprenticeshipFromDb.CourseCode);
-            Assert.AreEqual("DummyTraining", _fixture.ApprenticeshipFromDb.CourseName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ApprenticeshipFromDb.CourseCode, Is.EqualTo("195"));
+                Assert.That(_fixture.ApprenticeshipFromDb.CourseName, Is.EqualTo("DummyTraining"));
+            });
         }
 
         [Test]
@@ -162,8 +166,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(195, _fixture.ApprenticeshipFromDb.Cost);
-            Assert.AreEqual(195, _fixture.PriceHistoryFromDb.Cost);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ApprenticeshipFromDb.Cost, Is.EqualTo(195));
+                Assert.That(_fixture.PriceHistoryFromDb.Cost, Is.EqualTo(195));
+            });
         }
 
         [TestCase("Option")]
@@ -176,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(option, _fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.That(_fixture.ApprenticeshipFromDb.TrainingCourseOption, Is.EqualTo(option));
         }
 
         [Test]
@@ -189,7 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.IsNull(_fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.That(_fixture.ApprenticeshipFromDb.TrainingCourseOption, Is.Null);
         }
 
         [Test]
@@ -202,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.IsNull(_fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.That(_fixture.ApprenticeshipFromDb.TrainingCourseOption, Is.Null);
         }
 
         [Test]
@@ -214,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(_fixture.ApprenticeshipDetails.TrainingCourseOption, _fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.That(_fixture.ApprenticeshipFromDb.TrainingCourseOption, Is.EqualTo(_fixture.ApprenticeshipDetails.TrainingCourseOption));
         }
 
         [Test]
@@ -226,7 +233,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(null, _fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
+            Assert.That(_fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
         }
 
         [Test]
@@ -238,7 +245,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual(ApprenticeshipUpdateStatus.Approved, _fixture.ApprenticeshipUpdate.Status);
+            Assert.That(_fixture.ApprenticeshipUpdate.Status, Is.EqualTo(ApprenticeshipUpdateStatus.Approved));
         }
 
         [Test]
@@ -283,24 +290,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Cost = x.Cost
             }).ToArray();
 
-            Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(_fixture.proxyCurrentDateTime, list[0].ApprovedOn);
-            Assert.AreEqual(apprenticeship.StartDate, list[0].StartDate);
-            Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
-            Assert.AreEqual(apprenticeship.ProgrammeType as ProgrammeType?, list[0].TrainingType);
-            Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
-            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentEndDate, list[0].EmploymentEndDate);
-            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentPrice, list[0].EmploymentPrice);
-            Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
-            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentEndDate, list[0].EmploymentEndDate);
-            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentPrice, list[0].EmploymentPrice);
-            Assert.AreEqual(apprenticeship.CourseCode, list[0].TrainingCode);
-            Assert.AreEqual(apprenticeship.Uln, list[0].Uln);
-            Assert.AreEqual(1, list[0].PriceEpisodes.Count());
-            Assert.AreEqual(priceEpisode[0].FromDate, list[0].PriceEpisodes[0].FromDate);
-            Assert.AreEqual(priceEpisode[0].ToDate, list[0].PriceEpisodes[0].ToDate);
-            Assert.AreEqual(priceEpisode[0].Cost, list[0].PriceEpisodes[0].Cost);
+            Assert.Multiple(() =>
+            {
+                Assert.That(list, Has.Count.EqualTo(1));
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].ApprovedOn, Is.EqualTo(_fixture.ProxyCurrentDateTime));
+                Assert.That(list[0].StartDate, Is.EqualTo(apprenticeship.StartDate));
+                Assert.That(list[0].EndDate, Is.EqualTo(apprenticeship.EndDate));
+                Assert.That(list[0].TrainingType, Is.EqualTo(apprenticeship.ProgrammeType as ProgrammeType?));
+                Assert.That(list[0].DeliveryModel, Is.EqualTo(apprenticeship.DeliveryModel));
+                Assert.That(list[0].EmploymentEndDate, Is.EqualTo(apprenticeship.FlexibleEmployment?.EmploymentEndDate));
+                Assert.That(list[0].EmploymentPrice, Is.EqualTo(apprenticeship.FlexibleEmployment?.EmploymentPrice));
+                Assert.That(list[0].DeliveryModel, Is.EqualTo(apprenticeship.DeliveryModel));
+                Assert.That(list[0].EmploymentEndDate, Is.EqualTo(apprenticeship.FlexibleEmployment?.EmploymentEndDate));
+                Assert.That(list[0].EmploymentPrice, Is.EqualTo(apprenticeship.FlexibleEmployment?.EmploymentPrice));
+                Assert.That(list[0].TrainingCode, Is.EqualTo(apprenticeship.CourseCode));
+                Assert.That(list[0].Uln, Is.EqualTo(apprenticeship.Uln));
+                Assert.That(list[0].PriceEpisodes, Has.Length.EqualTo(1));
+                Assert.That(list[0].PriceEpisodes[0].FromDate, Is.EqualTo(priceEpisode[0].FromDate));
+                Assert.That(list[0].PriceEpisodes[0].ToDate, Is.EqualTo(priceEpisode[0].ToDate));
+                Assert.That(list[0].PriceEpisodes[0].Cost, Is.EqualTo(priceEpisode[0].Cost));
+            });
         }
 
         [Test]
@@ -316,9 +326,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.ApprenticeshipFromDb;
 
-            Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(_fixture.proxyCurrentDateTime, list[0].ApprovedOn);
+            Assert.Multiple(() =>
+            {
+                Assert.That(list, Has.Count.EqualTo(1));
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].ApprovedOn, Is.EqualTo(_fixture.ProxyCurrentDateTime));
+            });
         }
 
         [Test]
@@ -332,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var list = _fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
 
-            Assert.AreEqual(0, list.Count);
+            Assert.That(list, Is.Empty);
         }
 
         [Test]
@@ -345,14 +358,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.AreEqual((_fixture.Exception as DomainException).DomainErrors.First().ErrorMessage, "Unable to approve these changes, as the apprentice has confirmed their email address");
+            Assert.That((_fixture.Exception as DomainException)?.DomainErrors.First().ErrorMessage, Is.EqualTo("Unable to approve these changes, as the apprentice has confirmed their email address"));
         }
     }
 
     public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
-        public Fixture fixture { get; set; }
+        public Fixture Fixture { get; set; }
         public AcceptApprenticeshipUpdatesCommand Command { get; set; }
         public Apprenticeship ApprenticeshipDetails { get; set; }
         public CancellationToken CancellationToken { get; set; }
@@ -360,7 +373,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public IRequestHandler<AcceptApprenticeshipUpdatesCommand> Handler { get; set; }
         public UserInfo UserInfo { get; }
         public Mock<IAuthenticationService> AuthenticationService;
-        public Mock<ICurrentDateTime> currentDateTimeService;
+        public Mock<ICurrentDateTime> CurrentDateTimeService;
         public Mock<IOverlapCheckService> OverlapCheckService;
         public Party Party;
         public bool HasOverlapErrors;
@@ -371,18 +384,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public PriceHistory PriceHistoryFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
         public Exception Exception { get; set; }
 
-        public DateTime proxyCurrentDateTime = new DateTime(2020, 1, 1);
+        public DateTime ProxyCurrentDateTime = new(2020, 1, 1);
 
         public AcceptApprenticeshipUpdatesCommandHandlerTestsFixture()
         {
-            fixture = new Fixture();
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            Fixture = new Fixture();
+            Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
             Party = Party.Employer;
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            var Cohort = new Cohort()
+            var cohort = new Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c => c.ProviderId, 333)
@@ -390,11 +403,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 .Set(c => c.ApprenticeshipId, ApprenticeshipId)
-                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
+                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending);
 
             var priceHistory = new List<PriceHistory>()
             {
-                new PriceHistory
+                new()
                 {
                     FromDate = DateTime.Now,
                     ToDate = null,
@@ -402,40 +415,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 }
             };
 
-            ApprenticeshipDetails = fixture.Build<Apprenticeship>()
-             .With(s => s.Id, ApprenticeshipId)
-             .With(s => s.Cohort, Cohort)
-             .With(s => s.PaymentStatus, PaymentStatus.Completed)
-             .With(s => s.EndDate, DateTime.UtcNow)
-             .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
-             .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
-             .With(s => s.PriceHistory, priceHistory)
-             .Without(s => s.ApprenticeshipUpdate)
-             .Without(s => s.DataLockStatus)
-             .Without(s => s.EpaOrg)
-             .Without(s => s.Continuation)
-             .Without(s => s.PreviousApprenticeship)
-             .Without(s => s.EmailAddressConfirmed)
-             .Without(s => s.ApprenticeshipConfirmationStatus)
-             .Create();
+            ApprenticeshipDetails = Fixture.Build<Apprenticeship>()
+                .With(s => s.Id, ApprenticeshipId)
+                .With(s => s.Cohort, cohort)
+                .With(s => s.PaymentStatus, PaymentStatus.Completed)
+                .With(s => s.EndDate, DateTime.UtcNow)
+                .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
+                .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+                .With(s => s.PriceHistory, priceHistory)
+                .Without(s => s.ApprenticeshipUpdate)
+                .Without(s => s.DataLockStatus)
+                .Without(s => s.EpaOrg)
+                .Without(s => s.Continuation)
+                .Without(s => s.PreviousApprenticeship)
+                .Without(s => s.EmailAddressConfirmed)
+                .Without(s => s.ApprenticeshipConfirmationStatus)
+                .Create();
 
             CancellationToken = new CancellationToken();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
-            
+
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
 
-            currentDateTimeService = new Mock<ICurrentDateTime>();
-            currentDateTimeService.Setup(x => x.UtcNow).Returns(proxyCurrentDateTime);
+            CurrentDateTimeService = new Mock<ICurrentDateTime>();
+            CurrentDateTimeService.Setup(x => x.UtcNow).Returns(ProxyCurrentDateTime);
 
-            UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<AcceptApprenticeshipUpdatesCommand>().With(o => o.UserInfo, UserInfo).Create();
+            UserInfo = Fixture.Create<UserInfo>();
+            Command = Fixture.Build<AcceptApprenticeshipUpdatesCommand>().With(o => o.UserInfo, UserInfo).Create();
             Command.ApprenticeshipId = ApprenticeshipId;
             Command.AccountId = 222;
 
@@ -443,7 +456,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 AuthenticationService.Object,
                 OverlapCheckService.Object,
-                currentDateTimeService.Object,
+                CurrentDateTimeService.Object,
                 Mock.Of<ILogger<AcceptApprenticeshipUpdatesCommandHandler>>());
 
             var _ = SeedData().Result;
@@ -455,7 +468,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 await Handler.Handle(Command, CancellationToken);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Exception = exception;
             }
@@ -465,47 +478,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var first = Db.Apprenticeships.First();
             first.EmailAddressConfirmed = true;
-            await Db.SaveChangesAsync();
+            await Db.SaveChangesAsync(CancellationToken);
             return this;
         }
 
-        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
+        private async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
 
-            await Db.SaveChangesAsync();
+            await Db.SaveChangesAsync(CancellationToken);
             return this;
         }
-
-        public ApprenticeshipUpdate GetApprenticeshipUpdate()
-        {
-            var apprenticeshipUpdate = new ApprenticeshipUpdate()
-           .Set(c => c.Id, 555)
-           .Set(c => c.ApprenticeshipId, ApprenticeshipId);
-
-            return apprenticeshipUpdate;
-        }
-
+        
         public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
         {
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-          
+
             apprenticeship.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeship.ApprenticeshipUpdate.Add(update);
 
-            await Db.SaveChangesAsync();
+            await Db.SaveChangesAsync(CancellationToken);
             return this;
         }
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

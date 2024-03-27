@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SFA.DAS.CommitmentsV2.Exceptions
+﻿namespace SFA.DAS.CommitmentsV2.Exceptions
 {
     public class BadRequestException : Exception
     {

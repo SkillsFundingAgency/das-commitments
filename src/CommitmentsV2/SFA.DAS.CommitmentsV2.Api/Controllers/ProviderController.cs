@@ -1,6 +1,3 @@
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;

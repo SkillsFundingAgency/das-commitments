@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Extensions
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 {
     public static class DateTimeExtensions
     {

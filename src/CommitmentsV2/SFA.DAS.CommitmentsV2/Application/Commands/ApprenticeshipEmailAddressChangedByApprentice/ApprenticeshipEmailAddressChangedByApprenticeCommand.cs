@@ -1,6 +1,3 @@
-using System;
-using MediatR;
-
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressChangedByApprentice
 {
     public class ApprenticeshipEmailAddressChangedByApprenticeCommand : IRequest

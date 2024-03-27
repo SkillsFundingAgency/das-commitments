@@ -1,5 +1,4 @@
-﻿using System;
-using SFA.DAS.CommitmentsV2.Domain;
+﻿using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -250,12 +249,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 return Party.Provider;
             }
 
-            if (OriginatingParty == Party.Employer && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            if (OriginatingParty == Party.Employer && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider && StartDate.HasValue && EndDate.HasValue && Price.HasValue)
             {
-                if (StartDate.HasValue && EndDate.HasValue && Price.HasValue)
-                {
-                    return Party.Employer;
-                }
+                return Party.Employer;
             }
 
             return Party.None;

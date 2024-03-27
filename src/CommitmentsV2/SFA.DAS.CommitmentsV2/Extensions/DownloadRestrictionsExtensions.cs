@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {

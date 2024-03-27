@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture.NUnit3;
-using Moq;
-using NUnit.Framework;
+﻿using AutoFixture.NUnit3;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
@@ -33,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var result = await search.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

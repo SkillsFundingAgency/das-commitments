@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -100,64 +95,70 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyOriginator(Originator expectedOriginator)
         {
-            Assert.AreEqual(expectedOriginator, Cohort.Originator);
+            Assert.That(Cohort.Originator, Is.EqualTo(expectedOriginator));
         }
 
         public void VerifyMessageIsAdded()
         {
             var createdBy = CreatingParty == Party.Employer ? 0 : 1;
 
-            Assert.IsTrue(Cohort.Messages.Any(x =>
-                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy));
+            Assert.That(Cohort.Messages.Any(x =>
+                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy), Is.True);
         }
 
         public void VerifyNoMessageIsAdded()
         {
-            Assert.IsFalse(Cohort.Messages.Any());
+            Assert.That(Cohort.Messages.Any(), Is.False);
         }
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void VerifyNoException()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
 
         public void VerifyCohortIsNotDraft()
         {
-            Assert.IsFalse(Cohort.IsDraft);
+            Assert.That(Cohort.IsDraft, Is.False);
         }
 
         public void VerifyCohortIsWithOtherParty()
         {
-            Assert.AreEqual(CreatingParty.GetOtherParty().ToEditStatus(), Cohort.EditStatus);
+            Assert.That(Cohort.EditStatus, Is.EqualTo(CreatingParty.GetOtherParty().ToEditStatus()));
         }
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+                Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            });
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
-            Assert.IsNull(Cohort.TransferSenderId);
-            Assert.IsNull(Cohort.TransferSender);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.Null);
+                Assert.That(Cohort.TransferSender, Is.Null);
+            });
         }
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
-                                                                                nameof(Cohort)));
+                                                                                nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyCohortAssignedToProviderEventIsPublished()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortAssignedToProviderEvent));
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortAssignedToProviderEvent), Is.Not.Null);
         }
     }
 }

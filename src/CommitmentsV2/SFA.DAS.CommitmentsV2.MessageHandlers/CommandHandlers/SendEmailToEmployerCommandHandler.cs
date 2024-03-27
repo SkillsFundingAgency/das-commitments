@@ -1,92 +1,85 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Notifications.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+
+public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmployerCommand>
 {
-    public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmployerCommand>
+    private const string Owner = "Owner";
+    private const string Transactor = "Transactor";
+
+    private readonly ILogger<SendEmailToEmployerCommandHandler> _logger;
+    private readonly IAccountApiClient _accountApiClient;
+
+    public SendEmailToEmployerCommandHandler(IAccountApiClient accountApiClient, ILogger<SendEmailToEmployerCommandHandler> logger)
     {
-        private const string Owner = "Owner";
-        private const string Transactor = "Transactor";
+        _logger = logger;
+        _accountApiClient = accountApiClient;
+    }
 
-        private readonly ILogger<SendEmailToEmployerCommandHandler> _logger;
-        private readonly IAccountApiClient _accountApiClient;
-
-        public SendEmailToEmployerCommandHandler(IAccountApiClient accountApiClient, ILogger<SendEmailToEmployerCommandHandler> logger)
+    public async Task Handle(SendEmailToEmployerCommand message, IMessageHandlerContext context)
+    {
+        try
         {
-            _logger = logger;
-            _accountApiClient = accountApiClient;
-        }
+            _logger.LogInformation($"Getting AccountUsers for {message.AccountId}");
 
-        public async Task Handle(SendEmailToEmployerCommand message, IMessageHandlerContext context)
-        {
-            bool IsOwnerOrTransactor(string role)
+            var emails = new List<(string Email, string Name)>();
+            var users = await _accountApiClient.GetAccountUsers(message.AccountId);
+
+            if (string.IsNullOrWhiteSpace(message.EmailAddress))
             {
-                return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
-                       role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
-            }
+                _logger.LogInformation("Sending emails to all AccountUsers who can receive emails");
 
-            try
-            {
-                _logger.LogInformation($"Getting AccountUsers for {message.AccountId}");
-
-                var emails = new List<(string Email, string Name)>();
-                var users = await _accountApiClient.GetAccountUsers(message.AccountId);
-
-                if (string.IsNullOrWhiteSpace(message.EmailAddress))
-                {
-                    _logger.LogInformation("Sending emails to all AccountUsers who can recieve emails");
-
-                    emails.AddRange(users.Where(x =>
+                emails.AddRange(users.Where(x =>
                         x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
-                            IsOwnerOrTransactor(x.Role))
-                        .Select(x => (x.Email, x.Name)));
-                }
-                else
+                        IsOwnerOrTransactor(x.Role))
+                    .Select(x => (x.Email, x.Name)));
+            }
+            else
+            {
+                var user = users.FirstOrDefault(x =>
+                    x.CanReceiveNotifications && message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase));
+
+                if (user != null)
                 {
-                    var user = users.FirstOrDefault(x =>
-                        x.CanReceiveNotifications && message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase));
-
-                    if (user != null)
-                    {
-                        _logger.LogInformation("Sending email to the explicit user in message");
-                        emails.Add((Email: message.EmailAddress, user.Name));
-                    }
-                }
-
-                if (emails.Any())
-                {
-                    _logger.LogInformation($"Calling SendEmailCommand for {emails.Count()} emails");
-
-                    var emailTasks = emails.Select(email =>
-                    {
-                        var tokens = new Dictionary<string, string>(message.Tokens);
-                        if (!string.IsNullOrEmpty(message.NameToken))
-                        {
-                            tokens.Add(message.NameToken, email.Name);
-                        }
-
-                        return context.Send(new SendEmailCommand(message.Template, email.Email, tokens));
-                    });
-
-                    await Task.WhenAll(emailTasks);
-                }
-                else
-                {
-                    _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for AccountId {message.AccountId}");
+                    _logger.LogInformation("Sending email to the explicit user in message");
+                    emails.Add((Email: message.EmailAddress, user.Name));
                 }
             }
-            catch (Exception e)
+
+            if (emails.Any())
             {
-                _logger.LogError($"Error processing {nameof(SendEmailToEmployerCommand)}", e);
-                throw;
+                _logger.LogInformation("Calling SendEmailCommand for {Count} emails", emails.Count);
+
+                var emailTasks = emails.Select(email =>
+                {
+                    var tokens = new Dictionary<string, string>(message.Tokens);
+                    if (!string.IsNullOrEmpty(message.NameToken))
+                    {
+                        tokens.Add(message.NameToken, email.Name);
+                    }
+
+                    return context.Send(new SendEmailCommand(message.Template, email.Email, tokens));
+                });
+
+                await Task.WhenAll(emailTasks);
+            }
+            else
+            {
+                _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for AccountId {message.AccountId}");
             }
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error processing {CommandName)}", nameof(SendEmailToEmployerCommand));
+            throw;
+        }
+    }
+    
+    private static bool IsOwnerOrTransactor(string role)
+    {
+        return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
+               role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
     }
 }

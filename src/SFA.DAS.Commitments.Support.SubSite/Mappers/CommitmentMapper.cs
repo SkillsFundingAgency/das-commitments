@@ -1,14 +1,11 @@
-﻿using SFA.DAS.Commitments.Support.SubSite.Extentions;
-using SFA.DAS.Commitments.Support.SubSite.Models;
+﻿using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Services;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using System.Collections.Generic;
-using System.Linq;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
@@ -60,16 +57,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        private AgreementStatus DetermineAgreementStatus(List<SupportApprenticeshipDetails> apprenticeships)
+        private static AgreementStatus DetermineAgreementStatus(IEnumerable<SupportApprenticeshipDetails> apprenticeships)
         {
             var first = apprenticeships?.FirstOrDefault();
 
-            if (first == null)
-            {
-                return AgreementStatus.NotAgreed;
-            }
-
-            return first.AgreementStatus;
+            return first?.AgreementStatus ?? AgreementStatus.NotAgreed;
         }
     }
 }

@@ -1,11 +1,5 @@
-using System;
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -274,15 +268,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
-                                                                                nameof(Cohort)));
+                                                                                nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyCohortWithChangeOfPartyRequestEventIsPublished()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
-                                                                               && @event.CohortId == Cohort.Id));
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
+                                                                               && @event.CohortId == Cohort.Id), Is.Not.Null);
         }
     }
 }

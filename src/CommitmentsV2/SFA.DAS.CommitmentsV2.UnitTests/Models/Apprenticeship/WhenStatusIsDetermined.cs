@@ -1,7 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Types;
 using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
@@ -93,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
             public void VerifyStatus(ApprenticeshipStatus expectedStatus)
             {
-                Assert.AreEqual(expectedStatus, _apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow));
+                Assert.That(_apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), Is.EqualTo(expectedStatus));
             }
 
             internal void VerifyAllPaymentStatusAreMappedToApprenticeshipStatus()
@@ -101,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 foreach (PaymentStatus paymentStatus in Enum.GetValues(typeof(PaymentStatus)))
                 {
                     _apprenticeship.PaymentStatus = paymentStatus;
-                    Assert.AreNotEqual(ApprenticeshipStatus.Unknown, _apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), $"PaymentStatus : {paymentStatus.ToString()} is not mapped to Apprenticeship status");
+                    Assert.That(_apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), Is.Not.EqualTo(ApprenticeshipStatus.Unknown), $"PaymentStatus : {paymentStatus.ToString()} is not mapped to Apprenticeship status");
                 }
             }
         }

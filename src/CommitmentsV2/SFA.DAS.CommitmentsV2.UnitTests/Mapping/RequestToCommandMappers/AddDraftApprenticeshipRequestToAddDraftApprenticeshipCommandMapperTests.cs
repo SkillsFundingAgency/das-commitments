@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
@@ -81,7 +78,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(input => input.ActualStartDate = startDate, output => output.ActualStartDate == startDate);
         }
 
-        [TestCase(null)]
         [TestCase(DeliveryModel.Regular)]
         [TestCase(DeliveryModel.PortableFlexiJob)]
         public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)

@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary
 {
     public class GetApprenticeshipStatusSummaryQuery : IRequest<GetApprenticeshipStatusSummaryQueryResults>
     {

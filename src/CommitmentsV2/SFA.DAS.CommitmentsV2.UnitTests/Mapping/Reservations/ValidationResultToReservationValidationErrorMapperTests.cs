@@ -1,8 +1,4 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Mapping.Reservations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using SFA.DAS.CommitmentsV2.Mapping.Reservations;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
@@ -28,11 +24,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         {
             var result = await _mapper.Map(_source);
 
-            Assert.AreEqual(_source.ValidationErrors.Length, result.ValidationErrors.Length);
+            Assert.That(result.ValidationErrors, Has.Length.EqualTo(_source.ValidationErrors.Length));
             foreach (var error in result.ValidationErrors)
             {
-                Assert.IsTrue(result.ValidationErrors.Any(x =>
-                    x.PropertyName == error.PropertyName && x.Reason == error.Reason));
+                Assert.That(result.ValidationErrors.Any(x =>
+                    x.PropertyName == error.PropertyName && x.Reason == error.Reason), Is.True);
             }
         }
     }

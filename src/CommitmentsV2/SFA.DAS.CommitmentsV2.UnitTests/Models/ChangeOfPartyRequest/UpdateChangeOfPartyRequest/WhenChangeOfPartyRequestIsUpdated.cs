@@ -1,12 +1,5 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using SFA.DAS.CommitmentsV2;
-
-using SFA.DAS.CommitmentsV2.TestHelpers;
+﻿using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.UnitOfWork.Context;
-using AutoFixture;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChangeOfPartyRequest
@@ -95,17 +88,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
 
             public void VerifyPriceIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.Cost, _changeOfPartyRequest.Price);
+                Assert.That(_changeOfPartyRequest.Price, Is.EqualTo(_draftApprenticeship.Cost));
             }
 
             public void VerifyStartDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.StartDate, _changeOfPartyRequest.StartDate);
+                Assert.That(_changeOfPartyRequest.StartDate, Is.EqualTo(_draftApprenticeship.StartDate));
             }
 
             public void VerifyEndDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeship.EndDate, _changeOfPartyRequest.EndDate);
+                Assert.That(_changeOfPartyRequest.EndDate, Is.EqualTo(_draftApprenticeship.EndDate));
             }
         }
     }

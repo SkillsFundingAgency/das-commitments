@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Moq;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Collections;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System.Collections.Generic;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using Newtonsoft.Json;
 
@@ -352,7 +341,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public UpdateProviderPaymentPriorityCommandHandlerTestsFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             
             Logger = new Mock<ILogger<UpdateProviderPaymentsPriorityCommandHandler>>();
 
@@ -407,7 +396,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyAccount(long accountId, List<CustomProviderPaymentPriority> customProviderPaymentPriorities)
         {
-            TestHelpers.CompareHelper.AreEqualIgnoringTypes(Db.Accounts.FirstOrDefault(p => p.Id == accountId)?.CustomProviderPaymentPriorities,
+            TestHelpers.CompareHelper.AreEqualIgnoringTypes(Db.Accounts.Include(account => account.CustomProviderPaymentPriorities).FirstOrDefault(p => p.Id == accountId)?.CustomProviderPaymentPriorities,
                 customProviderPaymentPriorities).Should().BeTrue();
         }
 
@@ -418,12 +407,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var entityStateChangedEvents = UnitOfWorkContext
                     .GetEvents()
                     .OfType<EntityStateChangedEvent>()
-                    .Where(p =>
-                        p.EmployerAccountId == updatedItem.EmployerAccountId &&
-                        p.ProviderId == updatedItem.ProviderId &&
-                        p.InitialState == updatedItem.InitialState &&
-                        p.UpdatedState == updatedItem.UpdatedState)
-                    .Count()
+                    .Count(p => p.EmployerAccountId == updatedItem.EmployerAccountId &&
+                                p.ProviderId == updatedItem.ProviderId &&
+                                p.InitialState == updatedItem.InitialState &&
+                                p.UpdatedState == updatedItem.UpdatedState)
                     .Should()
                     .Be(1);
             }
@@ -443,6 +430,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

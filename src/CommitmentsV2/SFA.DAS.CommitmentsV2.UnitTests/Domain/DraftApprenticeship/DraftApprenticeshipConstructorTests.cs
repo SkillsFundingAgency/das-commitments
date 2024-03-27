@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -22,29 +20,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenFirstNameIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.FirstName, result.FirstName);
+            Assert.That(result.FirstName, Is.EqualTo(_source.FirstName));
         }
 
         [Test]
         public void ThenLastNameIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.LastName, result.LastName);
+            Assert.That(result.LastName, Is.EqualTo(_source.LastName));
         }
 
         [Test]
         public void ThenUlnIsMappedCorrectlyWhenOriginatorIsProvider()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Provider);
-            Assert.AreEqual(_source.Uln, result.Uln);
+            Assert.That(result.Uln, Is.EqualTo(_source.Uln));
         }
 
         [Test]
         public void ThenUlnIsNotMappedWhenOriginatorIsEmployer()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.Uln, result.Uln);
-            Assert.IsNull(result.Uln);
+            Assert.That(result.Uln, Is.EqualTo(_source.Uln));
+            Assert.That(result.Uln, Is.Null);
         }
 
         [Test]
@@ -59,56 +57,56 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenCostIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.Cost, result.Cost);
+            Assert.That(result.Cost, Is.EqualTo(_source.Cost));
         }
 
         [Test]
         public void ThenStartDateIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.StartDate, result.StartDate);
+            Assert.That(result.StartDate, Is.EqualTo(_source.StartDate));
         }
 
         [Test]
         public void ThenEndDateIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.EndDate, result.EndDate);
+            Assert.That(result.EndDate, Is.EqualTo(_source.EndDate));
         }
 
         [Test]
         public void ThenDateOfBirthIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.DateOfBirth, result.DateOfBirth);
+            Assert.That(result.DateOfBirth, Is.EqualTo(_source.DateOfBirth));
         }
 
         [Test]
         public void ThenEmployerRefIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.Reference, result.EmployerRef);
+            Assert.That(result.EmployerRef, Is.EqualTo(_source.Reference));
         }
 
         [Test]
         public void ThenProviderRefIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Provider);
-            Assert.AreEqual(_source.Reference, result.ProviderRef);
+            Assert.That(result.ProviderRef, Is.EqualTo(_source.Reference));
         }
 
         [Test]
         public void ThenReservationIdIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.ReservationId, result.ReservationId);
+            Assert.That(result.ReservationId, Is.EqualTo(_source.ReservationId));
         }
 
         [Test]
         public void ThenIsOnFlexiPaymentPilotIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.AreEqual(_source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
+            Assert.That(result.IsOnFlexiPaymentPilot, Is.EqualTo(_source.IsOnFlexiPaymentPilot));
         }
     }
 }

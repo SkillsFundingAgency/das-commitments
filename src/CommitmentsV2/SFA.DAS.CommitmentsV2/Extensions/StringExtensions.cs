@@ -1,5 +1,3 @@
-using System;
-
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class StringExtensions

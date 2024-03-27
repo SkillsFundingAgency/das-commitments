@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
@@ -22,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.OverlappingTrainingDateRequests)
                 .HasForeignKey(d => d.PreviousApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .IsRequired(false); ;
+                .IsRequired(false);
         }
     }
 }

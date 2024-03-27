@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.Authorization.Services;
+﻿using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -135,8 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard,
                 DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object,
-                TrainingProgrammeLookup.Object);
+            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
 
             int standardCodeOut;
             TrainingProgrammeLookup

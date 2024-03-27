@@ -1,19 +1,11 @@
-﻿using System;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NServiceBus;
+﻿using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.Builders;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Threading;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
-using System.Linq;
 using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate
@@ -129,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public class OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler _sut;
-            OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command;
+            private OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command = null;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             Mock<IMessageSession> _messageSession;
@@ -140,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
               
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                          .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                          .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                           .EnableSensitiveDataLogging()
                           .Options);
 
@@ -214,10 +206,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             internal void Verify_NotifiedServiceDeskOn_Updated()
             {
                 var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                Assert.IsNotNull(overlappingTrainingDateRequest);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Year, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Year);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Month, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Month);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Day, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Day);
+                Assert.That(overlappingTrainingDateRequest, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
+                });
             }
 
             private void SeedData()
@@ -298,6 +293,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             public void Dispose()
             {
                 Db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

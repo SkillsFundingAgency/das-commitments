@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NUnit.Framework;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -12,13 +11,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public static TExpectedResponseType VerifyResponseObjectType<TExpectedResponseType>(this IActionResult result) where TExpectedResponseType : IActionResult
         {
-            Assert.IsTrue(result is TExpectedResponseType, $"Expected response type {typeof(TExpectedResponseType)} but got {result.GetType()}");
+            Assert.That(result is TExpectedResponseType, $"Expected response type {typeof(TExpectedResponseType)} but got {result.GetType()}");
             return (TExpectedResponseType)result;
         }
 
         public static TExpectedModel WithModel<TExpectedModel>(this ObjectResult result) where TExpectedModel : class
         {
-            Assert.IsInstanceOf<TExpectedModel>(result.Value);
+            Assert.That(result.Value, Is.InstanceOf<TExpectedModel>());
             return result.Value as TExpectedModel;
         }
     }

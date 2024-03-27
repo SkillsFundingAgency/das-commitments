@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using FluentValidation.TestHelper;
 

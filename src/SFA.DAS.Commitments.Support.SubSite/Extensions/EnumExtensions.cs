@@ -1,23 +1,18 @@
-﻿using System;
-using System.ComponentModel;
-using System.Reflection;
+﻿using System.ComponentModel;
 
-namespace SFA.DAS.Commitments.Support.SubSite.Extentions
+namespace SFA.DAS.Commitments.Support.SubSite.Extensions;
+
+public static class EnumExtensions
 {
-    public static class EnumExtensions
+    public static string GetEnumDescription(this Enum value)
     {
-        public static string GetEnumDescription(this Enum value)
+        var fi = value.GetType().GetField(value.ToString());
+        var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+        if (attributes != null && attributes.Length > 0)
         {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attributes != null && attributes.Length > 0)
-            {
-                return attributes[0].Description;
-            }
-            else
-            {
-                return value.ToString();
-            }
+            return attributes[0].Description;
         }
+
+        return value.ToString();
     }
 }

@@ -1,16 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeships
 {
@@ -34,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenCohortExists_ThenShouldReturnResult()
         {
-            _fixture.SeedDataWithRpl2Data();
+            _fixture.SeedDataWithRpl2DraftData();
             await _fixture.Handle();
             _fixture.VerifyResultMapping();
         }
@@ -44,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl2Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeTrue();
+            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeTrue();
         }
 
         [Test]
@@ -52,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl2Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).ShouldBeFalse();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeFalse();
         }
 
         [Test]
@@ -60,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl1Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeFalse();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeFalse();
         }
 
         [Test]
@@ -68,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl1Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).ShouldBeTrue();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeTrue();
         }
 
         [Test]
@@ -96,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
@@ -127,11 +119,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = _autoFixture
-                        .Build<DraftApprenticeship>()
+                        .Build<Apprenticeship>()
                         .With(x => x.Id, _autoFixture.Create<long>)
                         .With(x => x.CommitmentId, _cohortId)
                         .With(a=>a.TrainingTotalHours, 2000)
                         .With(a=>a.PriorLearning, new ApprenticeshipPriorLearning
+                        {
+                            DurationReducedByHours = 1000,
+                            IsDurationReducedByRpl = true,
+                            DurationReducedBy = 10,
+                            PriceReducedBy = 240
+                        })
+                        .Create();
+
+                    _cohort.Apprenticeships.Add(apprenticeship);
+                }
+
+                _db.Cohorts.Add(_cohort);
+                _db.SaveChanges();
+            }
+
+            public void SeedDataWithRpl2DraftData()
+            {
+                _cohort = new Cohort
+                {
+                    CommitmentStatus = CommitmentStatus.New,
+                    EditStatus = EditStatus.EmployerOnly,
+                    LastAction = LastAction.None,
+                    Originator = Originator.Unknown,
+                    Id = _cohortId,
+                    Reference = string.Empty
+                };
+
+                for (var i = 0; i < 10; i++)
+                {
+                    var apprenticeship = _autoFixture
+                        .Build<DraftApprenticeship>()
+                        .With(x => x.Id, _autoFixture.Create<long>)
+                        .With(x => x.CommitmentId, _cohortId)
+                        .With(x=>x.IsApproved, false)
+                        .With(a => a.TrainingTotalHours, 2000)
+                        .With(a => a.PriorLearning, new ApprenticeshipPriorLearning
                         {
                             DurationReducedByHours = 1000,
                             IsDurationReducedByRpl = true,
@@ -162,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = _autoFixture
-                        .Build<DraftApprenticeship>()
+                        .Build<Apprenticeship>()
                         .With(x => x.Id, _autoFixture.Create<long>)
                         .With(x => x.CommitmentId, _cohortId)
                         .With(a => a.PriorLearning, new ApprenticeshipPriorLearning
@@ -182,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_cohort.DraftApprenticeships.Count(), _queryResult.DraftApprenticeships.Count);
+                Assert.That(_queryResult.DraftApprenticeships, Has.Count.EqualTo(_cohort.DraftApprenticeships.Count()));
 
                 foreach (var sourceItem in _cohort.DraftApprenticeships)
                 {
@@ -192,41 +220,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public void VerifyNoResult()
             {
-                Assert.IsNull(_queryResult.DraftApprenticeships);
+                Assert.That(_queryResult.DraftApprenticeships, Is.Null);
             }
 
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 
         private static void AssertEquality(DraftApprenticeship source, DraftApprenticeshipDto result)
         {
-            Assert.AreEqual(source.Id, result.Id);
-            Assert.AreEqual(source.FirstName, result.FirstName);
-            Assert.AreEqual(source.LastName, result.LastName);
-            Assert.AreEqual(source.Email, result.Email);
-            Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
-            Assert.AreEqual(source.Cost, result.Cost);
-            Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
-            Assert.AreEqual(source.EndPointAssessmentPrice, result.EndPointAssessmentPrice);
-            Assert.AreEqual(source.StartDate, result.StartDate);
-            Assert.AreEqual(source.ActualStartDate, result.ActualStartDate);
-            Assert.AreEqual(source.EndDate, result.EndDate);
-            Assert.AreEqual(source.Uln, result.Uln);
-            Assert.AreEqual(source.CourseCode, result.CourseCode);
-            Assert.AreEqual(source.CourseName, result.CourseName);
-            Assert.AreEqual(source.OriginalStartDate, result.OriginalStartDate);
-            Assert.AreEqual(source.FlexibleEmployment.EmploymentEndDate, result.EmploymentEndDate);
-            Assert.AreEqual(source.FlexibleEmployment.EmploymentPrice, result.EmploymentPrice);
-            Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
-            Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
-            Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
-            Assert.AreEqual(source.PriorLearning.DurationReducedByHours, result.DurationReducedByHours);
-            Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
-            Assert.AreEqual(source.EmployerHasEditedCost, result.EmployerHasEditedCost);
-            Assert.AreEqual(source.EmailAddressConfirmed, result.EmailAddressConfirmed);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(source.Id));
+                Assert.That(result.FirstName, Is.EqualTo(source.FirstName));
+                Assert.That(result.LastName, Is.EqualTo(source.LastName));
+                Assert.That(result.Email, Is.EqualTo(source.Email));
+                Assert.That(result.DateOfBirth, Is.EqualTo(source.DateOfBirth));
+                Assert.That(result.Cost, Is.EqualTo(source.Cost));
+                Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
+                Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.EndPointAssessmentPrice));
+                Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
+                Assert.That(result.ActualStartDate, Is.EqualTo(source.ActualStartDate));
+                Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
+                Assert.That(result.Uln, Is.EqualTo(source.Uln));
+                Assert.That(result.CourseCode, Is.EqualTo(source.CourseCode));
+                Assert.That(result.CourseName, Is.EqualTo(source.CourseName));
+                Assert.That(result.OriginalStartDate, Is.EqualTo(source.OriginalStartDate));
+                Assert.That(result.EmploymentEndDate, Is.EqualTo(source.FlexibleEmployment.EmploymentEndDate));
+                Assert.That(result.EmploymentPrice, Is.EqualTo(source.FlexibleEmployment.EmploymentPrice));
+                Assert.That(result.RecognisePriorLearning, Is.EqualTo(source.RecognisePriorLearning));
+                Assert.That(result.DurationReducedBy, Is.EqualTo(source.PriorLearning.DurationReducedBy));
+                Assert.That(result.PriceReducedBy, Is.EqualTo(source.PriorLearning.PriceReducedBy));
+                Assert.That(result.DurationReducedByHours, Is.EqualTo(source.PriorLearning.DurationReducedByHours));
+                Assert.That(result.IsOnFlexiPaymentPilot, Is.EqualTo(source.IsOnFlexiPaymentPilot));
+                Assert.That(result.EmployerHasEditedCost, Is.EqualTo(source.EmployerHasEditedCost));
+                Assert.That(result.EmailAddressConfirmed, Is.EqualTo(source.EmailAddressConfirmed));
+            });
         }
     }
 }

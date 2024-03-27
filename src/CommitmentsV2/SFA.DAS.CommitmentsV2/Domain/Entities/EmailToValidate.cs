@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Domain.Entities
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
     public class EmailToValidate
     {

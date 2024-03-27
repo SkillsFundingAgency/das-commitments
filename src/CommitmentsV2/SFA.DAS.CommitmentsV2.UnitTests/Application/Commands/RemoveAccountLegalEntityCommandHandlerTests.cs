@@ -1,17 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using AutoFixture;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
@@ -62,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenCohortIsNotEmpty_ThenShouldMarkApprenticeshipAsDeletedAndEmitApprenticeshipDeletedEvent()
         {
             using var fixture = new RemoveAccountLegalEntityCommandHandlerTestsFixture();
-            fixture.WithExistingCohort().WithExistingDraftApprenticeship(false);
+            fixture.WithExistingCohort().WithExistingDraftApprenticeship();
             await fixture.Handle();
             
             fixture.VerifyDraftApprenticeshipDeletedAndEventEmitted();
@@ -73,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             using var fixture = new RemoveAccountLegalEntityCommandHandlerTestsFixture();
             fixture.WithExistingCohort()
-                .WithExistingDraftApprenticeship(true);
+                .WithExistingApprenticeship();
             
             Func<Task> action = () =>  fixture.Handle();
             await action.Should().ThrowAsync<DomainException>();
@@ -91,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public DateTime Now { get; set; }
         public Cohort Cohort { get; private set; }
         public DraftApprenticeship DraftApprenticeship { get; private set; }
+        public Apprenticeship Apprenticeship { get; private set; }
 
         private readonly Fixture _autoFixture;
 
@@ -105,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Set(ale => ale.AccountId, Account.Id);
             Command = new RemoveAccountLegalEntityCommand(Account.Id, AccountLegalEntity.Id, Now.AddHours(-1));
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             Db.Accounts.Add(Account);
             Db.AccountLegalEntities.Add(AccountLegalEntity);
@@ -128,20 +120,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public RemoveAccountLegalEntityCommandHandlerTestsFixture WithExistingDraftApprenticeship(bool isApproved)
+        public RemoveAccountLegalEntityCommandHandlerTestsFixture WithExistingDraftApprenticeship()
         {
             DraftApprenticeship = new DraftApprenticeship
             {
                 FirstName = "Test",
                 LastName = "Test",
                 ReservationId = _autoFixture.Create<Guid>(),
-                IsApproved = isApproved
+                IsApproved = false
             };
-
             Cohort.Apprenticeships.Add(DraftApprenticeship);
 
             return this;
         }
+
+        public RemoveAccountLegalEntityCommandHandlerTestsFixture WithExistingApprenticeship()
+        {
+            Apprenticeship = new Apprenticeship
+            {
+                FirstName = "Test",
+                LastName = "Test",
+                ReservationId = _autoFixture.Create<Guid>(),
+                IsApproved = true
+            };
+            Cohort.Apprenticeships.Add(Apprenticeship);
+
+            return this;
+        }
+
 
         public RemoveAccountLegalEntityCommandHandlerTestsFixture WithExistingCohort()
         {
@@ -162,10 +168,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var emittedEvent = (CohortDeletedEvent)UnitOfWorkContext.GetEvents().Single(x => x is CohortDeletedEvent);
 
-            Assert.IsTrue(Cohort.IsDeleted, "Cohort is not marked as deleted");
-            Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
-            Assert.AreEqual(Cohort.EmployerAccountId, emittedEvent.AccountId);
-            Assert.AreEqual(Cohort.ProviderId, emittedEvent.ProviderId);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.IsDeleted, Is.True, "Cohort is not marked as deleted");
+                Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
+                Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));
+            });
         }
 
         public void VerifyDraftApprenticeshipDeletedAndEventEmitted()
@@ -176,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 (DraftApprenticeshipDeletedEvent)UnitOfWorkContext.GetEvents()
                     .Single(x => x is DraftApprenticeshipDeletedEvent);
 
-            Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
+            Assert.That(deleted, Is.Null, "Draft apprenticeship record not deleted");
 
             emittedEvent.DraftApprenticeshipId = DraftApprenticeship.Id;
             emittedEvent.CohortId = Cohort.Id;
@@ -187,6 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

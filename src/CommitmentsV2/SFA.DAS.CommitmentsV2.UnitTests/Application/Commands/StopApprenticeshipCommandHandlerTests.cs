@@ -1,13 +1,6 @@
-using AutoFixture;
 using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -18,14 +11,8 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -53,11 +40,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var databaseGuid = Guid.NewGuid().ToString();
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                        .UseInMemoryDatabase(databaseGuid)
+                                        .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                                         .Options);
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                            .UseInMemoryDatabase(databaseGuid)
+                            .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                             .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
@@ -86,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void TearDown()
         {
             _dbContext?.Dispose();
+            _confirmationDbContext?.Dispose();
         }
 
         [Test]
@@ -374,7 +362,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
 
-        private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
+        private static bool VerifyTokens(IDictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
         {
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;
@@ -407,7 +395,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return apprenticeship;
         }
 
-        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        private static ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
         {
             var activeDataLock4 = new DataLockStatus
             {

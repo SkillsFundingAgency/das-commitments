@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -44,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
                 ProviderId = source.Cohort.ProviderId,
                 EmployerAccountId = source.Cohort.EmployerAccountId,
-                ConfirmationStatus = source.DisplayConfirmationStatus(
+                ConfirmationStatus = Apprenticeship.DisplayConfirmationStatus(
                             source.Email,
                             source.ApprenticeshipConfirmationStatus?.ApprenticeshipConfirmedOn,
                             source.ApprenticeshipConfirmationStatus?.ConfirmationOverdueOn),

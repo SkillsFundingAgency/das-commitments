@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
 
             await result.Should().ThrowAsync<CommitmentsApiModelException>();
             
-            Assert.AreEqual(0, fixture.FakeLogger.Messages.Count);
+            Assert.That(fixture.FakeLogger.Messages, Is.Empty);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             Func<Task> result = () => fixture.Get();
             
             await  result.Should().ThrowAsync<CommitmentsApiModelException>();
-            Assert.AreEqual(0, fixture.FakeLogger.Messages.Count);
+            Assert.That(fixture.FakeLogger.Messages, Is.Empty);
         }
 
         [Test]

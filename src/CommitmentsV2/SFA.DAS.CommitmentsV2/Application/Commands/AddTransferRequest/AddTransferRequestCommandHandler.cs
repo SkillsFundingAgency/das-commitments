@@ -1,8 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
@@ -61,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Adding Transfer Request", e);
+                _logger.LogError(e, "Error Adding Transfer Request");
                 throw;
             }
         }

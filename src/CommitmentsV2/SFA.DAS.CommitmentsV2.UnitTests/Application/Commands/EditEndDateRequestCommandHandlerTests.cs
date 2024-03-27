@@ -1,17 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
@@ -70,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Party = Party.Employer;
             UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                                  .Options);
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -134,12 +123,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
         internal void VerifyEndDateUpdated()
         {
-            Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate);
+            Assert.That(Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate, Is.EqualTo(Command.EndDate));
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,14 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -41,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
             catch (Exception ex)
             {
-                Assert.AreEqual($"Incorrect Provider {f.Command.ProviderId} specified for FileUpload Id {f.Command.LogId}", ex.Message);
+                Assert.That(ex.Message, Is.EqualTo($"Incorrect Provider {f.Command.ProviderId} specified for FileUpload Id {f.Command.LogId}"));
             }
         }
 
@@ -55,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
             catch (Exception ex)
             {
-                Assert.AreEqual($"No FileLogUpload entry found for Id {f.Command.LogId}", ex.Message);
+                Assert.That(ex.Message, Is.EqualTo($"No FileLogUpload entry found for Id {f.Command.LogId}"));
             }
         }
     }
@@ -82,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(x => x.ProviderId, LogEntry.ProviderId).Create();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             Sut = new FileUploadLogUpdateWithErrorContentCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);
         }

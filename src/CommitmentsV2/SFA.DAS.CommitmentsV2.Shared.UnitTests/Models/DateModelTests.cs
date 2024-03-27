@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Models;
+﻿using SFA.DAS.CommitmentsV2.Shared.Models;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
 {
@@ -28,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var dt = new DateModel(DateTime.Now);
 
-            Assert.True(dt.IsValid);
+            Assert.That(dt.IsValid, Is.True);
         }
 
         [Test]
@@ -36,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var dt = new DateModel();
 
-            Assert.False(dt.IsValid);
+            Assert.That(dt.IsValid, Is.False);
         }
 
         private const int MaxYearSupportedByDateTime = 9999;
@@ -59,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
             var actualIsValid = dt.IsValid;
 
             // assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
+            Assert.That(actualIsValid, Is.EqualTo(expectedIsValid));
         }
 
         [TestCase(-1)]
@@ -70,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var dt = new DateModel();
             dt.Day = day;
-            Assert.IsFalse(dt.IsValid);
+            Assert.That(dt.IsValid, Is.False);
         }
 
         [TestCase(-1)]
@@ -82,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
             var dt = new DateModel();
 
             dt.Month = month;
-            Assert.IsFalse(dt.IsValid);
+            Assert.That(dt.IsValid, Is.False);
         }
 
         [TestCase(-1)]
@@ -92,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var dt = new DateModel();
             dt.Year = year;
-            Assert.IsFalse(dt.IsValid);
+            Assert.That(dt.IsValid, Is.False);
         }
 
     }

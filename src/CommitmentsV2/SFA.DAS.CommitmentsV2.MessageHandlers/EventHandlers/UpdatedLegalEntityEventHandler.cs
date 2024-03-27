@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using MediatR;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLegalEntityName;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLegalEntityName;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers

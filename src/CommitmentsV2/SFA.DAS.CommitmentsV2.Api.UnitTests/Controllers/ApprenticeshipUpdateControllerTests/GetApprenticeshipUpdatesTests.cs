@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -128,17 +121,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
 
             public void VerifyResult()
             {
-                Assert.IsInstanceOf<OkObjectResult>(Result);
+                Assert.That(Result, Is.InstanceOf<OkObjectResult>());
                 var resultObject = (OkObjectResult)Result;
-                Assert.IsInstanceOf<GetApprenticeshipUpdatesResponse>(resultObject.Value);
-                Assert.AreSame(MapperResult, resultObject.Value);
+                Assert.That(resultObject.Value, Is.InstanceOf<GetApprenticeshipUpdatesResponse>());
+                Assert.That(resultObject.Value, Is.SameAs(MapperResult));
             }
 
             public void VerifyNotFoundResult()
             {
-                Assert.IsNotNull(Result);
+                Assert.That(Result, Is.Not.Null);
                 var model = Result.VerifyReturnsModel().WithModel<GetApprenticeshipUpdatesResponse>();
-                Assert.AreEqual(0, model.ApprenticeshipUpdates.Count);
+                Assert.That(model.ApprenticeshipUpdates, Is.Empty);
             }
         }
     }

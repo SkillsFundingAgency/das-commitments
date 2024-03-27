@@ -46,7 +46,8 @@ namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 			where TEntity : class
 		{
 			mock.Setup(m => m.AsQueryable()).Returns(mock.Object);
-			mock.Setup(m => m.AsAsyncEnumerable()).Returns(mock.Object);
+			// TODO Check this
+			//mock.Setup(m => m.AsAsyncEnumerable()).Returns(mock.Object);
 		}
 
 		private static void ConfigureQueryableCalls<TEntity>(

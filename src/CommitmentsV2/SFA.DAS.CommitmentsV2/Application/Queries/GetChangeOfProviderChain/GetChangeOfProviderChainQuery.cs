@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
 {
     public class GetChangeOfProviderChainQuery : IRequest<GetChangeOfProviderChainQueryResult>
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.ApprenticeCommitments.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers

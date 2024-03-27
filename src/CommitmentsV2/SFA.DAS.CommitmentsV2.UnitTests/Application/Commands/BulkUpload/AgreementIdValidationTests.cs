@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
@@ -13,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetAgreementId("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "AgreementId", "<b>Agreement ID</b> must be entered");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "AgreementId", "<b>Agreement ID</b> must be entered");
         }
 
         [Test]
@@ -22,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetAgreementId("ABC*12");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
         }
 
         [Test]
@@ -31,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetAgreementId("ABC1234");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
         }
 
         [Test]
@@ -40,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetAgreementId("ABC123");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "AgreementId", "Enter a valid <b>Agreement ID</b>");
         }
 
         [Test]
@@ -49,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetIsAgreementSigned(false);
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "LegalAgreementId", "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the DfE.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "LegalAgreementId", "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the DfE.");
         }
     }
 }

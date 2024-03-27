@@ -1,41 +1,33 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Jobs.DependencyResolution;
-using SFA.DAS.CommitmentsV2.Jobs.NServiceBus;
+using SFA.DAS.CommitmentsV2.Jobs.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
-using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.Jobs
+namespace SFA.DAS.CommitmentsV2.Jobs;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
-            var hostBuilder = new HostBuilder();
-            try
-            {
-                hostBuilder
-                    .UseDasEnvironment()
-                    .ConfigureDasAppConfiguration(args)
-                    .ConfigureDasWebJobs()
-                    .ConfigureLogging(b => b.AddNLog())
-                    .UseConsoleLifetime()
-                    .UseStructureMap()
-                    .ConfigureServices(s => s.AddNServiceBus())
-                    .ConfigureContainer<Registry>(IoC.Initialize);
+        using var host = CreateHost(args);
+        
+        var logger = host.Services.GetService<ILogger<Program>>();
+        
+        logger.LogInformation("SFA.DAS.CommitmentsV2.Jobs starting up ...");
 
-                using (var host = hostBuilder.Build())
-                {
-                    await host.RunAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        await host.RunAsync();
+    }
+
+    private static IHost CreateHost(string[] args)
+    {
+        return new HostBuilder()
+            .UseDasEnvironment()
+            .ConfigureDasAppConfiguration(args)
+            .ConfigureDasWebJobs()
+            .ConfigureDasLogging()
+            .UseConsoleLifetime()
+            .ConfigureJobsServices()
+            .Build();
     }
 }

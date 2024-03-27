@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
@@ -109,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 Event = autoFixture.Create<ChangeOfPartyRequestCreatedEvent>();
 
-                Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
 
                 Cohort = new Cohort();
                 Cohort.SetValue(x => x.Id, autoFixture.Create<long>());
@@ -225,12 +216,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyCohortCreated()
             {
-                Assert.Contains(Cohort, Db.Object.Cohorts.ToList());
+                Assert.That(Db.Object.Cohorts.ToList(), Does.Contain(Cohort));
             }
 
             public void VerifyCohortReference()
             {
-                Assert.AreEqual(CohortReference, Cohort.Reference);
+                Assert.That(Cohort.Reference, Is.EqualTo(CohortReference));
             }
         }
     }

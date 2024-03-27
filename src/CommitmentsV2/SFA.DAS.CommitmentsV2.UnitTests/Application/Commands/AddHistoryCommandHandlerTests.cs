@@ -1,11 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -77,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddHistoryCommandHandlerTestsFixture()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                                     .Options);
             Fixture = new Fixture();
             ApprenticeshipId = Fixture.Create<long>();
@@ -100,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             var history = await Db.History.FirstOrDefaultAsync(x => x.ApprenticeshipId == expectedApprenticeshipId);
-            Assert.IsNotNull(history);
+            Assert.That(history, Is.Not.Null);
         }
 
         public async Task VerifyApprenticeshipIdIsNull()
@@ -108,12 +101,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             var history = await Db.History.FirstOrDefaultAsync();
-            Assert.IsNull(history.ApprenticeshipId);
+            Assert.That(history.ApprenticeshipId, Is.Null);
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

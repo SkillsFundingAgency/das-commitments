@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
+﻿namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
 {
     public class SubmissionEvent
     {

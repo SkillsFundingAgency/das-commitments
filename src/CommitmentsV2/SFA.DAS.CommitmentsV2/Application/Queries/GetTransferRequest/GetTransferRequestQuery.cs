@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest
 {
     public class GetTransferRequestQuery : IRequest<GetTransferRequestQueryResult>
     {

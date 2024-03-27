@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -7,6 +6,14 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public ApprenticeshipConfirmationStatus()
         {
+        }
+
+        public ApprenticeshipConfirmationStatus(long apprenticeshipId, DateTime commitmentsApprovedOn, DateTime? confirmationOverdueOn, DateTime? apprenticeshipConfirmedOn)
+        {
+            ApprenticeshipId = apprenticeshipId;
+            CommitmentsApprovedOn = commitmentsApprovedOn;
+            ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
+            ConfirmationOverdueOn = confirmationOverdueOn;
         }
 
         public ApprenticeshipConfirmationStatus Copy()
@@ -17,14 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ApprenticeshipConfirmedOn = this.ApprenticeshipConfirmedOn,
                 ConfirmationOverdueOn = this.ConfirmationOverdueOn,
             };
-        }
-
-        public ApprenticeshipConfirmationStatus(long apprenticeshipId, DateTime commitmentsApprovedOn, DateTime? confirmationOverdueOn, DateTime? apprenticeshipConfirmedOn)
-        {
-            ApprenticeshipId = apprenticeshipId;
-            CommitmentsApprovedOn = commitmentsApprovedOn;
-            ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
-            ConfirmationOverdueOn = confirmationOverdueOn;
         }
 
         public long ApprenticeshipId { get; set; }

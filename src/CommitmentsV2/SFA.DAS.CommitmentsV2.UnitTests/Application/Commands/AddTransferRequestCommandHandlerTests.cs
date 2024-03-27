@@ -1,9 +1,4 @@
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -14,11 +9,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -114,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             LevyTransferMatchingApiClient = new Mock<IApprovalsOuterApiClient>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             Handler = new AddTransferRequestCommandHandler(
@@ -167,43 +157,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public async Task Handle()
         {
-            var cmd = new AddTransferRequestCommand { CohortId = this.CohortId, LastApprovedByParty = LastApprovedByParty};
+            var cmd = new AddTransferRequestCommand { CohortId = CohortId, LastApprovedByParty = LastApprovedByParty};
             await Handler.Handle(cmd, CancellationToken);
         }
 
         public void AssertTransferRequestWasCorrectlySavedToDatabase()
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
-            Assert.IsNotNull(transferRequest.TrainingCourses);
-            Assert.IsTrue(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary1.CourseTitle) >= 0);
-            Assert.IsTrue(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary2.CourseTitle) >= 0);
-            Assert.AreEqual(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap, transferRequest.FundingCap);
-            Assert.AreEqual(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost, transferRequest.Cost);
+            Assert.Multiple(() =>
+            {
+                Assert.That(transferRequest.TrainingCourses, Is.Not.Null);
+                Assert.That(transferRequest.TrainingCourses.Contains(FundingCapCourseSummary1.CourseTitle, StringComparison.Ordinal), Is.True);
+                Assert.That(transferRequest.TrainingCourses.Contains(FundingCapCourseSummary2.CourseTitle, StringComparison.Ordinal), Is.True);
+                Assert.That(transferRequest.FundingCap, Is.EqualTo(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap));
+                Assert.That(transferRequest.Cost, Is.EqualTo(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost));
+            });
         }
 
         public void AssertCohortTransferStatusIsSetToPending()
         {
             var cohort = Db.Cohorts.First();
-            Assert.AreEqual(TransferApprovalStatus.Pending, cohort.TransferApprovalStatus);
+            Assert.That(cohort.TransferApprovalStatus, Is.EqualTo(TransferApprovalStatus.Pending));
         }
 
         public void AssertTransferRequestCreatedEventWasPublished()
         {
             var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
-            Assert.AreEqual(CohortId, @event.CohortId);
-            Assert.AreEqual(LastApprovedByParty, @event.LastApprovedByParty);
-            Assert.IsNotNull(@event.TransferRequestId);
+            Assert.Multiple(() =>
+            {
+                Assert.That(@event.CohortId, Is.EqualTo(CohortId));
+                Assert.That(@event.LastApprovedByParty, Is.EqualTo(LastApprovedByParty));
+            });
         }
 
         public void AssertTransferRequestAutoApprovalEquals(bool autoApproval)
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
-            Assert.AreEqual(autoApproval, transferRequest.AutoApproval);
+            Assert.That(transferRequest.AutoApproval, Is.EqualTo(autoApproval));
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

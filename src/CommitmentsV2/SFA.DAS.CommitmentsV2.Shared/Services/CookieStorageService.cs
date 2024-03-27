@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services
@@ -29,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
             var options = new CookieOptions
             {
+                Secure = true,
                 IsEssential = true,
                 HttpOnly = true,
                 Expires = DateTimeOffset.Now.AddDays(expiryDays)

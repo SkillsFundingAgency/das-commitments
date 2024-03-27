@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
-using NUnit.Framework.Internal;
-using SFA.DAS.CommitmentsV2.Shared.ActionResults;
+﻿using SFA.DAS.CommitmentsV2.Shared.ActionResults;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ActionResults
 {

@@ -1,45 +1,32 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
+using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
-using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
-            var hostBuilder = new HostBuilder();
-            try
-            {
-                hostBuilder
-                    .UseDasEnvironment()
-                    .ConfigureDasAppConfiguration(args)
-                    .UseConsoleLifetime()
-                    .ConfigureLogging(b => b.AddNLog())
-                    .UseStructureMap()
-                    .ConfigureServices((c, s) => s
-                        .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
-                        .AddMemoryCache()
-                        .AddNServiceBus())
-                    .ConfigureContainer<Registry>(IoC.Initialize);
+        using var host = CreateHost(args);
+        
+        var logger = host.Services.GetService<ILogger<Program>>();
+        
+        logger.LogInformation("SFA.DAS.CommitmentsV2.MessageHandlers starting up ...");
 
-                using (var host = hostBuilder.Build())
-                {
-                    await host.RunAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        await host.RunAsync();
+    }
+
+    private static IHost CreateHost(string[] args)
+    {
+        return new HostBuilder()
+            .UseDasEnvironment()
+            .ConfigureDasAppConfiguration(args)
+            .UseConsoleLifetime()
+            .ConfigureDasLogging()
+            .ConfigureMessageHandlerServices()
+            .Build();
     }
 }

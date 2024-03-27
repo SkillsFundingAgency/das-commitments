@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using AutoFixture.Kernel;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
@@ -14,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
         {
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             var pi = request as PropertyInfo;
@@ -23,11 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
                 return new NoSpecimen();
             }
 
-            if (pi.GetGetMethod().IsVirtual)
-            {
-                return null;
-            }
-            return new NoSpecimen();
+            return pi.GetGetMethod()!.IsVirtual ? null : new NoSpecimen();
         }
     }
 }

@@ -1,10 +1,4 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
@@ -12,164 +6,173 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers;
+
+[TestFixture]
+[Parallelizable]
+public class ProviderControllerTests
 {
-    [TestFixture]
-    [Parallelizable]
-    public class ProviderControllerTests
+    private ProviderControllerTestsFixture _fixture;
+
+    [SetUp]
+    public void SetUp()
     {
-        private ProviderControllerTestsFixture _fixture;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _fixture = new ProviderControllerTestsFixture();
-        }
-
-        [Test]
-        public async Task GetAllProviders_ThenShouldReturnListOfProviders()
-        {
-            var response = await _fixture.SetGetAllProvidersQueryResult().GetAllProviders();
-            var okObjectResult = response as OkObjectResult;
-            var getAllProvidersResponse = okObjectResult?.Value as GetAllProvidersResponse;
-
-            Assert.IsNotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getAllProvidersResponse);
-
-            Assert.AreEqual(_fixture.GetAllProvidersQueryResult.Providers.Count, getAllProvidersResponse.Providers.Count);
-        }
-
-        [Test]
-        public async Task GetProvider_WhenProviderDoesExist_ThenShouldReturnProviderResponse()
-        {
-            var response = await _fixture.SetGetProviderQueryResult().GetProvider();
-            var okObjectResult = response as OkObjectResult;
-            var getProviderResponse = okObjectResult?.Value as GetProviderResponse;
-
-            Assert.NotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getProviderResponse);
-            Assert.AreEqual(_fixture.GetProviderQueryResult.ProviderId, getProviderResponse.ProviderId);
-            Assert.AreEqual(_fixture.GetProviderQueryResult.Name, getProviderResponse.Name);
-        }
-
-        [Test]
-        public async Task GetProvider_WhenProviderDoesNotExist_ThenShouldReturnNotFoundResponse()
-        {
-            var response = await _fixture.GetProvider();
-            var notFoundResult = response as NotFoundResult;
-
-            Assert.NotNull(response);
-            Assert.NotNull(notFoundResult);
-        }
-
-        [Test]
-        public async Task GetCommitmentAgreements_ThenShouldReturnListOfCommitmentAgreements()
-        {
-            var response = await _fixture.SetGetCommitmentAgreementsResult().GetCommitmentAgreements();
-            var okObjectResult = response as OkObjectResult;
-            var getCommitmentAgreementsResponse = okObjectResult?.Value as GetProviderCommitmentAgreementResponse;
-
-            Assert.IsNotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getCommitmentAgreementsResponse);
-
-            Assert.AreEqual(_fixture.GetProviderCommitmentAgreementQueryResult.Agreements.Count, getCommitmentAgreementsResponse.ProviderCommitmentAgreement.Count);
-        }
+        _fixture = new ProviderControllerTestsFixture();
     }
 
-    public class ProviderControllerTestsFixture
+    [Test]
+    public async Task GetAllProviders_ThenShouldReturnListOfProviders()
     {
-        public Mock<IMediator> Mediator { get; set; }
-        public ProviderController Controller { get; set; }
-        public long ProviderId { get; set; }
-        public string ProviderName { get; set; }
-        public GetProviderQueryResult GetProviderQueryResult { get; set; }
-        public GetAllProvidersQueryResult GetAllProvidersQueryResult { get; set; }
-        public GetProviderCommitmentAgreementResult GetProviderCommitmentAgreementQueryResult { get; set; }
+        var response = await _fixture.SetGetAllProvidersQueryResult().GetAllProviders();
+        var okObjectResult = response as OkObjectResult;
+        var getAllProvidersResponse = okObjectResult?.Value as GetAllProvidersResponse;
 
-        public ProviderControllerTestsFixture()
+        Assert.Multiple(() =>
         {
-            Mediator = new Mock<IMediator>();
-            Controller = new ProviderController(Mediator.Object);
-            ProviderId = 1;
-            ProviderName = "Foo";
-            GetProviderQueryResult = new GetProviderQueryResult(ProviderId, ProviderName);
-            GetAllProvidersQueryResult = GetAllProvidersResult();
-            GetProviderCommitmentAgreementQueryResult = GetProviderCommitmentAgreementResult();
-        }
-        public Task<IActionResult> GetAllProviders()
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getAllProvidersResponse, Is.Not.Null);
+            Assert.That(getAllProvidersResponse.Providers, Has.Count.EqualTo(_fixture.GetAllProvidersQueryResult.Providers.Count));
+        });
+    }
+
+    [Test]
+    public async Task GetProvider_WhenProviderDoesExist_ThenShouldReturnProviderResponse()
+    {
+        var response = await _fixture.SetGetProviderQueryResult().GetProvider();
+        var okObjectResult = response as OkObjectResult;
+        var getProviderResponse = okObjectResult?.Value as GetProviderResponse;
+
+        Assert.Multiple(() =>
         {
-            return Controller.GetAllProviders();
-        }
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getProviderResponse, Is.Not.Null);
+            Assert.That(getProviderResponse.ProviderId, Is.EqualTo(_fixture.GetProviderQueryResult.ProviderId));
+            Assert.That(getProviderResponse.Name, Is.EqualTo(_fixture.GetProviderQueryResult.Name));
+        });
+    }
 
-        public Task<IActionResult> GetProvider()
+    [Test]
+    public async Task GetProvider_WhenProviderDoesNotExist_ThenShouldReturnNotFoundResponse()
+    {
+        var response = await _fixture.GetProvider();
+        var notFoundResult = response as NotFoundResult;
+
+        Assert.Multiple(() =>
         {
-            return Controller.GetProvider(ProviderId);
-        }
-        public Task<IActionResult> GetCommitmentAgreements()
+            Assert.That(response, Is.Not.Null);
+            Assert.That(notFoundResult, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task GetCommitmentAgreements_ThenShouldReturnListOfCommitmentAgreements()
+    {
+        var response = await _fixture.SetGetCommitmentAgreementsResult().GetCommitmentAgreements();
+        var okObjectResult = response as OkObjectResult;
+        var getCommitmentAgreementsResponse = okObjectResult?.Value as GetProviderCommitmentAgreementResponse;
+
+        Assert.Multiple(() =>
         {
-            return Controller.GetCommitmentAgreements(ProviderId);
-        }
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getCommitmentAgreementsResponse, Is.Not.Null);
+            Assert.That(getCommitmentAgreementsResponse.ProviderCommitmentAgreement, Has.Count.EqualTo(_fixture.GetProviderCommitmentAgreementQueryResult.Agreements.Count));
+        });
+    }
+}
 
-        public ProviderControllerTestsFixture SetGetProviderQueryResult()
-        {
-            Mediator.Setup(m => m.Send(It.Is<GetProviderQuery>(q => q.ProviderId == ProviderId), CancellationToken.None))
-                .ReturnsAsync(GetProviderQueryResult);
+public class ProviderControllerTestsFixture
+{
+    public Mock<IMediator> Mediator { get; set; }
+    public ProviderController Controller { get; set; }
+    public long ProviderId { get; set; }
+    public string ProviderName { get; set; }
+    public GetProviderQueryResult GetProviderQueryResult { get; set; }
+    public GetAllProvidersQueryResult GetAllProvidersQueryResult { get; set; }
+    public GetProviderCommitmentAgreementResult GetProviderCommitmentAgreementQueryResult { get; set; }
 
-            return this;
-        }
+    public ProviderControllerTestsFixture()
+    {
+        Mediator = new Mock<IMediator>();
+        Controller = new ProviderController(Mediator.Object);
+        ProviderId = 1;
+        ProviderName = "Foo";
+        GetProviderQueryResult = new GetProviderQueryResult(ProviderId, ProviderName);
+        GetAllProvidersQueryResult = GetAllProvidersResult();
+        GetProviderCommitmentAgreementQueryResult = GetProviderCommitmentAgreementResult();
+    }
 
-        public ProviderControllerTestsFixture SetGetAllProvidersQueryResult()
-        {
-            Mediator.Setup(m => m.Send(It.IsAny<GetAllProvidersQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(GetAllProvidersQueryResult);
+    public Task<IActionResult> GetAllProviders()
+    {
+        return Controller.GetAllProviders();
+    }
 
-            return this;
-        }
+    public Task<IActionResult> GetProvider()
+    {
+        return Controller.GetProvider(ProviderId);
+    }
 
-        public ProviderControllerTestsFixture SetGetCommitmentAgreementsResult()
-        {
-            Mediator.Setup(m => m.Send(It.IsAny<GetProviderCommitmentAgreementQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(GetProviderCommitmentAgreementQueryResult);
+    public Task<IActionResult> GetCommitmentAgreements()
+    {
+        return Controller.GetCommitmentAgreements(ProviderId);
+    }
 
-            return this;
-        }
+    public ProviderControllerTestsFixture SetGetProviderQueryResult()
+    {
+        Mediator.Setup(m => m.Send(It.Is<GetProviderQuery>(q => q.ProviderId == ProviderId), CancellationToken.None))
+            .ReturnsAsync(GetProviderQueryResult);
 
-        private GetAllProvidersQueryResult GetAllProvidersResult()
-        {
-            return new GetAllProvidersQueryResult(
-                new List<Provider>
+        return this;
+    }
+
+    public ProviderControllerTestsFixture SetGetAllProvidersQueryResult()
+    {
+        Mediator.Setup(m => m.Send(It.IsAny<GetAllProvidersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GetAllProvidersQueryResult);
+
+        return this;
+    }
+
+    public ProviderControllerTestsFixture SetGetCommitmentAgreementsResult()
+    {
+        Mediator.Setup(m => m.Send(It.IsAny<GetProviderCommitmentAgreementQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GetProviderCommitmentAgreementQueryResult);
+
+        return this;
+    }
+
+    private static GetAllProvidersQueryResult GetAllProvidersResult()
+    {
+        return new GetAllProvidersQueryResult(
+        [
+            new() { Ukprn = 10000001, Name = "Provider 1" },
+            new() { Ukprn = 10000002, Name = "Provider 2" },
+            new() { Ukprn = 10000003, Name = "Provider 3" }
+        ]);
+    }
+
+    private static GetProviderCommitmentAgreementResult GetProviderCommitmentAgreementResult()
+    {
+        return new GetProviderCommitmentAgreementResult(
+            new List<ProviderCommitmentAgreement>
+            {
+                new()
                 {
-                    new Provider { Ukprn = 10000001, Name = "Provider 1" },
-                    new Provider { Ukprn = 10000002, Name = "Provider 2" },
-                    new Provider { Ukprn = 10000003, Name = "Provider 3" }
-                });
-        }
-
-        private GetProviderCommitmentAgreementResult GetProviderCommitmentAgreementResult()
-        {
-            return new GetProviderCommitmentAgreementResult(
-                new List<ProviderCommitmentAgreement>
+                    AccountLegalEntityPublicHashedId = "A001",
+                    LegalEntityName = "A001",
+                },
+                new()
                 {
-                    new ProviderCommitmentAgreement
-                    {
-                        AccountLegalEntityPublicHashedId = "A001",
-                        LegalEntityName = "A001",
-                    },
-                    new ProviderCommitmentAgreement
-                    {
-                        AccountLegalEntityPublicHashedId = "B001",
-                        LegalEntityName = "B001",
-                    },
-                    new ProviderCommitmentAgreement
-                    {
-                        AccountLegalEntityPublicHashedId = "C001",
-                        LegalEntityName = "C001"
-                     }
-
-                });
-        }
+                    AccountLegalEntityPublicHashedId = "B001",
+                    LegalEntityName = "B001",
+                },
+                new()
+                {
+                    AccountLegalEntityPublicHashedId = "C001",
+                    LegalEntityName = "C001"
+                }
+            });
     }
 }

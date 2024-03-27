@@ -17,7 +17,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Validation
 
         protected void ValidateUln()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             CascadeMode = CascadeMode.Stop;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             When(a => a.SearchType == ApprenticeshipSearchType.SearchByUln, () =>
             {

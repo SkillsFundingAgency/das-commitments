@@ -1,6 +1,4 @@
 ﻿using System.Data.Common;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.Data

@@ -1,12 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Calling Stored Procedure CheckForOverlappingEmails", e);
+                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmails");
                 throw;
             }
         }
@@ -66,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Calling Stored Procedure CheckForOverlappingEmailsInCohort", e);
+                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmailsInCohort");
                 throw;
             }
         }

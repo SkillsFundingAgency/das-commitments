@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.Mapping
+﻿namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public interface IOldMapper<in TFrom, TTo> where TFrom: class where TTo: class
     {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -53,8 +47,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var response = await _fixture.Handle(1,123, 2323);
 
-            Assert.AreEqual(expectedHash, response.Reference);
-            Assert.AreEqual(_fixture.CohortId, response.Id);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Reference, Is.EqualTo(expectedHash));
+                Assert.That(response.Id, Is.EqualTo(_fixture.CohortId));
+            });
         }
     }
 
@@ -67,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CreateEmptyCohortHandlerTestsFixture()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                                     .Options);
             CohortId = 8768;
             Cohort = new Cohort{Id = CohortId};
@@ -115,6 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

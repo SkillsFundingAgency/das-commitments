@@ -1,8 +1,5 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-using System.Threading.Tasks;
+﻿using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using Microsoft.Extensions.Logging;
-using Moq;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 

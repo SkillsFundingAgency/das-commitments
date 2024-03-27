@@ -1,15 +1,9 @@
-﻿using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Linq;
-using AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 {
@@ -145,10 +139,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         public void VerifyApprenticeshipTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType == nameof(Apprenticeship)
                                                                                 && @event.ProviderId == Apprenticeship.Cohort.ProviderId
-                                                                                && @event.EmployerAccountId == Apprenticeship.Cohort.EmployerAccountId));
+                                                                                && @event.EmployerAccountId == Apprenticeship.Cohort.EmployerAccountId), Is.Not.Null);
         }
 
         public void UpdateEndDate(DateTime date)

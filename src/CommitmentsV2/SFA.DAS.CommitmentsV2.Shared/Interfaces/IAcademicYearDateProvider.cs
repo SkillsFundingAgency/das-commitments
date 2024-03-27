@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
 {
     public interface IAcademicYearDateProvider
     {

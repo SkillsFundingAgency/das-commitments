@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Threading.Tasks;
+﻿using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {

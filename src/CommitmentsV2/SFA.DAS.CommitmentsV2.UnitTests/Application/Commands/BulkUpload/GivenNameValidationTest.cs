@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
@@ -13,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetGivenNames("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "GivenName", "<b>First name</b> must be entered");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "GivenName", "<b>First name</b> must be entered");
         }
 
         [Test]
@@ -22,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetGivenNames("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "GivenName", "Enter a <b>first name</b> that is not longer than 100 characters");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "GivenName", "Enter a <b>first name</b> that is not longer than 100 characters");
         }
     }
 }

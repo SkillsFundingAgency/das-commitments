@@ -1,6 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
-
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
+﻿namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
 {
     public class GetAccountUsersRequest : IGetApiRequest
     {

@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             _fixture.SetupResponseForCreateCohort();
             var result = await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortRequest, CancellationToken.None);
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             _fixture.SetupResponseForCreateCohortWithOtherParty();
             var result = await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var request = new AgreementSignedRequest
             {
                 AccountLegalEntityId = 123,
-                AgreementFeatures = new AgreementFeature[0]
+                AgreementFeatures = Array.Empty<AgreementFeature>()
             };
 
             await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
@@ -180,7 +180,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var request = new AgreementSignedRequest
             {
                 AccountLegalEntityId = 123,
-                AgreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers }
+                AgreementFeatures = [AgreementFeature.Transfers]
             };
 
             await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
@@ -440,10 +440,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task UpdateProviderPaymentPriority_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var accountId = 123;
+            const int accountId = 123;
             var request = new UpdateProviderPaymentsPriorityRequest
             {
-                ProviderPriorities = new List<UpdateProviderPaymentsPriorityRequest.ProviderPaymentPriorityUpdateItem>(),
+                ProviderPriorities = [],
                 UserInfo = new UserInfo()
             };
 
@@ -512,7 +512,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task StopApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var apprenticeshipId = 11;
+            const int apprenticeshipId = 11;
             var request = new StopApprenticeshipRequest
             {
                 AccountId = 10,
@@ -532,7 +532,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task ResumeApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var apprenticeshipId = 11;
+            const int apprenticeshipId = 11;
             var request = new ResumeApprenticeshipRequest
             {
                 ApprenticeshipId = apprenticeshipId,
@@ -627,7 +627,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task AcceptApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var apprenticeshipId = 11;
+            const int apprenticeshipId = 11;
             var request = new AcceptApprenticeshipUpdatesRequest
             {
                 ApprenticeshipId = apprenticeshipId,
@@ -645,7 +645,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task RejectApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var apprenticeshipId = 11;
+            const int apprenticeshipId = 11;
             var request = new RejectApprenticeshipUpdatesRequest
             {
                 ApprenticeshipId = apprenticeshipId,
@@ -663,7 +663,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task UndoApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var apprenticeshipId = 11;
+            const int apprenticeshipId = 11;
             var request = new UndoApprenticeshipUpdatesRequest
             {
                 ApprenticeshipId = apprenticeshipId,
@@ -681,7 +681,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetProviderCommitmentAgreement_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             //Arrange
-            var providerId = 11;
+            const int providerId = 11;
 
             //Act
             await _fixture.CommitmentsApiClient.GetProviderCommitmentAgreement(providerId, CancellationToken.None);
@@ -690,10 +690,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, CancellationToken.None));
         }
 
+        [Test]
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             //Arrange
-            var accountId = 123;
+            const int accountId = 123;
 
             //Act
             await _fixture.CommitmentsApiClient.GetEmployerAccountSummary(accountId, CancellationToken.None);

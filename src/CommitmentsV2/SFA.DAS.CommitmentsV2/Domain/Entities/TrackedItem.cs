@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities

@@ -1,9 +1,4 @@
-﻿using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
@@ -16,11 +11,6 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -376,7 +366,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Party = Party.Employer;
             UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                                  .Options);
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -483,51 +473,72 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyOnlyEmployerImmediateUpdate()
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual("NewEmployerRef", apprenticeship.EmployerRef);
-            Assert.AreEqual(0, apprenticeship.ApprenticeshipUpdate.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.EmployerRef, Is.EqualTo("NewEmployerRef"));
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Is.Empty);
+            });
         }
 
         internal void VerifyOnlyProviderImmediateUpdate()
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual("NewProviderRef", apprenticeship.ProviderRef);
-            Assert.AreEqual(0, apprenticeship.ApprenticeshipUpdate.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ProviderRef, Is.EqualTo("NewProviderRef"));
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Is.Empty);
+            });
         }
 
         internal void VerifyApprenticeshipUpdateCreated(string expectedValue, Func<Apprenticeship, string> getApprenticeshipUpdateValue)
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
-            Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Has.Count.EqualTo(1));
+                Assert.That(getApprenticeshipUpdateValue(apprenticeship), Is.EqualTo(expectedValue));
+            });
         }
 
         internal void VerifyApprenticeshipUpdateCreated(DateTime? expectedValue, Func<Apprenticeship, DateTime?> getApprenticeshipUpdateValue)
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
-            Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Has.Count.EqualTo(1));
+                Assert.That(getApprenticeshipUpdateValue(apprenticeship), Is.EqualTo(expectedValue));
+            });
         }
 
         internal void VerifyApprenticeshipUpdateCreated(long? expectedValue, Func<Apprenticeship, long?> getApprenticeshipUpdateValue)
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
-            Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Has.Count.EqualTo(1));
+                Assert.That(getApprenticeshipUpdateValue(apprenticeship), Is.EqualTo(expectedValue));
+            });
         }
 
         internal void VerifyApprenticeshipUpdateCreated(DeliveryModel? expectedValue, Func<Apprenticeship, DeliveryModel?> getApprenticeshipUpdateValue)
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
-            Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ApprenticeshipUpdate, Has.Count.EqualTo(1));
+                Assert.That(getApprenticeshipUpdateValue(apprenticeship), Is.EqualTo(expectedValue));
+            });
         }
 
         internal void VerifyEmploymentFieldsAreNull()
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
-            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate);
-            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice);
+            Assert.That(apprenticeship.ApprenticeshipUpdate, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate, Is.Null);
+                Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice, Is.Null);
+            });
         }
 
         internal void VerifyApprenticeshipUpdateCreatedEvent()
@@ -535,14 +546,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
             var emittedEvent = (ApprenticeshipUpdateCreatedEvent)UnitOfWorkContext.GetEvents().Single(x => x is ApprenticeshipUpdateCreatedEvent);
 
-            Assert.AreEqual(ApprenticeshipId, emittedEvent.ApprenticeshipId);
-            Assert.AreEqual(apprenticeship.Cohort.EmployerAccountId, emittedEvent.AccountId);
-            Assert.AreEqual(apprenticeship.Cohort.ProviderId, emittedEvent.ProviderId);
+            Assert.Multiple(() =>
+            {
+                Assert.That(emittedEvent.ApprenticeshipId, Is.EqualTo(ApprenticeshipId));
+                Assert.That(emittedEvent.AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            });
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

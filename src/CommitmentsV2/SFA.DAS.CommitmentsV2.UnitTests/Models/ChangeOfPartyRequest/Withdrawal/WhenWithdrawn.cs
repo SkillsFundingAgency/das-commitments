@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -89,24 +85,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Withdrawal
 
             public void VerifyStatusIsWithdrawn()
             {
-                Assert.AreEqual(ChangeOfPartyRequestStatus.Withdrawn, _changeOfPartyRequest.Status);
+                Assert.That(_changeOfPartyRequest.Status, Is.EqualTo(ChangeOfPartyRequestStatus.Withdrawn));
             }
 
             public void VerifyActionedOn()
             {
-                Assert.IsNotNull(_changeOfPartyRequest.ActionedOn);
+                Assert.That(_changeOfPartyRequest.ActionedOn, Is.Not.Null);
             }
 
             public void VerifyTracking()
             {
-                Assert.IsNotNull(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(ChangeOfPartyRequest)));
+                                                                                    nameof(ChangeOfPartyRequest)), Is.Not.Null);
             }
 
             public void VerifyException()
             {
-                Assert.IsNotNull(_exception);
+                Assert.That(_exception, Is.Not.Null);
             }
         }
     }

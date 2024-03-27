@@ -23,6 +23,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             _sut = new ApprenticeshipsController(_orchestrator.Object); ;
         }
 
+        [TearDown]
+        public void TeardownTest()
+        {
+            _sut?.Dispose();
+        }
+
         [Test]
         public void GivenValidAccountIdShouldReturnSearchView()
         {
@@ -64,7 +70,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
-            Assert.AreEqual(view.ViewName, "Search");
+            Assert.That(view.ViewName, Is.EqualTo("Search"));
 
             var model = view.Model as ApprenticeshipSearchQuery;
             model.ReponseMessages.Should().Contain(errorResponse);
@@ -93,7 +99,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
-            Assert.AreEqual(view.ViewName, "UlnSearchSummary");
+            Assert.That(view.ViewName, Is.EqualTo("UlnSearchSummary"));
         }
 
         [Test]
@@ -146,7 +152,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
-            Assert.AreEqual(view.ViewName, "Search");
+            Assert.That(view.ViewName, Is.EqualTo("Search"));
 
             var model = view.Model as ApprenticeshipSearchQuery;
             model.ReponseMessages.Should().Contain(errorResponse);
@@ -175,7 +181,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
-            Assert.AreEqual(view.ViewName, "CohortSearchSummary");
+            Assert.That(view.ViewName, Is.EqualTo("CohortSearchSummary"));
 
             var model = view.Model as CommitmentSummaryViewModel;
             model.Should().NotBeNull();

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Domain.Entities.AddEpaToApprenticeship
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities.AddEpaToApprenticeship
 {
     public class DataLockStatus
     {

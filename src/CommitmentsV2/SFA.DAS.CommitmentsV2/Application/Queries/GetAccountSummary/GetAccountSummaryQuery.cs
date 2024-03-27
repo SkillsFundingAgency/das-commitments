@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
 {
     public class GetAccountSummaryQuery : IRequest<GetAccountSummaryQueryResult>
     {

@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus
 {
     public class GetAccountTransferStatusQuery : IRequest<GetAccountTransferStatusQueryResult>
     {

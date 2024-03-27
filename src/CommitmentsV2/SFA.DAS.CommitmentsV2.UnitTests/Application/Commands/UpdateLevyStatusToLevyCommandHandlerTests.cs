@@ -1,13 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -26,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.SetAccount()
                 .Handle();
 
-            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.Levy));
+            Assert.That(fixture.IsValid(ApprenticeshipEmployerType.Levy), Is.True);
         }
 
         [Test]
@@ -37,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.Command.AccountId = 2;
             fixture.Handle();
 
-            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.NonLevy));
+            Assert.That(fixture.IsValid(ApprenticeshipEmployerType.NonLevy), Is.True);
         }
     }
 
@@ -54,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AutoFixture = new Fixture();
             AccountId = 1;
             Command = new UpdateLevyStatusToLevyCommand { AccountId = AccountId };
-            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             Handler = new UpdateLevyStatusToLevyCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), Mock.Of<ILogger<UpdateLevyStatusToLevyCommandHandler>>());
 
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());

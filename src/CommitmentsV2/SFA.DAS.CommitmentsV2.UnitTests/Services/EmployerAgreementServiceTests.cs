@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
@@ -23,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
             var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId);
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [TestCase(1, false)]
@@ -33,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
             var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId, AgreementFeature.Transfers);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
             fixture.VerifyAccountApiClientReceivesCorrectValues();
         }
 
@@ -42,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
             var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId, AgreementFeature.Transfers);
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -50,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
             var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId);
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -58,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture();
             var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -66,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
             var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
-            Assert.AreEqual(2, result);
+            Assert.That(result, Is.EqualTo(2));
         }
 
         [Test]
@@ -74,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpUnsignedAgreementWithVersion(2);
             var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
-            Assert.AreEqual(2, result);
+            Assert.That(result, Is.EqualTo(2));
         }
     }
 

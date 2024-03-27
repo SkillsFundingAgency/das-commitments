@@ -1,6 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort

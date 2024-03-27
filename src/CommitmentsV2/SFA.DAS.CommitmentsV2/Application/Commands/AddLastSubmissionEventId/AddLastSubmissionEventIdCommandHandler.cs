@@ -1,36 +1,27 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId
+namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId;
+
+public class AddLastSubmissionEventIdCommandHandler : IRequestHandler<AddLastSubmissionEventIdCommand>
 {
-    public class AddLastSubmissionEventIdCommandHandler : IRequestHandler<AddLastSubmissionEventIdCommand>
+    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+
+    public AddLastSubmissionEventIdCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
     {
-        private readonly ILogger<AddLastSubmissionEventIdCommandHandler> _logger;
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-        public AddLastSubmissionEventIdCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<AddLastSubmissionEventIdCommandHandler> logger)
+        _dbContext = dbContext;
+    }
+    public async Task Handle(AddLastSubmissionEventIdCommand request, CancellationToken cancellationToken)
+    {
+        var jobProgress = _dbContext.Value.JobProgress.FirstOrDefault(x => x.Lock == "X");
+        if (jobProgress != null)
         {
-            _logger = logger;
-            _dbContext = dbContext;
+            jobProgress.AddEpaLastSubmissionEventId = request.LastSubmissionEventId;
         }
-        public async Task Handle(AddLastSubmissionEventIdCommand request, CancellationToken cancellationToken)
+        else
         {
-            var jobProgress = _dbContext.Value.JobProgress.FirstOrDefault(x => x.Lock == "X");
-            if (jobProgress != null)
-            {
-                jobProgress.AddEpaLastSubmissionEventId = request.LastSubmissionEventId;
-            }
-            else
-            {
-               _dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId, Lock = "X" });    
-            }
-
-            await _dbContext.Value.SaveChangesAsync(cancellationToken);
+            _dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId, Lock = "X" });    
         }
+
+        await _dbContext.Value.SaveChangesAsync(cancellationToken);
     }
 }

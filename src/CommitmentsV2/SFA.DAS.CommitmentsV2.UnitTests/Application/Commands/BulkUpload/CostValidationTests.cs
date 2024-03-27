@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
@@ -13,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetTotalPrice("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only");
         }
 
         [Test]
@@ -22,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetTotalPrice("19.23");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only");
         }
 
         [Test]
@@ -31,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetTotalPrice("0");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TotalPrice", "The <b>total cost</b> must be more than £0");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TotalPrice", "The <b>total cost</b> must be more than £0");
         }
 
         [Test]
@@ -40,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetTotalPrice("100001");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TotalPrice", "The <b>total cost</b> must be £100,000 or less");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TotalPrice", "The <b>total cost</b> must be £100,000 or less");
         }
     }
 }

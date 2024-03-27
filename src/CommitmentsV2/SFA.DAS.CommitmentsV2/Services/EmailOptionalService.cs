@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Services

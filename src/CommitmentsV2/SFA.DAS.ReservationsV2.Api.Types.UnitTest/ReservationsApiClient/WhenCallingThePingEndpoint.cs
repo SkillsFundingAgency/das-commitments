@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.ReservationsV2.Api.Types.UnitTests.ReservationsApiClient;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {

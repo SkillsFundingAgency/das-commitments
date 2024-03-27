@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class FirstNameValidationTests
     {
@@ -15,9 +12,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("First name must be entered", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("FirstName", result.Errors[0].PropertyName);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("First name must be entered"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("FirstName"));
+            });
         }
 
         [TestCase("01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891", false)]
@@ -32,13 +32,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             if (isValid)
             {
-                Assert.AreEqual(result.Errors.Count, 0);
+                Assert.That(result.Errors, Is.Empty);
             }
             else
             {
-                Assert.AreEqual(1, result.Errors.Count);
-                Assert.AreEqual("You must enter a first name that's no longer than 100 characters", result.Errors[0].ErrorMessage);
-               Assert.AreEqual("FirstName", result.Errors[0].PropertyName);
+                Assert.That(result.Errors, Has.Count.EqualTo(1));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must enter a first name that's no longer than 100 characters"));
+                    Assert.That(result.Errors[0].PropertyName, Is.EqualTo("FirstName"));
+                });
             }
         }
     }

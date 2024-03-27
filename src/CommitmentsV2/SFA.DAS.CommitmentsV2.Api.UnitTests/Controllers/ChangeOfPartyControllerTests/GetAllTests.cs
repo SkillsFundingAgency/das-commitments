@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
+﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -76,13 +68,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
 
             public void VerifyResult()
             {
-                Assert.IsNotNull(_result);
+                Assert.That(_result, Is.Not.Null);
                 var okObject = _result as OkObjectResult;
-                Assert.IsNotNull(okObject);
+                Assert.That(okObject, Is.Not.Null);
                 var objectValue = okObject.Value as GetChangeOfPartyRequestsResponse;
-                Assert.IsNotNull(objectValue);
+                Assert.That(objectValue, Is.Not.Null);
 
-                Assert.AreEqual(_mapperResult, objectValue);
+                Assert.That(objectValue, Is.EqualTo(_mapperResult));
             }
         }
     }

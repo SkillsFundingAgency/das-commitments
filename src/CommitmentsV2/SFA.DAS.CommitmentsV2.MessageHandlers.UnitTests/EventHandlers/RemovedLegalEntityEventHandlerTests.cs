@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 

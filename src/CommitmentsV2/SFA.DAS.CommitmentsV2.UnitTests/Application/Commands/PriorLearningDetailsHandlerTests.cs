@@ -1,14 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.Kernel;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -29,8 +20,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             await fixture.Handle();
 
-            Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
-            Assert.AreEqual(fixture.Command.PriceReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy, Is.EqualTo(fixture.Command.DurationReducedBy));
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy, Is.EqualTo(fixture.Command.PriceReducedBy));
+            });
         }
 
         [Test]
@@ -143,7 +137,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CancellationToken = new CancellationToken();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().EnableSensitiveDataLogging()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             UserInfo = fixture.Create<UserInfo>();
@@ -190,13 +184,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

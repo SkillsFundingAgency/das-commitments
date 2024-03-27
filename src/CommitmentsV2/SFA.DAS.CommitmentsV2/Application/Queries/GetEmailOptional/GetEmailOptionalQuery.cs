@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional
 {
     public class GetEmailOptionalQuery : IRequest<bool>
     {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
+﻿namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
 {
     public class GetDataLockStatusListResponse
     {

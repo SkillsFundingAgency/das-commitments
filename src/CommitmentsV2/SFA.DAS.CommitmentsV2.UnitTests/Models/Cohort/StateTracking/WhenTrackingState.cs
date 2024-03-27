@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Models;
 
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
@@ -14,14 +12,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
             const string testMessage = "TestMessage";
             var cohort = new CommitmentsV2.Models.Cohort();
             cohort.Messages.Add(new CommitmentsV2.Models.Message { Text = testMessage });
-            Assert.AreEqual(testMessage, cohort.LastMessage);
+            Assert.That(cohort.LastMessage, Is.EqualTo(testMessage));
         }
 
         [Test]
         public void LastMessageIsNullWhenNoMessagesExist()
         {
             var cohort = new CommitmentsV2.Models.Cohort();
-            Assert.AreEqual(null, cohort.LastMessage);
+            Assert.That(cohort.LastMessage, Is.EqualTo(null));
         }
 
         [TestCase(0)]
@@ -35,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
                 cohort.Apprenticeships.Add(new DraftApprenticeship());
             }
 
-            Assert.AreEqual(count, cohort.DraftApprenticeshipCount);
+            Assert.That(cohort.DraftApprenticeshipCount, Is.EqualTo(count));
         }
     }
 }

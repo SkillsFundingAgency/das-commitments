@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Domain
+﻿namespace SFA.DAS.CommitmentsV2.Domain
 {
     public static class Constants
     {

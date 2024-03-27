@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipUpdate
@@ -14,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             var validator = new GetApprenticeshipUpdateQueryValidator();
             var validationResults = validator.Validate(new GetApprenticeshipUpdateQuery(apprenticeshipId, null));
-            Assert.AreEqual(expectedIsValid, validationResults.IsValid);
+            Assert.That(validationResults.IsValid, Is.EqualTo(expectedIsValid));
         }
 
         [TestCase(null, true)]
@@ -25,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             var validator = new GetApprenticeshipUpdateQueryValidator();
             var validationResults = validator.Validate(new GetApprenticeshipUpdateQuery(1, status));
-            Assert.AreEqual(expectedIsValid, validationResults.IsValid);
+            Assert.That(validationResults.IsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

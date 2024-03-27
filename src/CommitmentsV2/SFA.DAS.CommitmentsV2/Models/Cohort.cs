@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -576,12 +573,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
             }
 
-            if (party == Party.Employer || party == Party.Provider)
+            if (party is Party.Employer or Party.Provider && DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
             {
-                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
-                {
-                    throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
-                }
+                throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
             }
         }
 

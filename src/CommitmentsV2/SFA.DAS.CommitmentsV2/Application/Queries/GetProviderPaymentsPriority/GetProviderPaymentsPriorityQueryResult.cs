@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
 {
     public class GetProviderPaymentsPriorityQueryResult
     {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Linq;
-using static SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes.GetPriceEpisodesQueryResult;
+﻿using static SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes.GetPriceEpisodesQueryResult;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 {

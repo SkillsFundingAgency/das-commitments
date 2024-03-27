@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
 {
     public class GetChangeOfPartyRequestsQuery : IRequest<GetChangeOfPartyRequestsQueryResult>
     {

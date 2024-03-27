@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using AutoFixture.Kernel;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoFixture.Kernel;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -38,7 +29,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         public void Arrange()
         {
             // ARRANGE
-            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             _logger = new Mock<ILogger<AcademicYearEndExpiryProcessorService>>();
             
             _currentDateTime = new Mock<ICurrentDateTime>();

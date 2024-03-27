@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Authentication;
+﻿using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -107,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private void SetupTestData()
         {
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .EnableSensitiveDataLogging()
                 .Options)
             { CallBase = true };
@@ -249,25 +240,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyResult()
         {
-            Assert.IsNull(Exception);
-            Assert.IsNotNull(Result);
-            Assert.AreEqual(ApprenticeshipChangeOfPartyRequestResult, Result);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Exception, Is.Null);
+                Assert.That(Result, Is.Not.Null);
+            });
+            Assert.That(Result, Is.EqualTo(ApprenticeshipChangeOfPartyRequestResult));
         }
 
         public void VerifyResultAddedToDbContext()
         {
-            Assert.Contains(Result, Db.Object.ChangeOfPartyRequests.ToList());
+            Assert.That(Db.Object.ChangeOfPartyRequests.ToList(), Does.Contain(Result));
         }
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void VerifyNotException<T>()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
     }
 }

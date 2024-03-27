@@ -1,7 +1,3 @@
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -9,10 +5,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLearningError
@@ -30,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(1));
+            Assert.That(result.DraftApprenticeshipIds.ToList(), Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -41,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(0));
+            Assert.That(result.DraftApprenticeshipIds.ToList(), Has.Count.EqualTo(0));
         }
 
         [Test]
@@ -51,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.IsInstanceOf<GetCohortPriorLearningErrorQueryResult>(result);
+            Assert.That(result, Is.InstanceOf<GetCohortPriorLearningErrorQueryResult>());
         }
 
     }
@@ -72,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         {
             var autoFixture = new Fixture();
 
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             RplFundingCalculation = autoFixture.Create<RplFundingCalculation>();
 
@@ -162,6 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using System.Reflection;
 using AutoFixture.Kernel;
 using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -40,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             var compare = new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = 100 });
             var compareResult = compare.Compare(_source.ApprenticeshipUpdates, _result.ApprenticeshipUpdates);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
 
         [Test]
@@ -49,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             foreach (var source in _source.ApprenticeshipUpdates)
             {
                 var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
-                Assert.AreEqual(source.Originator.ToParty(), result.OriginatingParty);
+                Assert.That(result.OriginatingParty, Is.EqualTo(source.Originator.ToParty()));
             }
         }
 
@@ -59,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             foreach (var source in _source.ApprenticeshipUpdates)
             {
                 var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
-                Assert.AreEqual(source.DeliveryModel, result.DeliveryModel);
+                Assert.That(result.DeliveryModel, Is.EqualTo(source.DeliveryModel));
             }
         }
     }

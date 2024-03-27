@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
 {
     public interface IModelMapper
     {

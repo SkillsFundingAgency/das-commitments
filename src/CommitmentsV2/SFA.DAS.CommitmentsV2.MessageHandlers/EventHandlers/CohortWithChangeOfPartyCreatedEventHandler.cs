@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -41,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             catch (CohortAlreadyApprovedException e)
             {
                 _logger.LogError(e, $"CohortAlreadyApprovedException processing CohortWithChangeOfPartyCreatedEvent", e);
+                throw;
             }
             catch (Exception e)
             {

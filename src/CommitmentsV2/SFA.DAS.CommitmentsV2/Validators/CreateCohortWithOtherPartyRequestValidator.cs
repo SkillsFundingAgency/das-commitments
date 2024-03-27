@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Validators

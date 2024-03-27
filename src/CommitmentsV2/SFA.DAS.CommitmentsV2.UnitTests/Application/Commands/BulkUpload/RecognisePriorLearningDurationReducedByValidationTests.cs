@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     public class RecognisePriorLearningDurationReducedByValidationTests
     {
@@ -10,10 +7,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("false");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "IsDurationReducedByRPL", "True or false should not be selected for <b>duration reduced</b> when recognise prior learning is false.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "IsDurationReducedByRPL", "True or false should not be selected for <b>duration reduced</b> when recognise prior learning is false.");
         }
 
         [Test]
@@ -21,11 +18,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("261");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
         }
 
         [Test]
@@ -33,11 +30,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("0");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
         }
 
         [Test]
@@ -45,11 +42,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("-10");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
         }
 
         [Test]
@@ -57,11 +54,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("1000");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
         }
 
         [Test]
@@ -69,11 +66,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("268 289");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -81,11 +78,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("567SGHAJ");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -93,11 +90,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("#123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -105,11 +102,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("false");
+            fixture.SetIsDurationReducedByRpl("false");
             fixture.SetDurationReducedBy("123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
         }
 
         [Test]
@@ -117,11 +114,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateNoErrorsFound(errors);
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
         }
 
     }

@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             //Arrange
             apiClient.Setup(x => x.Get<FrameworkResponse>(It.IsAny<GetFrameworksRequest>())).ReturnsAsync(apiResponse);
-            var importedStandards = new List<FrameworkSummary>(); 
+            var importedStandards = new List<FrameworkSummary>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportFrameworks @frameworks", It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
@@ -53,14 +53,14 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         EffectiveTo = (DateTime?)r[11],
                     }));
                 });
-            
+
             //Act
             await importFrameworksJob.Import(null);
-            
+
             //Assert
-            importedStandards.Should().BeEquivalentTo(apiResponse.Frameworks, options => options.Excluding(c=>c.FundingPeriods));
+            importedStandards.Should().BeEquivalentTo(apiResponse.Frameworks, options => options.Excluding(c => c.FundingPeriods));
         }
-        
+
         [Test, MoqAutoData]
         public async Task Then_The_StandardsFunding_Items_Are_Imported_From_The_Client(
             FrameworkResponse apiResponse,
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             //Arrange
             apiClient.Setup(x => x.Get<FrameworkResponse>(It.IsAny<GetFrameworksRequest>())).ReturnsAsync(apiResponse);
-            var importedStandardFunding = new List<FundingPeriodItem>(); 
+            var importedStandardFunding = new List<FundingPeriodItem>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportFrameworksFunding @frameworksFunding", It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
@@ -87,10 +87,10 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         EffectiveTo = (DateTime?)r[3],
                     }));
                 });
-            
+
             //Act
             await importFrameworksJob.Import(null);
-            
+
             //Assert
             var expectedItems = new List<FundingPeriodItem>();
             foreach (var responseStandard in apiResponse.Frameworks)
@@ -98,9 +98,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 var frameworkId = responseStandard.Id;
                 expectedItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
                 {
-                    FrameworkId = frameworkId, 
-                    EffectiveFrom = fundingPeriod.EffectiveFrom, 
-                    EffectiveTo = fundingPeriod.EffectiveTo, 
+                    FrameworkId = frameworkId,
+                    EffectiveFrom = fundingPeriod.EffectiveFrom,
+                    EffectiveTo = fundingPeriod.EffectiveTo,
                     FundingCap = fundingPeriod.FundingCap
                 }));
             }

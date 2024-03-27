@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingApprenticeChanges
 {

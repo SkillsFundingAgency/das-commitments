@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 {

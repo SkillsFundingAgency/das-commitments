@@ -1,5 +1,3 @@
-using System;
-
 namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
 {
     public class GetDataLockEventsRequest : IGetApiRequest

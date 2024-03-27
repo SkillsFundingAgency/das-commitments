@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests
 {
     public class IgnoreVirtualMembersCustomisation : ICustomization
     {

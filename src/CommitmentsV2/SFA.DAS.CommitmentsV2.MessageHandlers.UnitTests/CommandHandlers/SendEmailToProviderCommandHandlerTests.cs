@@ -1,18 +1,10 @@
-﻿using AutoFixture;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.Testing.Fakes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
@@ -206,12 +198,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyHasError()
             {
-                Assert.IsTrue(Logger.HasErrors);
+                Assert.That(Logger.HasErrors, Is.True);
             }
 
             public void VerifyHasWarning()
             {
-                Assert.IsTrue(Logger.HasWarnings);
+                Assert.That(Logger.HasWarnings, Is.True);
             }
         }
     }

@@ -1,75 +1,62 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Data;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Data.SqlClient;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
+
+public class GetAllLearnersQueryHandler : IRequestHandler<GetAllLearnersQuery, GetAllLearnersQueryResult>
 {
-    public class GetAllLearnersQueryHandler : IRequestHandler<GetAllLearnersQuery, GetAllLearnersQueryResult>
+    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+
+    public GetAllLearnersQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) => _dbContext = dbContext;
+
+    public Task<GetAllLearnersQueryResult> Handle(GetAllLearnersQuery request, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        var sinceTimeParam = new SqlParameter("sinceTime", request.SinceTime);
 
-        public GetAllLearnersQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        if (null == sinceTimeParam.Value)
         {
-            _dbContext = dbContext;
+            sinceTimeParam.Value = DBNull.Value;
         }
 
-        public Task<GetAllLearnersQueryResult> Handle(GetAllLearnersQuery request, CancellationToken cancellationToken)
-        {
-            var sinceTimeParam = new SqlParameter("sinceTime", request.SinceTime);
-            if(null == sinceTimeParam.Value)
+        var batchNumberParam = new SqlParameter("batchNumber", request.BatchNumber) { Direction = System.Data.ParameterDirection.InputOutput };
+        var batchSizeParam = new SqlParameter("batchSize", request.BatchSize) { Direction = System.Data.ParameterDirection.InputOutput };
+        var totalNumberOfBatchesParam = new SqlParameter("totalNumberOfBatches", System.Data.SqlDbType.Int) { Direction = System.Data.ParameterDirection.Output };
+
+        var learnersBatch = _dbContext.Value.Learners
+            .FromSqlRaw("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
+            .ToList();
+
+        var learners = learnersBatch.Select(learnerItem => new Learner
             {
-                sinceTimeParam.Value = DBNull.Value;
-            }
-            var batchNumberParam = new SqlParameter("batchNumber", request.BatchNumber);
-            batchNumberParam.Direction = System.Data.ParameterDirection.InputOutput;
-            var batchSizeParam = new SqlParameter("batchSize", request.BatchSize);
-            batchSizeParam.Direction = System.Data.ParameterDirection.InputOutput;
-            var totalNumberOfBatchesParam = new SqlParameter("totalNumberOfBatches", System.Data.SqlDbType.Int);
-            totalNumberOfBatchesParam.Direction = System.Data.ParameterDirection.Output;
+                ApprenticeshipId = learnerItem.ApprenticeshipId,
+                FirstName = learnerItem.FirstName,
+                LastName = learnerItem.LastName,
+                ULN = learnerItem.ULN,
+                TrainingCode = learnerItem.TrainingCode,
+                TrainingCourseVersion = learnerItem.TrainingCourseVersion,
+                TrainingCourseVersionConfirmed = learnerItem.TrainingCourseVersionConfirmed,
+                TrainingCourseOption = learnerItem.TrainingCourseOption,
+                StandardUId = learnerItem.StandardUId,
+                StartDate = learnerItem.StartDate,
+                EndDate = learnerItem.EndDate,
+                CreatedOn = learnerItem.CreatedOn,
+                UpdatedOn = learnerItem.UpdatedOn,
+                StopDate = learnerItem.StopDate,
+                PauseDate = learnerItem.PauseDate,
+                CompletionDate = learnerItem.CompletionDate,
+                UKPRN = learnerItem.UKPRN,
+                LearnRefNumber = learnerItem.LearnRefNumber,
+                PaymentStatus = learnerItem.PaymentStatus,
+                EmployerAccountId = learnerItem.EmployerAccountId,
+                EmployerName = learnerItem.EmployerName,
+            })
+            .ToList();
 
-            var dblearners = _dbContext.Value.Learners
-                                .FromSqlRaw("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
-                                .ToList();
+        var totalNumberOfBatches = DBNull.Value == totalNumberOfBatchesParam.Value ? 0 : (int)totalNumberOfBatchesParam.Value;
 
-            // @ToDo: can we use AutoMapper?
-            var learners = new List<Learner>();
-            foreach (var dblearner in dblearners)
-            {
-                learners.Add(new Learner()
-                {
-                    ApprenticeshipId = dblearner.ApprenticeshipId,
-                    FirstName = dblearner.FirstName,
-                    LastName = dblearner.LastName,
-                    ULN = dblearner.ULN,
-                    TrainingCode = dblearner.TrainingCode,
-                    TrainingCourseVersion = dblearner.TrainingCourseVersion,
-                    TrainingCourseVersionConfirmed = dblearner.TrainingCourseVersionConfirmed,
-                    TrainingCourseOption = dblearner.TrainingCourseOption,
-                    StandardUId = dblearner.StandardUId,
-                    StartDate = dblearner.StartDate,
-                    EndDate = dblearner.EndDate,
-                    CreatedOn = dblearner.CreatedOn,
-                    UpdatedOn = dblearner.UpdatedOn,
-                    StopDate = dblearner.StopDate,
-                    PauseDate = dblearner.PauseDate,
-                    CompletionDate = dblearner.CompletionDate,
-                    UKPRN = dblearner.UKPRN,
-                    LearnRefNumber = dblearner.LearnRefNumber,
-                    PaymentStatus = dblearner.PaymentStatus,
-                    EmployerAccountId = dblearner.EmployerAccountId,
-                    EmployerName = dblearner.EmployerName,
-                });
-            }
+        var result = new GetAllLearnersQueryResult(learners, (int)batchNumberParam.Value, (int)batchSizeParam.Value, totalNumberOfBatches);
 
-            int totalNumberOfBatches = (DBNull.Value == totalNumberOfBatchesParam.Value) ? 0 : (int)totalNumberOfBatchesParam.Value;
-            return Task.FromResult(new GetAllLearnersQueryResult(learners, (int)batchNumberParam.Value, (int)batchSizeParam.Value, totalNumberOfBatches));
-        }
+        return Task.FromResult(result);
     }
 }

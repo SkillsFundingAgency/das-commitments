@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using AutoFixture.Kernel;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -44,8 +35,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
         {
             _fixture.SeedData().WithNoMatchingApprenticeship();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         [Test]
@@ -53,8 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
         {
             await _fixture.SeedData().ExpireTheDataLockRecords();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         [Test]
@@ -62,8 +53,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
         {
             await _fixture.SeedData().SetEventStatusRemoved();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         public class GetDataLocksQueryHandlerTestsFixture : IDisposable
@@ -82,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
                 _request = new GetDataLocksQuery(_apprenticeshipId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options);
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).EnableSensitiveDataLogging().Options);
                 _handler = new GetDataLocksQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
@@ -149,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 
             public void VerifyResultMapping(int resultCount)
             {
-                Assert.AreEqual(resultCount, _result.DataLocks.Count);
+                Assert.That(_result.DataLocks, Has.Count.EqualTo(resultCount));
 
                 foreach (var result in _result.DataLocks)
                 {
@@ -159,24 +150,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 
             private static void AssertEquality(DataLockStatus source, DataLock result)
             {
-                Assert.AreEqual(source.Id, result.Id);
-                Assert.AreEqual(source.DataLockEventDatetime, result.DataLockEventDatetime);
-                Assert.AreEqual(source.PriceEpisodeIdentifier, result.PriceEpisodeIdentifier);
-                Assert.AreEqual(source.ApprenticeshipId, result.ApprenticeshipId);
-                Assert.AreEqual(source.IlrTrainingCourseCode, result.IlrTrainingCourseCode);
-                Assert.AreEqual(source.IlrActualStartDate, result.IlrActualStartDate);
-                Assert.AreEqual(source.IlrEffectiveFromDate, result.IlrEffectiveFromDate);
-                Assert.AreEqual(source.IlrPriceEffectiveToDate, result.IlrPriceEffectiveToDate);
-                Assert.AreEqual(source.IlrTotalCost, result.IlrTotalCost);
-                Assert.AreEqual(source.ErrorCode, result.ErrorCode);
-                Assert.AreEqual(source.Status, result.DataLockStatus);
-                Assert.AreEqual(source.TriageStatus, result.TriageStatus);
-                Assert.AreEqual(source.IsResolved, result.IsResolved);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.Id, Is.EqualTo(source.Id));
+                    Assert.That(result.DataLockEventDatetime, Is.EqualTo(source.DataLockEventDatetime));
+                    Assert.That(result.PriceEpisodeIdentifier, Is.EqualTo(source.PriceEpisodeIdentifier));
+                    Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                    Assert.That(result.IlrTrainingCourseCode, Is.EqualTo(source.IlrTrainingCourseCode));
+                    Assert.That(result.IlrActualStartDate, Is.EqualTo(source.IlrActualStartDate));
+                    Assert.That(result.IlrEffectiveFromDate, Is.EqualTo(source.IlrEffectiveFromDate));
+                    Assert.That(result.IlrPriceEffectiveToDate, Is.EqualTo(source.IlrPriceEffectiveToDate));
+                    Assert.That(result.IlrTotalCost, Is.EqualTo(source.IlrTotalCost));
+                    Assert.That(result.ErrorCode, Is.EqualTo(source.ErrorCode));
+                    Assert.That(result.DataLockStatus, Is.EqualTo(source.Status));
+                    Assert.That(result.TriageStatus, Is.EqualTo(source.TriageStatus));
+                    Assert.That(result.IsResolved, Is.EqualTo(source.IsResolved));
+                });
             }
 
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }
