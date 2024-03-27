@@ -249,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             this.PriceHistory = updatedPriceHistory;
         }
 
-        public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, DateTime approvedOn)
+        public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
         {
             StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -258,6 +258,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseName = courseName;
             ProgrammeType = programmeType;
             StandardUId = standardUId;
+            TrainingCourseVersion = version;
+            TrainingCourseVersionConfirmed = version != null;
             TrainingCourseOption = null;
 
             Publish(() =>

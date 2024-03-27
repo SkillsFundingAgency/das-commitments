@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                     if (training != null)
                     {
                         _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
-                        apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, _currentDateTime.UtcNow);
+                        apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, training.Version, _currentDateTime.UtcNow);
                     }
                 }
             }
