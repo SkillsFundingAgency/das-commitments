@@ -309,6 +309,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task ShouldUpdateCourse_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentCourseButHasNoVersion()
+        {
+            // Arrange
+            _fixture.SeedData()
+                .WithHasHadDataLockSuccess(false)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode300, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 41, TestsFixture.TrainingCourseCode300, TestsFixture.ProxyCurrentDateTime.AddDays(20), 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock03);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.ApprenticeshipFromDb.CourseCode.Should().Be(TestsFixture.TrainingCourseCode300, "Course code should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.CourseName.Should().Be(TestsFixture.TrainingCourseName300, "Course name should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.TrainingCourseVersion.Should().Be(TestsFixture.TrainingCourseVersion300, "Course version should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.StandardUId.Should().Be(TestsFixture.TrainingCourseStandardUId300, "Course standard should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.TrainingCourseVersionConfirmed.Should().Be(false, "Course version should be confirmed for course data lock when version set on new record");
+        }
+
+
+        [Test]
         public async Task ShouldUpdateCourse_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentCourse()
         {
             // Arrange
@@ -324,9 +348,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.ApprenticeshipFromDb.CourseCode.Should().Be(TestsFixture.TrainingCourseCode200, "Course code should update for course data lock when not has had datalock success");
-            _fixture.ApprenticeshipFromDb.CourseName.Should().Be(TestsFixture.TrainingCourseName200, "Course name should update for course data lock when not has had datalock success");
+            _fixture.ApprenticeshipFromDb.CourseCode.Should().Be(TestsFixture.TrainingCourseCode200, "Course code should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.CourseName.Should().Be(TestsFixture.TrainingCourseName200, "Course name should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.TrainingCourseVersion.Should().Be(TestsFixture.TrainingCourseVersion200, "Course version should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.StandardUId.Should().Be(TestsFixture.TrainingCourseStandardUId200, "Course standard should update for course data lock when has had datalock success");
+            _fixture.ApprenticeshipFromDb.TrainingCourseVersionConfirmed.Should().Be(true, "Course version should be confirmed for course data lock when version set on new record");
         }
+
 
         [Test]
         public async Task ShouldResolveDataLocks_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentCourse()
@@ -671,11 +699,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public static string TrainingCourseCode100 = "100";
         public static string TrainingCourseName100 = "100 Test Name";
+        public static string TrainingCourseVersion100 = "1.2";
+        public static string TrainingCourseStandardUId100 = "ABC1.2";
         public static ProgrammeType ProgrammeType100 = ProgrammeType.Standard;
 
         public static string TrainingCourseCode200 = "200";
         public static string TrainingCourseName200 = "200 Test Name";
+        public static string TrainingCourseVersion200 = "1.2";
+        public static string TrainingCourseStandardUId200 = "ABC1.2";
         public static ProgrammeType ProgrammeType200 = ProgrammeType.Standard;
+
+        public static string TrainingCourseCode300 = "300";
+        public static string TrainingCourseName300 = "300 Test Name";
+        public static string TrainingCourseVersion300 = null;
+        public static string TrainingCourseStandardUId300 = "ABC1.3";
+        public static ProgrammeType ProgrammeType300 = ProgrammeType.Standard;
+
 
         public static DateTime ProxyCurrentDateTime = new DateTime(2020, 1, 1);
 
@@ -724,9 +763,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
 
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode100, It.IsAny<DateTime>()))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
+                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, TrainingCourseVersion100, TrainingCourseStandardUId100, 
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode200, It.IsAny<DateTime>()))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
+                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, TrainingCourseVersion200, TrainingCourseStandardUId200, 
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
+            TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode300, It.IsAny<DateTime>()))
+                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode300, TrainingCourseName300, TrainingCourseVersion300, TrainingCourseStandardUId300,
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
 
             UserInfo = AutoFixture.Create<UserInfo>();
             Command = new AcceptDataLocksRequestChangesCommand(ApprenticeshipId, UserInfo);
