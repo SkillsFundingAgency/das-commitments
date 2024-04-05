@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToList();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
+            _logger.LogInformation($"Found {pendingRecords.Count} records which can be auto-stopped after 2 weeks for overlapping training dates.");
 
             foreach (var pendingRecord in pendingRecords)
             {
