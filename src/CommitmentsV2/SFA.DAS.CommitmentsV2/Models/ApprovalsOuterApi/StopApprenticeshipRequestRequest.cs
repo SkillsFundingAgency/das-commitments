@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
             Data = body;
         }
 
-        public string PostUrl => $"apprentices/employer/{ApprenticeshipId}/stop";
+        public string PostUrl => $"employer/{ApprenticeshipId}/stop";
         public object Data { get; set; }
 
         public class Body
