@@ -6,27 +6,26 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Data;   
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk
+namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestAutomaticStopAfter2Weeks
 {
-    public class OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToServiceDeskCommand>
+    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler : IRequestHandler<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand>
     {
-        public const string TemplateId = "ExpiredOverlappingTrainingDateForServiceDesk";
         private readonly ICurrentDateTime _currentDateTime;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IApprovalsOuterApiClient _apiClient;
         private readonly CommitmentsV2Configuration _configuration;
-        private readonly ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> _logger;
+        private readonly ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler> _logger;
 
-        public OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
+        public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
             ICurrentDateTime currentDateTime,
             CommitmentsV2Configuration configuration,
             IApprovalsOuterApiClient apiClient,
-            ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> logger)
+            ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler> logger)
         {
             _dbContext = commitmentsDbContext;
             _currentDateTime = currentDateTime;
@@ -34,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             _apiClient = apiClient;
             _logger = logger;
         }
-        public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
+        public async Task Handle(OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand request, CancellationToken cancellationToken)
         {
             if (_configuration.OLTD_GoLiveDate.HasValue)
             {

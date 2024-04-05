@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk;
+using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestAutomaticStopAfter2Weeks;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -19,12 +19,12 @@ using SFA.DAS.Testing.Builders;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate
 {
     [TestFixture]
-    public class OverlappingTrainingDateRequestNotificationToServiceDeskTests
+    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTests
     {
         [Test]
         public async Task Verify_StopApprenticeshipRequestSent()
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture();
             await fixture.Handle();
 
             fixture.Verify_StopApprenticeshipRequestSent();
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [TestCase(Types.OverlappingTrainingDateRequestStatus.Resolved)]
         public async Task Verify_Apprenticeship_Stopped_OnlyForPendingRequests(Types.OverlappingTrainingDateRequestStatus status)
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture();
             fixture.SetStatus(status);
             await fixture.Handle();
 
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_Apprenticeship_Stopped_OnlyForExpiredRecords()
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture();
             fixture.SetCreatedOn(-28);
             await fixture.Handle();
 
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_EmailIsSent_After14days_CreatedOn_After_OLTDGoLiveDate()
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture();
 
             fixture.SetGoLiveDate(-25);
 
@@ -65,17 +65,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_StopApprenticeshipRequestSent();
         }
 
-        public class OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture : IDisposable
+        public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture : IDisposable
         {
-            OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler _sut;
-            OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command;
+            OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler _sut;
+            OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand _command;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             Mock<IApprovalsOuterApiClient> _approvalsClient;
             DateTime currentProxyDateTime;
             CommitmentsV2Configuration _configuration;
 
-            public OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture()
+            public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksTestsFixture()
             {
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -97,12 +97,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                     OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
                 };
 
-                _sut = new OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(
+                _sut = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),
                      _currentDateTime.Object,
                      _configuration,
                      _approvalsClient.Object,
-                     Mock.Of<ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler>>()
+                     Mock.Of<ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommandHandler>>()
                     );
 
                 SeedData();
