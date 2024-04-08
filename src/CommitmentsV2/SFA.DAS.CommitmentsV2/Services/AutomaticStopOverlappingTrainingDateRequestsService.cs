@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 var overlappingTrainingDatesToStop = await _mediator.Send(new GetPendingOverlappingTrainingDatesToStopQuery());
                 if (overlappingTrainingDatesToStop != null && overlappingTrainingDatesToStop.OverlappingTrainingDateRequests != null)
                 {
-                    foreach (var request in overlappingTrainingDatesToStop?.OverlappingTrainingDateRequests)
+                    foreach (var request in overlappingTrainingDatesToStop.OverlappingTrainingDateRequests)
                     {
                         if (request.DraftApprenticeship != null)
                         {

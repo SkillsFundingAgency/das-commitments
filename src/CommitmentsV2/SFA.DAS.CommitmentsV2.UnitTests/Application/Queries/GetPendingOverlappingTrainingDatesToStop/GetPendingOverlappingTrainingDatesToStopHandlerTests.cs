@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.Builders;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate
 {
@@ -133,6 +134,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 {
                     OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
                 };
+                
+                _query = new GetPendingOverlappingTrainingDatesToStopQuery();
 
                 _sut = new GetPendingOverlappingTrainingDatesToStopHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),
