@@ -23,25 +23,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             try
             {
                 var overlappingTrainingDatesToStop = await _mediator.Send(new GetPendingOverlappingTrainingDatesToStopQuery());
-
-                foreach (var request in overlappingTrainingDatesToStop.OverlappingTrainingDateRequests)
+                if (overlappingTrainingDatesToStop != null && overlappingTrainingDatesToStop.OverlappingTrainingDateRequests != null)
                 {
-                    if (request.DraftApprenticeship != null)
+                    foreach (var request in overlappingTrainingDatesToStop?.OverlappingTrainingDateRequests)
                     {
-                        _logger.LogInformation("Sending StopApprenticeshipRequest for ApprenticeshipId {PreviousApprenticeshipId}", request.PreviousApprenticeshipId);
+                        if (request.DraftApprenticeship != null)
+                        {
+                            _logger.LogInformation("Sending StopApprenticeshipRequest for ApprenticeshipId {PreviousApprenticeshipId}", request.PreviousApprenticeshipId);
 
-                        await _mediator.Send(new StopApprenticeshipCommand(
-                            request.PreviousApprenticeship.Cohort.EmployerAccountId,
-                            request.PreviousApprenticeshipId,
-                            request.DraftApprenticeship.StartDate.Value,
-                            false,
-                            Types.UserInfo.System));
+                            await _mediator.Send(new StopApprenticeshipCommand(
+                                request.PreviousApprenticeship.Cohort.EmployerAccountId,
+                                request.PreviousApprenticeshipId,
+                                request.DraftApprenticeship.StartDate.Value,
+                                false,
+                                Types.UserInfo.System));
+                        }
                     }
-                }
+                }               
             }
             catch (System.Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while automatically stopping overlapping training date requests.");
+                _logger.LogError("An error occurred while automatically stopping overlapping training date requests.", ex);
 
                 throw;
             }           

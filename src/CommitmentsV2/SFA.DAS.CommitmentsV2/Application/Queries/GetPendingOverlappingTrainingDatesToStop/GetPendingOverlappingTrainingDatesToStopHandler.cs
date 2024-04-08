@@ -34,11 +34,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
         {
             if (_configuration.OLTD_GoLiveDate.HasValue)
             {
-                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+                _logger.LogInformation("OLTD_GoLiveDate {value}", _configuration.OLTD_GoLiveDate.Value);
             }
             else
             {
-                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+                _logger.LogInformation("OLTD_GoLiveDate has no value");
             }
 
             var currentDate = _currentDateTime.UtcNow;
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToListAsync();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which can be auto-stopped after 2 weeks for overlapping training dates.");
+            _logger.LogInformation("Found {Count} records which can be auto-stopped after 2 weeks for overlapping training dates.", pendingRecords.Count);
 
             return new GetPendingOverlappingTrainingDatesToStopResult
             {
