@@ -62,41 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
         {
             return await _asyncRetryPolicy.ExecuteAsync(async () => await Get<TResponse>(request));
         }
-
-        public async Task<TResponse> PostAsync<TResponse>(IPostApiRequest request)
-        {
-            return await PostAsync<object, TResponse>(request);
-        }
-
-        public async Task<TResponse> PostAsync<TData, TResponse>(IPostApiRequest<TData> request)
-        {
-            _logger.LogInformation("Calling Outer API base {0}, url {1}", _config.BaseUrl, request.PostUrl);
-
-            var jsonRequest = JsonConvert.SerializeObject(request.Data);
-            var content = new StringContent(jsonRequest, System.Text.Encoding.UTF8, "application/json");
-           
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, request.PostUrl)
-            {
-                Content = content,
-            };
-
-            AddHeaders(requestMessage);
-
-            var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-
-            if (response.IsSuccessStatusCode)
-            {
-                _logger.LogInformation("URL {0} returned a response", request.PostUrl);
-                var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                return JsonConvert.DeserializeObject<TResponse>(jsonResponse);
-            }
-
-            _logger.LogInformation("URL {0} returned a response {1}", request.PostUrl, response.StatusCode);
-            response.EnsureSuccessStatusCode();
-
-            return default;
-        }
-
+     
         private void AddHeaders(HttpRequestMessage httpRequestMessage)
         {
             httpRequestMessage.Headers.Add("Ocp-Apim-Subscription-Key", _config.Key);
