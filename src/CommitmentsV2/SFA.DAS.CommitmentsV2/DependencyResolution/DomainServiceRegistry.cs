@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IEmailOptionalService>().Use<EmailOptionalService>();
-            For<IApprenticeshipStatusSummaryService>().Use<ApprenticeshipStatusSummaryService>();
+            For<IAutomaticStopOverlappingTrainingDateRequestsService>().Use<AutomaticStopOverlappingTrainingDateRequestsService>();
 
 
             For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
