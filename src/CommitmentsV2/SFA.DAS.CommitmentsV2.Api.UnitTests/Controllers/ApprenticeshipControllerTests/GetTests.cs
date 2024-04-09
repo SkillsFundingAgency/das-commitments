@@ -9,7 +9,9 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -37,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             public IFixture AutoFixture { get; }
             public Mock<IMediator> Mediator { get; }
             public Mock<IModelMapper> ModelMapper { get; }
+            public Mock<IAuthenticationService> AuthenticationService { get; }
             public ApprenticeshipController Controller { get; }
             public long ApprenticeshipId { get; }
             public GetApprenticeshipQueryResult QueryResult { get; }
@@ -51,6 +54,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     .Build<GetApprenticeshipQueryResult>()
                     .Create();
 
+                AuthenticationService = new Mock<IAuthenticationService>();
+
+                AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
+
                 Mediator = new Mock<IMediator>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(QueryResult);
@@ -64,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
                 ApprenticeshipId = AutoFixture.Create<long>();
 
-                Controller = new ApprenticeshipController(Mediator.Object, ModelMapper.Object, Mock.Of<ILogger<ApprenticeshipController>>());
+                Controller = new ApprenticeshipController(Mediator.Object, ModelMapper.Object, AuthenticationService.Object, Mock.Of<ILogger<ApprenticeshipController>>());
             }
 
             public async Task Get()

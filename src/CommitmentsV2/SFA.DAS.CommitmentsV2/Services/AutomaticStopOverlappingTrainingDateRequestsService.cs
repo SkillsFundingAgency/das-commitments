@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                                 request.PreviousApprenticeshipId,
                                 request.DraftApprenticeship.StartDate.Value,
                                 false,
-                                Types.UserInfo.System));
+                                Types.UserInfo.System,
+                                Types.Party.Employer));
                         }
                     }
                 }               

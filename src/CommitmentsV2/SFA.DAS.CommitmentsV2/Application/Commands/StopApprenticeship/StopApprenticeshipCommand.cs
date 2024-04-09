@@ -12,14 +12,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         public DateTime StopDate { get; }
 
         public bool MadeRedundant { get; }
+        public Party Party { get; }
 
-        public StopApprenticeshipCommand(long accountId, long apprenticeshipId, DateTime stopDate, bool madeRedundant, UserInfo userInfo)
+        public StopApprenticeshipCommand(long accountId, long apprenticeshipId, DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
         {
             AccountId = accountId;
             ApprenticeshipId = apprenticeshipId;
             StopDate = stopDate;
             MadeRedundant = madeRedundant;
             UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
+            Party = party;
         }
     }
 }

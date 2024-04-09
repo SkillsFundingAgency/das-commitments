@@ -66,7 +66,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             cmd.ApprenticeshipId == request.PreviousApprenticeshipId &&
                             cmd.StopDate == request.DraftApprenticeship.StartDate.Value &&
                             cmd.MadeRedundant == false &&
-                            cmd.UserInfo == Types.UserInfo.System),
+                            cmd.UserInfo == Types.UserInfo.System &&
+                            cmd.Party == Types.Party.Employer),
                         It.IsAny<CancellationToken>()), Times.Once);
                 }
             }
