@@ -2,27 +2,26 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.UnitOfWork.DependencyResolution.StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
-    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob
+    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob(
+        IAutomaticStopOverlappingTrainingDateRequestsService automaticStopOverlappingTrainingDateRequestsService,
+        ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> logger,
+        IUnitOfWorkScope unitOfWorkScope)
     {
-        private readonly ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> _logger;
-        private readonly IAutomaticStopOverlappingTrainingDateRequestsService _automaticStopOverlappingTrainingDateRequestsService;
-
-        public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob(IAutomaticStopOverlappingTrainingDateRequestsService automaticStopOverlappingTrainingDateRequestsService, ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> logger)
+        public async Task StopApprenticeships([TimerTrigger("0 0 0 * * *", RunOnStartup = true)] TimerInfo timer)
         {
-            _automaticStopOverlappingTrainingDateRequestsService = automaticStopOverlappingTrainingDateRequestsService;
-            _logger = logger;
-        }
+            logger.LogInformation("Starting OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob");
 
-        public async Task StopApprenticeships([TimerTrigger("%SFA.DAS.CommitmentsV2:OLTDStopApprenticeshipAfter2WeeksJobSchedule%", RunOnStartup = false)] TimerInfo timer)
-        {
-            _logger.LogInformation("Starting OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob");
+            await unitOfWorkScope.RunAsync(async sp =>
+            {    
+                await automaticStopOverlappingTrainingDateRequestsService.AutomaticallyStopOverlappingTrainingDateRequest();
+            });
+        
 
-            await _automaticStopOverlappingTrainingDateRequestsService.AutomaticallyStopOverlappingTrainingDateRequest();
-
-            _logger.LogInformation("OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob - Finished");
+            logger.LogInformation("OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob - Finished");
         }
     }
 }
