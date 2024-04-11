@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenShouldThrowException()
         {
             // Arrange
-            var command = new StopApprenticeshipCommand(0, 0, DateTime.MinValue, false, new UserInfo(), Party.Employer);
+            var command = new StopApprenticeshipCommand(0, 0, DateTime.MinValue, false, new UserInfo(), Party.None);
             StopApprenticeshipCommandValidator sut = new StopApprenticeshipCommandValidator();
 
             // Act
@@ -113,6 +113,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 {
                     fourth.PropertyName.Should().Be("StopDate");
                     fourth.ErrorMessage.Should().Be("The StopDate must be supplied");
+                },
+                fifth =>
+                {
+                    fifth.PropertyName.Should().Be("Party");
+                    fifth.ErrorMessage.Should().Be("The Party must be supplied");
                 });
         }
 

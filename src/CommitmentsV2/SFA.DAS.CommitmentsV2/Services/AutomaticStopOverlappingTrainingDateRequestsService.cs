@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
+using IMessageSession = NServiceBus.IMessageSession;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -11,14 +13,18 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly IMediator _mediator;
         private readonly ILogger<AutomaticStopOverlappingTrainingDateRequestsService> _logger;
+        private readonly IMessageSession _messageSession;
 
-        public AutomaticStopOverlappingTrainingDateRequestsService(IMediator mediator, ILogger<AutomaticStopOverlappingTrainingDateRequestsService> logger)
+        public AutomaticStopOverlappingTrainingDateRequestsService(IMediator mediator,
+            IMessageSession messageSession,
+            ILogger<AutomaticStopOverlappingTrainingDateRequestsService> logger)
         {
             _mediator = mediator;
+            _messageSession = messageSession;
             _logger = logger;
         }
 
-        public async Task AutomaticallyStopOverlappingTrainingDateRequest()
+        public async Task AutomaticallyStopOverlappingTrainingDateRequests()
         {
             try
             {
@@ -31,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         {
                             _logger.LogInformation("Sending StopApprenticeshipRequest for ApprenticeshipId {PreviousApprenticeshipId}", request.PreviousApprenticeshipId);
 
-                            await _mediator.Send(new StopApprenticeshipCommand(
+                            await _messageSession.Send(new AutomaticallyStopOverlappingTrainingDateRequestCommand(
                                 request.PreviousApprenticeship.Cohort.EmployerAccountId,
                                 request.PreviousApprenticeshipId,
                                 request.DraftApprenticeship.StartDate.Value,
@@ -40,14 +46,14 @@ namespace SFA.DAS.CommitmentsV2.Services
                                 Types.Party.Employer));
                         }
                     }
-                }               
+                }
             }
             catch (System.Exception ex)
             {
                 _logger.LogError("An error occurred while automatically stopping overlapping training date requests.", ex);
 
                 throw;
-            }           
+            }
         }
     }
 }

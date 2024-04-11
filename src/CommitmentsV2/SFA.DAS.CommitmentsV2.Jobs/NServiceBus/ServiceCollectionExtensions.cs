@@ -11,7 +11,6 @@ using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
-using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
@@ -40,7 +39,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
                         .UseOutbox(true)
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
                         .UseSendOnly()
-                        .UseUnitOfWork()
                         .UseStructureMapBuilder(container);
 
                     if (isDevelopment)

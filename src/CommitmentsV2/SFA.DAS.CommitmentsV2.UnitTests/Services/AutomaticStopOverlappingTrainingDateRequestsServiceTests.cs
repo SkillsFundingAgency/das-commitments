@@ -6,9 +6,10 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -20,14 +21,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private Mock<IMediator> _mediatorMock;
         private Mock<ILogger<AutomaticStopOverlappingTrainingDateRequestsService>> _loggerMock;
         private AutomaticStopOverlappingTrainingDateRequestsService _service;
+        private Mock<IMessageSession> _messageSession;
 
         [SetUp]
         public void Setup()
         {
             _fixture = new Fixture();
             _mediatorMock = new Mock<IMediator>();
+            _messageSession = new Mock<IMessageSession>();
+
             _loggerMock = new Mock<ILogger<AutomaticStopOverlappingTrainingDateRequestsService>>();
-            _service = new AutomaticStopOverlappingTrainingDateRequestsService(_mediatorMock.Object, _loggerMock.Object);
+            _service = new AutomaticStopOverlappingTrainingDateRequestsService(_mediatorMock.Object, _messageSession.Object, _loggerMock.Object);
         }
 
         [Test]
@@ -38,10 +42,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .ReturnsAsync(new GetPendingOverlappingTrainingDatesToStopResult());
 
             // Act
-            await _service.AutomaticallyStopOverlappingTrainingDateRequest();
+            await _service.AutomaticallyStopOverlappingTrainingDateRequests();
 
             // Assert
-            _mediatorMock.Verify(m => m.Send(It.IsAny<StopApprenticeshipCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+            _messageSession.Verify(m => m.Send(It.IsAny<AutomaticallyStopOverlappingTrainingDateRequestCommand>(), It.IsAny<SendOptions>()), Times.Never);
+
         }
 
         [Test]
@@ -53,22 +58,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .ReturnsAsync(overlappingTrainingDatesToStop);
 
             // Act
-            await _service.AutomaticallyStopOverlappingTrainingDateRequest();
+            await _service.AutomaticallyStopOverlappingTrainingDateRequests();
 
             // Assert
             foreach (var request in overlappingTrainingDatesToStop.OverlappingTrainingDateRequests)
             {
                 if (request.DraftApprenticeship != null)
                 {
-                    _mediatorMock.Verify(m => m.Send(
-                        It.Is<StopApprenticeshipCommand>(cmd =>
-                            cmd.AccountId == request.PreviousApprenticeship.Cohort.EmployerAccountId &&
+                    _messageSession.Verify(m => m.Send(It.Is<AutomaticallyStopOverlappingTrainingDateRequestCommand>(cmd =>
+                          cmd.AccountId == request.PreviousApprenticeship.Cohort.EmployerAccountId &&
                             cmd.ApprenticeshipId == request.PreviousApprenticeshipId &&
                             cmd.StopDate == request.DraftApprenticeship.StartDate.Value &&
                             cmd.MadeRedundant == false &&
                             cmd.UserInfo == Types.UserInfo.System &&
-                            cmd.Party == Types.Party.Employer),
-                        It.IsAny<CancellationToken>()), Times.Once);
+                            cmd.Party == Types.Party.Employer), It.IsAny<SendOptions>()), Times.Once);
                 }
             }
         }
@@ -81,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .ThrowsAsync(new Exception("Test exception"));
 
             // Act + Assert
-            _service.Awaiting(s => s.AutomaticallyStopOverlappingTrainingDateRequest())
+            _service.Awaiting(s => s.AutomaticallyStopOverlappingTrainingDateRequests())
                 .Should().ThrowAsync<Exception>().WithMessage("Test exception");
 
         }
