@@ -255,16 +255,18 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         PriceHistory = updatedPriceHistory;
     }
 
-    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, DateTime approvedOn)
-    {
-        StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
-        ChangeTrackingSession.TrackUpdate(this);
+        public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
+        {
+            StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
 
-        CourseCode = courseCode;
-        CourseName = courseName;
-        ProgrammeType = programmeType;
-        StandardUId = standardUId;
-        TrainingCourseOption = null;
+            CourseCode = courseCode;
+            CourseName = courseName;
+            ProgrammeType = programmeType;
+            StandardUId = standardUId;
+            TrainingCourseVersion = version;
+            TrainingCourseVersionConfirmed = version != null;
+            TrainingCourseOption = null;
 
         Publish(() =>
             new ApprenticeshipUpdatedApprovedEvent
