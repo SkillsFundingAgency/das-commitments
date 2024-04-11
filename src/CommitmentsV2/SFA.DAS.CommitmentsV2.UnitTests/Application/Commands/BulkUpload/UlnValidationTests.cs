@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -7,14 +8,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
     [Parallelizable]
     public class UlnValidationTests
     {
-        [Test]
-        public async Task Validate_IsNotEmpty()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task Validate_IsNotEmpty(string uln)
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetUln("");
+            fixture.MockUlnValidator.Setup(x => x.Validate(uln)).Returns(UlnValidationResult.IsEmptyUlnNumber);
+
+            fixture.SetUln(uln);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "Uln", "Enter a 10-digit <b>unique learner number</b>");
         }
+
+        [Test]
+        public async Task Validate_IsNot_AValidUlnNumber()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.MockUlnValidator.Setup(x => x.Validate("5166282108")).Returns(UlnValidationResult.IsEmptyUlnNumber);
+            fixture.SetUln("5166282108");
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "Uln", "Invalid <b>unique learner number</b>");
+        }
+
 
         [Test]
         public async Task Validate_IsNot_9999999999()
