@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.MockUlnValidator.Setup(x => x.Validate(uln)).Returns(UlnValidationResult.IsEmptyUlnNumber);
-
             fixture.SetUln(uln);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "Uln", "Enter a 10-digit <b>unique learner number</b>");
