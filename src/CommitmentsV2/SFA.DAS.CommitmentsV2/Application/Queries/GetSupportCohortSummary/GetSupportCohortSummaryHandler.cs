@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -15,14 +14,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
     public class GetSupportCohortSummaryHandler : IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IEmailOptionalService _emailService;
         private readonly IMapper<Apprenticeship, SupportApprenticeshipDetails> _mapper;
 
-        public GetSupportCohortSummaryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IMapper<Apprenticeship, SupportApprenticeshipDetails> mapper, IEmailOptionalService emailService)
+        public GetSupportCohortSummaryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IMapper<Apprenticeship, SupportApprenticeshipDetails> mapper)
         {
             _db = dbContext;
             _mapper = mapper;
-            _emailService = emailService;
         }
 
         public async Task<GetSupportCohortSummaryQueryResult> Handle(GetSupportCohortSummaryQuery query, CancellationToken cancellationToken)
@@ -34,8 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
                  .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
                  .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
                 .SingleOrDefaultAsync(c => c.Id == query.CohortId, cancellationToken);
-
-            var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
 
             var response = new GetSupportCohortSummaryQueryResult
             {
@@ -60,27 +55,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
                 IsApprovedByEmployer = cohort.Approvals.HasFlag(Party.Employer), //redundant
                 IsApprovedByProvider = cohort.Approvals.HasFlag(Party.Provider), //redundant
 
-                IsCompleteForEmployer = CalculateIsCompleteForEmployer(cohort, apprenticeEmailIsRequired),
-                IsCompleteForProvider = CalculateIsCompleteForProvider(cohort, apprenticeEmailIsRequired),
+                IsCompleteForEmployer = CalculateIsCompleteForEmployer(cohort),
+                IsCompleteForProvider = CalculateIsCompleteForProvider(cohort),
 
                 LevyStatus = cohort.AccountLegalEntity.Account.LevyStatus,
                 ChangeOfPartyRequestId = cohort.ChangeOfPartyRequestId,
                 TransferApprovalStatus = cohort.TransferApprovalStatus,
-                ApprenticeEmailIsRequired = apprenticeEmailIsRequired,
                 EditStatus = cohort.EditStatus
             };
 
             return response;
         }
 
-        private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForProvider(Models.Cohort c)
         {
-            return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
+            return CalculateIsCompleteForEmployer(c)
                    && !c.Apprenticeships.Any(a => a.Uln == null)
                    && !c.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
         }
 
-        private static bool CalculateIsCompleteForEmployer(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForEmployer(Models.Cohort c)
         {
             return c.Apprenticeships.Any() && !c.Apprenticeships.Any(HasMissingData);
 
@@ -97,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
                     return true;
                 }
 
-                if (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
+                if (a.Email == null && a.ContinuationOfId == null)
                 {
                     return true;
                 }

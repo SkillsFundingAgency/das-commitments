@@ -48,7 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     response.IsApprovedByProvider == fixture.GetCohortResult.IsApprovedByProvider &&
                     response.LevyStatus == fixture.GetCohortResult.LevyStatus &&
                     response.LastAction == fixture.GetCohortResult.LastAction &&
-                    response.ApprenticeEmailIsRequired == fixture.GetCohortResult.ApprenticeEmailIsRequired &&
                     response.TransferApprovalStatus == fixture.GetCohortResult.TransferApprovalStatus);
         }
 

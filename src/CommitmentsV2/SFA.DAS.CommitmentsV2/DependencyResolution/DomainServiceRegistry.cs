@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IRplFundingCalculationService>().Use<RplFundingCalculationService>();
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
-            For<IEmailOptionalService>().Use<EmailOptionalService>();
 
             For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
             For<IEmployerTransferRequestPendingEmailService>().Use<EmployerTransferRequestPendingEmailService>();

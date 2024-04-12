@@ -36,8 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
-        private readonly IAccountApiClient _accountApiClient;        
-        private readonly IEmailOptionalService _emailService;
+        private readonly IAccountApiClient _accountApiClient;   
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
         private readonly IRplFundingCalculationService _rplFundingCalculationService;
 
@@ -52,7 +51,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
-            IEmailOptionalService emailOptionalService,
             ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
             IRplFundingCalculationService rplFundingCalculationService)
         {
@@ -67,7 +65,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
             _accountApiClient = accountApiClient;
-            _emailService = emailOptionalService;
             _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
             _rplFundingCalculationService = rplFundingCalculationService;
         }
@@ -160,7 +157,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = requestingParty ?? _authenticationService.GetUserParty();
-            var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
 
             if (party == Party.Employer)
             {
@@ -171,7 +167,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
             // removed until RPL Reduction warning is elevated to be a error again 
             //await CheckRplReductionErrors(cohort);
-            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
         private async Task CheckRplReductionErrors(Cohort cohort)

@@ -25,6 +25,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool IsLinkedToChangeOfPartyRequest => ChangeOfPartyRequestId.HasValue;
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public LastAction LastAction { get; set; }
-        public bool ApprenticeEmailIsRequired { get; set; }
     }
 }

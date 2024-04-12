@@ -230,13 +230,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         [TestCase(null, true, AllowedApproval.CannotApprove)]
         public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, bool apprenticeEmailRequired, AllowedApproval allowedApproval)
         {
-            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.EmailOptionalService
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>()))
-                    .Returns(apprenticeEmailRequired);
-            });
-
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.Email, email)
@@ -249,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                 response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
                 response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
             },
-                apprenticeDetails, arrange);
+                apprenticeDetails);
         }
 
         [TestCase(false, AllowedApproval.BothCanApprove)]
@@ -292,12 +285,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         [TestCase("email@example.com", 101, AllowedApproval.BothCanApprove)]
         public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(string email, long? continuationOfId, AllowedApproval allowedApproval)
         {
-            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.EmailOptionalService
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
-            });
-
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.Email, email)
@@ -308,7 +295,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                     response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
                     response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
                 },
-                apprenticeDetails, arrange, continuationOfId);
+                apprenticeDetails, null, continuationOfId);
         }
 
         [TestCase(ApprenticeshipEmployerType.Levy)]
@@ -386,7 +373,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         {
             HandlerMock = new Mock<IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>>();
             ValidatorMock = new Mock<IValidator<GetSupportCohortSummaryQuery>>();
-            EmailOptionalService = new Mock<IEmailOptionalService>();
             SeedCohorts = new List<Cohort>();
             _mapper = new Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>>();
         }
@@ -394,7 +380,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         public Mock<IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>> HandlerMock { get; set; }
 
         public Mock<IValidator<GetSupportCohortSummaryQuery>> ValidatorMock { get; set; }
-        public Mock<IEmailOptionalService> EmailOptionalService { get; set; }
         private readonly Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
 
         private List<Cohort> SeedCohorts { get; }
@@ -447,7 +432,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetSupportCohortSummaryHandler(lazy, _mapper.Object, EmailOptionalService.Object);
+                var handler = new GetSupportCohortSummaryHandler(lazy, _mapper.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });

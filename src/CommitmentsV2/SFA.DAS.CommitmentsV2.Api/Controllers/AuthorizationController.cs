@@ -6,8 +6,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -50,39 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             };
 
             return Ok(await _mediator.Send(query));
-        }
-
-        [HttpGet]
-        [Route("features/providers/{providerId}/apprentice-email-required")]
-        public async Task <IActionResult> ApprenticeEmailRequired(long providerId)
-        {
-            _logger.LogInformation($"Check feature 'apprentice-email-required' is enabled for provider {providerId}");
-            var query = new GetEmailOptionalQuery(0, providerId);
-
-            bool resp = await _mediator.Send(query);
-
-            if (resp)
-            {
-                _logger.LogInformation($"Feature 'apprentice-email-required' is off for provider {providerId}");
-                return NotFound();
-            }
-
-            _logger.LogInformation($"Feature 'apprentice-email-required' is on for provider {providerId}");
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("email-optional")]
-        public async Task<IActionResult> OptionalEmail(long employerid, long providerId)
-        {
-            var query = new GetEmailOptionalQuery(employerid, providerId);
-
-            bool resp = await _mediator.Send(query);
-
-            if (resp)
-                return Ok();
-                
-            return NotFound();
         }
     }
 }

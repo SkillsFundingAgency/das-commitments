@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship()
                 .SetUserInfo("User name", "email@email.com")
                 .SetIsDraft(true)
-                .Approve(true);
+                .Approve();
 
             _fixture.Cohort.IsDraft.Should().Be(false);
         }
@@ -129,27 +129,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetIsDraft(true);
             try
             {
-                _fixture.Approve(true);
+                _fixture.Approve();
                 Assert.Fail();
             }
             catch (DomainException e)
             {
                 e.DomainErrors.First().ErrorMessage.Should().Be($"Cohort must be complete for {modifyingParty}");
             }
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void ThenCohortShouldNoLongerBeDraftWhenApprenticeEmailIsNotPresentAndNotRequired(Party modifyingParty)
-        {
-            _fixture.SetModifyingParty(modifyingParty)
-                .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(isMissingApprenticeEmail:true)
-                .SetUserInfo("User name", "email@email.com")
-                .SetIsDraft(true)
-                .Approve(false);
-
-            _fixture.Cohort.IsDraft.Should().Be(false);
         }
 
         [TestCase(Party.Employer, typeof(CohortAssignedToProviderEvent))]
@@ -469,7 +455,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             bool? wasApproved = null;
             try
             {
-                _fixture.Approve(true);
+                _fixture.Approve();
                 wasApproved = true;
             }
             catch (DomainException)
@@ -523,9 +509,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Set(c => c.ProviderId, 333);
         }
 
-        public void Approve(bool apprenticeEmailRequired = false)
+        public void Approve()
         {
-            Cohort.Approve(Party, Message, UserInfo, Now, apprenticeEmailRequired);
+            Cohort.Approve(Party, Message, UserInfo, Now);
         }
 
         public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false, bool isMissingApprenticeEmail = false, long? continuationId = null)

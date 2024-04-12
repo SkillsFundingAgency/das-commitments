@@ -255,11 +255,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now, bool apprenticeEmailRequired = false)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
-            CheckIsCompleteForParty(modifyingParty, apprenticeEmailRequired);
+            CheckIsCompleteForParty(modifyingParty);
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -569,7 +569,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckIsCompleteForParty(Party party, bool apprenticeEmailRequired)
+        private void CheckIsCompleteForParty(Party party)
         {
             if (!DraftApprenticeships.Any())
             {
@@ -578,7 +578,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (party == Party.Employer || party == Party.Provider)
             {
-                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
+                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party)))
                 {
                     throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
                 }

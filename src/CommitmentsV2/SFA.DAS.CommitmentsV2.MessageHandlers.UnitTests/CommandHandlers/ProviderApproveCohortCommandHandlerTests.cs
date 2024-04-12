@@ -38,18 +38,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyCohortApproval();
         }
 
-        [TestCase(true, true)]
-        [TestCase(false, false)]
-        public async Task When_HandlingCommand_ApproveCohort_ShouldHaveApprenticeEmailRequiredSet(bool emailRequired, bool expectedValue)
-        {
-            _fixture._emailService
-                .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>()))
-                .Returns(emailRequired);
-
-            await _fixture.Handle();
-            _fixture.VerifyCohortApproval(expectedValue);
-        }
-
         [Test]
         public async Task When_HandlingCommand_ApproveCohort_Again_ShouldNotCallCohortApprovalAndShouldLogWarning()
         {
@@ -70,7 +58,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             private ProviderApproveCohortCommandHandler _handler;
             private ProviderApproveCohortCommand _command;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
-            public Mock<IEmailOptionalService> _emailService { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<ProviderApproveCohortCommandHandler> _logger;
             private Mock<Cohort> _cohort;
@@ -80,13 +67,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
                 _logger = new FakeLogger<ProviderApproveCohortCommandHandler>();
-                _emailService = new Mock<IEmailOptionalService>();
 
                 _handler = new ProviderApproveCohortCommandHandler(_logger,
-                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _emailService.Object);
+                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object));
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
-
 
                 _command = autoFixture.Create<ProviderApproveCohortCommand>();
 
@@ -96,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x => x.IsApprovedByAllParties).Returns(false);
 
                 _cohort.Setup(x =>
-                    x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()));
+                    x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()));
 
                 _dbContext
                     .Setup(context => context.Cohorts)
@@ -122,18 +107,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyCohortApproval()
             {
-                _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
+                _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
             }
-
-            public void VerifyCohortApproval(bool apprenticeEmailFeatureSwitch)
-            {
-                _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), apprenticeEmailFeatureSwitch), Times.Once);
-            }
-
 
             public void VerifyCohortApprovalWasNotCalled()
             {
-                _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Never);
+                _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
             }
 
             public void VerifyHasError()

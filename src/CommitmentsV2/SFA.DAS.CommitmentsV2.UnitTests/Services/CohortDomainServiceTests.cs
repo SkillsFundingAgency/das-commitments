@@ -797,8 +797,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IReservationValidationService> ReservationValidationService { get; }
             public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
             public Mock<IEncodingService> EncodingService { get; }
-            private Mock<IOverlapCheckService> OverlapCheckService { get; }            
-            private Mock<IEmailOptionalService> EmailOptionalService { get; }
+            private Mock<IOverlapCheckService> OverlapCheckService { get; }     
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
@@ -948,8 +947,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountApiClient = new Mock<IAccountApiClient>();
                 AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
                     .ReturnsAsync(TransferConnections);
-                
-                EmailOptionalService = new Mock<IEmailOptionalService>();
 
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
@@ -973,7 +970,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EmployerAgreementService.Object,
                     EncodingService.Object,
                     AccountApiClient.Object,
-                    EmailOptionalService.Object,
                     LevyTransferMatchingApiClient.Object,
                     RplFundingCalculationService.Object);
 

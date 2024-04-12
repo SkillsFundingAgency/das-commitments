@@ -10,9 +10,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
-using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -77,57 +74,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             Assert.IsInstanceOf<OkObjectResult>(retVal);
             Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
-        }
-
-        [Test]
-        public async Task AuthorizationController_ApprenticeEmailRequired_ShouldSendCorrectQuery()
-        {
-            var providerId = 123456;
-
-            await _fixture.AuthorizationController.OptionalEmail(0, providerId);
-
-            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q =>
-                q.EmployerId == 0 && q.ProviderId == providerId), CancellationToken.None), Times.Once);
-        }
-
-        [TestCase(123, 321)]
-        [TestCase(456, 654)]
-        public async Task AuthorizationController_email_optional_sends_correct_query(long employerId, long providerId)
-        {
-            await _fixture.AuthorizationController.OptionalEmail(employerId, providerId);
-
-            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q => 
-                q.EmployerId == employerId && q.ProviderId == providerId), CancellationToken.None), Times.Once);
-        }
-        
-        [TestCase(123, 321)]
-        [TestCase(456, 0)]
-        [TestCase(0, 987)]
-        public async Task AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
-        {
-            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
-            var service = new EmailOptionalService(config);
-            var sut = new GetEmailOptionalQueryHandler(service);
-            var query = new GetEmailOptionalQuery(employerId, providerId);
-
-            var result = await sut.Handle(query, new CancellationToken());
-
-            Assert.IsTrue(result);
-        }
-
-        [TestCase(78901, 10)]
-        [TestCase(0, 456)]
-        [TestCase(987, 0)]
-        public async Task AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
-        {
-            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
-            var service = new EmailOptionalService(config);
-            var sut = new GetEmailOptionalQueryHandler(service);
-            var query = new GetEmailOptionalQuery(employerId, providerId);
-
-            var result = await sut.Handle(query, new CancellationToken());
-
-            Assert.IsFalse(result);
         }
     }
 

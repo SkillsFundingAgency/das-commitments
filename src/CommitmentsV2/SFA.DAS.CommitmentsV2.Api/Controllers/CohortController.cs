@@ -140,8 +140,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LevyStatus =  result.LevyStatus,
                 ChangeOfPartyRequestId = result.ChangeOfPartyRequestId,
                 LastAction = result.LastAction,
-                TransferApprovalStatus = result.TransferApprovalStatus,
-                ApprenticeEmailIsRequired = result.ApprenticeEmailIsRequired
+                TransferApprovalStatus = result.TransferApprovalStatus
             });
         }
 
