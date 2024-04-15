@@ -901,7 +901,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         EndDate = DateTime.UtcNow.AddYears(1),
                         CourseCode = fixture.Create<string>(),
                         Cost = fixture.Create<int>(),
-                        IsOnFlexiPaymentPilot = false
+                        IsOnFlexiPaymentPilot = false,
+                        Email = fixture.Create<string>() + "@test.com"
+
                 };
                 ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
