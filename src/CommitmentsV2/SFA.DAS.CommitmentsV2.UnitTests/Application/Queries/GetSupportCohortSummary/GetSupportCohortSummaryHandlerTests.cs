@@ -180,7 +180,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                         .With(x => x.Email, "person@example.com");
 
                     yield return (AllowedApproval.BothCanApprove, completeApprenticeship);
-                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship.With(x => x.Email, (string)null));
 
                     yield return (AllowedApproval.EmployerCanApprove, completeApprenticeship.Without(x => x.Uln));
 
@@ -224,11 +223,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                 apprenticeship);
         }
 
-        [TestCase("email@example.com", false, AllowedApproval.BothCanApprove)]
-        [TestCase("email@example.com", true, AllowedApproval.BothCanApprove)]
-        [TestCase(null, false, AllowedApproval.BothCanApprove)]
-        [TestCase(null, true, AllowedApproval.CannotApprove)]
-        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, bool apprenticeEmailRequired, AllowedApproval allowedApproval)
+        [TestCase("email@example.com", AllowedApproval.BothCanApprove)]
+        [TestCase(null, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, AllowedApproval allowedApproval)
         {
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
