@@ -180,7 +180,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                         .With(x => x.Email, "person@example.com");
 
                     yield return (AllowedApproval.BothCanApprove, completeApprenticeship);
-                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship.With(x => x.Email, (string)null));
 
                     yield return (AllowedApproval.EmployerCanApprove, completeApprenticeship.Without(x => x.Uln));
 
@@ -391,8 +390,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         }
 
         [TestCase("email@example.com", AllowedApproval.BothCanApprove)]
-        [TestCase("email@example.com", AllowedApproval.BothCanApprove)]
-        [TestCase(null, AllowedApproval.BothCanApprove)]
         [TestCase(null, AllowedApproval.CannotApprove)]
         public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, AllowedApproval allowedApproval)
         {
