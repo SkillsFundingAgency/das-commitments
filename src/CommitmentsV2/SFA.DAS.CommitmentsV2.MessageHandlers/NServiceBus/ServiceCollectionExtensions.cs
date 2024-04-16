@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
 
                     return endpoint;
                 })
+                .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
                 .AddHostedService<NServiceBusHostedService>();
         }
     }

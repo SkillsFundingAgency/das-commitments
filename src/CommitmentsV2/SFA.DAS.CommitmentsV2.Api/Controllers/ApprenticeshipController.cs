@@ -23,6 +23,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
+using IAuthenticationService = SFA.DAS.CommitmentsV2.Authentication.IAuthenticationService;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -34,11 +35,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         private readonly IMediator _mediator;
         private readonly IModelMapper _modelMapper;
         private readonly ILogger<ApprenticeshipController> _logger;
+        private readonly IAuthenticationService _authenticationService;
 
-        public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprenticeshipController> logger)
+        public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper,
+            IAuthenticationService authenticationService, ILogger<ApprenticeshipController> logger)
         {
             _mediator = mediator;
             _modelMapper = modelMapper;
+            _authenticationService = authenticationService;
             _logger = logger;
         }
 
@@ -142,12 +146,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Stop apprenticeship api endpoint called for : " + apprenticeshipId);
 
+            var party = _authenticationService.GetUserParty();
+
             await _mediator.Send(new StopApprenticeshipCommand(
                 request.AccountId,
                 apprenticeshipId,
                 request.StopDate,
                 request.MadeRedundant,
-                request.UserInfo));
+                request.UserInfo,
+                party));
 
             return Ok();
 

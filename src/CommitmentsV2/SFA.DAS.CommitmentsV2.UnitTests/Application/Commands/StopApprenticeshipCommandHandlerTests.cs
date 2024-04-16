@@ -1,34 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -38,7 +35,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<ILogger<StopApprenticeshipCommandHandler>> _logger;
-        private Mock<IAuthenticationService> _authenticationService;
         private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
         private ProviderCommitmentsDbContext _dbContext;
@@ -61,7 +57,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                             .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
-            _authenticationService = new Mock<IAuthenticationService>();
             _nserviceBusContext = new Mock<IMessageSession>();
             _encodingService = new Mock<IEncodingService>();
             _logger = new Mock<ILogger<StopApprenticeshipCommandHandler>>();
@@ -74,14 +69,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             _handler = new StopApprenticeshipCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
-                _authenticationService.Object,
                 _nserviceBusContext.Object,
                 _encodingService.Object,
                 _logger.Object,
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl },
                 _resolveOverlappingTrainingDateRequestService.Object);
         }
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -92,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenShouldThrowException()
         {
             // Arrange
-            var command = new StopApprenticeshipCommand(0, 0, DateTime.MinValue, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(0, 0, DateTime.MinValue, false, new UserInfo(), Party.None);
             StopApprenticeshipCommandValidator sut = new StopApprenticeshipCommandValidator();
 
             // Act
@@ -119,15 +113,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 {
                     fourth.PropertyName.Should().Be("StopDate");
                     fourth.ErrorMessage.Should().Be("The StopDate must be supplied");
+                },
+                fifth =>
+                {
+                    fifth.PropertyName.Should().Be("Party");
+                    fifth.ErrorMessage.Should().Be("The Party must be supplied");
                 });
         }
 
         [Test, MoqAutoData]
-        public async Task Handle_WhenHandlingCommand_WithInvalidCallingParty_ThenShouldThrowDomainException(StopApprenticeshipCommand command)
+        public async Task Handle_WhenHandlingCommand_WithInvalidCallingParty_ThenShouldThrowDomainException()
         {
             // Arrange
-            await SetupApprenticeship(Party.Provider);
+            await SetupApprenticeship();
 
+            var fixture = new Fixture();
+            var command = fixture.Build<StopApprenticeshipCommand>()
+                .With(x => x.Party, Party.Provider)
+                .Create();
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
@@ -143,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Arrange
             var apprenticeship = await SetupApprenticeship(paymentStatus: paymentStatus);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -158,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Arrange
             var apprenticeship = await SetupApprenticeship();
             var incorrectAccountId = apprenticeship.Cohort.EmployerAccountId - 1;
-            var command = new StopApprenticeshipCommand(incorrectAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(incorrectAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -172,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             // Arrange
             var apprenticeship = await SetupApprenticeship(startDate: DateTime.UtcNow.AddMonths(2));
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -187,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Arrange
             var stopDate = DateTime.UtcNow.AddMonths(1);
             var apprenticeship = await SetupApprenticeship();
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -202,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Arrange
             var stopDate = DateTime.UtcNow.AddMonths(-3);
             var apprenticeship = await SetupApprenticeship();
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -218,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -239,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -275,7 +278,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 {"URL",tokenUrl },
             };
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -294,7 +297,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -316,7 +319,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = await SetupApprenticeship(startDate: startAndStopDate);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, startAndStopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, startAndStopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -336,7 +339,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -362,7 +365,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -380,10 +383,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return true;
         }
 
-        private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
+        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
         {
             var today = DateTime.UtcNow;
-            _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
             _currentDateTime.Setup(a => a.UtcNow).Returns(today);
 
             var fixture = new Fixture();
