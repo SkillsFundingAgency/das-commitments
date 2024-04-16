@@ -69,6 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             ValidateEndDateOverlap(command, apprenticeship, cancellationToken);
 
+            var oldStopDate = apprenticeship.StopDate;
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
             _dbContext.Value.SaveChanges();
 
@@ -77,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             await _resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopEditNotificationEmailTemplate}");
-            await NotifyProvider(apprenticeship, command.StopDate);
+            await NotifyProvider(apprenticeship, oldStopDate, command.StopDate);
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStopDateCommand message, Apprenticeship apprenticeship)
@@ -130,14 +131,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             }
         }
 
-        private async Task NotifyProvider(Apprenticeship apprenticeship, DateTime newStopDate)
+        private async Task NotifyProvider(Apprenticeship apprenticeship, DateTime? oldStopDate, DateTime newStopDate)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId, StopEditNotificationEmailTemplate,
                 new Dictionary<string, string>
                 {
                        {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
                        {"APPRENTICE", apprenticeship.ApprenticeName },
-                       {"OLDDATE", apprenticeship.StopDate.Value.ToString("dd/MM/yyyy") },
+                       {"OLDDATE", oldStopDate.Value.ToString("dd/MM/yyyy") },
                        {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
                        {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
                 });
