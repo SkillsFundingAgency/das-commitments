@@ -78,6 +78,8 @@ jobs:
               PublicHashstring: $(PublicHashstring)
               ReadStoreAuthKey: $(ReadStoreAuthKey)
               EventsClientToken: $(EventsClientToken)
+              AccountsApiClientSecret: $(AccountsApiClientSecret)
+              
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
