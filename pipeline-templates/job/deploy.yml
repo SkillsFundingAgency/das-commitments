@@ -86,6 +86,7 @@ jobs:
               NotificationsApiClientKey: $(NotificationsApiClientKey)
               NotificationsApiIdentifierUri: $(NotificationsApiIdentifierUri)
               NotificationsApiTenant: $(NotificationsApiTenant)
+              ProviderUserClientToken: $(ProviderUserClientToken)
 
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
