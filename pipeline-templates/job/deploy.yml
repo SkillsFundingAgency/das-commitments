@@ -79,7 +79,14 @@ jobs:
               ReadStoreAuthKey: $(ReadStoreAuthKey)
               EventsClientToken: $(EventsClientToken)
               AccountsApiClientSecret: $(AccountsApiClientSecret)
-              
+              ProviderAccountsApiClientSecret: $(ProviderAccountsApiClientSecret)
+              ProviderAccountsApiIdentifierUri: $(ProviderAccountsApiIdentifierUri)
+              NotificationsBaseUrl: $(NotificationsBaseUrl)
+              NotificationsApiClientId: $(NotificationsApiClientId)
+              NotificationsApiClientKey: $(NotificationsApiClientKey)
+              NotificationsApiIdentifierUri: $(NotificationsApiIdentifierUri)
+              NotificationsApiTenant: $(NotificationsApiTenant)
+
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
