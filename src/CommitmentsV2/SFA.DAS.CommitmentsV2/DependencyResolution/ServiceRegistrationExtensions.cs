@@ -126,6 +126,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<IFeatureTogglesService<FeatureToggle>, FeatureTogglesService<FeaturesConfiguration, FeatureToggle>>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
+        services.AddTransient<IAutomaticStopOverlappingTrainingDateRequestsService, AutomaticStopOverlappingTrainingDateRequestsService>();
 
         return services;
     }

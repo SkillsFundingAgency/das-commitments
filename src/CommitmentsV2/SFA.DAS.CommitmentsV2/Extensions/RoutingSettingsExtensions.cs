@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             routingSettings.RouteToEndpoint(typeof(ApproveTransferRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(RejectTransferRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(ApprenticeshipResendInvitationCommand), CommitmentsV2MessageHandler);
+            routingSettings.RouteToEndpoint(typeof(AutomaticallyStopOverlappingTrainingDateRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendApprenticeshipInvitationCommand), ApprenticeCommitmentsJobs);
         }
