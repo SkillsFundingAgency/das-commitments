@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -13,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         private Mock<ILogger<ApprenticeshipController>> _logger;
         private Mock<IModelMapper> _mapper;
         private ApprenticeshipController _controller;
+        private Mock<IAuthenticationService> _authService;
 
         [SetUp]
         public void Init()
@@ -20,8 +23,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator = new Mock<IMediator>();
             _logger = new Mock<ILogger<ApprenticeshipController>>();
             _mapper = new Mock<IModelMapper>();
+            _authService = new Mock<IAuthenticationService>();
 
-            _controller = new ApprenticeshipController(_mediator.Object, _mapper.Object, _logger.Object);
+            _authService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
+
+            _controller = new ApprenticeshipController(_mediator.Object, _mapper.Object, _authService.Object, _logger.Object);
         }
 
         [Test]
@@ -38,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)), 
+                It.Is<GetApprenticeshipsFilterValuesQuery>(r => r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
         [Test]
@@ -55,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)), 
+                It.Is<GetApprenticeshipsFilterValuesQuery>(r => r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -70,13 +76,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
-                EmployerNames = new[] {"Test 1", "Test 2"},
-                CourseNames = new[] {"Test 3", "Test 4"},
+                EmployerNames = new[] { "Test 1", "Test 2" },
+                CourseNames = new[] { "Test 3", "Test 4" },
                 StartDates = new[] { DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2) },
                 EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r => r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act
@@ -101,13 +107,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
-                EmployerNames = new[] {"Test 1", "Test 2"},
-                CourseNames = new[] {"Test 3", "Test 4"},
+                EmployerNames = new[] { "Test 1", "Test 2" },
+                CourseNames = new[] { "Test 3", "Test 4" },
                 StartDates = new[] { DateTime.Now.AddDays(-4), DateTime.Now.AddDays(-3) },
                 EndDates = new[] { DateTime.Now.AddDays(-2), DateTime.Now.AddDays(-1) }
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r => r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act

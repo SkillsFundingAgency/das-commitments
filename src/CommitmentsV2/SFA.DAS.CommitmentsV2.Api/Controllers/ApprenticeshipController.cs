@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
+using IAuthenticationService = SFA.DAS.CommitmentsV2.Authentication.IAuthenticationService;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
@@ -29,11 +30,14 @@ public class ApprenticeshipController : ControllerBase
     private readonly IMediator _mediator;
     private readonly IModelMapper _modelMapper;
     private readonly ILogger<ApprenticeshipController> _logger;
+    private readonly IAuthenticationService _authenticationService;
 
-    public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprenticeshipController> logger)
+    public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper,
+        IAuthenticationService authenticationService, ILogger<ApprenticeshipController> logger)
     {
         _mediator = mediator;
         _modelMapper = modelMapper;
+        _authenticationService = authenticationService;
         _logger = logger;
     }
 
@@ -44,7 +48,10 @@ public class ApprenticeshipController : ControllerBase
         var query = new GetApprenticeshipQuery(apprenticeshipId);
         var result = await _mediator.Send(query);
 
-        if (result == null) { return NotFound(); }
+        if (result == null)
+        {
+            return NotFound();
+        }
 
         var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
         return Ok(response);
@@ -53,7 +60,9 @@ public class ApprenticeshipController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
     {
-        var logText = request.AccountId != null ? "Employer account Id :" + (request.AccountId ?? 0) : ", Provider Id :" + (request.ProviderId ?? 0);
+        var logText = request.AccountId != null
+            ? "Employer account Id :" + (request.AccountId ?? 0)
+            : ", Provider Id :" + (request.ProviderId ?? 0);
         _logger.LogInformation("Get apprenticeships for : {Text}.", logText);
         try
         {
@@ -67,7 +76,7 @@ public class ApprenticeshipController : ControllerBase
                 EndDate = request.EndDate,
                 ProviderName = request.ProviderName,
                 AccountLegalEntityId = request.AccountLegalEntityId,
-                StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
+                StartDateRange = new DateRange {From = request.StartDateRangeFrom, To = request.StartDateRangeTo},
                 Alert = request.Alert,
                 ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
                 DeliveryModel = request.DeliveryModel,
@@ -105,7 +114,8 @@ public class ApprenticeshipController : ControllerBase
     [Route("filters")]
     public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery] GetApprenticeshipFiltersRequest request)
     {
-        var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId });
+        var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery
+            {ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId});
 
         if (response == null)
         {
@@ -119,7 +129,8 @@ public class ApprenticeshipController : ControllerBase
     [Route("details/editenddate")]
     public async Task<IActionResult> EditEndDate([FromBody] EditEndDateRequest request)
     {
-        _logger.LogInformation("Edit end date apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
+        _logger.LogInformation("Edit end date apprenticeship api endpoint called for : {Id}.",
+            request.ApprenticeshipId);
 
         await _mediator.Send(new EditEndDateRequestCommand
         {
@@ -133,16 +144,20 @@ public class ApprenticeshipController : ControllerBase
 
     [HttpPost]
     [Route("{apprenticeshipId}/stop")]
-    public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
+    public async Task<IActionResult> StopApprenticeship(long apprenticeshipId,
+        [FromBody] StopApprenticeshipRequest request)
     {
         _logger.LogInformation("Stop apprenticeship api endpoint called for : {Id}.", apprenticeshipId);
+
+        var party = _authenticationService.GetUserParty();
 
         await _mediator.Send(new StopApprenticeshipCommand(
             request.AccountId,
             apprenticeshipId,
             request.StopDate,
             request.MadeRedundant,
-            request.UserInfo));
+            request.UserInfo,
+            party));
 
         return Ok();
 
@@ -180,7 +195,8 @@ public class ApprenticeshipController : ControllerBase
 
     [HttpPut]
     [Route("{apprenticeshipId}/stopdate")]
-    public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
+    public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId,
+        [FromBody] ApprenticeshipStopDateRequest request)
     {
         _logger.LogInformation("Update apprenticeship stop date api endpoint called for : {Id}.", apprenticeshipId);
 
@@ -205,7 +221,8 @@ public class ApprenticeshipController : ControllerBase
 
     [HttpPost]
     [Route("edit/validate")]
-    public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
+    public async Task<IActionResult> ValidateApprenticeshipForEdit(
+        [FromBody] ValidateApprenticeshipForEditRequest request)
     {
         var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
         var response = await _mediator.Send(command);
@@ -224,7 +241,7 @@ public class ApprenticeshipController : ControllerBase
     {
         _logger.LogInformation("Edit apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
 
-        var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
+        var command = new EditApprenticeshipCommand {EditApprenticeshipRequest = request};
         var response = await _mediator.Send(command);
 
         if (response == null)
@@ -232,7 +249,8 @@ public class ApprenticeshipController : ControllerBase
             return NotFound();
         }
 
-        return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
+        return Ok(new EditApprenticeshipResponse
+            {ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval});
     }
 
     [HttpPost]
@@ -259,7 +277,8 @@ public class ApprenticeshipController : ControllerBase
 
     [HttpGet]
     [Route("validate")]
-    public async Task<IActionResult> ValidateApprenticeship([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] DateTime dateOfBirth)
+    public async Task<IActionResult> ValidateApprenticeship([FromQuery] string firstName, [FromQuery] string lastName,
+        [FromQuery] DateTime dateOfBirth)
     {
         var query = new GetApprenticeshipsValidateQuery(firstName, lastName, dateOfBirth);
 
