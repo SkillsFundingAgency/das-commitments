@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
         {
             For<IAcademicYearEndExpiryProcessorService>()
                 .Use<AcademicYearEndExpiryProcessorService>();
-
             For<IAcademicYearDateProvider>()
                 .Use<AcademicYearDateProvider>().Singleton();
 

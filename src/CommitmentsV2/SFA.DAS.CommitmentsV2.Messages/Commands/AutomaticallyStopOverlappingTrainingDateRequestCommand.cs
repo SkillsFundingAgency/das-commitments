@@ -1,20 +1,19 @@
-﻿using MediatR;
+﻿using System;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
+namespace SFA.DAS.CommitmentsV2.Messages.Commands
 {
-    public class StopApprenticeshipCommand : IRequest
+    public class AutomaticallyStopOverlappingTrainingDateRequestCommand
     {
         public UserInfo UserInfo { get; }
-        public long AccountId{ get; }
+        public long AccountId { get; }
         public long ApprenticeshipId { get; }
         public DateTime StopDate { get; }
 
         public bool MadeRedundant { get; }
         public Party Party { get; set; }
 
-        public StopApprenticeshipCommand(long accountId, long apprenticeshipId, DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
+        public AutomaticallyStopOverlappingTrainingDateRequestCommand(long accountId, long apprenticeshipId, DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
         {
             AccountId = accountId;
             ApprenticeshipId = apprenticeshipId;
