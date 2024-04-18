@@ -23,6 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public DateTime? EffectiveTo { get; }
         public List<TrainingProgrammeFundingPeriod> FundingPeriods { get; set; }
         public List<string> Options { get; set; } = new List<string> ();
+        public DateTime? VersionEarliestStartDate { get; set; }
+        public DateTime? VersionLatestStartDate { get; set; }
 
         public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
@@ -55,7 +57,10 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
         }
 
-        public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, List<string> options)
+        public TrainingProgramme(string courseCode, string name, string version, string standardUId,
+            ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo,
+            List<IFundingPeriod> fundingPeriods, List<string> options, DateTime? versionEarliestStartDate,
+            DateTime? versionLatestStartDate)
         {
             CourseCode = courseCode;
             Name = name;
@@ -67,6 +72,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             EffectiveTo = effectiveTo;
             FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
             Options = options;
+            VersionEarliestStartDate = versionEarliestStartDate;
+            VersionLatestStartDate = versionLatestStartDate;
         }
         public bool IsActiveOn(DateTime date)
         {

@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new TrainingProgramme(selectedVersion.LarsCode.ToString(), GetTitle(selectedVersion.Title, selectedVersion.Level), selectedVersion.Version, selectedVersion.StandardUId,
-                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList());
+                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList(), selectedVersion.VersionEarliestStartDate, selectedVersion.VersionLatestStartDate);
         }
 
         public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)
@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
-                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), standard.VersionEarliestStartDate, standard.VersionLatestStartDate);
         }
 
         public async Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version)
@@ -154,7 +154,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
-                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), standard.VersionEarliestStartDate, standard.VersionLatestStartDate);
         }
 
         public async Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode)
@@ -186,7 +186,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                     version.EffectiveFrom,
                     version.EffectiveTo,
                     new List<IFundingPeriod>(version.FundingPeriods),
-                    version.Options?.Select(o => o.Option).ToList())
+                    version.Options?.Select(o => o.Option).ToList(),
+                    version.VersionEarliestStartDate,
+                    version.VersionEarliestStartDate)
                 );
 
             return trainingProgrammes;
@@ -220,7 +222,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                     version.EffectiveFrom,
                     version.EffectiveTo,
                     new List<IFundingPeriod>(version.FundingPeriods),
-                    version.Options?.Select(o => o.Option).ToList())
+                    version.Options?.Select(o => o.Option).ToList(),
+                    version.VersionEarliestStartDate,
+                    version.VersionLatestStartDate)
                 );
 
             return newTrainingProgrammeVersions;
