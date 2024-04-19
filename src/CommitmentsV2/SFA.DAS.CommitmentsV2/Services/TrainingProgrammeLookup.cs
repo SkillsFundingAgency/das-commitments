@@ -188,7 +188,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     new List<IFundingPeriod>(version.FundingPeriods),
                     version.Options?.Select(o => o.Option).ToList(),
                     version.VersionEarliestStartDate,
-                    version.VersionEarliestStartDate)
+                    version.VersionLatestStartDate)
                 );
 
             return trainingProgrammes;
