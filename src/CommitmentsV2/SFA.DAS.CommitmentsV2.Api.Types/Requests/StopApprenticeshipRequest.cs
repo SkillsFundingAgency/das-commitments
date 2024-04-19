@@ -6,6 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     {
         public long AccountId { get; set; }
         public DateTime StopDate { get; set; }
+
         public bool MadeRedundant { get; set; }
     }
 }

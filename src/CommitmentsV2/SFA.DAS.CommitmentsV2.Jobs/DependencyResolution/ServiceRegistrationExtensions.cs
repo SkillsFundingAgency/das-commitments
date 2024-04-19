@@ -41,7 +41,6 @@ public static class ServiceRegistrationExtensions
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddAcademicYearDateProviderServices();
             services.AddCurrentDateTimeService(context.Configuration);
-            services.AddTransient<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob>();
 
             services
                 .AddUnitOfWork()

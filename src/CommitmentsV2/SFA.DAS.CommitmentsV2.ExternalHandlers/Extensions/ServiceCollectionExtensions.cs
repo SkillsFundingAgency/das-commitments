@@ -60,7 +60,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions
 
                     return endpoint;
                 })
-                .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
                 .AddHostedService<NServiceBusHostedService>();
         }
     }

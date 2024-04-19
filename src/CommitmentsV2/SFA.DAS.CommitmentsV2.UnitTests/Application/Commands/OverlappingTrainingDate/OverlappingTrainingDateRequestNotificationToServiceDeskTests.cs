@@ -1,51 +1,71 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.Builders;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.Notifications.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlappingTrainingDatesToStop
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate
 {
     [TestFixture]
-    public class GetPendingOverlappingTrainingDatesToStopHandlerTests
+    public class OverlappingTrainingDateRequestNotificationToServiceDeskTests
     {
         [Test]
-        public async Task Verify_RecordsReturned()
+        public async Task NotifiedServiceDeskOn_Updated_Successfully()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
             await fixture.Handle();
 
-            fixture.Verify_RecordsReturned();
+            fixture.Verify_NotifiedServiceDeskOn_Updated();
+        }
+
+        [Test]
+        public async Task Verify_EmailCommandSent()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandSent();
         }
 
         [TestCase(Types.OverlappingTrainingDateRequestStatus.Rejected)]
         [TestCase(Types.OverlappingTrainingDateRequestStatus.Resolved)]
         public async Task Verify_EmailIsSentOnlyForPendingRequests(Types.OverlappingTrainingDateRequestStatus status)
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
             fixture.SetStatus(status);
             await fixture.Handle();
 
-            fixture.Verify_NoRecordsReturned();
+            fixture.Verify_EmailCommandIsNotSent();
         }
 
+        [Test]
+        public async Task Verify_SecondEmailIsNotTriggered()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
+            fixture.SetNotifiedServiceDeskOn();
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandIsNotSent();
+        }
 
         [Test]
-        public async Task Verify_NoRecordsReturned_ForExpiredRecords()
+        public async Task Verify_EmailIsSentOnlyForExpiredRecords()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
             fixture.SetCreatedOn(-28);
             await fixture.Handle();
 
-            fixture.Verify_NoRecordsReturned();
+            fixture.Verify_EmailCommandIsNotSent();
         }
 
         [Test]
-        public async Task Verify_RecordsReturned_After14days_CreatedOn_After_OLTDGoLiveDate()
+        public async Task Verify_EmailIsSent_After14days_CreatedOn_After_OLTDGoLiveDate()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
 
             fixture.SetGoLiveDate(-25);
 
@@ -53,13 +73,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
 
             await fixture.Handle();
 
-            fixture.Verify_RecordsReturned();
+            fixture.Verify_EmailCommandSent();
         }
 
         [Test]
-        public async Task Verify_NoRecordsReturned_After12days_CreatedOn_After_OLTDGoLiveDate()
+        public async Task Verify_EmailIsNotSent_After12days_CreatedOn_After_OLTDGoLiveDate()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
 
             fixture.SetGoLiveDate(-25);
 
@@ -67,13 +87,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
 
             await fixture.Handle();
 
-            fixture.Verify_NoRecordsReturned();
+            fixture.Verify_EmailCommandIsNotSent();
         }
 
         [Test]
         public async Task Verify_EmailIsSent_After28days_CreatedOn_Before_OLTDGoLiveDate()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
 
             fixture.SetGoLiveDate(-20);
 
@@ -81,13 +101,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
 
             await fixture.Handle();
 
-            fixture.Verify_RecordsReturned();
+            fixture.Verify_EmailCommandSent();
         }
 
         [Test]
-        public async Task Verify_NoRecordsReturned_After25days_CreatedOn_Before_OLTDGoLiveDate()
+        public async Task Verify_EmailIsNotSent_After25days_CreatedOn_Before_OLTDGoLiveDate()
         {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
 
             fixture.SetGoLiveDate(-20);
 
@@ -95,22 +115,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
 
             await fixture.Handle();
 
-            fixture.Verify_NoRecordsReturned();
+            fixture.Verify_EmailCommandIsNotSent();
         }
 
-        public class GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture : IDisposable
+        public class OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture : IDisposable
         {
-            GetPendingOverlappingTrainingDatesToStopHandler _sut;
-            GetPendingOverlappingTrainingDatesToStopQuery _query;
+            OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler _sut;
+            private OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command = null;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
+            Mock<IMessageSession> _messageSession;
             DateTime currentProxyDateTime;
             CommitmentsV2Configuration _configuration;
-            GetPendingOverlappingTrainingDatesToStopResult _queryResult;
 
-            public GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture()
+            public OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture()
             {
-
+              
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                           .EnableSensitiveDataLogging()
@@ -119,19 +139,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
                 currentProxyDateTime = new DateTime(2022, 2, 1);
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
+                _messageSession = new Mock<IMessageSession>();
 
-                _configuration = new CommitmentsV2Configuration()
-                {
-                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
-                };
-                
-                _query = new GetPendingOverlappingTrainingDatesToStopQuery();
+                _configuration = new CommitmentsV2Configuration() { 
+                    ZenDeskEmailAddress = "abc@zendesk.com",
+                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5) };
 
-                _sut = new GetPendingOverlappingTrainingDatesToStopHandler(
+                _sut = new OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),
                      _currentDateTime.Object,
+                     _messageSession.Object,
                      _configuration,
-                     Mock.Of<ILogger<GetPendingOverlappingTrainingDatesToStopHandler>>()
+                     Mock.Of<ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler>>()
                     );
 
                 SeedData();
@@ -139,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
 
             public async Task Handle()
             {
-                _queryResult = await _sut.Handle(_query, CancellationToken.None);
+                await _sut.Handle(_command, CancellationToken.None);
             }
 
             internal void SetStatus(Types.OverlappingTrainingDateRequestStatus status)
@@ -156,6 +175,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
                 Db.SaveChanges();
             }
 
+            internal void Verify_EmailCommandIsNotSent()
+            {
+                _messageSession.Verify(y => y.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Never);
+            }
+
             internal void SetCreatedOn(int days)
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
@@ -167,16 +191,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapp
                 _configuration.OLTD_GoLiveDate = currentProxyDateTime.AddDays(daysAgo);
             }
 
-            internal void Verify_NoRecordsReturned()
+            internal void Verify_EmailCommandSent()
             {
-                _queryResult.OverlappingTrainingDateRequests.Should().BeNullOrEmpty();
+                var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
+                _messageSession.Verify(y => y.Send(It.Is<SendEmailCommand>(z =>
+               z.RecipientsAddress == _configuration.ZenDeskEmailAddress &&
+               z.TemplateId == OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler.TemplateId &&
+               z.Tokens["NewProviderUkprn"] == x.DraftApprenticeship.Cohort.ProviderId.ToString() &&
+               z.Tokens["ULN"] == x.DraftApprenticeship.Uln &&
+               z.Tokens["OldProviderUkprn"] == x.PreviousApprenticeship.Cohort.ProviderId.ToString()
+               ), It.IsAny<SendOptions>()), Times.Once);
             }
 
-            internal void Verify_RecordsReturned()
+            internal void Verify_NotifiedServiceDeskOn_Updated()
             {
-                _queryResult.OverlappingTrainingDateRequests.Should().NotBeNullOrEmpty();
+                var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
+                Assert.That(overlappingTrainingDateRequest, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
+                    Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
+                });
             }
-
 
             private void SeedData()
             {
