@@ -459,6 +459,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StartDate = update.StartDate;
             }
 
+            if (update.ActualStartDate.HasValue)
+            {
+	            ActualStartDate = update.ActualStartDate;
+            }
+
             if (update.EndDate.HasValue)
             {
                 EndDate = update.EndDate;

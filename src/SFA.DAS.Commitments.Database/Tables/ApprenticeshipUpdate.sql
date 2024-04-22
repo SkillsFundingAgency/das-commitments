@@ -15,6 +15,7 @@
     [TrainingCourseOption] NVARCHAR(126) NULL,
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
+    [ActualStartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
     [DateOfBirth] DATETIME NULL,
 	[CreatedOn] DATETIME NULL,

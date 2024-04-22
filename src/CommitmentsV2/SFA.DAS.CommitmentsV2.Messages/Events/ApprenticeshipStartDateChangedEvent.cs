@@ -16,9 +16,15 @@ public class ApprenticeshipStartDateChangedEvent
 
 	public DateTime ApprovedDate { get; set; }
 
+    public ChangeUser ProviderUser { get; set; } = new ChangeUser();
+    public ChangeUser EmployerUser { get; set; } = new ChangeUser();
+
+    public string Initiator { get; set; }
+}
+
+public class  ChangeUser
+{
 	public string UserId { get; set; }
 	public string UserDisplayName { get; set; }
 	public string UserEmail { get; set; }
-
-	public string Initiator { get; set; }
 }

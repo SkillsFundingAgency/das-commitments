@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Threading.Tasks;
@@ -23,42 +25,31 @@ public class ApprenticeshipStartDateChangedEventHandler : IHandleMessages<Appren
 		_mediator = mediator;
 	}
 
-        public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
+    public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
 	{
 		_logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : " + message.ApprenticeshipId);
 
-		await EditApprenticeship(message);
+		ResolveUsers(message, out var initiator, out var approver);
 
+		await EditApprenticeship(message, initiator);
+		await ApproveApprenticeship(message, approver);
 
-		var foo = "DO NOT APPROVE";
-		_logger.LogInformation($"Sending {foo} for apprenticeshipId : {message.ApprenticeshipId}");
+		_logger.LogInformation("Successfully completed handling of {eventName}", nameof(ApprenticeshipStartDateChangedEvent));
 	}
 
-	private async Task EditApprenticeship(ApprenticeshipStartDateChangedEvent message)
+	private async Task EditApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
 	{
 		var editApprenticeshipRequest = new EditApprenticeshipApiRequest
 		{
 			ApprenticeshipId = message.ApprenticeshipId,
-			AccountId = message.EmployerAccountId,
+			AccountId = partyUser.AccountId,
 			ProviderId = message.ProviderId,
 			StartDate = message.ActualStartDate,
-			UserInfo = new UserInfo { UserId = message.UserId, UserDisplayName = message.UserDisplayName, UserEmail = message.UserEmail }
+			ActualStartDate = message.ActualStartDate,
+			UserInfo = partyUser.UserInfo
 		};
 
-		var party = Party.None;
-		switch(message.Initiator)
-		{
-			case "Employer":
-				party = Party.Employer;
-				break;
-			case "Provider":
-				party = Party.Provider;
-				break;
-			default:
-				throw new ArgumentException($"Invalid initiator {message.Initiator}");
-		}
-
-		var command = new EditApprenticeshipCommand(editApprenticeshipRequest, party);
+		var command = new EditApprenticeshipCommand(editApprenticeshipRequest, partyUser.Party);
 
 		try
 		{
@@ -66,7 +57,65 @@ public class ApprenticeshipStartDateChangedEventHandler : IHandleMessages<Appren
 		}
 		catch(Exception ex)
 		{
-			_logger.LogError(ex, $"Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {message.ApprenticeshipId}");
+			_logger.LogError(ex, "Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
+			throw;
 		}
 	}
+
+	private async Task ApproveApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
+	{
+		var command = new AcceptApprenticeshipUpdatesCommand(
+			partyUser.Party, partyUser.AccountId, message.ApprenticeshipId, partyUser.UserInfo);
+
+		try
+		{
+			await _mediator.Send(command);
+		}
+		catch (Exception ex)
+		{
+			//  Talking point for PR, if the process fails here we will have locked the apprenticeship halfway through
+			//  the update process. We need monitoring to alert us if this happens.
+			_logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
+			throw;
+		}
+	}
+
+	private static void ResolveUsers(
+		ApprenticeshipStartDateChangedEvent message, out PartyUser initiator, out PartyUser approver)
+	{
+		switch (message.Initiator)
+		{
+			case "Employer":
+				initiator = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerUser);
+				approver = new PartyUser(Party.Provider, message.ProviderId, message.ProviderUser);
+				break;
+
+			case "Provider":
+				initiator = new PartyUser(Party.Provider, message.ProviderId, message.ProviderUser);
+				approver = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerUser);
+				break;
+
+			default:
+				throw new ArgumentException($"Invalid initiator {message.Initiator}");
+		}
+	}
+}
+
+public class PartyUser
+{
+    public Party Party { get; }
+    public long AccountId { get; set; }
+    public UserInfo UserInfo { get; }
+
+    public PartyUser(Party party, long accountId, ChangeUser changeUser)
+    {
+        Party = party;
+		AccountId = accountId;
+		UserInfo = new UserInfo
+		{
+			UserId = changeUser.UserId,
+			UserDisplayName = changeUser.UserDisplayName,
+			UserEmail = changeUser.UserEmail
+		};
+    }
 }

@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 DateOfBirth = source.DateOfBirth ?? apprenticeship.DateOfBirth,
                 EndDate = source.EndDate ?? apprenticeship.EndDate,
                 StartDate = source.StartDate ?? apprenticeship.StartDate,
+                ActualStartDate = source.ActualStartDate ?? apprenticeship.ActualStartDate,
                 Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
                 ProviderReference = source.ProviderReference
             };
@@ -59,6 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             apprenticeshipUpdate.DateOfBirth = command.EditApprenticeshipRequest.DateOfBirth;
             apprenticeshipUpdate.EndDate = command.EditApprenticeshipRequest.EndDate;
             apprenticeshipUpdate.StartDate = command.EditApprenticeshipRequest.StartDate;
+            apprenticeshipUpdate.ActualStartDate = command.EditApprenticeshipRequest.ActualStartDate;
             apprenticeshipUpdate.FirstName = command.EditApprenticeshipRequest.FirstName;
             apprenticeshipUpdate.LastName = command.EditApprenticeshipRequest.LastName;
             apprenticeshipUpdate.Email = command.EditApprenticeshipRequest.Email;
@@ -85,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 || request.Option != apprenticeship.TrainingCourseOption
                 || request.DateOfBirth != null
                 || request.StartDate != null
+                || request.ActualStartDate != null
                 || request.EndDate != null
                 || request.Cost != null;
         }

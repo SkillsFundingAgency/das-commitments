@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -16,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 {
-    public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptApprenticeshipUpdatesCommand>
+	public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
@@ -41,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
         {
             _logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
 
-            var party = _authenticationService.GetUserParty();
+            var party = GetParty(command);
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
             CheckPartyIsValid(party, command, apprenticeship);
 
@@ -65,7 +64,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
             apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
         }
 
-        private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken,
+		private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
+		{
+			if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+			{
+				return command.Party;
+			}
+
+			return _authenticationService.GetUserParty();
+		}
+
+		private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken,
             Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 

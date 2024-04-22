@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingApprenticeChanges
                         TrainingCourseOption = update.TrainingCourseOption,
                         Cost = update.Cost,
                         StartDate = update.StartDate,
+                        ActualStartDate = update.ActualStartDate,
                         EndDate = update.EndDate,
                         DateOfBirth = update.DateOfBirth,
                         CreatedOn = update.CreatedOn
