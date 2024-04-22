@@ -12,7 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthenticationService(IHttpContextAccessor httpContextAccessor)
+		public AuthenticationServiceType AuthenticationServiceType => AuthenticationServiceType.HttpContext;
+
+		public AuthenticationService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }

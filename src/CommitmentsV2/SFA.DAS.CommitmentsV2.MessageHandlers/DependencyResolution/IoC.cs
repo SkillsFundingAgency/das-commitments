@@ -11,31 +11,32 @@ using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.StructureMap;
 using StructureMap;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
-{
-    public static class IoC
-    {
-        public static void Initialize(Registry registry)
-        {
-            registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<CurrentDateTimeRegistry>();
-            registry.IncludeRegistry<DataRegistry>();
-            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
-            registry.IncludeRegistry<MediatorRegistry>();
-            registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
-            registry.IncludeRegistry(new PasAccountApiClientRegistry(context => GetPasConfiguration(context.GetInstance<IConfiguration>())));
-            registry.IncludeRegistry<EncodingRegistry>();
-            registry.IncludeRegistry<DiffServiceRegistry>();
-            registry.IncludeRegistry<EmployerAccountsRegistry>();
-            registry.IncludeRegistry<ReservationsApiClientRegistry>();
-            registry.IncludeRegistry<DomainServiceRegistry>();
-            registry.IncludeRegistry<DefaultRegistry>();
-            registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
-        }
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 
-        private static PasAccountApiConfiguration GetPasConfiguration(IConfiguration configuration)
-        {
-            return configuration.GetSection(CommitmentsConfigurationKeys.ProviderAccountApiConfiguration).Get<PasAccountApiConfiguration>();
-        }
+public static class IoC
+{
+    public static void Initialize(Registry registry)
+    {
+        registry.IncludeRegistry<ConfigurationRegistry>();
+        registry.IncludeRegistry<CurrentDateTimeRegistry>();
+        registry.IncludeRegistry<DataRegistry>();
+        registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
+        registry.IncludeRegistry<MediatorRegistry>();
+        registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+        registry.IncludeRegistry(new PasAccountApiClientRegistry(context => GetPasConfiguration(context.GetInstance<IConfiguration>())));
+        registry.IncludeRegistry<EncodingRegistry>();
+        registry.IncludeRegistry<DiffServiceRegistry>();
+        registry.IncludeRegistry<EmployerAccountsRegistry>();
+        registry.IncludeRegistry<ReservationsApiClientRegistry>();
+        registry.IncludeRegistry<DomainServiceRegistry>();
+        registry.IncludeRegistry<DefaultRegistry>();
+        registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
+        registry.IncludeRegistry<MappingRegistry>();
+        registry.IncludeRegistry<AcademicYearDateProviderRegistry>();	
+		}
+
+    private static PasAccountApiConfiguration GetPasConfiguration(IConfiguration configuration)
+    {
+        return configuration.GetSection(CommitmentsConfigurationKeys.ProviderAccountApiConfiguration).Get<PasAccountApiConfiguration>();
     }
 }
