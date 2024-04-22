@@ -9,20 +9,21 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
-using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
-using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
-using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -31,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         private Mock<IMediator> _mediator;
         private Mock<ILogger<ApprenticeshipController>> _logger;
         private Mock<IModelMapper> _mapper;
+        private Mock<IAuthenticationService> _authService;
         private ApprenticeshipController _controller;
 
         [SetUp]
@@ -39,8 +41,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator = new Mock<IMediator>();
             _logger = new Mock<ILogger<ApprenticeshipController>>();
             _mapper = new Mock<IModelMapper>();
+            _authService = new Mock<IAuthenticationService>();
 
-            _controller = new ApprenticeshipController(_mediator.Object, _mapper.Object, _logger.Object);
+            _authService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
+
+            _controller = new ApprenticeshipController(_mediator.Object, _mapper.Object, _authService.Object, _logger.Object);
         }
 
         [Test]
@@ -57,8 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
-                    r.ProviderId.Equals(request.ProviderId)), 
+                It.Is<GetApprenticeshipsQuery>(r =>
+                    r.ProviderId.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -91,13 +96,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
-                    r.EmployerAccountId.Equals(request.AccountId)), 
+                It.Is<GetApprenticeshipsQuery>(r =>
+                    r.EmployerAccountId.Equals(request.AccountId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
-        public async Task GetFilterApprenticeships([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetFilterApprenticeships([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.PageNumber = 0;
@@ -110,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                    r.SearchFilters.SearchTerm.Equals(request.SearchTerm) &&
                    r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
@@ -126,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task GetApprenticesByPage([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetApprenticesByPage([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.ReverseSort = false;
@@ -137,15 +142,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                     r.ProviderId.Equals(request.ProviderId) &&
                     r.PageNumber.Equals(request.PageNumber) &&
-                    r.PageItemCount.Equals(request.PageItemCount)), 
+                    r.PageItemCount.Equals(request.PageItemCount)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
-        public async Task GetFilterApprenticeshipsByPage([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetFilterApprenticeshipsByPage([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.ReverseSort = false;
@@ -156,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                     r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
                     r.SearchFilters.CourseName.Equals(request.CourseName) &&
                     r.SearchFilters.Status.Equals(request.Status) &&
@@ -178,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 ProviderId = expectedProviderId
             };
-            
+
             _mediator.Setup(x => x.Send(It.Is<GetApprenticeshipsQuery>(c => c.ProviderId.Value.Equals(expectedProviderId)),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprenticeshipsQueryResult());
@@ -188,7 +193,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.IsNotNull(result);
-            _mapper.Verify(x=>x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
+            _mapper.Verify(x => x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
         }
 
         [Test]
@@ -216,8 +221,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.AccountId == request.AccountId &&
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.StopDate &&
-                    c.MadeRedundant == request.MadeRedundant && 
-                    c.UserInfo == request.UserInfo),                   
+                    c.MadeRedundant == request.MadeRedundant &&
+                    c.UserInfo == request.UserInfo &&
+                    c.Party == Party.Employer),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -286,10 +292,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.NewStopDate &&
                     c.UserInfo == request.UserInfo),
-					It.IsAny<CancellationToken>()), Times.Once);
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
 
-		[Test, MoqAutoData]
+        [Test, MoqAutoData]
         public async Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request)
         {
             //Act
@@ -304,7 +310,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         [Test, MoqAutoData]
         public async Task ValidateApprenticeshipForEditNotFound(ValidateApprenticeshipForEditRequest request)
         {
-            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() =>new ValidateApprenticeshipForEditCommand());
+            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() => new ValidateApprenticeshipForEditCommand());
             _mediator.Setup(p => p.Send(It.IsAny<ValidateApprenticeshipForEditCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
@@ -332,7 +338,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new EditApprenticeshipResponse { ApprenticeshipId = 1, NeedReapproval = true });
 
             //Act
-           var result = await _controller.EditApprenticeship(request) as OkObjectResult;
+            var result = await _controller.EditApprenticeship(request) as OkObjectResult;
 
             var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
 
@@ -347,7 +353,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
-           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult; 
+            var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult;
 
             //Assert
             Assert.IsNotNull(notFoundResult);
