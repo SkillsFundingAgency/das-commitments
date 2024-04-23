@@ -333,10 +333,6 @@
                                     "value": "[variables('configNames')]"
                                 },
                                 {
-                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference(concat(variables('workerV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
-                                },
-                                {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
                                     "value": "[reference(concat(variables('workerV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
                                 },
@@ -390,6 +386,9 @@
                     },
                     "attachedService": {
                         "value": "[variables('apiV2AppServiceName')]"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                        "value": "[resourceId(parameters('logAnalyticsSubscriptionId'),parameters('sharedManagementResourceGroup'),'Microsoft.OperationalInsights/workspaces',parameters('logAnalyticsWorkspaceName'))]"
                     }
                 }
             },
@@ -472,9 +471,9 @@
                                     "value": "[variables('configNames')]"
                                 },
                                 {
-                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference(concat(variables('apiV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
-                                }
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[reference(concat(variables('apiV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
+                                },
                             ]
                         }
                     },
