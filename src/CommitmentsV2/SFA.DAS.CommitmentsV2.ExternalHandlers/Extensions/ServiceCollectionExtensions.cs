@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -38,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
                         .UseOutbox()
-                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
+                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString, p.GetService<ILoggerFactory>()))
                         .UseUnitOfWork()
                         .UseServicesBuilder(new UpdateableServiceProvider(services));
 

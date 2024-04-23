@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Data;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Persistence;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -28,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Startup
                 }
                 catch (KeyNotFoundException)
                 {
-                    var connection = DatabaseExtensions.GetSqlConnection(config.DatabaseConnectionString);
+                    var connection = DatabaseExtensions.GetSqlConnection(config.DatabaseConnectionString, p.GetService<ILoggerFactory>());
                     var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseSqlServer(connection);
                     dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
                 }
