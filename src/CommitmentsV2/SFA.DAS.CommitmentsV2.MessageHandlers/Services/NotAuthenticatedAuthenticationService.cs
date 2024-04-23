@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.Services;
 
@@ -11,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.Services;
 /// endpoints.
 /// 
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class NotAuthenticatedAuthenticationService : IAuthenticationService
 {
 

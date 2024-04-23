@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ public class ApprenticeshipStartDateChangedEventHandler : IHandleMessages<Appren
 	public ApprenticeshipStartDateChangedEventHandler(
 		ILogger<ApprenticeshipStartDateChangedEventHandler> logger,
 		IMediator mediator)
-        {
+    {
 		_logger = logger;
 		_mediator = mediator;
 	}

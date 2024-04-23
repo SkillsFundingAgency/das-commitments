@@ -1,31 +1,30 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
+using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.EmailValidationService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
-using SFA.DAS.CommitmentsV2.Types;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Authentication;
-using SFA.DAS.EmailValidationService;
-using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
+	public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
     {
         private readonly IProviderCommitmentsDbContext _context;
         private readonly IOverlapCheckService _overlapCheckService;
@@ -68,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return null;
             }
 
-            errors.AddRange(NoChangeValidationFailures(request, apprenticeship, party));
+            errors.AddRange(NoChangeValidationFailures(request, apprenticeship, trustedParty));
             if (errors.Count == 0)
             {
                 CheckForInvalidOperations(request, apprenticeship);
@@ -78,9 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(BuildStartDateValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEndDateValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildCostValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildEmployerRefValidationFailures(request, apprenticeship, party));
-                errors.AddRange(BuildProviderRefValidationFailures(request, apprenticeship, party));
-                errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship, party));
+                errors.AddRange(BuildEmployerRefValidationFailures(request, apprenticeship, trustedParty));
+                errors.AddRange(BuildProviderRefValidationFailures(request, apprenticeship, trustedParty));
+                errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship, trustedParty));
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
