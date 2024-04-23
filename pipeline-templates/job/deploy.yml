@@ -87,7 +87,12 @@ jobs:
               NotificationsApiIdentifierUri: $(NotificationsApiIdentifierUri)
               NotificationsApiTenant: $(NotificationsApiTenant)
               ProviderUserClientToken: $(ProviderUserClientToken)
-
+        - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
+            ResourceName: $(apiV2AppServiceName)
+            Tenant: $(Tenant)
+            IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
