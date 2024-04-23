@@ -476,7 +476,7 @@
                                 {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
                                     "value": "[reference(concat(variables('apiV2AppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
-                                },
+                                }
                             ]
                         }
                     },
