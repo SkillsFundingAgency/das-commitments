@@ -43,7 +43,8 @@ public static class DatabaseExtensions
             AccessToken = azureServiceTokenProvider.GetToken(new TokenRequestContext(scopes: new string[] { AzureResource })).Token
         };
 
-        logger.LogInformation("SQL AccessTotken IS {0}", sqlConn.AccessToken);
+        logger.LogInformation("SQL Connection string IS {0}", connectionString);
+        logger.LogInformation("SQL AccessToken IS {0}", sqlConn.AccessToken);
 
         return sqlConn;
     }
