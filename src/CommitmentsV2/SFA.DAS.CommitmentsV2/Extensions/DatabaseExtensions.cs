@@ -36,7 +36,6 @@ public static class DatabaseExtensions
             new VisualStudioCodeCredential(),
             new VisualStudioCredential());
 
-
         var sqlConn = new SqlConnection
         {
             ConnectionString = connectionString,
