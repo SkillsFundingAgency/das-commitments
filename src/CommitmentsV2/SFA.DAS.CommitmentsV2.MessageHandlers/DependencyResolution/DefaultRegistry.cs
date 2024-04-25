@@ -6,20 +6,21 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.Services;
 using SFA.DAS.CommitmentsV2.Services;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
-
-public class DefaultRegistry : Registry
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 {
-    public DefaultRegistry()
+    public class DefaultRegistry : Registry
     {
-        For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
-        For<IFundingCapService>().Use<FundingCapService>().ContainerScoped();
-        For<ITrainingProgrammeLookup>().Use<TrainingProgrammeLookup>().ContainerScoped();
-        For<ITopicClientFactory>().Use<TopicClientFactory>();
-        For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString")
-            .Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
-        For<IEmailOptionalService>().Use<EmailOptionalService>();
-        For<IFilterOutAcademicYearRollOverDataLocks>().Use<FilterOutAcademicYearRollOverDataLocks>();
-        For<IAuthenticationService>().Use<NotAuthenticatedAuthenticationService>().Singleton();
-	}
+        public DefaultRegistry()
+        {
+            For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
+            For<IFundingCapService>().Use<FundingCapService>().ContainerScoped();
+            For<ITrainingProgrammeLookup>().Use<TrainingProgrammeLookup>().ContainerScoped();
+            For<ITopicClientFactory>().Use<TopicClientFactory>();
+            For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString")
+                .Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
+            For<IEmailOptionalService>().Use<EmailOptionalService>();
+            For<IFilterOutAcademicYearRollOverDataLocks>().Use<FilterOutAcademicYearRollOverDataLocks>();
+            For<IAuthenticationService>().Use<NotAuthenticatedAuthenticationService>().Singleton();
+        }
+    }
 }
