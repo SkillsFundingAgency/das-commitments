@@ -289,6 +289,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var fixture = new Fixture();
             apprenticeship.Cohort.ProviderId = fixture.Create<long>();
+            var oldStopDate = apprenticeship.StopDate;
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopEditNotification";
@@ -304,7 +305,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
                 {"APPRENTICE", apprenticeship.ApprenticeName },
-                {"OLDDATE", apprenticeship.StopDate.Value.ToString("dd/MM/yyyy") },
+                {"OLDDATE", oldStopDate.Value.ToString("dd/MM/yyyy") },
                 {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
                 {"URL", tokenUrl }
             };

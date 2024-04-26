@@ -64,6 +64,7 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
 
         ValidateEndDateOverlap(command, apprenticeship, cancellationToken);
 
+        var oldStopDate = apprenticeship.StopDate;
         apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
         await _dbContext.Value.SaveChangesAsync(cancellationToken);
 
@@ -72,7 +73,7 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
         await _resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
         _logger.LogInformation("Sending email to Provider {CohortProviderId}, template {StopEditNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopEditNotificationEmailTemplate);
-        await NotifyProvider(apprenticeship, command.StopDate);
+        await NotifyProvider(apprenticeship, oldStopDate, command.StopDate);
     }
 
     private static void CheckAuthorization(UpdateApprenticeshipStopDateCommand message, Apprenticeship apprenticeship)
@@ -128,16 +129,16 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
         }
     }
 
-    private async Task NotifyProvider(Apprenticeship apprenticeship, DateTime newStopDate)
+    private async Task NotifyProvider(Apprenticeship apprenticeship, DateTime? oldStopDate, DateTime newStopDate)
     {
         var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId, StopEditNotificationEmailTemplate,
             new Dictionary<string, string>
             {
-                { "EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name },
-                { "APPRENTICE", apprenticeship.ApprenticeName },
-                { "OLDDATE", apprenticeship.StopDate.Value.ToString("dd/MM/yyyy") },
-                { "NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
-                { "URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
+                   {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
+                   {"APPRENTICE", apprenticeship.ApprenticeName },
+                   {"OLDDATE", oldStopDate.Value.ToString("dd/MM/yyyy") },
+                   {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
+                   {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
             });
 
         await _nserviceBusContext.Send(sendEmailToProviderCommand);
