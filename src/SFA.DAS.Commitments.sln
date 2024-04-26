@@ -93,6 +93,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Types.UnitTests", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Types.UnitTest\SFA.DAS.ReservationsV2.Api.Types.UnitTests.csproj", "{3FEA711A-B011-4826-85CB-0227D521C555}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Apprenticeships.Types", "SFA.DAS.Apprenticeships.Types\SFA.DAS.Apprenticeships.Types.csproj", "{8C8321A0-A6F1-4513-9282-C0AECB97728E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -232,6 +234,10 @@ Global
 		{3FEA711A-B011-4826-85CB-0227D521C555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FEA711A-B011-4826-85CB-0227D521C555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FEA711A-B011-4826-85CB-0227D521C555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C8321A0-A6F1-4513-9282-C0AECB97728E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C8321A0-A6F1-4513-9282-C0AECB97728E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C8321A0-A6F1-4513-9282-C0AECB97728E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C8321A0-A6F1-4513-9282-C0AECB97728E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

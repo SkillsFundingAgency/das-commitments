@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers

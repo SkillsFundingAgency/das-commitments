@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Threading.Tasks;
@@ -85,13 +85,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             switch (message.Initiator)
             {
                 case "Employer":
-                    initiator = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerUser);
-                    approver = new PartyUser(Party.Provider, message.ProviderId, message.ProviderUser);
+                    initiator = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerApprovedBy);
+                    approver = new PartyUser(Party.Provider, message.ProviderId, message.ProviderApprovedBy);
                     break;
 
                 case "Provider":
-                    initiator = new PartyUser(Party.Provider, message.ProviderId, message.ProviderUser);
-                    approver = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerUser);
+                    initiator = new PartyUser(Party.Provider, message.ProviderId, message.ProviderApprovedBy);
+                    approver = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerApprovedBy);
                     break;
 
                 default:
@@ -106,15 +106,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         public long AccountId { get; set; }
         public UserInfo UserInfo { get; }
 
-        public PartyUser(Party party, long accountId, ChangeUser changeUser)
+        public PartyUser(Party party, long accountId, string userId)
         {
             Party = party;
             AccountId = accountId;
             UserInfo = new UserInfo
             {
-                UserId = changeUser.UserId,
-                UserDisplayName = changeUser.UserDisplayName,
-                UserEmail = changeUser.UserEmail
+                UserId = userId,
+                UserDisplayName = "PaymentSimplification",
+                UserEmail = "payment@simplification.com"
             };
         }
     }
