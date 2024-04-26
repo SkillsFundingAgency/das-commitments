@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop
 {
@@ -51,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
+                            && x.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live
                             && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToListAsync();
