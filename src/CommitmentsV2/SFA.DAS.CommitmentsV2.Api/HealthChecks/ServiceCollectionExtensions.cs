@@ -1,7 +1,7 @@
-using System.Data.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -14,10 +14,11 @@ public static class ServiceCollectionExtensions
     {
         var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
 
-        void BeforeOpen(DbConnection connection)
+        void BeforeOpen(SqlConnection connection)
         {
             {
-                connection = DatabaseExtensions.GetSqlConnection(databaseConnectionString);
+                var conn = DatabaseExtensions.GetSqlConnection(databaseConnectionString);
+                connection.AccessToken = ((SqlConnection) conn).AccessToken;
             }
         }
 
