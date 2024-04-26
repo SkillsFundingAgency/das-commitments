@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
                     .UseNewtonsoftJsonSerializer()
                     .UseNLogFactory()
                     .UseOutbox(true)
-                    .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString, p.GetService<ILoggerFactory>()))
+                    .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
                     .UseSendOnly()
                     .UseServicesBuilder(new UpdateableServiceProvider(services));
 

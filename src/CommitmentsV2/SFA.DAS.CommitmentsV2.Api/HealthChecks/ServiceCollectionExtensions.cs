@@ -1,8 +1,10 @@
+using System.Data.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Api.HealthChecks;
 
@@ -11,11 +13,18 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
-            
+
+        void BeforeOpen(DbConnection connection)
+        {
+            {
+                connection = DatabaseExtensions.GetSqlConnection(databaseConnectionString);
+            }
+        }
+
         services.AddHealthChecks()
             .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
             .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
-            .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check");
+            .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check", configure: BeforeOpen);
 
         return services;
     }

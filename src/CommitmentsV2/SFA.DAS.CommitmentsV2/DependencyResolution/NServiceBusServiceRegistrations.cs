@@ -39,7 +39,7 @@ public static class NServiceBusServiceRegistrations
             .UseServicesBuilder(services)
             .UseNewtonsoftJsonSerializer()
             .UseOutbox(true)
-            .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString, services.GetService<ILoggerFactory>()))
+            .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString))
             .ConfigureServiceBusTransport(() => commitmentsConfiguration.NServiceBusConfiguration.ServiceBusConnectionString, isDevOrLocal)
             .UseUnitOfWork();
 

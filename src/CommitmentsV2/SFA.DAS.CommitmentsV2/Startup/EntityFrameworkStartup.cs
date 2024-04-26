@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Startup
                 }
                 catch (KeyNotFoundException)
                 {
-                    var connection = DatabaseExtensions.GetSqlConnection(config.DatabaseConnectionString, p.GetService<ILoggerFactory>());
+                    var connection = DatabaseExtensions.GetSqlConnection(config.DatabaseConnectionString);
                     var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseSqlServer(connection);
                     dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
                 }

@@ -10,13 +10,10 @@ public static class DatabaseExtensions
 {
     private const string AzureResource = "https://database.windows.net/";
 
-    public static DbConnection GetSqlConnection(string connectionString, ILoggerFactory loggerFactory)
+    public static DbConnection GetSqlConnection(string connectionString)
     {
-        var logger = loggerFactory.CreateLogger("SQLConnection");
-
         if (string.IsNullOrEmpty(connectionString))
         {
-            logger.LogInformation("SQL Connection is MISSING");
             throw new ArgumentNullException(nameof(connectionString));
         }
 
@@ -25,11 +22,9 @@ public static class DatabaseExtensions
 
         if (!useManagedIdentity)
         {
-            logger.LogInformation("SQL Connection is NOT using Managed Identity");
             return new SqlConnection(connectionString);
         }
 
-        logger.LogInformation("SQL Connection IS using Managed Identity");
         var azureServiceTokenProvider = new ChainedTokenCredential(
             new ManagedIdentityCredential(),
             new AzureCliCredential(),
@@ -41,9 +36,6 @@ public static class DatabaseExtensions
             ConnectionString = connectionString,
             AccessToken = azureServiceTokenProvider.GetToken(new TokenRequestContext(scopes: new string[] { AzureResource })).Token
         };
-
-        logger.LogInformation("SQL Connection string IS {0}", connectionString);
-        logger.LogInformation("SQL AccessToken IS {0}", sqlConn.AccessToken);
 
         return sqlConn;
     }

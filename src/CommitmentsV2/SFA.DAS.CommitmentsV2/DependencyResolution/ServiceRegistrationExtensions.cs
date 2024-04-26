@@ -75,7 +75,7 @@ public static class ServiceRegistrationExtensions
     {
         services.AddDbContext<ProviderCommitmentsDbContext>((sp, options) =>
         {
-            var dbConnection = DatabaseExtensions.GetSqlConnection(sp.GetService<CommitmentsV2Configuration>().DatabaseConnectionString, sp.GetService<ILoggerFactory>());
+            var dbConnection = DatabaseExtensions.GetSqlConnection(sp.GetService<CommitmentsV2Configuration>().DatabaseConnectionString);
             options.UseSqlServer(dbConnection);
         });
 

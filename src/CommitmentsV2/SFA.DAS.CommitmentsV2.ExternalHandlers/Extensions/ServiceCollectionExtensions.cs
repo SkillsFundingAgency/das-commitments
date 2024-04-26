@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
                         .UseOutbox()
-                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString, p.GetService<ILoggerFactory>()))
+                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
                         .UseUnitOfWork()
                         .UseServicesBuilder(new UpdateableServiceProvider(services));
 
