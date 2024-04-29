@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -52,10 +53,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live
                             && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToListAsync();
+
+            pendingRecords = pendingRecords.Where(x => IsEligiblePreviousApprenticeship(x)).ToList();
 
             _logger.LogInformation("Found {Count} records which can be auto-stopped after 2 weeks for overlapping training dates.", pendingRecords.Count);
 
@@ -63,6 +65,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
             {
                 OverlappingTrainingDateRequests = pendingRecords
             };
+        }
+
+        private bool IsEligiblePreviousApprenticeship(OverlappingTrainingDateRequest oltd)
+        {
+            return oltd.PreviousApprenticeship != null &&
+                (oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live ||
+                oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Paused);
         }
     }
 }

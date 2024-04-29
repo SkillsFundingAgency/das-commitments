@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Notifications.Messages.Commands;
@@ -36,11 +37,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             _configuration = configuration;
             _logger = logger;
         }
+
         public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
         {
             if (_configuration.OLTD_GoLiveDate.HasValue)
             {
-                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value}");
             }
             else
             {
@@ -57,10 +59,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Stopped
                             && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToListAsync();
+
+            pendingRecords = pendingRecords.Where(x => IsEligiblePreviousApprenticeship(x)).ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
 
@@ -85,6 +88,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
+        }
+        private bool IsEligiblePreviousApprenticeship(OverlappingTrainingDateRequest oltd)
+        {
+            return oltd.PreviousApprenticeship != null &&
+                (oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Stopped ||
+                oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Completed);
         }
     }
 }
