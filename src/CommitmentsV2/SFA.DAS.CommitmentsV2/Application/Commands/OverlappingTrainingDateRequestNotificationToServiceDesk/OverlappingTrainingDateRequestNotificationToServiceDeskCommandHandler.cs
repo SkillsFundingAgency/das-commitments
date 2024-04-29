@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                             : x.CreatedOn < currentDate.AddDays(-14).Date))
                 .ToListAsync();
 
-            pendingRecords = pendingRecords.Where(x => IsEligiblePreviousApprenticeship(x)).ToList();
+            pendingRecords = pendingRecords.Where(x => x.IsEligiblePreviousApprenticeship(x, false)).ToList();
 
             _logger.LogInformation("Found {count} records which need overlapping training reminder for Service Desk", pendingRecords.Count);
 
@@ -88,12 +88,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }
-        private bool IsEligiblePreviousApprenticeship(OverlappingTrainingDateRequest oltd)
-        {
-            return oltd.PreviousApprenticeship != null &&
-                (oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Stopped ||
-                oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Completed);
-        }
+        }      
     }
 }

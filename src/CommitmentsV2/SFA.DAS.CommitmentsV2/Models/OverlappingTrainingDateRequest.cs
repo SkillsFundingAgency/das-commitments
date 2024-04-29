@@ -42,5 +42,19 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             Publish(() => new OverlappingTrainingDateCreatedEvent(apprenticeshipId, uln));
         }
+
+        public bool IsEligiblePreviousApprenticeship(OverlappingTrainingDateRequest oltd, bool isApprenticeshipLive)
+        {
+            if (isApprenticeshipLive)
+            {
+                return oltd.PreviousApprenticeship != null &&
+                (oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live ||
+                oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Paused);
+            }
+
+            return oltd.PreviousApprenticeship != null &&
+                (oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Stopped ||
+                oltd.PreviousApprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Completed);
+        }
     }
 }
