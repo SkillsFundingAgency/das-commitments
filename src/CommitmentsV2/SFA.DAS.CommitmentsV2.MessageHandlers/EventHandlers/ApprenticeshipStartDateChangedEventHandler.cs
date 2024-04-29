@@ -111,8 +111,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             UserInfo = new UserInfo
             {
                 UserId = userId,
-                UserDisplayName = "PaymentSimplification",
-                UserEmail = "payment@simplification.com"
+                UserDisplayName = "SYSTEM",
+                UserEmail = "SYSTEM"
             };
         }
     }
