@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
@@ -15,10 +16,12 @@ namespace SFA.DAS.CommitmentsV2.Services
     public class TrainingProgrammeLookup : ITrainingProgrammeLookup
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
+        private readonly ILogger<TrainingProgrammeLookup> _logger;
 
-        public TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext)
+        public TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext, ILogger<TrainingProgrammeLookup> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<TrainingProgramme> GetTrainingProgramme(string courseCode)
@@ -58,6 +61,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(string courseCode, DateTime startDate)
         {
+            _logger.LogInformation($"courseCode:{courseCode}");
+            _logger.LogInformation($"startDate:{startDate}");
 
             if (string.IsNullOrWhiteSpace(courseCode))
             {
@@ -71,6 +76,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Include(c => c.Options).Where(s => s.LarsCode == standardId)
                 .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            _logger.LogInformation($"standardVersions:{standardVersions}");
 
             TrainingProgramme trainingProgramme = null;
 
@@ -121,6 +128,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                     selectedVersion = version;
                 }
             }
+
+            _logger.LogInformation($"selectedVersion.Version:{selectedVersion.Version}");
 
             return new TrainingProgramme(selectedVersion.LarsCode.ToString(), GetTitle(selectedVersion.Title, selectedVersion.Level), selectedVersion.Version, selectedVersion.StandardUId,
                         ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList());
