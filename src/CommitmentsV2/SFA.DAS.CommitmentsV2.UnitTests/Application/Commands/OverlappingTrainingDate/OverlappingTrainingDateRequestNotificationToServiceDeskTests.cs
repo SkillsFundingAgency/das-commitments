@@ -166,6 +166,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                           .EnableSensitiveDataLogging()
                           .Options);
 
+                _command = new OverlappingTrainingDateRequestNotificationToServiceDeskCommand();
                 currentProxyDateTime = new DateTime(2022, 2, 1);
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);

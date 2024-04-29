@@ -43,11 +43,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         {
             if (_configuration.OLTD_GoLiveDate.HasValue)
             {
-                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+                _logger.LogInformation("OLTD_GoLiveDate {goLiveDate}", _configuration.OLTD_GoLiveDate.Value);
             }
             else
             {
-                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+                _logger.LogInformation("OLTD_GoLiveDate has no value");
             }
 
             var currentDate = _currentDateTime.UtcNow;
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                             
                 .ToList();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which chaser email to employer");
+            _logger.LogInformation("Found {count} records which chaser email to employer", pendingRecords.Count);
 
             foreach (var pendingRecord in pendingRecords)
             {

@@ -42,11 +42,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         {
             if (_configuration.OLTD_GoLiveDate.HasValue)
             {
-                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value}");
+                _logger.LogInformation("OLTD_GoLiveDate {goLiveDate}", _configuration.OLTD_GoLiveDate.Value);
             }
             else
             {
-                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+                _logger.LogInformation("OLTD_GoLiveDate has no value");
             }
 
             var currentDate = _currentDateTime.UtcNow;
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
 
             pendingRecords = pendingRecords.Where(x => IsEligiblePreviousApprenticeship(x)).ToList();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
+            _logger.LogInformation("Found {count} records which need overlapping training reminder for Service Desk", pendingRecords.Count);
 
             foreach (var pendingRecord in pendingRecords)
             {
