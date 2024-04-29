@@ -164,6 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoVersionFieldsWhenStartDateIsNull()
         {
             Command.StartDate = null;
+            Command.ActualStartDate = null;
             Command.CourseCode = Fixture.Create<int>().ToString();
             return Mapper.Map(Command);
         }

@@ -174,6 +174,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.StartDate.Value))
                 .ReturnsAsync(TrainingProgrammeStandard);
+            TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.ActualStartDate.Value))
+                .ReturnsAsync(TrainingProgrammeStandard);
 
             int standardCodeOut;
             TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true))).ReturnsAsync(TrainingProgrammeStandard);
