@@ -11,9 +11,14 @@ namespace SFA.DAS.CommitmentsV2.Authentication
         Party GetUserParty();
     }
 
-    // In some cases, the implementation of IAuthenticationService uses HttpContext, which is not available in the MessageHandler project.
-    // At this point MessageHandler requests are trusted, so information is dervied from the message itself, and IAuthenticationService
-    // will throw exceptions if used.
+    /// <summary>
+    /// This enum identifies the type of the AuthenticationService implementation.
+    /// </summary>
+    /// <remarks>
+    /// In some cases, the implementation of IAuthenticationService uses HttpContext, which is not available in the MessageHandler project.
+    /// At this point MessageHandler requests are trusted, so information is derived from the message itself, and IAuthenticationService
+    /// will throw exceptions if used.
+    /// </remarks>
     public enum AuthenticationServiceType
     {
         HttpContext,

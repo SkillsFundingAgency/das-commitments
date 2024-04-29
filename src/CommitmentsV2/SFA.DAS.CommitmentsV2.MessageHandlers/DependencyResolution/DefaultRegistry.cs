@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
                 .Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
             For<IEmailOptionalService>().Use<EmailOptionalService>();
             For<IFilterOutAcademicYearRollOverDataLocks>().Use<FilterOutAcademicYearRollOverDataLocks>();
-            For<IAuthenticationService>().Use<NotAuthenticatedAuthenticationService>().Singleton();
+            For<IAuthenticationService>().Use<MessageHandlerAuthenticationService>().Singleton();
         }
     }
 }

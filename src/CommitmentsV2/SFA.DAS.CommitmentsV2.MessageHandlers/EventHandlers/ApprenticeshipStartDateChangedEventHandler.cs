@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : " + message.ApprenticeshipId);
+            _logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
 
             ResolveUsers(message, out var initiator, out var approver);
 
@@ -72,8 +72,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             }
             catch (Exception ex)
             {
-                //  Talking point for PR, if the process fails here we will have locked the apprenticeship halfway through
-                //  the update process. We need monitoring to alert us if this happens.
                 _logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
                 throw;
             }
