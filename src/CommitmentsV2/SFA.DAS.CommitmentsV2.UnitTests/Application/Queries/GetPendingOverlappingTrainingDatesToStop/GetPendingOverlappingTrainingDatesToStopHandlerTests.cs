@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -66,63 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public async Task Verify_NoRecordsReturned_ForExpiredRecords()
         {
             using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
-            fixture.SetCreatedOn(-28);
-            await fixture.Handle();
-
-            fixture.Verify_NoRecordsReturned();
-        }
-
-        [Test]
-        public async Task Verify_RecordsReturned_After14days_CreatedOn_After_OLTDGoLiveDate()
-        {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
-
-            fixture.SetGoLiveDate(-25);
-
-            fixture.SetCreatedOn(-15);
-
-            await fixture.Handle();
-
-            fixture.Verify_RecordsReturned();
-        }
-
-        [Test]
-        public async Task Verify_NoRecordsReturned_After12days_CreatedOn_After_OLTDGoLiveDate()
-        {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
-
-            fixture.SetGoLiveDate(-25);
-
-            fixture.SetCreatedOn(-12);
-
-            await fixture.Handle();
-
-            fixture.Verify_NoRecordsReturned();
-        }
-
-        [Test]
-        public async Task Verify_EmailIsSent_After28days_CreatedOn_Before_OLTDGoLiveDate()
-        {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
-
-            fixture.SetGoLiveDate(-20);
-
-            fixture.SetCreatedOn(-29);
-
-            await fixture.Handle();
-
-            fixture.Verify_RecordsReturned();
-        }
-
-        [Test]
-        public async Task Verify_NoRecordsReturned_After25days_CreatedOn_Before_OLTDGoLiveDate()
-        {
-            using var fixture = new GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture();
-
-            fixture.SetGoLiveDate(-20);
-
-            fixture.SetCreatedOn(-25);
-
+            fixture.SetCreatedOn(-5);
             await fixture.Handle();
 
             fixture.Verify_NoRecordsReturned();
@@ -135,12 +78,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             DateTime currentProxyDateTime;
-            CommitmentsV2Configuration _configuration;
             GetPendingOverlappingTrainingDatesToStopResult _queryResult;
 
             public GetPendingOverlappingTrainingDatesToStopHandlerTestsFixture()
             {
-
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString())
                           .EnableSensitiveDataLogging()
@@ -150,17 +91,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
 
-                _configuration = new CommitmentsV2Configuration()
-                {
-                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
-                };
-
                 _query = new GetPendingOverlappingTrainingDatesToStopQuery();
 
                 _sut = new GetPendingOverlappingTrainingDatesToStopHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),
                      _currentDateTime.Object,
-                     _configuration,
                      Mock.Of<ILogger<GetPendingOverlappingTrainingDatesToStopHandler>>()
                     );
 
@@ -198,10 +133,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 x.CreatedOn = currentProxyDateTime.AddDays(days);
                 Db.SaveChanges();
-            }
-            internal void SetGoLiveDate(int daysAgo)
-            {
-                _configuration.OLTD_GoLiveDate = currentProxyDateTime.AddDays(daysAgo);
             }
 
             internal void Verify_NoRecordsReturned()

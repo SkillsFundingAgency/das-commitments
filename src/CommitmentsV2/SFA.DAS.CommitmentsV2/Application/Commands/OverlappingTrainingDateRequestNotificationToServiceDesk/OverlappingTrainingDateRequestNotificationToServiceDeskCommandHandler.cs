@@ -9,9 +9,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk
@@ -40,17 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
 
         public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
         {
-            if (_configuration.OLTD_GoLiveDate.HasValue)
-            {
-                _logger.LogInformation("OLTD_GoLiveDate {goLiveDate}", _configuration.OLTD_GoLiveDate.Value);
-            }
-            else
-            {
-                _logger.LogInformation("OLTD_GoLiveDate has no value");
-            }
-
             var currentDate = _currentDateTime.UtcNow;
-            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
 
             var pendingRecords = await _dbContext.Value.OverlappingTrainingDateRequests
               .Include(oltd => oltd.DraftApprenticeship)
@@ -59,8 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
-                            : x.CreatedOn < currentDate.AddDays(-14).Date))
+                            && x.CreatedOn < currentDate.AddDays(-14).Date)
                 .ToListAsync();
 
             pendingRecords = pendingRecords.Where(x => x.IsEligiblePreviousApprenticeship(x, false)).ToList();
@@ -88,6 +75,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }      
+        }
     }
 }

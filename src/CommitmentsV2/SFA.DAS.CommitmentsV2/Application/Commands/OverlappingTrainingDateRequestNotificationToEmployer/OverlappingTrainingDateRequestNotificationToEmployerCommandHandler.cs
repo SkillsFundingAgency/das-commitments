@@ -40,18 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             _encodingService = encodingService;
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
-        {
-            if (_configuration.OLTD_GoLiveDate.HasValue)
-            {
-                _logger.LogInformation("OLTD_GoLiveDate {goLiveDate}", _configuration.OLTD_GoLiveDate.Value);
-            }
-            else
-            {
-                _logger.LogInformation("OLTD_GoLiveDate has no value");
-            }
-
+        {            
             var currentDate = _currentDateTime.UtcNow;
-            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
 
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
@@ -61,9 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-14).Date 
-                            : x.CreatedOn < currentDate.AddDays(-7).Date))
-                            
+                            &&  x.CreatedOn < currentDate.AddDays(-7).Date)                            
                 .ToList();
 
             _logger.LogInformation("Found {count} records which chaser email to employer", pendingRecords.Count);

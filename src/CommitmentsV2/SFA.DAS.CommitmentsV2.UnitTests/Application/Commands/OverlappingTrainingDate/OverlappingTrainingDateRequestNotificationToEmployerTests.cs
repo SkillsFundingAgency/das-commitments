@@ -66,69 +66,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public async Task Verify_EmailIsSentOnlyForNonExpiredRecords()
         {
             using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            fixture.SetCreatedOn(-10);
+            fixture.SetCreatedOn(-5);
             await fixture.Handle();
 
             fixture.Verify_EmailCommandIsNotSent();
         }
-
-        [Test]
-        public async Task Verify_EmailIsSent_After7days_CreatedOn_After_OLTDGoLiveDate()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-
-            fixture.SetGoLiveDate(-10);
-
-            fixture.SetCreatedOn(-8);
-
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandSent();
-        }
-
-        [Test]
-        public async Task Verify_EmailIsNotSent_After4days_CreatedOn_After_OLTDGoLiveDate()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-
-            fixture.SetGoLiveDate(-10);
-
-            fixture.SetCreatedOn(-4);
-
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandIsNotSent();
-        }
-
-
-        [Test]
-        public async Task Verify_EmailIsSent_After14days_CreatedOn_Before_OLTDGoLiveDate()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-
-            fixture.SetGoLiveDate(-5);
-
-            fixture.SetCreatedOn(-15);
-
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandSent();
-        }
-
-        [Test]
-        public async Task Verify_EmailIsNotSent_After7days_CreatedOn_Before_OLTDGoLiveDate()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-
-            fixture.SetGoLiveDate(-5);
-
-            fixture.SetCreatedOn(-8);
-
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandIsNotSent();
-        }
-
+    
         [Test]
         public async Task Verify_DontSendEmailWhenServiceDeskAlreadyNotified()
         {
@@ -168,8 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _configuration = new CommitmentsV2Configuration()
                 {
                     ZenDeskEmailAddress = "abc@zendesk.com",
-                    EmployerCommitmentsBaseUrl = "https://employerurl",
-                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
+                    EmployerCommitmentsBaseUrl = "https://employerurl"
                 };
 
                 _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(() => "EMPLOYERHASHEDID");
@@ -223,11 +165,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 x.CreatedOn = currentProxyDateTime.AddDays(days);
                 Db.SaveChanges();
-            }
-
-            internal void SetGoLiveDate(int days)
-            {
-                _configuration.OLTD_GoLiveDate = currentProxyDateTime.AddDays(days);
             }
 
             internal void Verify_EmailCommandSent()
