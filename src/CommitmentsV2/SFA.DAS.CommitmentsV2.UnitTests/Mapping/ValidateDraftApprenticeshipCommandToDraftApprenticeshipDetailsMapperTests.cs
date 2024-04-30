@@ -44,10 +44,10 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
     }
 
     [Test]
-    public async Task Map_WhenMappingSimplifiedPaymentsApprenticeship_ThenShouldSetProperties()
+    public async Task Map_WhenMappingFlexiPaymentsApprenticeship_ThenShouldSetProperties()
     {
         var fixture = new ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-        var result = await fixture.MapSimplifiedPaymentsApprenticeship();
+        var result = await fixture.MapFlexiPaymentsApprenticeship();
 
         result.FirstName.Should().Be(fixture.Command.DraftApprenticeshipRequest.FirstName);
         result.LastName.Should().Be(fixture.Command.DraftApprenticeshipRequest.LastName);
@@ -97,7 +97,7 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
         return Mapper.Map(Command);
     }
 
-    public Task<DraftApprenticeshipDetails> MapSimplifiedPaymentsApprenticeship()
+    public Task<DraftApprenticeshipDetails> MapFlexiPaymentsApprenticeship()
     {
         Command.DraftApprenticeshipRequest.StartDate = null;
         Command.DraftApprenticeshipRequest.IsOnFlexiPaymentPilot = true;

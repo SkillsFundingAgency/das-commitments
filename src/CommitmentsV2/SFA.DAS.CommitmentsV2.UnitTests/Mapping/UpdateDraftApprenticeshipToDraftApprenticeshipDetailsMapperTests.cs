@@ -93,10 +93,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public async Task Map_WhenMappingSimplifiedPaymentsApprenticeshipWithDateAndStandardId_Then_UsesCalculatedTrainingProgramme()
+        public async Task Map_WhenMappingFlexiPaymentsApprenticeshipWithDateAndStandardId_Then_UsesCalculatedTrainingProgramme()
         {
             var fixture = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture();
-            var result = await fixture.MapWithStandardSimplifiedPayments();
+            var result = await fixture.MapWithStandardFlexiPayments();
 
             result.FirstName.Should().Be(fixture.Command.FirstName);
             result.LastName.Should().Be(fixture.Command.LastName);
@@ -214,7 +214,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return Mapper.Map(Command);
         }
 
-        public Task<DraftApprenticeshipDetails> MapWithStandardSimplifiedPayments()
+        public Task<DraftApprenticeshipDetails> MapWithStandardFlexiPayments()
         {
             Command.CourseCode = Fixture.Create<int>().ToString();
             Command.StartDate = null;

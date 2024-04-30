@@ -48,10 +48,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public async Task WhenMappingSimplifiedPaymentsApprenticeshipStandardWithDate_ThenShouldSetProperties()
+        public async Task WhenMappingFlexiPaymentsApprenticeshipStandardWithDate_ThenShouldSetProperties()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-            var draftApprenticeshipDetails = await fixture.Map();
+            var draftApprenticeshipDetails = await fixture.MapFlexiPaymentsLearnerWithStandard();
 
             Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
             Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
@@ -210,9 +210,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return Mapper.Map(Command);
         }
 
-        public Task<DraftApprenticeshipDetails> MapSimplifiedPaymentsLearnerWithStandard()
+        public Task<DraftApprenticeshipDetails> MapFlexiPaymentsLearnerWithStandard()
         {
-            Command = AddSimplifiedPaymentsCohortCommand();
+            Command = AddFlexiPaymentsCohortCommand();
             TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.ActualStartDate.Value))
                 .ReturnsAsync(TrainingProgrammeStandard);
             return Mapper.Map(Command);
@@ -241,7 +241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                 false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice);
         }
 
-        private AddCohortCommand AddSimplifiedPaymentsCohortCommand()
+        private AddCohortCommand AddFlexiPaymentsCohortCommand()
         {
             return new AddCohortCommand(Command.RequestingParty, Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.DeliveryModel, Command.Cost, null, Command.ActualStartDate, null, Command.OriginatorReference, Command.ReservationId,
