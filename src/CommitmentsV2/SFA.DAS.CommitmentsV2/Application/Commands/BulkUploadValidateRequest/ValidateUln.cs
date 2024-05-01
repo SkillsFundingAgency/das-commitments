@@ -1,10 +1,8 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
@@ -14,24 +12,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private List<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
-           
-            if (string.IsNullOrEmpty(csvRecord.Uln))
+
+            var checkResult = _ulnValidator.Validate(csvRecord.Uln);
+
+            if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
             {
                 domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
             }
             else
             {
-                if (csvRecord.Uln == "9999999999")
-                {
-                    domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> of 9999999999 isn't valid"));
-                }
-                else if (csvRecord.Uln.Length != 10)
+                if (checkResult == UlnValidationResult.IsInValidTenDigitUlnNumber)
                 {
                     domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
                 }
-                else if (!Regex.IsMatch(csvRecord.Uln, "^[1-9]{1}[0-9]{9}$"))
+                else if (checkResult == UlnValidationResult.IsInvalidUln)
                 {
-                    domainErrors.Add(new Error("Uln", $"Enter a 10-digit <b>unique learner number</b>"));
+                    domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> of {csvRecord.Uln} isn't valid"));
                 }
                 else
                 {

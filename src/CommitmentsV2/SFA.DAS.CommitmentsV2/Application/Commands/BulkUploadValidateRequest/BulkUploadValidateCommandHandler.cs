@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly RplSettingsConfiguration _rplConfig;
+        private readonly IUlnValidator _ulnValidator;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
         private readonly ILinkGenerator _urlHelper;
@@ -42,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
             IEmployerAgreementService employerAgreementService,
             RplSettingsConfiguration rplConfig,
+            IUlnValidator ulnValidator,
             ILinkGenerator urlHelper)
         {
             _logger = logger;
@@ -52,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
             _rplConfig = rplConfig;
+            _ulnValidator = ulnValidator;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
             _urlHelper = urlHelper;
         }
