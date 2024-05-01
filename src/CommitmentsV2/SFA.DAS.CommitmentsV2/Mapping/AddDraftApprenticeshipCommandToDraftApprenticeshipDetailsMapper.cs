@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
         public async Task<DraftApprenticeshipDetails> Map(AddDraftApprenticeshipCommand source)
         {
-            var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
+            var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+            var trainingProgrammeTask = GetCourse(source.CourseCode, startDate);
             var trainingProgramme = await trainingProgrammeTask;
 
             var result = new DraftApprenticeshipDetails
@@ -49,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             // Only populate standard version specific items if start is specified.
             // The course is returned as latest version if no start date is specified
             // Which is fine for setting the training programmer.
-            if (source.StartDate.HasValue)
+            if (startDate.HasValue)
             {
                 result.TrainingCourseVersion = trainingProgramme?.Version;
                 result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;

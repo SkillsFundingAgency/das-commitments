@@ -61,7 +61,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
                             EffectiveFrom = x.EffectiveFrom,
                             EffectiveTo = x.EffectiveTo,
                             FundingCap = x.FundingCap
-                        }).ToList()
+                        }).ToList(),
+                        VersionEarliestStartDate = result.VersionEarliestStartDate,
+                        VersionLatestStartDate = result.VersionLatestStartDate
                     }
                 };
             }
