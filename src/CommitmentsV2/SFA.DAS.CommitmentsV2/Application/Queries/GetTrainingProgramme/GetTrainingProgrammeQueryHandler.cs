@@ -51,7 +51,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme
                         }).ToList(),
                         StandardUId = result.StandardUId,
                         Version = result.Version,
-                        Options = result.Options
+                        Options = result.Options,
+                        VersionEarliestStartDate = result.VersionEarliestStartDate,
+                        VersionLatestStartDate = result.VersionLatestStartDate
                     }
                 }; 
             }
