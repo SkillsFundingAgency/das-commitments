@@ -50,23 +50,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_EmailCommandIsNotSent();
         }
 
-        [TestCase(Types.ApprenticeshipStatus.Stopped)]
-        [TestCase(Types.ApprenticeshipStatus.Completed)]
-        public async Task Verify_EmailIsSentForStoppedOrCompletedApprenticeships(Types.ApprenticeshipStatus status)
+        [TestCase(Types.PaymentStatus.Withdrawn)]
+        [TestCase(Types.PaymentStatus.Completed)]
+        public async Task Verify_EmailIsSentForStoppedOrCompletedApprenticeships(Types.PaymentStatus status)
         {
             using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
-            fixture.SetApprenticeshipStatus(status);
+            fixture.SetPaymentStatus(status);
             await fixture.Handle();
 
             fixture.Verify_EmailCommandSent();
         }
 
-        [TestCase(Types.ApprenticeshipStatus.Live)]
-        [TestCase(Types.ApprenticeshipStatus.Paused)]
-        public async Task Verify_Email_NotSentForLiveOrPausedApprenticeships(Types.ApprenticeshipStatus status)
+        [TestCase(Types.PaymentStatus.Active)]
+        [TestCase(Types.PaymentStatus.Paused)]
+        public async Task Verify_Email_NotSentForLiveOrPausedApprenticeships(Types.PaymentStatus status)
         {
             using var fixture = new OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture();
-            fixture.SetApprenticeshipStatus(status);
+            fixture.SetPaymentStatus(status);
+
             await fixture.Handle();
 
             fixture.Verify_EmailCommandIsNotSent();
@@ -144,10 +145,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 Db.SaveChanges();
             }
 
-            internal void SetApprenticeshipStatus(Types.ApprenticeshipStatus status)
+            internal void SetPaymentStatus(Types.PaymentStatus status)
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                x.PreviousApprenticeship.ApprenticeshipStatus = status;
+                x.PreviousApprenticeship.PaymentStatus = status;
                 Db.SaveChanges();
             }
 
@@ -217,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                  .With(s => s.PaymentStatus, Types.PaymentStatus.Active)
                  .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                  .With(s => s.EndDate, DateTime.UtcNow.AddDays(100))
-                 .With(s => s.ApprenticeshipStatus, Types.ApprenticeshipStatus.Stopped)
+                 .With(s => s.PaymentStatus, Types.PaymentStatus.Withdrawn)
                  .Without(s => s.DataLockStatus)
                  .Without(s => s.EpaOrg)
                  .Without(s => s.ApprenticeshipUpdate)

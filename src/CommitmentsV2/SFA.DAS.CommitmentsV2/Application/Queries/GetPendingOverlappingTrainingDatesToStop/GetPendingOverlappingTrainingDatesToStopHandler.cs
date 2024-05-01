@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainingDatesToStop
 {
@@ -34,12 +35,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlappingTrainin
                     .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
                .Include(oltd => oltd.PreviousApprenticeship)
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
-                .Where(x => x.NotifiedServiceDeskOn == null
-                            && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < currentDate.AddDays(-14).Date)
+                .Where(x => 
+                        ((x.PreviousApprenticeship.PaymentStatus == PaymentStatus.Active && x.PreviousApprenticeship.StartDate < currentDate) ||
+                        x.PreviousApprenticeship.PaymentStatus == PaymentStatus.Paused) &&
+                        x.NotifiedServiceDeskOn == null
+                        && x.Status == OverlappingTrainingDateRequestStatus.Pending
+                        && x.CreatedOn < currentDate.AddDays(-14).Date)
                 .ToListAsync();
-
-            pendingRecords = pendingRecords.Where(x => x.IsEligiblePreviousApprenticeship(x, true)).ToList();
 
             _logger.LogInformation("Found {Count} records which can be auto-stopped after 2 weeks for overlapping training dates.", pendingRecords.Count);
 

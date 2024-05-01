@@ -10,6 +10,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk
@@ -45,12 +46,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
                .Include(oltd => oltd.PreviousApprenticeship)
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
-                .Where(x => x.NotifiedServiceDeskOn == null
-                            && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < currentDate.AddDays(-14).Date)
+                .Where(x =>
+                    (x.PreviousApprenticeship.PaymentStatus == PaymentStatus.Withdrawn ||
+                    x.PreviousApprenticeship.PaymentStatus == PaymentStatus.Completed) && 
+                    x.NotifiedServiceDeskOn == null
+                    && x.Status == OverlappingTrainingDateRequestStatus.Pending
+                    && x.CreatedOn < currentDate.AddDays(-14).Date)
                 .ToListAsync();
-
-            pendingRecords = pendingRecords.Where(x => x.IsEligiblePreviousApprenticeship(x, false)).ToList();
 
             _logger.LogInformation("Found {count} records which need overlapping training reminder for Service Desk", pendingRecords.Count);
 
