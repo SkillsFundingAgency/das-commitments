@@ -1,31 +1,39 @@
-﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
     public class UlnValidationTests
     {
-        [Test]
-        public async Task Validate_IsNotEmpty()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task Validate_IsNotEmpty(string uln)
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetUln("");
+            fixture.MockUlnValidator.Setup(x => x.Validate(uln)).Returns(UlnValidationResult.IsEmptyUlnNumber);
+            fixture.SetUln(uln);
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln", "Enter a 10-digit <b>unique learner number</b>");
         }
 
-        [Test]
-        public async Task Validate_IsNot_9999999999()
+        [TestCase("5166282108")]
+        [TestCase("9999999999")]
+        public async Task Validate_IsNot_AValidUlnNumber(string uln)
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetUln("9999999999");
+            fixture.MockUlnValidator.Setup(x => x.Validate(uln)).Returns(UlnValidationResult.IsInvalidUln);
+            fixture.SetUln(uln);
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln", "The <b>unique learner number</b> of 9999999999 isn't valid");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln", $"The <b>unique learner number</b> of {uln} isn't valid");
         }
 
         [Test]
         public async Task Validate_Is_LessThan_10()
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.MockUlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.IsInValidTenDigitUlnNumber);
             fixture.SetUln("12345678901");
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln", "Enter a 10-digit <b>unique learner number</b>");
@@ -35,6 +43,7 @@
         public async Task Validate_Is_A_Valid_ULN_Pattern()
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.MockUlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.IsInValidTenDigitUlnNumber);
             fixture.SetUln("0112233669");
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln", "Enter a 10-digit <b>unique learner number</b>");

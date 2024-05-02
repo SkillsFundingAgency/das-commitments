@@ -32,12 +32,17 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     public bool IsAgreementSigned { get; set; } = true;
     public DraftApprenticeship DraftApprenticeship { get; private set; }
     public Cohort Cohort { get; set; }
+    public Mock<IUlnValidator> MockUlnValidator;
     protected Mock<ILinkGenerator> MockLinkGenerator;
     public const long ProviderId = 333;
 
     public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
     {
         MockLinkGenerator = new Mock<ILinkGenerator>();
+
+        MockUlnValidator = new Mock<IUlnValidator>();
+        MockUlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
+
         CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
         PopulateCsvRecord();
         Command = new BulkUploadValidateCommand
@@ -95,6 +100,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             , ProviderRelationshipsApiClient.Object
             , EmployerAgreementService.Object
             , RplSettingsConfig
+            , MockUlnValidator.Object
             , MockLinkGenerator.Object
         );
     }

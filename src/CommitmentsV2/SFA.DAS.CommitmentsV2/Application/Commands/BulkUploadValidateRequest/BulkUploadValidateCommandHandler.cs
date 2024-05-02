@@ -21,6 +21,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
     private readonly IEmployerAgreementService _employerAgreementService;
     private readonly RplSettingsConfiguration _rplConfig;
+    private readonly IUlnValidator _ulnValidator;
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
     private readonly Dictionary<string, Cohort> _cachedCohortDetails;
     private readonly ILinkGenerator _urlHelper;
@@ -36,6 +37,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         IProviderRelationshipsApiClient providerRelationshipsApiClient,
         IEmployerAgreementService employerAgreementService,
         RplSettingsConfiguration rplConfig,
+        IUlnValidator ulnValidator,
         ILinkGenerator urlHelper)
     {
         _logger = logger;
@@ -46,6 +48,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         _providerRelationshipsApiClient = providerRelationshipsApiClient;
         _employerAgreementService = employerAgreementService;
         _rplConfig = rplConfig;
+        _ulnValidator = ulnValidator;
         _cachedCohortDetails = new Dictionary<string, Cohort>();
         _urlHelper = urlHelper;
     }

@@ -10,24 +10,22 @@ public partial class BulkUploadValidateCommandHandler
     private IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
-           
-        if (string.IsNullOrEmpty(csvRecord.Uln))
+
+        var checkResult = _ulnValidator.Validate(csvRecord.Uln);
+
+        if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
         {
             domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
         }
         else
         {
-            if (csvRecord.Uln == "9999999999")
-            {
-                domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> of 9999999999 isn't valid"));
-            }
-            else if (csvRecord.Uln.Length != 10)
+            if (checkResult == UlnValidationResult.IsInValidTenDigitUlnNumber)
             {
                 domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
             }
-            else if (!Regex.IsMatch(csvRecord.Uln, "^[1-9]{1}[0-9]{9}$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
+            else if (checkResult == UlnValidationResult.IsInvalidUln)
             {
-                domainErrors.Add(new Error("Uln", $"Enter a 10-digit <b>unique learner number</b>"));
+                domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> of {csvRecord.Uln} isn't valid"));
             }
             else
             {
@@ -42,12 +40,11 @@ public partial class BulkUploadValidateCommandHandler
                 }
             }
 
-            if (_csvRecords.Exists(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
+            if (_csvRecords.Any(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
             {
                 domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> has already been used for an apprentice in this file"));
             }
         }
-        
         return domainErrors;
     }
 
