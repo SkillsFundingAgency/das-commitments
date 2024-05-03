@@ -43,12 +43,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
+        public Mock<IUlnValidator> MockUlnValidator;
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
 
         public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
         {
             _mockLinkGenerator = new Mock<ILinkGenerator>();
+            
+            MockUlnValidator = new Mock<IUlnValidator>();
+            MockUlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
+
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
             PopulateCsvRecord();
             Command = new BulkUploadValidateCommand()
@@ -106,6 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object 
                 , RplSettingsConfig
+                , MockUlnValidator.Object
                 , _mockLinkGenerator.Object
                 );
         }
