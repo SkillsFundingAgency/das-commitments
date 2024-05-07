@@ -183,13 +183,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoDateAndNoVersionFields()
         {
             Command.StartDate = null;
+            Command.IsOnFlexiPaymentPilot = false;
             Command.CourseCode = Fixture.Create<int>().ToString();
-            return Mapper.Map(Command);
-        }
-        
-        public Task<DraftApprenticeshipDetails> MapWithDate()
-        {
-            Command.StartDate = DateTime.Now;
             return Mapper.Map(Command);
         }
 
