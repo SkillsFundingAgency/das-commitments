@@ -1,0 +1,10 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Data;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using MediatR;
+global using Microsoft.Azure.WebJobs;
+global using Microsoft.Data.SqlClient;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;

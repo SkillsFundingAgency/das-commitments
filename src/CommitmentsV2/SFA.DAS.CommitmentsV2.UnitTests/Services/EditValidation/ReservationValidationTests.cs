@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class ReservationValidationTests
     {
@@ -14,10 +11,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Reason", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("CourseCode", result.Errors[0].PropertyName);
+            Assert.That(result.Errors, Is.Not.Null);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Reason"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("CourseCode"));
+            });
         }
     }
 }

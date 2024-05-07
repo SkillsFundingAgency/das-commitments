@@ -1,10 +1,6 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
 {

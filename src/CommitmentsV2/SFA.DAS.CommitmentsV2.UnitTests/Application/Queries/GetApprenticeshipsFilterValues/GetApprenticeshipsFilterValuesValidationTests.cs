@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipsFilterValues
 {
@@ -29,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actualIsValid = validationResults.IsValid;
 
             // Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
+            Assert.That(actualIsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

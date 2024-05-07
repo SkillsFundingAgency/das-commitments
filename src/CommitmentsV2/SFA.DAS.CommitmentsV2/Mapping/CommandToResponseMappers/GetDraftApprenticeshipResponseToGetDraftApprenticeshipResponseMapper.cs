@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Types;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 

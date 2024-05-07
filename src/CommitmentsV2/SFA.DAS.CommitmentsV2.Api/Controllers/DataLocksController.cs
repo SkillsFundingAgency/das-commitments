@@ -1,6 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
@@ -8,7 +6,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {

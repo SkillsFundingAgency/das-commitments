@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -87,24 +83,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetNewAppr
 
             public void VerifyNewApprenticeshipIdIsUpdated()
             {
-                Assert.AreEqual(_apprenticeship.Id, _changeOfPartyRequest.NewApprenticeshipId);
+                Assert.That(_changeOfPartyRequest.NewApprenticeshipId, Is.EqualTo(_apprenticeship.Id));
             }
 
             public void VerifyTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(ChangeOfPartyRequest)));
+                                                                                    nameof(ChangeOfPartyRequest)), Is.Not.Null);
             }
 
             public void VerifyException()
             {
-                Assert.IsNotNull(_exception);
+                Assert.That(_exception, Is.Not.Null);
             }
 
             public void VerifyNoException()
             {
-                Assert.IsNull(_exception);
+                Assert.That(_exception, Is.Null);
             }
         }
     }

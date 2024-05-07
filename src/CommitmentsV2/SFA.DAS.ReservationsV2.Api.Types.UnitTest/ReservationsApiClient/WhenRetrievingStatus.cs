@@ -4,6 +4,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.ReservationsV2.Api.Types.UnitTests.ReservationsApiClient;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {

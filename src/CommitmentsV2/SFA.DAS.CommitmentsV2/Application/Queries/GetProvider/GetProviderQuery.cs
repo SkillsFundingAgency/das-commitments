@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProvider
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProvider
 {
     public class GetProviderQuery : IRequest<GetProviderQueryResult>
     {

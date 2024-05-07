@@ -1,8 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName

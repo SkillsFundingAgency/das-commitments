@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+﻿using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents
 {

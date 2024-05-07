@@ -1,13 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -43,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public CreateAccountCommandHandlerTestFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Command = new CreateAccountCommand(1, "AAA111", "AAA222", "Foo", DateTime.UtcNow);
             Handler = new CreateAccountCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<CreateAccountCommandHandler>>());
         }
@@ -57,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services.Shared;
@@ -199,7 +194,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
 
-            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+            Assert.That(startDateError.ErrorMessage, Is.EqualTo(expectedErrorMessage));
         }
 
         [TestCase(null, true)]
@@ -255,7 +250,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate));
 
-            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+            Assert.That(startDateError.ErrorMessage, Is.EqualTo(expectedErrorMessage));
         }
 
         [TestCase(Party.Provider, Party.Employer)]
@@ -269,7 +264,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(_fixture.Cohort.WithParty));
 
-            Assert.AreEqual($"Cohort must be with the party; {modifyingParty} is not valid", domainError?.ErrorMessage);
+            Assert.That(domainError?.ErrorMessage, Is.EqualTo($"Cohort must be with the party; {modifyingParty} is not valid"));
         }
 
         [TestCase(1, "", "", true)]
@@ -469,11 +464,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
         }
 
-        DateTime? TryParseNullableDateTime(string date)
+        private static DateTime? TryParseNullableDateTime(string date)
         {
             return DateTime.TryParse(date, out var parsed)
                 ? parsed
-                : (DateTime?)null;
+                : null;
         }
     }
 
@@ -529,12 +524,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             try
             {
                 Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo);
-                Assert.AreEqual(expected, true);
+                Assert.That(expected, Is.True);
             }
             catch (DomainException ex)
             {
-                Assert.AreEqual(expected, false);
-                Assert.Contains(propertyName, ex.DomainErrors.Select(x => x.PropertyName).ToList());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(expected, Is.False);
+                    Assert.That(ex.DomainErrors.Select(x => x.PropertyName).ToList(), Does.Contain(propertyName));
+                });
             }
         }
 

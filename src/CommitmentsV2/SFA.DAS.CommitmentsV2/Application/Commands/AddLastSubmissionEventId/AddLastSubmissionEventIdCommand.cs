@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId
 {
     public class AddLastSubmissionEventIdCommand : IRequest
     {

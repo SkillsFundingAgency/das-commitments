@@ -1,13 +1,4 @@
-﻿using System;
-using AutoFixture;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Moq;
-using NServiceBus;
-using Microsoft.Extensions.Logging;
-
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
+﻿namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 {
     public class EventHandlerTestsFixture<TEvent, TEventHandler> where TEventHandler : IHandleMessages<TEvent>
     {

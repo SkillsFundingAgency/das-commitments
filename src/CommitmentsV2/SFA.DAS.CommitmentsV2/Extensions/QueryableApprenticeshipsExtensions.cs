@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -28,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 {
                     var found = new List<long>();
 
-                    if (!filters.SearchTerm.Contains(" "))
+                    if (!filters.SearchTerm.Contains(' '))
                     {
                         found.AddRange(apprenticeships.Where(app =>
                                 app.FirstName.StartsWith(filters.SearchTerm))

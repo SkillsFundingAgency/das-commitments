@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
 {
     public class GetTrainingProgrammeVersionQuery : IRequest<GetTrainingProgrammeVersionQueryResult>
     {

@@ -1,13 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using System.Globalization;
 using SFA.DAS.CommitmentsV2.Exceptions;
@@ -79,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return;
             }
 
-            _logger.LogInformation($"{page.Count()} records returned in page");
+            _logger.LogInformation($"{page.Count} records returned in page");
 
             foreach (var dataLockStatus in page)
             {

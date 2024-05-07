@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
-using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
+﻿using KellermanSoftware.CompareNetObjects;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers;
@@ -30,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.DraftApprenticeships, _result.DraftApprenticeships);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

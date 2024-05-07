@@ -1,15 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -37,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(null, fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
+            Assert.That(fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
             
         }
 
@@ -50,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(ApprenticeshipUpdateStatus.Deleted, fixture.ApprenticeshipUpdate.Status);
+            Assert.That(fixture.ApprenticeshipUpdate.Status, Is.EqualTo(ApprenticeshipUpdateStatus.Deleted));
         }
 
 
@@ -82,10 +71,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Cost = x.Cost
             }).ToArray();
 
-            Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(apprenticeship.Cohort.EmployerAccountId, list[0].AccountId);
-            Assert.AreEqual(apprenticeship.Cohort.ProviderId, list[0].ProviderId);
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            });
         }
     }
 
@@ -161,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CancellationToken = new CancellationToken();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             AuthenticationService = new Mock<IAuthenticationService>();
@@ -228,13 +220,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

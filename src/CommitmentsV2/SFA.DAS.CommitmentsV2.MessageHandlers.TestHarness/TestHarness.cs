@@ -61,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("W - ApprenticeshipConfirmedEvent Event");
                 Console.WriteLine("Y - ApprenticeshipEmailAddressChangedEvent Event");
                 Console.WriteLine("Z - ApprenticeshipStopDateChangedEvent Event");
+                Console.WriteLine("1 - ChangeOfPartyRequestCreatedEvent Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -222,7 +223,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             });
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipStopDateChangedEvent)}");
+                            break; 
+                        case ConsoleKey.D1:
+                            await _publisher.Publish(new ChangeOfPartyRequestCreatedEvent(12345, new UserInfo(), false));
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCreatedEvent)}");
                             break;
+
                     }
                 }
                 catch (Exception e)

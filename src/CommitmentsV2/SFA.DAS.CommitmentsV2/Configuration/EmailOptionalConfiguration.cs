@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SFA.DAS.CommitmentsV2.Configuration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration
 {
     public class EmailOptionalConfiguration
     {

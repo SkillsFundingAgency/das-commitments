@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
@@ -42,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             ProgrammeType = programmeType;
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
-            FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
+            FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
         }
 
         public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
@@ -54,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             ProgrammeType = programmeType;
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
-            FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
+            FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
         }
 
         public TrainingProgramme(string courseCode, string name, string version, string standardUId,
@@ -70,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             EffectiveFrom = effectiveFrom;
             StandardPageUrl = standardPageUrl;
             EffectiveTo = effectiveTo;
-            FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
+            FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
             Options = options;
             VersionEarliestStartDate = versionEarliestStartDate;
             VersionLatestStartDate = versionLatestStartDate;
@@ -101,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public DateTime? EffectiveTo { get ; set ; }
         public DateTime? EffectiveFrom { get ; set ; }
 
-        public TrainingProgrammeFundingPeriod Map(IFundingPeriod source)
+        public static TrainingProgrammeFundingPeriod Map(IFundingPeriod source)
         {
             return new TrainingProgrammeFundingPeriod
             {

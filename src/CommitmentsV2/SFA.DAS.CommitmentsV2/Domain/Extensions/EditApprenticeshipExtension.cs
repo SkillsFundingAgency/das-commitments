@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Extensions
 {

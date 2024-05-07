@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using AutoFixture;
-using NUnit.Framework;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     [TestFixture]
     public class StateServiceTests
@@ -19,44 +15,50 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void PublicInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsTrue(result.ContainsKey(nameof(GetStateTestClass.TestPublicProperty)));
-            Assert.AreEqual(_fixture.TestObject.TestPublicProperty, result[nameof(GetStateTestClass.TestPublicProperty)]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestPublicProperty)), Is.True);
+                Assert.That(result[nameof(GetStateTestClass.TestPublicProperty)], Is.EqualTo(_fixture.TestObject.TestPublicProperty));
+            });
         }
 
         [Test]
         public void PrivateInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsTrue(result.ContainsKey("TestPrivateProperty"));
-            Assert.AreEqual(_fixture.PrivatePropertyValue, result["TestPrivateProperty"]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ContainsKey("TestPrivateProperty"), Is.True);
+                Assert.That(result["TestPrivateProperty"], Is.EqualTo(_fixture.PrivatePropertyValue));
+            });
         }
 
         [Test]
         public void StaticPropertiesAreNotCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestStaticProperty)));
+            Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestStaticProperty)), Is.False);
         }
 
         [Test]
         public void EnumerablePropertiesAreNotCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestEnumerable)));
+            Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestEnumerable)), Is.False);
         }
 
         [Test]
         public void ClassesAreNotCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestObject)));
+            Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestObject)), Is.False);
         }
 
         [Test]
         public void AbstractsAreNotCaptured()
         {
             var result = _fixture.GetState();
-            Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestInterfaceImplementation)));
+            Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestInterfaceImplementation)), Is.False);
         }
 
 

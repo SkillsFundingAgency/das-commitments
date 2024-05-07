@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -38,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 HashedReceivingEmployerAccountId = _encodingService.Encode(source.ReceivingEmployerAccountId, EncodingType.AccountId),
                 HashedSendingEmployerAccountId = _encodingService.Encode(source.SendingEmployerAccountId, EncodingType.AccountId),
                 HashedTransferRequestId = _encodingService.Encode(source.TransferRequestId, EncodingType.AccountId),
-                Status = (TransferApprovalStatus)source.Status,
+                Status = source.Status,
                 TransferCost = source.TransferCost,
                 TransferType = source.TransferType
             };

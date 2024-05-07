@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -47,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectCap, result);
+            Assert.That(result, Is.EqualTo(expectCap));
         }
 
         [TestCase("2020-01-01", 0, Description = "Before funding band")]
@@ -77,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectCap, result);
+            Assert.That(result, Is.EqualTo(expectCap));
         }
 
         [TestCase("2018-07-01", 1, Description = "Within first open-start funding band")]
@@ -110,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectCap, result);
+            Assert.That(result, Is.EqualTo(expectCap));
         }
 
         [TestCase("2018-07-31", 0, Description = "Before first funding band")]
@@ -153,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectCap, result);
+            Assert.That(result, Is.EqualTo(expectCap));
         }
 
         [TestCase("2018-08-01", 1, Description = "Within first open-start funding band")]
@@ -194,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectCap, result);
+            Assert.That(result, Is.EqualTo(expectCap));
         }
 
         [Test]
@@ -207,7 +203,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(new DateTime(2018, 05, 15));
 
             //Assert
-            Assert.AreEqual(0, result);
+            Assert.That(result, Is.EqualTo(0));
         }
 
         [Test]
@@ -217,7 +213,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = _course.FundingCapOn(new DateTime(2018, 7, 31, 23, 59, 59));
 
             //Assert
-            Assert.AreEqual(5000, result);
+            Assert.That(result, Is.EqualTo(5000));
         }
     }
 }

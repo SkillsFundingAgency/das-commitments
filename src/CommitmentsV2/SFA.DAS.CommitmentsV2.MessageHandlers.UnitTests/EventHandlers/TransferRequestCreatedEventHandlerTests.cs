@@ -1,12 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -16,117 +8,117 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers;
+
+[TestFixture]
+[Parallelizable(ParallelScope.All)]
+public class TransferRequestCreatedEventHandlerTests
 {
-    [TestFixture]
-    [Parallelizable(ParallelScope.All)]
-    public class TransferRequestCreatedEventHandlerTests
+    [TestCase(Party.Employer)]
+    [TestCase(Party.Provider)]
+    public void Handle_WhenHandlingTransferRequestCreatedEventWithoutAutoApproval_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
     {
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void Handle_WhenHandlingTransferRequestCreatedEventWithoutAutoApproval_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
-        {
-            using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
-            fixture.SetupTransfer(false).SetupTransferCreatedEvent(lastParty);
+        using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+        fixture.SetupTransfer(false).SetupTransferCreatedEvent(lastParty);
 
-            fixture.Handle();
+        fixture.Handle();
 
-            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void Handle_WhenHandlingTransferRequestCreatedEventWithAutoApproval_ThenShouldNotRelayMessageToAzureServiceBus(Party lastParty)
-        {
-            using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
-            fixture.SetupTransfer(true).SetupTransferCreatedEvent(lastParty);
-
-            fixture.Handle();
-
-            fixture.VerifyMessageNotRelayed();
-        }
+        fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
     }
 
-    public class TransferRequestCreatedEventHandlerTestsFixture : IDisposable
+    [TestCase(Party.Employer)]
+    [TestCase(Party.Provider)]
+    public void Handle_WhenHandlingTransferRequestCreatedEventWithAutoApproval_ThenShouldNotRelayMessageToAzureServiceBus(Party lastParty)
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
-        public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
-        public TransferRequestCreatedEventHandler Sut;
-        public TransferRequestCreatedEvent TransferRequestCreatedEvent;
-        public ProviderCommitmentsDbContext Db { get; set; }
-        public Cohort Cohort { get; set; }
-        public TransferRequest TransferRequest { get; set; }
-        public UnitOfWorkContext UnitOfWorkContext { get; set; }
+        using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+        fixture.SetupTransfer(true).SetupTransferCreatedEvent(lastParty);
 
-        public TransferRequestCreatedEventHandlerTestsFixture()
-        {
-            var fixture = new Fixture();
+        fixture.Handle();
 
-            UnitOfWorkContext = new UnitOfWorkContext();
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
-            LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
+        fixture.VerifyMessageNotRelayed();
+    }
+}
 
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options);
+public class TransferRequestCreatedEventHandlerTestsFixture : IDisposable
+{
+    public Mock<IMessageHandlerContext> MessageHandlerContext;
+    public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
+    public TransferRequestCreatedEventHandler Sut;
+    public TransferRequestCreatedEvent TransferRequestCreatedEvent;
+    public ProviderCommitmentsDbContext Db { get; set; }
+    public Cohort Cohort { get; set; }
+    public TransferRequest TransferRequest { get; set; }
+    public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-            Sut = new TransferRequestCreatedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<TransferRequestCreatedEvent>>(), new Lazy<ProviderCommitmentsDbContext>(() => Db));
+    public TransferRequestCreatedEventHandlerTestsFixture()
+    {
+        var fixture = new Fixture();
 
-            Cohort = new Cohort(
-                fixture.Create<long>(),
-                fixture.Create<long>(),
-                fixture.Create<long>(),
-                null,
-                null,
-                Party.Employer,
-                "",
-                new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
+        UnitOfWorkContext = new UnitOfWorkContext();
+        MessageHandlerContext = new Mock<IMessageHandlerContext>();
+        LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
-            TransferRequest = new TransferRequest
-                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
-        }
+        Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+            .Options);
 
-        public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
-        {
-            TransferRequestCreatedEvent = new TransferRequestCreatedEvent(TransferRequest.Id, TransferRequest.Cohort.Id, DateTime.Now, lastApprovedParty);
+        Sut = new TransferRequestCreatedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<TransferRequestCreatedEvent>>(), new Lazy<ProviderCommitmentsDbContext>(() => Db));
 
-            return this;
-        }
+        Cohort = new Cohort(
+            fixture.Create<long>(),
+            fixture.Create<long>(),
+            fixture.Create<long>(),
+            null,
+            null,
+            Party.Employer,
+            "",
+            new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
 
-        public TransferRequestCreatedEventHandlerTestsFixture SetupTransfer(bool autoApproval)
-        {
-            TransferRequest.AutoApproval = autoApproval;
+        TransferRequest = new TransferRequest
+            { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
+    }
 
-            Db.TransferRequests.Add(TransferRequest);
-            Db.SaveChanges();
+    public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
+    {
+        TransferRequestCreatedEvent = new TransferRequestCreatedEvent(TransferRequest.Id, TransferRequest.Cohort.Id, DateTime.Now, lastApprovedParty);
 
-            return this;
-        }
+        return this;
+    }
 
-        public Task Handle()
-        {
-            return Sut.Handle(TransferRequestCreatedEvent, Mock.Of<IMessageHandlerContext>());
-        }
+    public TransferRequestCreatedEventHandlerTestsFixture SetupTransfer(bool autoApproval)
+    {
+        TransferRequest.AutoApproval = autoApproval;
 
-        public void VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage()
-        {
-            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(p =>
-                p.TransferRequestId == TransferRequest.Id &&
-                p.ReceivingEmployerAccountId == TransferRequest.Cohort.EmployerAccountId &&
-                p.SendingEmployerAccountId == TransferRequest.Cohort.TransferSenderId.Value &&
-                p.TransferCost == TransferRequest.Cost &&
-                p.CommitmentId == TransferRequest.CommitmentId)));
-        }
+        Db.TransferRequests.Add(TransferRequest);
+        Db.SaveChanges();
 
-        public void VerifyMessageNotRelayed()
-        {
-            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovalByTransferSenderRequested>()),
-                Times.Never);
-        }
+        return this;
+    }
 
-        public void Dispose()
-        {
-            Db?.Dispose();
-        }
+    public Task Handle()
+    {
+        return Sut.Handle(TransferRequestCreatedEvent, Mock.Of<IMessageHandlerContext>());
+    }
+
+    public void VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage()
+    {
+        LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(p =>
+            p.TransferRequestId == TransferRequest.Id &&
+            p.ReceivingEmployerAccountId == TransferRequest.Cohort.EmployerAccountId &&
+            p.SendingEmployerAccountId == TransferRequest.Cohort.TransferSenderId.Value &&
+            p.TransferCost == TransferRequest.Cost &&
+            p.CommitmentId == TransferRequest.CommitmentId)));
+    }
+
+    public void VerifyMessageNotRelayed()
+    {
+        LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovalByTransferSenderRequested>()),
+            Times.Never);
+    }
+
+    public void Dispose()
+    {
+        Db?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
