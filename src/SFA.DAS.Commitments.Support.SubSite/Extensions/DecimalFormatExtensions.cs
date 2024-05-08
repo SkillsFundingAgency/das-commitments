@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Extensions
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 {
     public static class DecimalFormatExtensions
     {

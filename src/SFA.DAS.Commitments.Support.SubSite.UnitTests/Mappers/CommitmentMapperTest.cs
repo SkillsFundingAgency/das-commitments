@@ -5,11 +5,10 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using AutoFixture;
 using SFA.DAS.Commitments.Support.SubSite.Services;
-using System.Collections.Generic;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers

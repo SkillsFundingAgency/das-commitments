@@ -1,17 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using System.Collections;
-using Moq;
 using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPaymentsPriority
@@ -30,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
             }
 
             var results = await fixture.Handle(accountId);
-            Assert.IsTrue(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.PriorityItems, expectedOutputs));
+            Assert.That(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.PriorityItems, expectedOutputs), Is.True);
         }
     }
 
@@ -267,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
 
         public GetProviderPaymentsPriorityQueryHandlerTestFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Logger = new Mock<ILogger<GetProviderPaymentsPriorityQueryHandler>>();
             Handler = new GetProviderPaymentsPriorityQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);
@@ -349,6 +341,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

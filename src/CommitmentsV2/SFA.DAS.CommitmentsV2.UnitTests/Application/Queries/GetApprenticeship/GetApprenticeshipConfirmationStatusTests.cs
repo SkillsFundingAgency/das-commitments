@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -37,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, false);
+            Assert.That(response.EmailAddressConfirmedByApprentice, Is.EqualTo(false));
         }
 
         [Test]
@@ -50,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, true);
+            Assert.That(response.EmailAddressConfirmedByApprentice, Is.EqualTo(true));
         }
 
         [Test]
@@ -63,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, true);
+            Assert.That(response.EmailShouldBePresent, Is.EqualTo(true));
         }
 
         [Test]
@@ -76,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, false);
+            Assert.That(response.EmailShouldBePresent, Is.EqualTo(false));
         }
 
         [Test]
@@ -89,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, false);
+            Assert.That(response.EmailShouldBePresent, Is.EqualTo(false));
         }
 
         [Test]
@@ -102,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, null);
+            Assert.That(response.ConfirmationStatus, Is.EqualTo(null));
         }
 
         [Test]
@@ -115,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Unconfirmed);
+            Assert.That(response.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Unconfirmed));
         }
 
         [Test]
@@ -128,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Confirmed);
+            Assert.That(response.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Confirmed));
         }
 
         [Test]
@@ -141,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Overdue);
+            Assert.That(response.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Overdue));
         }
 
         private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null)
@@ -197,7 +191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .With(x => x.ConfirmationOverdueOn, overdueDate)
                 .Create();
 
-            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
             var _db = new ProviderCommitmentsDbContext(options);
 
             _db.Apprenticeships.Add(appr);

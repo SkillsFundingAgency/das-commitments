@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
 {
     public class GetCohortsQuery : IRequest<GetCohortsResult>

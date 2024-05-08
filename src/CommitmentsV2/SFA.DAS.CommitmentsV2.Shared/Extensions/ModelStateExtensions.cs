@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Extensions

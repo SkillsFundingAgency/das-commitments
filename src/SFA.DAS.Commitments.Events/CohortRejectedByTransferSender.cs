@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Messaging.Attributes;
+﻿using System;
+using SFA.DAS.Messaging.Attributes;
 
 namespace SFA.DAS.Commitments.Events
 {
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Events
         public long ReceivingEmployerAccountId { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
     }
 }

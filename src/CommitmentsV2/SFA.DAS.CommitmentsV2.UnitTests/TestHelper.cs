@@ -1,9 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
 {
@@ -21,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
         }
 
         public static ProviderCommitmentsDbContext GetInMemoryDatabase() => new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
             .EnableSensitiveDataLogging()
             .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .Options);

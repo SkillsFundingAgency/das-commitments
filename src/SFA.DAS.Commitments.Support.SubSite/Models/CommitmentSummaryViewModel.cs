@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Models
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Models
 {
     public class CommitmentSummaryViewModel
     {

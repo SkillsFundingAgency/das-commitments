@@ -1,62 +1,53 @@
-using System;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Data.SqlClient;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.Configuration;
+using SFA.DAS.CommitmentsV2.Extensions;
 
-namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
+namespace SFA.DAS.CommitmentsV2.Api.HealthChecks;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
-        private const string AzureResource = "https://database.windows.net/";
+        var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
 
-        public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, IConfiguration configuration)
+        void BeforeOpen(SqlConnection connection)
         {
-            var environmentName = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName);
-            var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
-            
-            void BeforeOpen(SqlConnection connection)
             {
-                if (!environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    var azureServiceTokenProvider = new AzureServiceTokenProvider();
-                    connection.AccessToken = azureServiceTokenProvider.GetAccessTokenAsync(AzureResource).Result;
-                }
+                var conn = DatabaseExtensions.GetSqlConnection(databaseConnectionString);
+                connection.AccessToken = ((SqlConnection) conn).AccessToken;
             }
-
-            services.AddHealthChecks()
-                .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
-                .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
-                .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check", beforeOpenConnectionConfigurer: BeforeOpen);
-
-            return services;
         }
+
+        services.AddHealthChecks()
+            .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
+            .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
+            .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check", configure: BeforeOpen);
+
+        return services;
+    }
         
-        public static IApplicationBuilder UseDasHealthChecks(this IApplicationBuilder app)
+    public static IApplicationBuilder UseDasHealthChecks(this IApplicationBuilder app)
+    {
+        return app.UseHealthChecks("/health", new HealthCheckOptions
         {
-            return app.UseHealthChecks("/health", new HealthCheckOptions
+            ResponseWriter = (httpContext, healthReport) => httpContext.Response.WriteJsonAsync(new
             {
-                ResponseWriter = (c, r) => c.Response.WriteJsonAsync(new
-                {
-                    r.Status,
-                    r.TotalDuration,
-                    Results = r.Entries.ToDictionary(
-                        e => e.Key,
-                        e => new
-                        {
-                            e.Value.Status,
-                            e.Value.Duration,
-                            e.Value.Description,
-                            e.Value.Data
-                        })
-                })
-            });
-        }
+                healthReport.Status,
+                healthReport.TotalDuration,
+                Results = healthReport.Entries.ToDictionary(
+                    e => e.Key,
+                    e => new
+                    {
+                        e.Value.Status,
+                        e.Value.Duration,
+                        e.Value.Description,
+                        e.Value.Data
+                    })
+            })
+        });
     }
 }

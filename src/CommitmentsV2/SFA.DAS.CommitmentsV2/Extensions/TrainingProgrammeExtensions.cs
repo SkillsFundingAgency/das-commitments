@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 
@@ -23,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (!course.IsActiveOn(date))
                 return 0;
 
-            var applicableFundingPeriod = course.FundingPeriods.FirstOrDefault(x => GetStatusOn(x.EffectiveFrom, x.EffectiveTo, date) == TrainingProgrammeStatus.Active);
+            var applicableFundingPeriod = course.FundingPeriods.Find(x => GetStatusOn(x.EffectiveFrom, x.EffectiveTo, date) == TrainingProgrammeStatus.Active);
 
             return applicableFundingPeriod?.FundingCap ?? 0;
         }

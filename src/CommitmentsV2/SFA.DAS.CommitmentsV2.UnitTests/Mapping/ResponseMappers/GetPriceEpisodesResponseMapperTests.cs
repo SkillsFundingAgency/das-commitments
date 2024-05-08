@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
-using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
+﻿using KellermanSoftware.CompareNetObjects;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
@@ -33,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             var compare = new CompareLogic(new ComparisonConfig{ IgnoreObjectTypes = true});
             var compareResult = compare.Compare(_source.PriceEpisodes, _result.PriceEpisodes);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

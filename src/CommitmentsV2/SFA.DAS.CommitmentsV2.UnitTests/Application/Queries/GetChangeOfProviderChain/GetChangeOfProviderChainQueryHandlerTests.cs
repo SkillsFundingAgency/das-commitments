@@ -1,12 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -35,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                     .Select(p => p.Value);
 
                 var results = await fixture.Handle(expectedOutput.Key);
-                Assert.IsTrue(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfProviderChain, filteredExpectedOutputs));
+                Assert.That(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfProviderChain, filteredExpectedOutputs), Is.True);
             }
         }
     }
@@ -217,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
 
         public GetChangeOfProviderQueryHandlerTestFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetChangeOfProviderChainQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }

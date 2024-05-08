@@ -1,16 +1,9 @@
-﻿using AutoFixture;
-using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 {

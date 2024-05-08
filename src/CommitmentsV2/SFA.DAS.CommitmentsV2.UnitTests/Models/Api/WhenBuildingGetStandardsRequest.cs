@@ -1,6 +1,4 @@
 using AutoFixture.NUnit3;
-using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Api

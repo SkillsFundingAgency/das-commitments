@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -59,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         internal void VerifyResponse(IActionResult result)
         {
             var response = result.VerifyResponseObjectType<OkObjectResult>().WithModel<CreateCohortResponse>();
-            Assert.IsTrue(response.CohortId == Result.Id &&
+            Assert.That(response.CohortId == Result.Id &&
                         response.CohortReference == Result.Reference);
         }
     }

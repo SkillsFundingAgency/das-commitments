@@ -1,14 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
@@ -37,17 +32,19 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
             {
                 _logger.LogInformation($"Received {nameof(OverlappingTrainingDateCreatedEvent)} for Uln {message?.Uln}");
 
-                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-
-                var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
-
-                if (currentApprenticeshipStatus == ApprenticeshipStatus.Stopped)
+                if (message != null)
                 {
-                    var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+                    var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                    await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                    var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
+
+                    if (currentApprenticeshipStatus == ApprenticeshipStatus.Stopped)
+                    {
+                        var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+
+                        await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                    }
                 }
-
             }
             catch (Exception e)
             {

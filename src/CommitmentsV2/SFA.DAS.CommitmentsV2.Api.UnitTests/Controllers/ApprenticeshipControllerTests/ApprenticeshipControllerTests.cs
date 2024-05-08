@@ -1,11 +1,6 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture.NUnit3;
-using MediatR;
+﻿using AutoFixture.NUnit3;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
@@ -178,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ThenTheQueryResultIsMapped()
         {
             //Arrange
-            var expectedProviderId = 10;
+            const int expectedProviderId = 10;
             var request = new GetApprenticeshipsRequest
             {
                 ProviderId = expectedProviderId
@@ -192,8 +187,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeships(request) as OkObjectResult;
 
             //Assert
-            Assert.IsNotNull(result);
-            _mapper.Verify(x => x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
+            Assert.That(result, Is.Not.Null);
+            _mapper.Verify(x=>x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
         }
 
         [Test]
@@ -203,9 +198,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeships(new GetApprenticeshipsRequest()) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
         }
-
 
         [Test, MoqAutoData]
         public async Task StopApprenticeship(StopApprenticeshipRequest request, long apprenticeshipId)
@@ -317,7 +311,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var notFoundResult = await _controller.ValidateApprenticeshipForEdit(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
 
         [Test, MoqAutoData]
@@ -342,21 +336,24 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
 
-            //Assert
-            Assert.AreEqual(true, response.NeedReapproval);
-            Assert.AreEqual(1, response.ApprenticeshipId);
+            Assert.Multiple(() =>
+            {
+                //Assert
+                Assert.That(response.NeedReapproval, Is.EqualTo(true));
+                Assert.That(response.ApprenticeshipId, Is.EqualTo(1));
+            });
         }
 
         [Test, MoqAutoData]
-        public async Task EditApprenticeshpNotFound(EditApprenticeshipApiRequest request)
+        public async Task EditApprenticeshipNotFound(EditApprenticeshipApiRequest request)
         {
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
-            var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult;
+           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
 
         [Test, MoqAutoData]
@@ -380,7 +377,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var notFoundResult = await _controller.ValidateUlnOverlap(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
     }
 }

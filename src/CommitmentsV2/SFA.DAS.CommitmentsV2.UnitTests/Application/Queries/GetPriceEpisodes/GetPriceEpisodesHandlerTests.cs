@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -53,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
                 _apprenticeshipId = _autoFixture.Create<long>();
                 _request = new GetPriceEpisodesQuery(_apprenticeshipId);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 SeedData();
                 _handler = new GetPriceEpisodesQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
@@ -86,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_priceEpisodes.Count, _result.PriceEpisodes.Count);
+                Assert.That(_result.PriceEpisodes, Has.Count.EqualTo(_priceEpisodes.Count));
 
                 foreach (var sourceItem in _priceEpisodes)
                 {
@@ -97,19 +89,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 
         private static void AssertEquality(PriceHistory source, GetPriceEpisodesQueryResult.PriceEpisode result)
         {
-            Assert.AreEqual(source.Id, result.Id);
-
-            Assert.AreEqual(source.ApprenticeshipId, result.ApprenticeshipId);
-            Assert.AreEqual(source.FromDate, result.FromDate);
-            Assert.AreEqual(source.ToDate, result.ToDate);
-            Assert.AreEqual(source.Cost, result.Cost);
-            Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
-            Assert.AreEqual(source.AssessmentPrice, result.EndPointAssessmentPrice);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(source.Id));
+                Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                Assert.That(result.FromDate, Is.EqualTo(source.FromDate));
+                Assert.That(result.ToDate, Is.EqualTo(source.ToDate));
+                Assert.That(result.Cost, Is.EqualTo(source.Cost));
+                Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
+                Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.AssessmentPrice));
+            });
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
-using MediatR;
+﻿using FluentValidation;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
 {

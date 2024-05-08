@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy
 {
     public class UpdateLevyStatusToLevyCommand : IRequest
     {

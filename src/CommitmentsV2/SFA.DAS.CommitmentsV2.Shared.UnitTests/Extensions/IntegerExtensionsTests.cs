@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 {
@@ -11,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
         [TestCase(123456, "£123,456")]
         public void ToGdsCostFormatReturnsFormattedResultCorrectly(int value, string expectedResult)
         {
-            Assert.AreEqual(expectedResult, value.ToGdsCostFormat());
+            Assert.That(value.ToGdsCostFormat(), Is.EqualTo(expectedResult));
         }
 
     }

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using Moq;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
@@ -62,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 var autoFixture = new Fixture();
 
-                _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
                 _logger = new FakeLogger<ProviderSendCohortCommandHandler>();
 
                 _handler = new ProviderSendCohortCommandHandler(_logger,
@@ -114,12 +106,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyHasError()
             {
-                Assert.IsTrue(_logger.HasErrors);
+                Assert.That(_logger.HasErrors, Is.True);
             }
 
             public void VerifyHasWarning()
             {
-                Assert.IsTrue(_logger.HasWarnings);
+                Assert.That(_logger.HasWarnings, Is.True);
             }
         }
     }

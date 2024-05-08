@@ -1,28 +1,23 @@
-using System;
-using System.Threading.Tasks;
-using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails>
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 
         public ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(IAuthorizationService authorizationService, ITrainingProgrammeLookup trainingProgrammeLookup)
         {
-            _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 
-        public async Task<DraftApprenticeshipDetails> Map(ValidateDraftApprenticeshipDetailsCommand comand)
+        public async Task<DraftApprenticeshipDetails> Map(ValidateDraftApprenticeshipDetailsCommand command)
         {
-            var source = comand.DraftApprenticeshipRequest;
-
+            var source = command.DraftApprenticeshipRequest;
             var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
             var trainingProgrammeTask = GetCourse(source.CourseCode, startDate);
             var trainingProgramme = await trainingProgrammeTask;

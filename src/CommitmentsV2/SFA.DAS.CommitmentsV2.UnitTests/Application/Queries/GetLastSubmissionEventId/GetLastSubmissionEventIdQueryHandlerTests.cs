@@ -1,12 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetLastSubmissionEventId;
 using SFA.DAS.CommitmentsV2.Data;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionEventId
 {
@@ -19,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             using var fixture = new GetLastSubmissionEventIdQueryHandlerTestsFixture();
             var result = await fixture.Handle();
 
-            Assert.AreEqual(fixture.AddEpaLastSubmissionEventId, result.Value);
+            Assert.That(result.Value, Is.EqualTo(fixture.AddEpaLastSubmissionEventId));
         }
 
         private class GetLastSubmissionEventIdQueryHandlerTestsFixture : IDisposable
@@ -37,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
                 _query = new GetLastSubmissionEventIdQuery();
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
                
@@ -60,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }
