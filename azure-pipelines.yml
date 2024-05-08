@@ -102,21 +102,21 @@ stages:
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
 
-#- stage: Deploy_PP
-#  dependsOn: Build
-#  displayName: Deploy to PP
-#  variables:
-#  - group: PreProd Management Resources
-#  - group: PreProd Shared Resources
-#  - group: PreProd das-commitments
-#  jobs:
-#  - template: pipeline-templates/job/deploy.yml
-#    parameters:
-#      Environment: PP
-#      SolutionBaseName: $(SolutionBaseName)
-#      ServiceConnection: SFA-DIG-PreProd-ARM
-#      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-#      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+- stage: Deploy_PP
+  dependsOn: Build
+  displayName: Deploy to PP
+  variables:
+  - group: PreProd Management Resources
+  - group: PreProd Shared Resources
+  - group: PreProd das-commitments
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: PP
+      SolutionBaseName: $(SolutionBaseName)
+      ServiceConnection: SFA-DIG-PreProd-ARM
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
 #- stage: Deploy_PROD
 #  dependsOn: Build
