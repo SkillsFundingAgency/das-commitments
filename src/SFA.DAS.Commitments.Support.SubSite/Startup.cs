@@ -12,6 +12,8 @@ using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -52,7 +54,8 @@ namespace SFA.DAS.Commitments.Support.SubSite
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetSupportApprenticeshipQuery).GetTypeInfo().Assembly));
             services.AddTransient<IRequestHandler<GetApprenticeshipUpdateQuery, GetApprenticeshipUpdateQueryResult>, GetApprenticeshipUpdateQueryHandler>();
             services.AddTransient<IRequestHandler<GetChangeOfProviderChainQuery, GetChangeOfProviderChainQueryResult>, GetChangeOfProviderChainQueryHandler>();
-            //services.AddTransient<IRequestHandler<IRequestHandler<GetPriceEpisodesQuery, GetPriceEpisodesQueryResult>, GetPriceEpisodesQueryHandler>();
+            services.AddTransient<IRequestHandler<GetOverlappingTrainingDateRequestQuery, GetOverlappingTrainingDateRequestQueryResult>, GetOverlappingTrainingDateRequestQueryHandler>();
+            services.AddTransient<IRequestHandler<GetPriceEpisodesQuery, GetPriceEpisodesQueryResult>, GetPriceEpisodesQueryHandler>();
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
