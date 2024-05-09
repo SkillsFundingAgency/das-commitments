@@ -22,7 +22,13 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
     private readonly ILogger<EditApprenticeshipCommandHandler> _logger;
     private readonly IMediator _mediator;
 
-    public EditApprenticeshipCommandHandler(IEditApprenticeshipValidationService editValidationService, Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, ICurrentDateTime currentDateTime,  IMediator mediator, ILogger<EditApprenticeshipCommandHandler> logger)
+    public EditApprenticeshipCommandHandler(
+        IEditApprenticeshipValidationService editValidationService, 
+        Lazy<ProviderCommitmentsDbContext> dbContext, 
+        IAuthenticationService authenticationService, 
+        ICurrentDateTime currentDateTime,  
+        IMediator mediator, 
+        ILogger<EditApprenticeshipCommandHandler> logger)
     {
         _editValidationService = editValidationService;
         _dbContext = dbContext;
@@ -34,7 +40,7 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
 
     public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
     {
-        var party = _authenticationService.GetUserParty();
+        var party = GetParty(command);
         var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
         await Validate(command, apprenticeship, party, cancellationToken);
@@ -44,6 +50,16 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
         var immediateUpdateCreated = await CreateIntermediateUpdate(command, party, apprenticeship);
 
         return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
+    }
+
+    private Party GetParty(EditApprenticeshipCommand command)
+    {
+        if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+        {
+            return command.Party;
+        }
+
+        return _authenticationService.GetUserParty();
     }
 
     private static void CreateImmediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
@@ -120,10 +136,9 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
 
     private async Task Validate(EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party, CancellationToken cancellationToken)
     {
-        CheckPartyIsValid(party);
         CheckAuthorisation(command, apprenticeship, party);
 
-        var validationResult = await _editValidationService.Validate(command.CreateValidationRequest(apprenticeship, _currentDateTime.UtcNow ), cancellationToken);
+        var validationResult = await _editValidationService.Validate(command.CreateValidationRequest(apprenticeship, _currentDateTime.UtcNow), cancellationToken, party);
         if (validationResult?.Errors?.Count > 0)
         {
             // This shouldn't get triggered as these checks should already been passed.
@@ -142,14 +157,6 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
         if (apprenticeship.EmailAddressConfirmed == true && command.EditApprenticeshipRequest.Email != null)
         {
             throw new DomainException("ConfirmChanges", "Unable to make these changes, as the apprentice has confirmed their email address");
-        }
-    }
-
-    private static void CheckPartyIsValid(Party party)
-    {
-        if (party != Party.Employer && party != Party.Provider)
-        {
-            throw new DomainException(nameof(party), "Only employers are allowed to edit the records");
         }
     }
 

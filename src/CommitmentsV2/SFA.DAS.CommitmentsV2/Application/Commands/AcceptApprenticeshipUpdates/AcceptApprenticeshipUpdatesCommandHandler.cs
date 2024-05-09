@@ -35,7 +35,7 @@ public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptA
     {
         _logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId : {Id}", command.ApprenticeshipId);
 
-        var party = _authenticationService.GetUserParty();
+        var party = GetParty(command);
         var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
         CheckPartyIsValid(party, command, apprenticeship);
 
@@ -57,6 +57,16 @@ public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptA
             await CheckEmailOverlap(command, apprenticeship, apprenticeshipUpdate, cancellationToken);
         }
         apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
+    }
+
+    private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
+    {
+        if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+        {
+            return command.Party;
+        }
+
+        return _authenticationService.GetUserParty();
     }
 
     private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)

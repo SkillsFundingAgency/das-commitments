@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation
         public string EmployerReference { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string ULN { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }

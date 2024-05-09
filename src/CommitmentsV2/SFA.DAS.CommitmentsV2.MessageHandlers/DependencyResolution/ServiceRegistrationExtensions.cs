@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.MessageHandlers.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
@@ -16,7 +18,6 @@ using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 
@@ -42,6 +43,8 @@ public static class ServiceRegistrationExtensions
             //services.AddNServiceBusClientUnitOfWork();
             services.AddNServiceBusUnitOfWork();
             services.AddDomainServices();
+            services.AddMappingServices();
+            services.AddAcademicYearDateProviderServices();
             services.AddEmployerAccountServices(context.Configuration);
             services.AddFeaturesAuthorization();
             services.AddSingleton<IEncodingService, EncodingService>();
@@ -73,6 +76,7 @@ public static class ServiceRegistrationExtensions
                 s.GetService<ILogger<LegacyTopicMessagePublisher>>(), config.MessageServiceBusConnectionString);
         });
         services.AddTransient<IEmailOptionalService, EmailOptionalService>();
+        services.AddTransient<IAuthenticationService, MessageHandlerAuthenticationService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
 
         return services;

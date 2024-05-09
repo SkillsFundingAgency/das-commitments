@@ -30,7 +30,6 @@ using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Services;

@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string StandardUId { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? CreatedOn { get; set; }
