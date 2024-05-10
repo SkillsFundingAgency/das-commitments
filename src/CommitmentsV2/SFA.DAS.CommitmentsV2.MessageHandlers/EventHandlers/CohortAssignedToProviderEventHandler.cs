@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public PostProviderEmailRequest(long providerId, ProviderEmailRequest request)
         {
-            _providerId -= providerId;
+            _providerId = providerId;
             Data = request;
         }
     }
