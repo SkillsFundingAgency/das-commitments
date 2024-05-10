@@ -2,7 +2,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <LangVersion>latest</LangVersion>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <IsWebJobProject>true</IsWebJobProject>
         <WebJobName>Commitmentsv2-MessageHandlers</WebJobName>
         <WebJobType>Continuous</WebJobType>
