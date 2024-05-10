@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
     public class PostProviderEmailRequest : IPostApiRequest<ProviderEmailRequest>
     {
-        public string PostUrl => $"/providers/{_providerId}/emails";
+        public string PostUrl => $"providers/{_providerId}/emails";
         public ProviderEmailRequest Data { get; set; }
 
         private readonly long _providerId;
