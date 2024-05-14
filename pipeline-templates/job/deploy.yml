@@ -110,6 +110,12 @@ jobs:
             OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
             Environment: ${{ parameters.Environment }}
         - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
+          condition: in('${{ parameters.Environment }}', 'AT', 'TEST', 'PP', 'PROD')
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            AppServiceName: $(SupportAppServiceName)
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Support.SubSite.zip
+        - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             AppServiceName: $(ApiV2AppServiceName)
@@ -120,18 +126,3 @@ jobs:
             AppServiceName: $(WorkerV2AppServiceName)
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}V2.Host.zip
             DeploymentType: zipDeploy
-            
-- deployment: DeploySupportService
-  condition: in('${{ parameters.Environment }}', 'AT', 'TEST', 'PP', 'PROD')
-  pool:
-    name: DAS - Continuous Deployment Agents
-  environment: ${{ parameters.Environment }}
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
-          parameters:
-            ServiceConnection: ${{ parameters.ServiceConnection }}
-            AppServiceName: $(SupportAppServiceName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Support.SubSite.zip
