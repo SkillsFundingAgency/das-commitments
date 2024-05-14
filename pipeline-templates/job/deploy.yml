@@ -121,7 +121,7 @@ jobs:
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}V2.Host.zip
             DeploymentType: zipDeploy
 
-- deployment: DeploySupportService
+- deployment: DeploySupportApp
   condition: in('${{ parameters.Environment }}', 'AT', 'TEST', 'PP', 'PROD')
   pool:
     name: DAS - Continuous Deployment Agents
