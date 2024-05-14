@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 {
@@ -17,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
             var actual = dateMonth.IsValidMonthYear();
 
             //Assert
-            Assert.AreEqual(isValid, actual);
+            Assert.That(actual, Is.EqualTo(isValid));
         }
     }
 }

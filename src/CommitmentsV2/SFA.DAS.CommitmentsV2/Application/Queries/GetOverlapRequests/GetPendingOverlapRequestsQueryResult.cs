@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests
 {
     public class GetPendingOverlapRequestsQueryResult
     {

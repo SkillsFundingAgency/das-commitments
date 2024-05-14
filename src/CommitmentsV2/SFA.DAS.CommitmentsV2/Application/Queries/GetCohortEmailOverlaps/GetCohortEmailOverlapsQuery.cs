@@ -1,7 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps
 {
     public class GetCohortEmailOverlapsQuery : IRequest<GetCohortEmailOverlapsQueryResult>
     {

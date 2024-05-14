@@ -1,20 +1,10 @@
-﻿using System;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipsWithEpaOrgId;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -48,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _command = new UpdateApprenticeshipsWithEpaOrgIdCommand(submissionEvents);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
                 _sut = new UpdateApprenticeshipsWithEpaOrgIdCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Mock.Of<ILogger<UpdateApprenticeshipsWithEpaOrgIdCommandHandler>>());
@@ -104,12 +94,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             internal void VerifyEpaoOrgIdUpdated()
             {
                 var apprenticeship = _db.Apprenticeships.FirstOrDefault(x => x.Id == ApprenticeshipId);
-                Assert.AreEqual(_command.SubmissionEvents.First().EPAOrgId, apprenticeship.EpaOrgId);
+                Assert.That(apprenticeship.EpaOrgId, Is.EqualTo(_command.SubmissionEvents.First().EPAOrgId));
             }
 
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

@@ -1,9 +1,4 @@
-using System;
-using System.Threading.Tasks;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
@@ -14,210 +9,208 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
+public class TrainingProgrammeController : ControllerBase
 {
-    [ApiController]
-    [Authorize]
-    [Route("api/[controller]")]
-    public class TrainingProgrammeController : ControllerBase
+    private readonly IMediator _mediator;
+    private readonly ILogger<TrainingProgrammeController> _logger;
+
+    public TrainingProgrammeController(IMediator mediator, ILogger<TrainingProgrammeController> logger)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<TrainingProgrammeController> _logger;
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-        public TrainingProgrammeController(IMediator mediator, ILogger<TrainingProgrammeController> logger)
+    [HttpGet]
+    [Route("all")]
+    public async Task<IActionResult> GetAll()
+    {
+        try
         {
-            _mediator = mediator;
-            _logger = logger;
+            var result = await _mediator.Send(new GetAllTrainingProgrammesQuery());
+            return Ok(new GetAllTrainingProgrammesResponse
+            {
+                TrainingProgrammes = result.TrainingProgrammes
+            });
         }
-
-        [HttpGet]
-        [Route("all")]
-        public async Task<IActionResult> GetAll()
+        catch (Exception e)
         {
-            try
-            {
-                var result = await _mediator.Send(new GetAllTrainingProgrammesQuery());
-                return Ok(new GetAllTrainingProgrammesResponse
-                {
-                    TrainingProgrammes = result.TrainingProgrammes
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error getting all courses");
-                return BadRequest();
-            }
+            _logger.LogError(e, "Error getting all courses");
+            return BadRequest();
         }
+    }
 
-        [HttpGet]
-        [Route("standards")]
-        public async Task<IActionResult> GetAllStandards()
+    [HttpGet]
+    [Route("standards")]
+    public async Task<IActionResult> GetAllStandards()
+    {
+        try
         {
-            try
+            var result = await _mediator.Send(new GetAllTrainingProgrammeStandardsQuery());
+            return Ok(new GetAllTrainingProgrammeStandardsResponse
             {
-                var result = await _mediator.Send(new GetAllTrainingProgrammeStandardsQuery());
-                return Ok(new GetAllTrainingProgrammeStandardsResponse
-                {
-                    TrainingProgrammes = result.TrainingProgrammes
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error getting all standards");
-                return BadRequest();
-            }
+                TrainingProgrammes = result.TrainingProgrammes
+            });
         }
-
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetTrainingProgramme(string id)
+        catch (Exception e)
         {
-            try
-            {
-                var result = await _mediator.Send(new GetTrainingProgrammeQuery
-                {
-                    Id = id
-                });
-
-                if (result.TrainingProgramme == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeResponse
-                {
-                    TrainingProgramme = result.TrainingProgramme
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error getting training programme {id}");
-                return BadRequest();
-            }
+            _logger.LogError(e, "Error getting all standards");
+            return BadRequest();
         }
+    }
 
-        [HttpGet]
-        [Route("{standardUId}/version")]
-        public async Task<IActionResult> GetTrainingProgrammeVersion(string standardUId)
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetTrainingProgramme(string id)
+    {
+        try
         {
-            try
+            var result = await _mediator.Send(new GetTrainingProgrammeQuery
             {
-                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
+                Id = id
+            });
 
-                if (result.TrainingProgramme == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeResponse
-                {
-                    TrainingProgramme = result.TrainingProgramme
-                });
-            }
-            catch (Exception e)
+            if (result.TrainingProgramme == null)
             {
-                _logger.LogError(e, $"Error getting standard options for {standardUId}");
-                return BadRequest();
+                return NotFound();
             }
+
+            return Ok(new GetTrainingProgrammeResponse
+            {
+                TrainingProgramme = result.TrainingProgramme
+            });
         }
-
-        [HttpGet]
-        [Route("{courseCode}/version/{version}")]
-        public async Task<IActionResult> GetTrainingProgrammeVersion(string courseCode, string version)
+        catch (Exception e)
         {
-            try
-            {
-                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
-
-                if (result.TrainingProgramme == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeResponse
-                {
-                    TrainingProgramme = result.TrainingProgramme
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error getting standard version for standard {courseCode} version {version}");
-                return BadRequest();
-            }
+            _logger.LogError(e, "Error getting training programme {id}", id);
+            return BadRequest();
         }
+    }
 
-        [HttpGet]
-        [Route("{id}/versions")]
-        public async Task<IActionResult> GetTrainingProgrammeVersions(string id)
+    [HttpGet]
+    [Route("{standardUId}/version")]
+    public async Task<IActionResult> GetTrainingProgrammeVersion(string standardUId)
+    {
+        try
         {
-            try
-            {
-                var result = await _mediator.Send(new GetTrainingProgrammeVersionsQuery(id));
+            var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
 
-                if (result.TrainingProgrammes == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeVersionsResponse
-                {
-                    TrainingProgrammeVersions = result.TrainingProgrammes
-                });
-            }
-            catch (Exception e)
+            if (result.TrainingProgramme == null)
             {
-                _logger.LogError(e, $"Error getting standard versions for {id}");
-                return BadRequest();
+                return NotFound();
             }
+
+            return Ok(new GetTrainingProgrammeResponse
+            {
+                TrainingProgramme = result.TrainingProgramme
+            });
         }
-
-        [HttpGet]
-        [Route("{standardUId}/newer-versions")]
-        public async Task<IActionResult> GetNewerTrainingProgrammeVersions(string standardUId)
+        catch (Exception e)
         {
-            try
-            {
-                var result = await _mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
-
-                return Ok(new GetNewerTrainingProgrammeVersionsResponse
-                {
-                    NewerVersions = result.NewerVersions
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error getting newer versions for standardUId {standardUId}");
-                return BadRequest();
-            }
+            _logger.LogError(e, "Error getting standard options for {standardUId}", standardUId);
+            return BadRequest();
         }
+    }
 
-        [HttpGet]
-        [Route("calculate-version/{courseCode}")]
-        public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
+    [HttpGet]
+    [Route("{courseCode}/version/{version}")]
+    public async Task<IActionResult> GetTrainingProgrammeVersion(string courseCode, string version)
+    {
+        try
         {
-            try
-            {
-                var result = await _mediator.Send(new GetCalculatedTrainingProgrammeVersionQuery
-                {
-                    CourseCode = courseCode,
-                    StartDate = request.StartDate.Value
-                });
+            var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
 
-                if (result.TrainingProgramme == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeResponse
-                {
-                    TrainingProgramme = result.TrainingProgramme
-                });
-            }
-            catch (Exception)
+            if (result.TrainingProgramme == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            return Ok(new GetTrainingProgrammeResponse
+            {
+                TrainingProgramme = result.TrainingProgramme
+            });
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting standard version for standard {courseCode} version {version}", courseCode, version);
+            return BadRequest();
+        }
+    }
 
+    [HttpGet]
+    [Route("{id}/versions")]
+    public async Task<IActionResult> GetTrainingProgrammeVersions(string id)
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetTrainingProgrammeVersionsQuery(id));
+
+            if (result.TrainingProgrammes == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetTrainingProgrammeVersionsResponse
+            {
+                TrainingProgrammeVersions = result.TrainingProgrammes
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting standard versions for {id}", id);
+            return BadRequest();
+        }
+    }
+
+    [HttpGet]
+    [Route("{standardUId}/newer-versions")]
+    public async Task<IActionResult> GetNewerTrainingProgrammeVersions(string standardUId)
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
+
+            return Ok(new GetNewerTrainingProgrammeVersionsResponse
+            {
+                NewerVersions = result.NewerVersions
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting newer versions for standardUId {standardUId}", standardUId);
+            return BadRequest();
+        }
+    }
+
+    [HttpGet]
+    [Route("calculate-version/{courseCode}")]
+    public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetCalculatedTrainingProgrammeVersionQuery
+            {
+                CourseCode = courseCode,
+                StartDate = request.StartDate.Value
+            });
+
+            if (result.TrainingProgramme == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetTrainingProgrammeResponse
+            {
+                TrainingProgramme = result.TrainingProgramme
+            });
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
     }
 }

@@ -1,12 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using KellermanSoftware.CompareNetObjects;
-using MediatR;
-using Moq;
+﻿using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;

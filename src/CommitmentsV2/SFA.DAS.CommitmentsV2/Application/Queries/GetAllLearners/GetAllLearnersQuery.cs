@@ -1,7 +1,4 @@
-﻿using MediatR;
-using System;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
 {
     public class GetAllLearnersQuery : IRequest<GetAllLearnersQueryResult>
     {

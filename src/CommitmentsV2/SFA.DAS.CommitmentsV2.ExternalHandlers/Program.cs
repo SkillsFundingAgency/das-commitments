@@ -1,45 +1,33 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Caching;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
-using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.ExternalHandlers
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
-            var hostBuilder = new HostBuilder();
-            try
-            {
-                hostBuilder
-                    .UseDasEnvironment()
-                    .ConfigureDasAppConfiguration(args)
-                    .ConfigureLogging(b => b.AddNLog())
-                    .UseConsoleLifetime()
-                    .UseStructureMap()
-                    .ConfigureServices((c, s) => s
-                        .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
-                        .AddMemoryCache()
-                        .AddNServiceBus())
-                    .ConfigureContainer<Registry>(IoC.Initialize);
+        using var host = CreateHost(args);
+        
+        var logger = host.Services.GetService<ILogger<Program>>();
+        
+        logger.LogInformation("SFA.DAS.EmployerAccounts.ExternalHandlers starting up ...");
 
-                using (var host = hostBuilder.Build())
-                {
-                    await host.RunAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-        }
+        await host.RunAsync();
+    }
+
+    private static IHost CreateHost(string[] args)
+    {
+        return new HostBuilder()
+            .UseDasEnvironment()
+            .ConfigureDasAppConfiguration(args)
+            .ConfigureDasLogging()
+            .ConfigureExternalHandlerServices()
+            .Build();
     }
 }

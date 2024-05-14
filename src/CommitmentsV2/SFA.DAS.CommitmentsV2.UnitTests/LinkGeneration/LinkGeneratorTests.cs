@@ -1,7 +1,4 @@
-﻿using Moq;
-using NUnit.Framework;
-using SFA.DAS.AutoConfiguration;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
@@ -20,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
 
             var actualUrl = fixtures.GetProviderApprenticeshipServiceLink(path);
 
-            Assert.AreEqual(expectedUrl, actualUrl);
+            Assert.That(actualUrl, Is.EqualTo(expectedUrl));
         }
 
         [TestCase("base", "path", "base/path")]
@@ -34,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
 
             var actualUrl = fixtures.GetCourseManagementLink(path);
 
-            Assert.AreEqual(expectedUrl, actualUrl);
+            Assert.That(actualUrl, Is.EqualTo(expectedUrl));
         }
     }
 

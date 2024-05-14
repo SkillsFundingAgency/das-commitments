@@ -1,7 +1,4 @@
-﻿using MediatR;
-using System;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
 {
     public class ValidateUlnOverlapOnStartDateQuery : IRequest<ValidateUlnOverlapOnStartDateQueryResult>
     {

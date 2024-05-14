@@ -1,15 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Models;
-using Microsoft.Azure.ServiceBus;
-using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {

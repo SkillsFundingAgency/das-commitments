@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Models
+﻿namespace SFA.DAS.CommitmentsV2.Models
 {
     // This is a pseudo-entity to represent the result of the GetLearnersBatch stored proc, it's not a table in the database.
     public class Learner

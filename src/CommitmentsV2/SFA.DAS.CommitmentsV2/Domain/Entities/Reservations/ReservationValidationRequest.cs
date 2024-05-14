@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Domain.Entities.Reservations
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities.Reservations
 {
     public class ReservationValidationRequest
     {

@@ -1,34 +1,22 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
+
+public class ValidateUlnOverlapOnStartDateQueryHandler : IRequestHandler<ValidateUlnOverlapOnStartDateQuery, ValidateUlnOverlapOnStartDateQueryResult>
 {
-    /// TODO: Unit test
-    public class ValidateUlnOverlapOnStartDateQueryHandler : IRequestHandler<ValidateUlnOverlapOnStartDateQuery, ValidateUlnOverlapOnStartDateQueryResult>
+    private readonly IOverlapCheckService _overlapCheckService;
+
+    public ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService overlapCheckService) => _overlapCheckService = overlapCheckService;
+
+    public async Task<ValidateUlnOverlapOnStartDateQueryResult> Handle(ValidateUlnOverlapOnStartDateQuery request, CancellationToken cancellationToken)
     {
-        private IOverlapCheckService _overlapCheckService;
-        private ILogger<ValidateUlnOverlapOnStartDateQueryHandler> _logger;
+        var startDate = DateTime.ParseExact(request.StartDate, "dd-MM-yyyy", null);
+        var endDate = DateTime.ParseExact(request.EndDate, "dd-MM-yyyy", null);
 
-        public ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService overlapCheckService,
-            ILogger<ValidateUlnOverlapOnStartDateQueryHandler> logger)
-        {
-            _overlapCheckService = overlapCheckService;
-            _logger = logger;
-        }
+        var apprenticeshipWithOverlap = await _overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(startDate, endDate), null, cancellationToken);
 
-        public async Task<ValidateUlnOverlapOnStartDateQueryResult> Handle(ValidateUlnOverlapOnStartDateQuery request, CancellationToken cancellationToken)
-        {
-            var stDate = System.DateTime.ParseExact(request.StartDate, "dd-MM-yyyy", null);
-            var edDate = System.DateTime.ParseExact(request.EndDate, "dd-MM-yyyy", null);
+        var result = new ValidateUlnOverlapOnStartDateQueryResult { HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate, HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId };
 
-            var apprenticeshipWithOverlap = await _overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(stDate, edDate), null, cancellationToken);
-
-            var result = new ValidateUlnOverlapOnStartDateQueryResult { HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate, HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId };
-
-            return await Task.FromResult(result);
-        }
+        return await Task.FromResult(result);
     }
 }

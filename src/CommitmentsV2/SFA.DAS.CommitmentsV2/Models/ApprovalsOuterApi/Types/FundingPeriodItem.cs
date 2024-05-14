@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types

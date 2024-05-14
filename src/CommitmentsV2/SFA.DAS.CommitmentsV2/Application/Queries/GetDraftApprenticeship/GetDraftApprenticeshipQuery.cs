@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 {
     public class GetDraftApprenticeshipQuery : IRequest<GetDraftApprenticeshipQueryResult>
     {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -23,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsTrue(response);
+            Assert.That(response, Is.True);
         }
 
         [Test]
@@ -35,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsTrue(response);
+            Assert.That(response, Is.True);
         }
 
         [Test]
@@ -47,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsFalse(response);
+            Assert.That(response, Is.False);
         }
 
 
@@ -60,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
             var response = await fixtures.Handle();
 
-            Assert.IsFalse(response);
+            Assert.That(response, Is.False);
         }
     }
 
@@ -86,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
             _accountId = _autoFixture.Create<long>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new CanAccessApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }
@@ -169,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,14 +1,8 @@
-﻿using AutoFixture;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControllerTests
 {
@@ -72,13 +66,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
 
             public void VerifyResult()
             {
-                Assert.IsNotNull(_result);
+                Assert.That(_result, Is.Not.Null);
                 var okObject = _result as OkObjectResult;
-                Assert.IsNotNull(okObject);
+                Assert.That(okObject, Is.Not.Null);
                 var objectValue = okObject.Value as GetChangeOfProviderChainResponse;
-                Assert.IsNotNull(objectValue);
+                Assert.That(objectValue, Is.Not.Null);
 
-                Assert.AreEqual(_mapperResult, objectValue);
+                Assert.That(objectValue, Is.EqualTo(_mapperResult));
             }
         }
     }

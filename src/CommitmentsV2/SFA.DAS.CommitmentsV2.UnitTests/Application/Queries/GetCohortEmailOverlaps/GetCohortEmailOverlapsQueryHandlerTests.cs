@@ -1,13 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentValidation;
-using MediatR;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -22,11 +13,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
             var fixtures = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
             var result = await fixtures.GetResult(new GetCohortEmailOverlapsQuery(123));
 
-            Assert.AreEqual(fixtures.OverlapResults.Count, result.Overlaps.Count);
-            Assert.AreEqual(fixtures.OverlapResults[0].RowId, result.Overlaps[0].Id);
-            Assert.AreEqual(fixtures.OverlapResults[0].BuildErrorMessage(), result.Overlaps[0].ErrorMessage);
-            Assert.AreEqual(fixtures.OverlapResults[1].RowId, result.Overlaps[1].Id);
-            Assert.AreEqual(fixtures.OverlapResults[1].BuildErrorMessage(), result.Overlaps[1].ErrorMessage);
+            Assert.That(result.Overlaps, Has.Count.EqualTo(fixtures.OverlapResults.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Overlaps[0].Id, Is.EqualTo(fixtures.OverlapResults[0].RowId));
+                Assert.That(result.Overlaps[0].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[0].BuildErrorMessage()));
+                Assert.That(result.Overlaps[1].Id, Is.EqualTo(fixtures.OverlapResults[1].RowId));
+                Assert.That(result.Overlaps[1].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[1].BuildErrorMessage()));
+            });
         }
     }
 

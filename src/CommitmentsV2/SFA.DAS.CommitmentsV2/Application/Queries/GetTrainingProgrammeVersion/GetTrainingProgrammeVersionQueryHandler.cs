@@ -1,11 +1,6 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TrainingProgrammeEntity = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
@@ -67,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
             }
             catch (Exception e)
             {
-                _logger.LogInformation(e, $"Standard not found: {request.StandardUId}");
+                _logger.LogInformation(e, "Standard not found: {StandardUId}", request.StandardUId);
             }
             return new GetTrainingProgrammeVersionQueryResult
             {
