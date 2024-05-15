@@ -1,8 +1,5 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Types;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
@@ -18,10 +15,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             var result = await SetupAuthenticationContext(party, fixture, true, false);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(errorText, result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors, Is.Not.Null);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
+            });
         }
 
     
@@ -33,10 +33,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             var result = await SetupAuthenticationContext(party, fixture, false, true);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(errorText, result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors, Is.Not.Null);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
+            });
         }
 
 
@@ -47,15 +50,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             var result = await SetupAuthenticationContext(party, fixture, true, true);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(2, result.Errors.Count);
+            Assert.That(result.Errors, Is.Not.Null);
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
             var endDateError = result.Errors.First(x => x.PropertyName == "EndDate");
-            Assert.AreEqual(errorText, endDateError.ErrorMessage);
-            Assert.AreEqual("EndDate", endDateError.PropertyName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(endDateError.ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(endDateError.PropertyName, Is.EqualTo("EndDate"));
+            });
 
             var startDateError = result.Errors.First(x => x.PropertyName == "StartDate");
-            Assert.AreEqual(errorText, startDateError.ErrorMessage);
-            Assert.AreEqual("StartDate", startDateError.PropertyName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(startDateError.ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(startDateError.PropertyName, Is.EqualTo("StartDate"));
+            });
         }
 
         private static async Task<EditApprenticeshipValidationResult>

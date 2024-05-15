@@ -2,11 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Primitives;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Shared.ModelBinding;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -47,8 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinding
 
             var resultModel = context.Result.Model as string;
 
-            Assert.AreEqual(expectedResult, resultModel);
-
+            Assert.That(resultModel, Is.EqualTo(expectedResult));
         }
         private static DefaultModelBindingContext GetBindingContext(IValueProvider valueProvider, Type modelType)
         {

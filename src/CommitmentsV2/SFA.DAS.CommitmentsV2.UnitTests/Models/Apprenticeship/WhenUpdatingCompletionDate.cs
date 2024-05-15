@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -86,10 +82,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         public void VerifyApprenticeshipTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType == nameof(Apprenticeship) 
                                                                                 && @event.ProviderId == Apprenticeship.Cohort.ProviderId 
-                                                                                && @event.EmployerAccountId == Apprenticeship.Cohort.EmployerAccountId));
+                                                                                && @event.EmployerAccountId == Apprenticeship.Cohort.EmployerAccountId), Is.Not.Null);
         }
     }
 }

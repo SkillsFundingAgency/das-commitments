@@ -1,11 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -79,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyDraftApprenticeshipCreatedEventsArePublished()
         {
-            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortQueryResult.DraftApprenticeshipCreatedEvents.Count();
+            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortQueryResult.DraftApprenticeshipCreatedEvents.Length;
             var mockPipelineContext = MockMessageHandlerContext.As<IPipelineContext>();
             mockPipelineContext.Verify(x =>x.Publish(It.IsAny<DraftApprenticeshipCreatedEvent>(), It.IsAny<PublishOptions>()), Times.Exactly(numberOfEvents));
         }

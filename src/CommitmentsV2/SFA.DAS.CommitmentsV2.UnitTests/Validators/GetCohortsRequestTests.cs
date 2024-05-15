@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Validators;
 
@@ -18,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var validator = new GetCohortsRequestValidator();
 
             var result = validator.TestValidate(request);
-            Assert.AreEqual(expectedValid, result.IsValid);
+            Assert.That(result.IsValid, Is.EqualTo(expectedValid));
         }
     }
 }

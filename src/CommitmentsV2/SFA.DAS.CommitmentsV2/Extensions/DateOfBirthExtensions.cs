@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Extensions
+﻿namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class DateOfBirthExtensions
     {

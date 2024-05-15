@@ -1,10 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Types;
@@ -21,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             var fixture = new DeleteTestsFixture();
             var response = await fixture.Send();
 
-            Assert.IsInstanceOf<NoContentResult>(response);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]

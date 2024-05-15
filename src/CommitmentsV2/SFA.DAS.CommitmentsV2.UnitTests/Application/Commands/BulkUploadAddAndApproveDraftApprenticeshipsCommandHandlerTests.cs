@@ -1,18 +1,10 @@
-﻿using System;
-using AutoFixture;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
@@ -68,8 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             CohortDomainService.Setup(x => x.ApproveCohort(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()));                
 
-            Handler = new BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(Mock.Of<ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler>>(),
-                ModelMapper.Object, CohortDomainService.Object, Mediator.Object, DbContext.Object);
+            Handler = new BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(Mock.Of<ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler>>(), CohortDomainService.Object, Mediator.Object, DbContext.Object);
         }
 
         public Task Handle()

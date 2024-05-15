@@ -1,12 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
-using SFA.DAS.Commitments.Events;
+﻿using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -67,13 +59,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
 
-            Assert.IsTrue(fixture.Logger.HasErrors);
+            Assert.That(fixture.Logger.HasErrors, Is.True);
         }
     }
 
     public class TransferRequestApprovedEventHandlerTestsFixture
     {
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
         public FakeLogger<TransferRequestApprovedEvent> Logger { get; set; }
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher { get; set; }
         public UserInfo TransferSenderUserInfo { get; set; }
@@ -90,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture = new Fixture();
             UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             TransferSenderUserInfo = _fixture.Create<UserInfo>();
@@ -151,8 +143,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyCohortApprovalPropertiesAreSet()
         {
-            Assert.AreEqual(Cohort.TransferApprovalStatus, TransferApprovalStatus.Approved);
-            Assert.AreEqual(Cohort.TransferApprovalActionedOn, TransferRequestApprovedEvent.ApprovedOn);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferApprovalStatus, Is.EqualTo(TransferApprovalStatus.Approved));
+                Assert.That(TransferRequestApprovedEvent.ApprovedOn, Is.EqualTo(Cohort.TransferApprovalActionedOn));
+            });
         }
 
         public void VerifyLegacyEventCohortApprovedByTransferSenderIsPublished()

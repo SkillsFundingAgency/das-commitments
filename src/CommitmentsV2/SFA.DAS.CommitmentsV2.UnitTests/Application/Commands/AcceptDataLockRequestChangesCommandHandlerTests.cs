@@ -1,11 +1,4 @@
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -16,11 +9,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -232,10 +221,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             _fixture.VerifyDataLockTriageApprovedEventPublished(TestsFixture.ApprenticeshipId, TestsFixture.ProxyCurrentDateTime,
-                new PriceEpisode[]
-                {
-                    new PriceEpisode { FromDate = TestsFixture.ProxyCurrentDateTime, ToDate = null, Cost = 1000 }
-                }, TestsFixture.TrainingCourseCode100, TestsFixture.ProgrammeType100, Times.Once);
+            [
+                new PriceEpisode { FromDate = TestsFixture.ProxyCurrentDateTime, ToDate = null, Cost = 1000 }
+            ], TestsFixture.TrainingCourseCode100, TestsFixture.ProgrammeType100, Times.Once);
         }
 
         [TestCaseSource(typeof(ShouldUpdatePriceHistoryDataCases))]
@@ -429,11 +417,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             _fixture.VerifyDataLockTriageApprovedEventPublished(TestsFixture.ApprenticeshipId, TestsFixture.ProxyCurrentDateTime,
-                new PriceEpisode[]
-                {
-                    new PriceEpisode { FromDate = TestsFixture.ProxyCurrentDateTime, ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(19), Cost = 1000 },
+            [
+                new PriceEpisode { FromDate = TestsFixture.ProxyCurrentDateTime, ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(19), Cost = 1000 },
                     new PriceEpisode { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(20), ToDate = null, Cost = 1000 }
-                }, TestsFixture.TrainingCourseCode200, TestsFixture.ProgrammeType200, Times.Once);
+            ], TestsFixture.TrainingCourseCode200, TestsFixture.ProgrammeType200, Times.Once);
         }
 
         [Test]
@@ -537,7 +524,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         ApprenticeshipId = TestsFixture.ApprenticeshipId,
                         HasHadDataLockSuccess = true
                     },
-                    new InputDataLock[]
+                    new[]
                     {
                         previouslyResolvedPriceOnlyDataLock40, previouslyResolvedPriceOnlyDataLock41,
                         passDataLock50, passDataLock51, passDataLock52,
@@ -550,19 +537,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     },
                     new ExpectedOutput
                     {
-                        OutputResolvedEventDataLockIds = new OutputResolvedEventDataLockId[]
-                        {
+                        OutputResolvedEventDataLockIds =
+                        [
                             new OutputResolvedEventDataLockId { EventDataLockId = 60, IsResolved = true, Because = "New price data lock should always be resolved"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 61, IsResolved = false, Because = "New course data lock should not be resolved when HadHadDataLockSuccess is true"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 62, IsResolved = true, Because = "New price data lock should always be resolved"}
-                        },
-                        OutputPriceHistories =  new OutputPriceHistory[]
-                        {
+                        ],
+                        OutputPriceHistories =
+                        [
                             previouslyResolvedPriceOnlyDataLock40PriceHistory, previouslyResolvedPriceOnlyDataLock41PriceHistory,
                             passDataLock50PriceHistory, passDataLock51PriceHistory, passDataLock52PriceHistory,
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(60), ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(79), Cost = 1500 },
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(80), ToDate = null, Cost = 1700 }
-                        },
+                        ],
                         CourseCode = TestsFixture.TrainingCourseCode100,
                         ProgrammeType = TestsFixture.ProgrammeType100
                     }
@@ -576,7 +563,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         ApprenticeshipId = TestsFixture.ApprenticeshipId,
                         HasHadDataLockSuccess = true
                     },
-                    new InputDataLock[]
+                    new[]
                     {
                         previouslyResolvedPriceOnlyDataLock40, previouslyResolvedPriceOnlyDataLock41,
                         passDataLock50, passDataLock51, passDataLock52,
@@ -589,19 +576,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     },
                     new ExpectedOutput
                     {
-                        OutputResolvedEventDataLockIds = new OutputResolvedEventDataLockId[]
-                        {
+                        OutputResolvedEventDataLockIds =
+                        [
                             new OutputResolvedEventDataLockId { EventDataLockId = 60, IsResolved = true, Because = "New price data lock should always be resolved"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 61, IsResolved = false, Because = "New course/price data lock should not be resolved when HadHadDataLockSuccess is true"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 62, IsResolved = true, Because = "New price data lock should always be resolved"}
-                        },
-                        OutputPriceHistories = new OutputPriceHistory[]
-                        {
+                        ],
+                        OutputPriceHistories =
+                        [
                             previouslyResolvedPriceOnlyDataLock40PriceHistory, previouslyResolvedPriceOnlyDataLock41PriceHistory,
                             passDataLock50PriceHistory, passDataLock51PriceHistory, passDataLock52PriceHistory,
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(60), ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(79), Cost = 1500 },
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(80), ToDate = null, Cost = 1700 }
-                        },
+                        ],
                         CourseCode = TestsFixture.TrainingCourseCode100,
                         ProgrammeType = TestsFixture.ProgrammeType100
                     }
@@ -615,7 +602,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         ApprenticeshipId = TestsFixture.ApprenticeshipId,
                         HasHadDataLockSuccess = false
                     },
-                    new InputDataLock[]
+                    new[]
                     {
                         previouslyResolvedPriceOnlyDataLock40, previouslyResolvedPriceOnlyDataLock41,
                         passDataLock50, passDataLock51, passDataLock52,
@@ -628,20 +615,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     },
                     new ExpectedOutput
                     {
-                        OutputResolvedEventDataLockIds = new OutputResolvedEventDataLockId[]
-                        {
+                        OutputResolvedEventDataLockIds =
+                        [
                             new OutputResolvedEventDataLockId { EventDataLockId = 60, IsResolved = true, Because = "New price data lock should always be resolved"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 61, IsResolved = true, Because = "New course/price data lock should be resolved when HadHadDataLockSuccess is false"},
                             new OutputResolvedEventDataLockId { EventDataLockId = 62, IsResolved = true, Because = "New price data lock should always be resolved"}
-                        },
-                        OutputPriceHistories = new OutputPriceHistory[]
-                        {
+                        ],
+                        OutputPriceHistories =
+                        [
                             previouslyResolvedPriceOnlyDataLock40PriceHistory, previouslyResolvedPriceOnlyDataLock41PriceHistory,
                             passDataLock50PriceHistory, passDataLock51PriceHistory, passDataLock52PriceHistory,
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(60), ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(69), Cost = 1500 },
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(70), ToDate = TestsFixture.ProxyCurrentDateTime.AddDays(79), Cost = 1600 },
                             new OutputPriceHistory { FromDate = TestsFixture.ProxyCurrentDateTime.AddDays(80), ToDate = null, Cost = 1700 }
-                        },
+                        ],
                         CourseCode = TestsFixture.TrainingCourseCode200,
                         ProgrammeType = TestsFixture.ProgrammeType200
                     }
@@ -695,26 +682,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class AcceptDataLockRequestChangesCommandHandlerTestsFixture : IDisposable
     {
-        public static long ApprenticeshipId = 12;
+        public const long ApprenticeshipId = 12;
 
-        public static string TrainingCourseCode100 = "100";
-        public static string TrainingCourseName100 = "100 Test Name";
-        public static string TrainingCourseVersion100 = "1.2";
-        public static string TrainingCourseStandardUId100 = "ABC1.2";
-        public static ProgrammeType ProgrammeType100 = ProgrammeType.Standard;
+        public const string TrainingCourseCode100 = "100";
+        public static readonly string TrainingCourseName100 = "100 Test Name";
+        public static readonly string TrainingCourseVersion100 = "1.2";
+        public static readonly string TrainingCourseStandardUId100 = "ABC1.2";
+        public static readonly ProgrammeType ProgrammeType100 = ProgrammeType.Standard;
 
-        public static string TrainingCourseCode200 = "200";
-        public static string TrainingCourseName200 = "200 Test Name";
-        public static string TrainingCourseVersion200 = "1.2";
-        public static string TrainingCourseStandardUId200 = "ABC1.2";
-        public static ProgrammeType ProgrammeType200 = ProgrammeType.Standard;
+        public static readonly string TrainingCourseCode200 = "200";
+        public static readonly string TrainingCourseName200 = "200 Test Name";
+        public static readonly string TrainingCourseVersion200 = "1.2";
+        public static readonly string TrainingCourseStandardUId200 = "ABC1.2";
+        public static readonly ProgrammeType ProgrammeType200 = ProgrammeType.Standard;
 
-        public static string TrainingCourseCode300 = "300";
-        public static string TrainingCourseName300 = "300 Test Name";
-        public static string TrainingCourseVersion300 = null;
-        public static string TrainingCourseStandardUId300 = "ABC1.3";
-        public static ProgrammeType ProgrammeType300 = ProgrammeType.Standard;
-
+        public static readonly string TrainingCourseCode300 = "300";
+        public static readonly string TrainingCourseName300 = "300 Test Name";
+        public static readonly string TrainingCourseVersion300 = null;
+        public static readonly string TrainingCourseStandardUId300 = "ABC1.3";
+        public static readonly ProgrammeType ProgrammeType300 = ProgrammeType.Standard;
 
         public static DateTime ProxyCurrentDateTime = new DateTime(2020, 1, 1);
 
@@ -746,7 +732,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UnitOfWorkContext = new UnitOfWorkContext();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             AuthenticationService = new Mock<IAuthenticationService>();
@@ -909,7 +895,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyEntityStateChangedEventPublished(Func<Times> times)
         {
-            times().Deconstruct(out int expectedFrom, out int expectedTo);
+            times().Deconstruct(out var expectedFrom, out var expectedTo);
             UnitOfWorkContext
                 .GetEvents()
                 .OfType<EntityStateChangedEvent>()
@@ -920,20 +906,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyEntityStateChangedEventPublished(UserAction userAction, Func<Times> times)
         {
-            times().Deconstruct(out int expectedFrom, out int expectedTo);
+            times().Deconstruct(out var expectedFrom, out var expectedTo);
             UnitOfWorkContext
                 .GetEvents()
                 .OfType<EntityStateChangedEvent>()
-                .Where(p =>
-                    p.StateChangeType == userAction)
-                .Count()
+                .Count(p => p.StateChangeType == userAction)
                 .Should()
                 .Be(expectedFrom);
         }
 
         public void VerifyDataLockTriageApprovedEventPublished(Func<Times> times)
         {
-            times().Deconstruct(out int expectedFrom, out int expectedTo);
+            times().Deconstruct(out var expectedFrom, out var expectedTo);
             UnitOfWorkContext
                 .GetEvents()
                 .OfType<DataLockTriageApprovedEvent>()
@@ -945,19 +929,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyDataLockTriageApprovedEventPublished(long apprenticeshipId, DateTime approvedOn, PriceEpisode[] priceEpisodes,
             string trainingCode, ProgrammeType trainingType, Func<Times> times)
         {
-            times().Deconstruct(out int expectedFrom, out int expectedTo);
+            times().Deconstruct(out var expectedFrom, out var expectedTo);
             var events = UnitOfWorkContext
                 .GetEvents()
-                .OfType<DataLockTriageApprovedEvent>();
+                .OfType<DataLockTriageApprovedEvent>()
+                .ToList();
 
             events
-                .Count()
+                .Count
                 .Should()
                 .Be(expectedFrom);
 
-            events.ToList().ForEach(p =>
+            events.ForEach(dataLockTriageApprovedEvent =>
             {
-                p.Should().BeEquivalentTo(new DataLockTriageApprovedEvent()
+                dataLockTriageApprovedEvent.Should().BeEquivalentTo(new DataLockTriageApprovedEvent()
                 {
                     ApprenticeshipId = apprenticeshipId,
                     ApprovedOn = approvedOn,
@@ -971,6 +956,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

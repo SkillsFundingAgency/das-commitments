@@ -1,14 +1,8 @@
-﻿using System;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.TestHelpers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -53,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                     .Options);
                 SeedDb();
 

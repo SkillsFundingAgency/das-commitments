@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using SFA.DAS.UnitOfWork.Context;
+﻿using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

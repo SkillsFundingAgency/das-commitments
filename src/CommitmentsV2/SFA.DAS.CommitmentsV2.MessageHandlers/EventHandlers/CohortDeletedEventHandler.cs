@@ -1,9 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.Commitments.Events;
+﻿using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;

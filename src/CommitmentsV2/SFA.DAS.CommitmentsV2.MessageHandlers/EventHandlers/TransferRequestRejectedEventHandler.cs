@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Events;
-using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;

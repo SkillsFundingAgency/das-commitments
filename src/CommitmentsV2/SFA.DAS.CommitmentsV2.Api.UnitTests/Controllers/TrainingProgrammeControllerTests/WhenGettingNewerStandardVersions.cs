@@ -1,17 +1,9 @@
 ﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetNewerTrainingProgrammeVersions;
 using SFA.DAS.Testing.AutoFixture;
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeControllerTests
 {
@@ -29,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
 
             var result = await controller.GetNewerTrainingProgrammeVersions(standardUId) as OkObjectResult;
 
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
 
             var model = result.Value as GetNewerTrainingProgrammeVersionsResponse;
 

@@ -1,22 +1,10 @@
-﻿using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -42,11 +30,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture = new Fixture();
             _apprenticeshipId = 10082;
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                        .UseInMemoryDatabase(databaseGuid)
+                                        .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                                         .Options);           
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                            .UseInMemoryDatabase(databaseGuid)
+                            .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                             .Options);
 
             _unitOfWorkContext = new UnitOfWorkContext();
@@ -79,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             //Assert          
             var apprenticeshipDataLock = _confirmationDbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id);
-            Assert.AreEqual(TriageStatus.Restart, apprenticeshipDataLock.FirstOrDefault().TriageStatus);
+            Assert.That(apprenticeshipDataLock.FirstOrDefault().TriageStatus, Is.EqualTo(TriageStatus.Restart));
         }
 
         [Test]
@@ -142,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
 
             //Assert
-            Assert.AreEqual(expectedMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedMessage));
         }   
 
 
@@ -156,9 +144,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             //Act
             var exception =  Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
-            
+
             //Assert         
-            Assert.AreEqual(expectedMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedMessage));
         }
 
         [Test]

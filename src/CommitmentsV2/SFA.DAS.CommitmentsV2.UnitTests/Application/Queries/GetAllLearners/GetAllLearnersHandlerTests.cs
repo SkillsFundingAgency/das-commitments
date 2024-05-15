@@ -1,13 +1,6 @@
-﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllLearners
 {
@@ -48,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllLearners
 
         public GetAllLearnersHandlerTests()
         {
-            _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             _handler = new GetAllLearnersQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext));
         }
 
@@ -64,6 +57,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllLearners
         {
             _dbContext?.Dispose();
         }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            _dbContext?.Dispose();
+        }
+
 
         [Test]
         [Ignore("In-memory database in Core 2.2 does not support .FromSql")]

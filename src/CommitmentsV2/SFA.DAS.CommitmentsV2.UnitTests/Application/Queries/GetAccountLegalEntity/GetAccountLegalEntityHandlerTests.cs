@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Data.SQLite;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -33,11 +23,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             var response = await fixtures.GetResponse(new GetAccountLegalEntityQuery {AccountLegalEntityId = accountLegalEntityId });
 
             // Assert
-            Assert.IsNotNull(response);
-            Assert.AreEqual(accountId, response.AccountId);
-            Assert.AreEqual(maLegalEntityId, response.MaLegalEntityId);
-            Assert.AreEqual("Account123", response.AccountName);
-            Assert.AreEqual(levyStatus, response.LevyStatus);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.AccountId, Is.EqualTo(accountId));
+                Assert.That(response.MaLegalEntityId, Is.EqualTo(maLegalEntityId));
+                Assert.That(response.AccountName, Is.EqualTo("Account123"));
+                Assert.That(response.LevyStatus, Is.EqualTo(levyStatus));
+            });
         }
     }
 
@@ -88,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             return RunWithConnection(connection =>
             {
                 var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                     .Options;
 
                 using var dbContext = new ProviderCommitmentsDbContext(options);

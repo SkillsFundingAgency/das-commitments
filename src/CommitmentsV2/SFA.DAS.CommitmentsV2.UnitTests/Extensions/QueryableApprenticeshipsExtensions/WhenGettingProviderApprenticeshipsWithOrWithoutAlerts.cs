@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -27,9 +23,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(true, _parameters).ToList();
 
             //Assert
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(1, result[0].Id);
-            Assert.AreEqual(3, result[1].Id);
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].Id, Is.EqualTo(1));
+                Assert.That(result[1].Id, Is.EqualTo(3));
+            });
         }
         
         [Test]
@@ -39,13 +38,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(false, _parameters).ToList();
 
             //Assert
-            Assert.AreEqual(5, result.Count);
+            Assert.That(result, Has.Count.EqualTo(5));
 
-            Assert.AreEqual(2, result[0].Id);
-            Assert.AreEqual(4, result[1].Id);
-            Assert.AreEqual(5, result[2].Id);
-            Assert.AreEqual(6, result[3].Id);
-            Assert.AreEqual(7, result[4].Id);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].Id, Is.EqualTo(2));
+                Assert.That(result[1].Id, Is.EqualTo(4));
+                Assert.That(result[2].Id, Is.EqualTo(5));
+                Assert.That(result[3].Id, Is.EqualTo(6));
+                Assert.That(result[4].Id, Is.EqualTo(7));
+            });
         }
 
         private static IQueryable<Apprenticeship> GetTestData()
