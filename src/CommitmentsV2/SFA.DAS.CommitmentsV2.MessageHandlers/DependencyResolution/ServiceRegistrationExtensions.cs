@@ -51,6 +51,7 @@ public static class ServiceRegistrationExtensions
             services.AddApprovalsOuterApiServiceServices();
             services.AddReservationsApiClient();
             services.AddDefaultMessageHandlerServices();
+            services.AddMappingServices();
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
                 .AddMemoryCache()
