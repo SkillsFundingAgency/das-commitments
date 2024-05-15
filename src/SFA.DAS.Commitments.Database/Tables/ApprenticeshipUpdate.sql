@@ -24,7 +24,8 @@
     [Email] NVARCHAR(200) NULL,
     [DeliveryModel] TINYINT NULL, 
     [EmploymentPrice] INT NULL, 
-    [EmploymentEndDate] DATETIME2 NULL
+    [EmploymentEndDate] DATETIME2 NULL,
+    [ActualStartDate] DATETIME NULL
 )
 GO
 
