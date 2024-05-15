@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = Fixture.Create<ValidateDraftApprenticeshipDetailsCommand>();
             TrainingProgramme = new TrainingProgramme("TESTS", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(Mock.Of<IAuthorizationService>(), TrainingProgrammeLookup.Object);
+            Mapper = new ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
 
             TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(TrainingProgramme);
             TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(TrainingProgramme);
