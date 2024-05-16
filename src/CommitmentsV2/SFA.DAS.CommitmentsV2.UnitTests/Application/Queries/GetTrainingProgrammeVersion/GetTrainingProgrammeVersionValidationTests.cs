@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgrammeVersion
 {
@@ -15,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
 
             var result = validator.Validate(new GetTrainingProgrammeVersionQuery(standardUId));
 
-            Assert.AreEqual(expectedResult, result.IsValid);
+            Assert.That(result.IsValid, Is.EqualTo(expectedResult));
         }
 
         [TestCase(null, false)]
@@ -29,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
 
             var result = validator.Validate(new GetTrainingProgrammeVersionQuery(courseCode, version));
 
-            Assert.AreEqual(expectedResult, result.IsValid);
+            Assert.That(result.IsValid, Is.EqualTo(expectedResult));
         }
 
         [TestCase(null, false)]
@@ -43,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
 
             var result = validator.Validate(new GetTrainingProgrammeVersionQuery(courseCode, version));
 
-            Assert.AreEqual(expectedResult, result.IsValid);
+            Assert.That(result.IsValid, Is.EqualTo(expectedResult));
         }
     }
 }

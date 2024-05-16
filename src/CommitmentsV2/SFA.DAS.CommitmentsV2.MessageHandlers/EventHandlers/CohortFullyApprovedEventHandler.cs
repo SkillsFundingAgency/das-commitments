@@ -1,6 +1,3 @@
-using System.Threading.Tasks;
-using MediatR;
-using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 

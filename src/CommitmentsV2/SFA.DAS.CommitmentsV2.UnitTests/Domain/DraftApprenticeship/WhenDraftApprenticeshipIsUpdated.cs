@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -23,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenFirstNameIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.FirstName, result.FirstName);
+            Assert.That(result.FirstName, Is.EqualTo(_fixture.DraftApprenticeshipDetails.FirstName));
         }
 
         [TestCase(Party.Provider)]
@@ -31,14 +29,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenLastNameIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.LastName, result.LastName);
+            Assert.That(result.LastName, Is.EqualTo(_fixture.DraftApprenticeshipDetails.LastName));
         }
 
         [Test]
         public void ThenUlnIsMappedCorrectly()
         {
             var result = _fixture.WithModifyingParty(Party.Provider).WithUlnUpdateOnly().ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Uln, result.Uln);
+            Assert.That(result.Uln, Is.EqualTo(_fixture.DraftApprenticeshipDetails.Uln));
         }
 
         [Test]
@@ -52,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenCostIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Cost, result.Cost);
+            Assert.That(result.Cost, Is.EqualTo(_fixture.DraftApprenticeshipDetails.Cost));
         }
 
         [TestCase(Party.Provider)]
@@ -60,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenStartDateIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.StartDate, result.StartDate);
+            Assert.That(result.StartDate, Is.EqualTo(_fixture.DraftApprenticeshipDetails.StartDate));
         }
 
         [TestCase(Party.Provider)]
@@ -68,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenActualStartDateIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.ActualStartDate, result.ActualStartDate);
+            Assert.That(result.ActualStartDate, Is.EqualTo(_fixture.DraftApprenticeshipDetails.ActualStartDate));
         }
 
         [TestCase(Party.Provider)]
@@ -76,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenEndDateIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EndDate, result.EndDate);
+            Assert.That(result.EndDate, Is.EqualTo(_fixture.DraftApprenticeshipDetails.EndDate));
         }
 
         [TestCase(Party.Provider)]
@@ -84,8 +82,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenEmploymentEndDateIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.NotNull(result.FlexibleEmployment);
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentEndDate, result.FlexibleEmployment.EmploymentEndDate);
+            Assert.That(result.FlexibleEmployment, Is.Not.Null);
+            Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.EqualTo(_fixture.DraftApprenticeshipDetails.EmploymentEndDate));
         }
 
         [TestCase(Party.Provider)]
@@ -93,8 +91,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenEmploymentPriceIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.NotNull(result.FlexibleEmployment);
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentPrice, result.FlexibleEmployment.EmploymentPrice);
+            Assert.That(result.FlexibleEmployment, Is.Not.Null);
+            Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.EqualTo(_fixture.DraftApprenticeshipDetails.EmploymentPrice));
         }
 
         [TestCase(Party.Provider)]
@@ -102,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenDateOfBirthIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.DateOfBirth, result.DateOfBirth);
+            Assert.That(result.DateOfBirth, Is.EqualTo(_fixture.DraftApprenticeshipDetails.DateOfBirth));
         }
 
 
@@ -111,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenProgrammeTypeIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.TrainingProgramme.ProgrammeType, result.ProgrammeType);
+            Assert.That(result.ProgrammeType, Is.EqualTo(_fixture.DraftApprenticeshipDetails.TrainingProgramme.ProgrammeType));
         }
 
         [TestCase(Party.Provider)]
@@ -119,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenCourseCodeIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.TrainingProgramme.CourseCode, result.CourseCode);
+            Assert.That(result.CourseCode, Is.EqualTo(_fixture.DraftApprenticeshipDetails.TrainingProgramme.CourseCode));
         }
 
 
@@ -128,21 +126,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenCourseNameIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.TrainingProgramme.Name, result.CourseName);
+            Assert.That(result.CourseName, Is.EqualTo(_fixture.DraftApprenticeshipDetails.TrainingProgramme.Name));
         }
 
         [Test]
         public void ThenProviderReferenceIsMappedCorrectly()
         {
             var result = _fixture.WithModifyingParty(Party.Provider).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Reference, result.ProviderRef);
+            Assert.That(result.ProviderRef, Is.EqualTo(_fixture.DraftApprenticeshipDetails.Reference));
         }
 
         [Test]
         public void ThenEmployerReferenceIsMappedCorrectly()
         {
             var result = _fixture.WithModifyingParty(Party.Employer).ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Reference, result.EmployerRef);
+            Assert.That(result.EmployerRef, Is.EqualTo(_fixture.DraftApprenticeshipDetails.Reference));
         }
 
         [TestCase(Party.Provider)]
@@ -150,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void And_StandardUIdIsNotUpdated_Then_SelectedOptionIsResetToNull(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).WithReferenceUpdateOnly().ApplyUpdate();
-            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.TrainingCourseOption, result.TrainingCourseOption);
+            Assert.That(result.TrainingCourseOption, Is.EqualTo(_fixture.DraftApprenticeshipDetails.TrainingCourseOption));
         }
 
         [TestCase(Party.Provider)]
@@ -158,7 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void And_NewStandardOrStandardVersionIsSelected_Then_SelectedOptionIsResetToNull(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).WithNewStandardUId().ApplyUpdate();
-            Assert.IsNull(result.TrainingCourseOption);
+            Assert.That(result.TrainingCourseOption, Is.Null);
         }
 
         [TestCase(Party.Provider)]
@@ -167,8 +165,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
             var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.Regular, flexibleEmployment).ApplyUpdate(flexibleEmployment);
-            Assert.IsNull(result.FlexibleEmployment.EmploymentEndDate);
-            Assert.IsNull(result.FlexibleEmployment.EmploymentPrice);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.Null);
+                Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.Null);
+            });
         }
 
         [TestCase(Party.Provider)]
@@ -177,8 +178,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
             var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.PortableFlexiJob, flexibleEmployment).ApplyUpdate(flexibleEmployment);
-            Assert.AreEqual(result.FlexibleEmployment.EmploymentEndDate, flexibleEmployment.EmploymentEndDate);
-            Assert.AreEqual(result.FlexibleEmployment.EmploymentPrice, flexibleEmployment.EmploymentPrice);
+            Assert.Multiple(() =>
+            {
+                Assert.That(flexibleEmployment.EmploymentEndDate, Is.EqualTo(result.FlexibleEmployment.EmploymentEndDate));
+                Assert.That(flexibleEmployment.EmploymentPrice, Is.EqualTo(result.FlexibleEmployment.EmploymentPrice));
+            });
         }
 
         private class DraftApprenticeshipUpdateTestFixture

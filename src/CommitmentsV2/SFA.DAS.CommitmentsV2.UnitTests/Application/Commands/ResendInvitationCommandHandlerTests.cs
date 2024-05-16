@@ -1,14 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -38,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _authenticationService = new Mock<IAuthenticationService>();
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
             _messageSession = new Mock<IMessageSession>();
 

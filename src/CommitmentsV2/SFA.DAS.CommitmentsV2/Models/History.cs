@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Models
+﻿namespace SFA.DAS.CommitmentsV2.Models
 {
     public partial class History
     {

@@ -1,7 +1,5 @@
 ﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Services
 {

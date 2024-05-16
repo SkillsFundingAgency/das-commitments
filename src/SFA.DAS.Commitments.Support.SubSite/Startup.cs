@@ -1,24 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.Commitments.Support.SubSite.Authentication;
 using SFA.DAS.Commitments.Support.SubSite.DependencyResolution;
-using SFA.DAS.Authorization.Mvc.Extensions;
-using StructureMap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using SFA.DAS.Commitments.Support.SubSite.Caching;
-using FluentValidation.AspNetCore;
-using SFA.DAS.CommitmentsV2.Validators;
-using SFA.DAS.Commitments.Support.SubSite.Validation;
-using SFA.DAS.Commitments.Support.SubSite.Configuration;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -45,17 +40,26 @@ namespace SFA.DAS.Commitments.Support.SubSite
                 {
                     options.Filters.Add(new AuthorizeFilter("default"));
                 }
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            });
 
             services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
             services.AddMemoryCache();
             services.AddHealthChecks();
             services.AddApplicationInsightsTelemetry();
-        }
 
-        public void ConfigureContainer(Registry registry)
-        {
-            IoC.Initialize(registry);
+            DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions.AddAuthorization(services);
+            services.AddSupportConfigurationSections(Configuration);
+            services.AddDatabaseRegistration();
+
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetSupportApprenticeshipQuery).GetTypeInfo().Assembly));
+            services.AddTransient<IRequestHandler<GetApprenticeshipUpdateQuery, GetApprenticeshipUpdateQueryResult>, GetApprenticeshipUpdateQueryHandler>();
+            services.AddTransient<IRequestHandler<GetChangeOfProviderChainQuery, GetChangeOfProviderChainQueryResult>, GetChangeOfProviderChainQueryHandler>();
+            services.AddTransient<IRequestHandler<GetOverlappingTrainingDateRequestQuery, GetOverlappingTrainingDateRequestQueryResult>, GetOverlappingTrainingDateRequestQueryHandler>();
+            services.AddTransient<IRequestHandler<GetPriceEpisodesQuery, GetPriceEpisodesQueryResult>, GetPriceEpisodesQueryHandler>();
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddSupportSiteDefaultServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

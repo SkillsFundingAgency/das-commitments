@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrainingDateRequest
 {
@@ -60,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
                 _apprenticeshipId = _autoFixture.Create<long>();
                 _request = new GetOverlappingTrainingDateRequestQuery(_apprenticeshipId);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 SeedData();
                 _handler = new GetOverlappingTrainingDateRequestQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
@@ -95,19 +85,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 
         private static void AssertEquality(OverlappingTrainingDateRequest source, GetOverlappingTrainingDateRequestQueryResult result)
         {
-            Assert.AreEqual(1, result.OverlappingTrainingDateRequests.Count);
+            Assert.That(result.OverlappingTrainingDateRequests, Has.Count.EqualTo(1));
 
-            Assert.AreEqual(source.Id, result.OverlappingTrainingDateRequests.First().Id);
-            Assert.AreEqual(source.DraftApprenticeshipId, result.OverlappingTrainingDateRequests.First().DraftApprenticeshipId);
-            Assert.AreEqual(source.PreviousApprenticeshipId, result.OverlappingTrainingDateRequests.First().PreviousApprenticeshipId);
-            Assert.AreEqual(source.Status, result.OverlappingTrainingDateRequests.First().Status);
-            Assert.AreEqual(source.ResolutionType, result.OverlappingTrainingDateRequests.First().ResolutionType);
-            Assert.AreEqual(source.ActionedOn, result.OverlappingTrainingDateRequests.First().ActionedOn);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.OverlappingTrainingDateRequests.First().Id, Is.EqualTo(source.Id));
+                Assert.That(result.OverlappingTrainingDateRequests.First().DraftApprenticeshipId, Is.EqualTo(source.DraftApprenticeshipId));
+                Assert.That(result.OverlappingTrainingDateRequests.First().PreviousApprenticeshipId, Is.EqualTo(source.PreviousApprenticeshipId));
+                Assert.That(result.OverlappingTrainingDateRequests.First().Status, Is.EqualTo(source.Status));
+                Assert.That(result.OverlappingTrainingDateRequests.First().ResolutionType, Is.EqualTo(source.ResolutionType));
+                Assert.That(result.OverlappingTrainingDateRequests.First().ActionedOn, Is.EqualTo(source.ActionedOn));
+            });
         }
     }
 }

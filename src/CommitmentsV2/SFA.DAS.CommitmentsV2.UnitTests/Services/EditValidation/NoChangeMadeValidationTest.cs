@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class NoChangeMadeValidationTest
     {
@@ -14,10 +11,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("No change made: you need to amend details or cancel", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("ApprenticeshipId", result.Errors[0].PropertyName);
+            Assert.That(result.Errors, Is.Not.Null);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("No change made: you need to amend details or cancel"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("ApprenticeshipId"));
+            });
         }
     }
 }

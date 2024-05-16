@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
@@ -40,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
             var actualRole = sut.GetUserParty();
 
             // assert
-            Assert.AreEqual(expectedParty, actualRole);
+            Assert.That(actualRole, Is.EqualTo(expectedParty));
         }
 
         [TestCase(Role.Provider, Role.Employer)]

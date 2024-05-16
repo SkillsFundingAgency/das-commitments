@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -117,71 +112,77 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyOriginator(Originator expectedOriginator)
         {
-            Assert.AreEqual(expectedOriginator, Cohort.Originator);
+            Assert.That(Cohort.Originator, Is.EqualTo(expectedOriginator));
         }
 
         public void VerifyCohortIsUnapproved()
         {
-            Assert.IsTrue(Cohort.Approvals == Party.None);
+            Assert.That(Cohort.Approvals, Is.EqualTo(Party.None));
         }
 
         public void VerifyCohortContainsDraftApprenticeship()
         {
-            Assert.IsTrue(Cohort.Apprenticeships.Any());
+            Assert.That(Cohort.Apprenticeships.Any(), Is.True);
         }
 
 
         public void VerifyNoMessageIsAdded()
         {
-            Assert.IsFalse(Cohort.Messages.Any());
+            Assert.That(Cohort.Messages.Any(), Is.False);
         }
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void VerifyNoException()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
 
         public void VerifyCohortIsDraft()
         {
-            Assert.IsTrue(Cohort.IsDraft);
+            Assert.That(Cohort.IsDraft, Is.True);
         }
 
         public void VerifyCohortBelongsToAccount()
         {
-            Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
+            Assert.That(Cohort.EmployerAccountId, Is.EqualTo(AccountLegalEntity.AccountId));
         }
 
         public void VerifyCohortBelongsToAccountLegalEntity()
         {
-            Assert.AreEqual(AccountLegalEntity.Id, Cohort.AccountLegalEntityId);
+            Assert.That(Cohort.AccountLegalEntityId, Is.EqualTo(AccountLegalEntity.Id));
         }
 
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+                Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
+            });
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
-            Assert.IsNull(Cohort.TransferSenderId);
-            Assert.IsNull(Cohort.TransferSender);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferSenderId, Is.Null);
+                Assert.That(Cohort.TransferSender, Is.Null);
+            });
         }
 
         public void VerifyCohortHasPledgeApplicationId()
         {
-            Assert.AreEqual(PledgeApplicationId, Cohort.PledgeApplicationId);
+            Assert.That(Cohort.PledgeApplicationId, Is.EqualTo(PledgeApplicationId));
         }
 
         public void VerifyCohortBelongsToProvider()
         {
-            Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
+            Assert.That(Cohort.ProviderId, Is.EqualTo(Provider.UkPrn));
         }
 
         public void VerifyLastUpdatedFieldsAreSetForParty(Party modifyingParty)
@@ -189,12 +190,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             switch (modifyingParty)
             {
                 case Party.Employer:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByEmployerName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByEmployerEmail);
+                    Assert.That(Cohort.LastUpdatedByEmployerName, Is.EqualTo(UserInfo.UserDisplayName));
+                    Assert.That(Cohort.LastUpdatedByEmployerEmail, Is.EqualTo(UserInfo.UserEmail));
                     break;
                 case Party.Provider:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByProviderName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByProviderEmail);
+                    Assert.That(Cohort.LastUpdatedByProviderName, Is.EqualTo(UserInfo.UserDisplayName));
+                    Assert.That(Cohort.LastUpdatedByProviderEmail, Is.EqualTo(UserInfo.UserEmail));
                     break;
             }
         }
@@ -213,21 +214,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsWithCreator()
         {
-            Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
+            Assert.That(Cohort.EditStatus, Is.EqualTo(CreatingParty.ToEditStatus()));
         }
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                   && @event.EntityType ==
-                                                                  nameof(Cohort)));
+                                                                  nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyDraftApprenticeshipTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                   && @event.EntityType ==
-                                                                  nameof(DraftApprenticeship)));
+                                                                  nameof(DraftApprenticeship)), Is.Not.Null);
         }
     }
 }

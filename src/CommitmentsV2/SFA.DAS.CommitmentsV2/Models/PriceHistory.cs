@@ -1,5 +1,4 @@
-﻿using System;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Models.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

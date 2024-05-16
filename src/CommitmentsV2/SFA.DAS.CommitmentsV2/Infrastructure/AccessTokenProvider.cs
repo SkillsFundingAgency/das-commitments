@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Azure.Services.AppAuthentication;
+﻿using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 

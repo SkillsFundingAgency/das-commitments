@@ -1,88 +1,83 @@
-﻿using System.Threading.Tasks;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[Route("api/authorization")]
+[Authorize]
+public class AuthorizationController : ControllerBase
 {
-    [Route("api/authorization")]
-    [Authorize]
-    public class AuthorizationController : ControllerBase
+    private readonly IMediator _mediator;
+    private readonly ILogger<AuthorizationController> _logger;
+
+    public AuthorizationController(IMediator mediator, ILogger<AuthorizationController> logger)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<AuthorizationController> _logger;
+        _mediator = mediator;            
+        _logger = logger;
+    }
 
-        public AuthorizationController(IMediator mediator, ILogger<AuthorizationController> logger)
+    [HttpGet]
+    [Route("access-cohort")]
+    public async Task<IActionResult> CanAccessCohort(CohortAccessRequest request)
+    {
+        var query = new CanAccessCohortQuery
         {
-            _mediator = mediator;            
-            _logger = logger;
-        }
+            CohortId = request.CohortId,
+            Party = request.Party,
+            PartyId = request.PartyId
+        };
 
-        [HttpGet]
-        [Route("access-cohort")]
-        public async Task<IActionResult> CanAccessCohort(CohortAccessRequest request)
+        return Ok(await _mediator.Send(query));
+    }
+
+    [HttpGet]
+    [Route("access-apprenticeship")]
+    public async Task<IActionResult> CanAccessApprenticeship(ApprenticeshipAccessRequest request)
+    {
+        var query = new CanAccessApprenticeshipQuery
         {
-            var query = new CanAccessCohortQuery
-            {
-                CohortId = request.CohortId,
-                Party = request.Party,
-                PartyId = request.PartyId
-            };
+            ApprenticeshipId = request.ApprenticeshipId,
+            Party = request.Party,
+            PartyId = request.PartyId
+        };
 
-            return Ok(await _mediator.Send(query));
-        }
+        return Ok(await _mediator.Send(query));
+    }
 
-        [HttpGet]
-        [Route("access-apprenticeship")]
-        public async Task<IActionResult> CanAccessApprenticeship(ApprenticeshipAccessRequest request)
+    [HttpGet]
+    [Route("features/providers/{providerId}/apprentice-email-required")]
+    public async Task <IActionResult> ApprenticeEmailRequired(long providerId)
+    {
+        _logger.LogInformation("Check feature 'apprentice-email-required' is enabled for provider {providerId}", providerId);
+        var query = new GetEmailOptionalQuery(0, providerId);
+
+        bool resp = await _mediator.Send(query);
+
+        if (resp)
         {
-            var query = new CanAccessApprenticeshipQuery
-            {
-                ApprenticeshipId = request.ApprenticeshipId,
-                Party = request.Party,
-                PartyId = request.PartyId
-            };
-
-            return Ok(await _mediator.Send(query));
-        }
-
-        [HttpGet]
-        [Route("features/providers/{providerId}/apprentice-email-required")]
-        public async Task <IActionResult> ApprenticeEmailRequired(long providerId)
-        {
-            _logger.LogInformation($"Check feature 'apprentice-email-required' is enabled for provider {providerId}");
-            var query = new GetEmailOptionalQuery(0, providerId);
-
-            bool resp = await _mediator.Send(query);
-
-            if (resp)
-            {
-                _logger.LogInformation($"Feature 'apprentice-email-required' is off for provider {providerId}");
-                return NotFound();
-            }
-
-            _logger.LogInformation($"Feature 'apprentice-email-required' is on for provider {providerId}");
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("email-optional")]
-        public async Task<IActionResult> OptionalEmail(long employerid, long providerId)
-        {
-            var query = new GetEmailOptionalQuery(employerid, providerId);
-
-            bool resp = await _mediator.Send(query);
-
-            if (resp)
-                return Ok();
-                
+            _logger.LogInformation("Feature 'apprentice-email-required' is off for provider {providerId}", providerId);
             return NotFound();
         }
+
+        _logger.LogInformation("Feature 'apprentice-email-required' is on for provider {providerId}", providerId);
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route("email-optional")]
+    public async Task<IActionResult> OptionalEmail(long employerid, long providerId)
+    {
+        var query = new GetEmailOptionalQuery(employerid, providerId);
+
+        var resp = await _mediator.Send(query);
+
+        if (resp)
+            return Ok();
+                
+        return NotFound();
     }
 }

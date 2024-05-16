@@ -442,3 +442,9 @@
 2022-05-17 12:47:58.9301 Info Configured from an XML element in C:\EDU_REPO\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\netcoreapp3.1\nlog.Development.config...
 2022-05-17 12:47:58.9301 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
 2022-05-17 12:47:58.9509 Info Found 35 configuration items
+2023-12-21 13:03:23.5081 Info Message Template Auto Format enabled
+2023-12-21 13:03:23.5434 Info Adding target Console Target[Console]
+2023-12-21 13:03:23.5484 Info Adding target File Target[File]
+2023-12-21 13:03:23.5680 Info Configured from an XML element in C:\GitHub\SFA\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\net6.0\nlog.Development.config...
+2023-12-21 13:03:23.5680 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
+2023-12-21 13:03:23.5851 Info Found 35 configuration items

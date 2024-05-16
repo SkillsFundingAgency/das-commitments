@@ -1,13 +1,5 @@
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
@@ -26,11 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             mediator.Setup(x => x.Send(It.IsAny<GetAllTrainingProgrammeStandardsQuery>(), CancellationToken.None)).ReturnsAsync(result);
 
             var actual = await controller.GetAllStandards() as OkObjectResult;;
-            
+
             //actual
-            Assert.IsNotNull(actual);
+            Assert.That(actual, Is.Not.Null);
             var model = actual.Value as GetAllTrainingProgrammeStandardsResponse;
-            Assert.IsNotNull(model);
+            Assert.That(model, Is.Not.Null);
             model.TrainingProgrammes.Should().BeEquivalentTo(result.TrainingProgrammes);
         }
         

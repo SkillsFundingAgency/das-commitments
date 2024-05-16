@@ -1,13 +1,5 @@
-﻿using AutoFixture;
-using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -19,11 +11,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -56,11 +43,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var databaseGuid = Guid.NewGuid().ToString();
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                        .UseInMemoryDatabase(databaseGuid)
+                                        .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                                         .Options);
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                            .UseInMemoryDatabase(databaseGuid)
+                            .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                             .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
@@ -302,6 +289,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var fixture = new Fixture();
             apprenticeship.Cohort.ProviderId = fixture.Create<long>();
+            var oldStopDate = apprenticeship.StopDate;
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopEditNotification";
@@ -317,7 +305,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
                 {"APPRENTICE", apprenticeship.ApprenticeName },
-                {"OLDDATE", apprenticeship.StopDate.Value.ToString("dd/MM/yyyy") },
+                {"OLDDATE", oldStopDate.Value.ToString("dd/MM/yyyy") },
                 {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
                 {"URL", tokenUrl }
             };

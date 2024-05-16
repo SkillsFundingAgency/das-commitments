@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -13,10 +12,19 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
             Expression<Func<TModel, TProperty>> expression,
             string errorClass)
         {
-            var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
-                .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
+            string GetFieldName()
+            {
+                var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
+                    .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-            var expressionText = expressionProvider?.GetExpressionText(expression);
+                if (expressionProvider?.CreateModelExpression(htmlHelper.ViewContext.ViewBag, expression) is ModelExpression modelExpression)
+                {
+                    return modelExpression.Name;
+                }
+
+                return null;
+            }
+            var expressionText = GetFieldName();
             var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
             var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
 

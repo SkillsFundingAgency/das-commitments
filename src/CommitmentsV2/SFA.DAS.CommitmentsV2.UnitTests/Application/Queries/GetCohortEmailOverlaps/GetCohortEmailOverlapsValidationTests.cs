@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOverlaps
 {
@@ -19,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
             var actualIsValid = validationResults.IsValid;
 
             // Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
+            Assert.That(actualIsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

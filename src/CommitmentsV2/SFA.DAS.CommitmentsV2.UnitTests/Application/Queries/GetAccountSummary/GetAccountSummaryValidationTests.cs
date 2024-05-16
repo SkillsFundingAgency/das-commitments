@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 {
@@ -19,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             var actualIsValid = validationResults.IsValid;
 
             // Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
+            Assert.That(actualIsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

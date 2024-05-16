@@ -1,13 +1,5 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;

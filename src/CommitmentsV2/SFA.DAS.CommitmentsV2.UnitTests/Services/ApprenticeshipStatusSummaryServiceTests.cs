@@ -1,20 +1,11 @@
-﻿using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -43,17 +34,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var response = await _fixture.GetResponse(222);
 
             //Assert            
-            Assert.IsNotNull(response);
-            Assert.AreEqual(_fixture.LegalEntityIdentifier, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier);
-            Assert.AreEqual(_fixture.organisationType, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier, Is.EqualTo(_fixture.LegalEntityIdentifier));
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, Is.EqualTo(_fixture.organisationType));
+            });
             if (paymentStatus == PaymentStatus.Active)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Completed)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().CompletedCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().CompletedCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Paused)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Withdrawn)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().WithdrawnCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().WithdrawnCount, Is.EqualTo(1));
         }
     }
     
@@ -75,8 +69,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-              .UseInMemoryDatabase(Guid.NewGuid().ToString())
-              .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+              .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+              .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
               .Options);
         }
 
@@ -94,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options;
 
             using (var dbContext = new ProviderCommitmentsDbContext(options))

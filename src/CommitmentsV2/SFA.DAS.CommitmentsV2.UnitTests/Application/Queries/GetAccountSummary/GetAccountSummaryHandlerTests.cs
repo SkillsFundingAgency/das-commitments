@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SQLite;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -28,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             var response = await fixture.GetResponse();
 
-            Assert.AreEqual(ApprenticeshipEmployerType.NonLevy, response.LevyStatus);
+            Assert.That(response.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.NonLevy));
         }
 
         [Test]
@@ -39,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             var response = await fixture.GetResponse();
 
-            Assert.AreEqual(ApprenticeshipEmployerType.Levy, response.LevyStatus);
+            Assert.That(response.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
         }
     }
 
@@ -83,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 

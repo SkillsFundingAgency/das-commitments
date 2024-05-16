@@ -33,7 +33,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 
             var result = await fixture.Sut.GetAsync<object>(Url, testData, CancellationToken.None);
 
-            Assert.AreEqual(fixture.ApiResult, result);
+            Assert.That(result, Is.EqualTo(fixture.ApiResult));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 
             var result = await fixture.Sut.PostAsJson<object, object>(Url, testData, CancellationToken.None);
 
-            Assert.AreEqual(fixture.ApiResult, result);
+            Assert.That(result, Is.EqualTo(fixture.ApiResult));
         }
     }
 

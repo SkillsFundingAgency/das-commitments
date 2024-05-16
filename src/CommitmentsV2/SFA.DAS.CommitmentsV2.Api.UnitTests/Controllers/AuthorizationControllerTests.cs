@@ -1,9 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Controllers;
+﻿using SFA.DAS.CommitmentsV2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -49,8 +44,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var retVal = await _fixture.SetCanAccessCohortToReturnTrue().AuthorizationController.CanAccessCohort(request);
 
-            Assert.IsInstanceOf<OkObjectResult>(retVal);
-            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
+                Assert.That((bool)((OkObjectResult)retVal).Value);
+            });
         }
 
         [TestCase(Party.Provider, 124, 1)]
@@ -75,14 +73,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var retVal = await _fixture.SetCanAccessApprenticeshipToReturnTrue().AuthorizationController.CanAccessApprenticeship(request);
 
-            Assert.IsInstanceOf<OkObjectResult>(retVal);
-            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
+                Assert.That((bool)((OkObjectResult)retVal).Value);
+            });
         }
 
         [Test]
         public async Task AuthorizationController_ApprenticeEmailRequired_ShouldSendCorrectQuery()
         {
-            var providerId = 123456;
+            const int providerId = 123456;
 
             await _fixture.AuthorizationController.OptionalEmail(0, providerId);
 
@@ -112,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var result = await sut.Handle(query, new CancellationToken());
 
-            Assert.IsTrue(result);
+            Assert.That(result);
         }
 
         [TestCase(78901, 10)]
@@ -127,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var result = await sut.Handle(query, new CancellationToken());
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
     }
 

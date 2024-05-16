@@ -1,9 +1,5 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
 using SFA.DAS.EmployerFinance.Messages.Events;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {

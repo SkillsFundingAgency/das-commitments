@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {

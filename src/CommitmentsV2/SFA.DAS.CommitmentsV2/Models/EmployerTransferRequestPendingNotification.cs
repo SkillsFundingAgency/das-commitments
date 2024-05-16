@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

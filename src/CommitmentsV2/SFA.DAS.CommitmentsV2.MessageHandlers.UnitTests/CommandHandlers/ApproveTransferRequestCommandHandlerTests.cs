@@ -1,13 +1,7 @@
-﻿using Moq;
-using NServiceBus;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {

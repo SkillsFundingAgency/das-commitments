@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Data.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Data.Configuration;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
@@ -47,7 +45,9 @@ namespace SFA.DAS.CommitmentsV2.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            // Needs to be present for the database to wireup correctly
         }
+
         public virtual Task ExecuteSqlCommandAsync(string sql, params object[] parameters)
         {
             return Database.ExecuteSqlRawAsync(sql, parameters);

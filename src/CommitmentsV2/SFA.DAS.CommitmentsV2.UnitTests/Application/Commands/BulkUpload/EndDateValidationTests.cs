@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
@@ -13,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
         }
 
         [TestCase("01-2000")]
@@ -23,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using  var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate(startDate);
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
         }
 
         [TestCase("1999-13")]
@@ -33,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate(startDate);
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
         }
 
         [Test]
@@ -42,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate("2018-01");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");
         }
     }
 }
