@@ -52,6 +52,8 @@ public static class ServiceRegistrationExtensions
             services.AddReservationsApiClient();
             services.AddDefaultMessageHandlerServices();
             services.AddMappingServices();
+            services.AddAcademicYearDateProviderServices();
+
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
                 .AddMemoryCache()
