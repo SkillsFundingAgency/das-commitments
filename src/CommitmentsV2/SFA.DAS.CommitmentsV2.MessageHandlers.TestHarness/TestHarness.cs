@@ -63,9 +63,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("Y - ApprenticeshipEmailAddressChangedEvent Event");
                 Console.WriteLine("Z - ApprenticeshipStopDateChangedEvent Event");
                 Console.WriteLine("1 - ChangeOfPartyRequestCreatedEvent Event");
-                Console.WriteLine("X - Exit");
                 Console.WriteLine("2 - ApprenticeshipStartDateChangedEvent Event");
-                Console.WriteLine("Press [Key] for Test Option");
+                Console.WriteLine("X - Exit");
+				Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
 
                 try
