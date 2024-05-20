@@ -35,6 +35,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNoStateChange();
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingEvent_If_ChangeOfPartyRequest_Is_Not_Found_Then_Does_Nothing()
+        {
+            _fixture.WithNoChangeOfPartyRequest();
+            await _fixture.Handle();
+            _fixture.VerifyNoStateChange();
+        }
+
         private class CohortWithChangeOfPartyFullyApprovedEventHandlerTestsFixture
         {
             private readonly CohortWithChangeOfPartyFullyApprovedEventHandler _handler;
@@ -80,6 +88,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _changeOfPartyRequest.Setup(x => x.Status).Returns(ChangeOfPartyRequestStatus.Approved);
                 return this;
             }
+
+            public CohortWithChangeOfPartyFullyApprovedEventHandlerTestsFixture WithNoChangeOfPartyRequest()
+            {
+                _db
+                    .Setup(context => context.ChangeOfPartyRequests)
+                    .ReturnsDbSet(new List<ChangeOfPartyRequest> { });
+
+                return this;
+            }
+
 
             public async Task Handle()
             {
