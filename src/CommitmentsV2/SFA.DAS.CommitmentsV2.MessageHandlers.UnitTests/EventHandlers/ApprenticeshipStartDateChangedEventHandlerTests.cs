@@ -1,14 +1,8 @@
-﻿using AutoFixture;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -44,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual($"Invalid initiator {message.Initiator}", actual.Message);
+            Assert.That(actual.Message, Is.EqualTo($"Invalid initiator {message.Initiator}"));
         }
 
         [Test]
@@ -61,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual("TEST", actual.Message);
+            Assert.That(actual.Message, Is.EqualTo("TEST"));
         }
 
         [Test]
@@ -78,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual("TEST", actual.Message);
+            Assert.That(actual.Message, Is.EqualTo("TEST"));
         }
 
 
