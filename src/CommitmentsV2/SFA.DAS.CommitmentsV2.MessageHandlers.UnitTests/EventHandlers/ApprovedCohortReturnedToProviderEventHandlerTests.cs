@@ -18,8 +18,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             await fixture.Handle();
             fixture.VerifyGetCohortSummaryIsCorrectlyCalled();
         }
-        [Test]
 
+        [Test]
+        public async Task Handle_WhenNoCohortReturned_ThenShouldSwallowEvent()
+        {
+            var fixture = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture().WithNoCohort();
+            await fixture.Handle();
+            fixture.VerifyGetCohortSummaryIsCorrectlyCalled();
+        }
+
+        [Test]
         public async Task Handle_WhenApprovedCohortReturnedToProviderEventIsRaised_ThenShouldRelayMessageToAzureServiceBus()
         {
             var fixture = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture();
@@ -50,6 +58,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
+        }
+
+        public ApprovedCohortReturnedToProviderEventHandlerTestsFixture WithNoCohort()
+        {
+            Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetCohortSummaryQueryResult)null);
+            return this;
         }
 
         public Task Handle()
