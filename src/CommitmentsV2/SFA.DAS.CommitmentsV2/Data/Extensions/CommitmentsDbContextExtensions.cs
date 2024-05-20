@@ -81,7 +81,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             return result;
         }
 
-
         public static async Task<OverlappingTrainingDateRequest> GetOverlappingTrainingDateRequestAggregate(this ProviderCommitmentsDbContext db, long previousApprenticeshipId, CancellationToken cancellationToken)
         {
             var result = await db.OverlappingTrainingDateRequests
