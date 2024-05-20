@@ -18,13 +18,19 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
 
         public static async Task<Cohort> GetCohortAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
         {
+            var cohort = await db.GetCohortAggregateSafely(cohortId, cancellationToken);
+            if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
+            if (cohort.IsApprovedByAllParties) throw new CohortAlreadyApprovedException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            return cohort;
+        }
+
+        public static async Task<Cohort> GetCohortAggregateSafely(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
+        {
             var cohort = await db.Cohorts
                 .Include(c => c.Apprenticeships).ThenInclude(a => a.FlexibleEmployment)
                 .Include(c => c.Apprenticeships).ThenInclude(a => a.PriorLearning)
                 .Include(c => c.TransferRequests)
                 .SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
-            if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
-            if (cohort.IsApprovedByAllParties) throw new CohortAlreadyApprovedException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return cohort;
         }
 
@@ -60,14 +66,21 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
 
         public static async Task<ChangeOfPartyRequest> GetChangeOfPartyRequestAggregate(this ProviderCommitmentsDbContext db, long changeOfPartyId, CancellationToken cancellationToken)
         {
+            var result = await db.GetChangeOfPartyRequestAggregateSafely(changeOfPartyId, cancellationToken);
+            if (result == null) throw new BadRequestException($"ChangeOfPartyRequest {changeOfPartyId} was not found");
+            return result;
+        }
+
+        public static async Task<ChangeOfPartyRequest> GetChangeOfPartyRequestAggregateSafely(this ProviderCommitmentsDbContext db, long changeOfPartyId, CancellationToken cancellationToken)
+        {
             var result = await db.ChangeOfPartyRequests
                 .Include(r => r.AccountLegalEntity)
                 .Include(r => r.Cohort)
                 .IgnoreQueryFilters()
                 .SingleOrDefaultAsync(c => c.Id == changeOfPartyId, cancellationToken);
-            if (result == null) throw new BadRequestException($"ChangeOfPartyRequest {changeOfPartyId} was not found");
             return result;
         }
+
 
         public static async Task<OverlappingTrainingDateRequest> GetOverlappingTrainingDateRequestAggregate(this ProviderCommitmentsDbContext db, long previousApprenticeshipId, CancellationToken cancellationToken)
         {
