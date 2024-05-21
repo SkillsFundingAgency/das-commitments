@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
                 if (changeOfPartyRequest.CohortId.HasValue)
                 {
-                    _logger.LogWarning("ChangeOfPartyRequest {changeOfPartyRequestId} already has CohortId {changeOfPartyRequestCohortId} - {Event} with CohortId {messageCohortId} will be ignored", 
+                    _logger.LogWarning("ChangeOfPartyRequest {ChangeOfPartyRequestId} already has CohortId {ChangeOfPartyRequestCohortId} - {Event} with CohortId {MessageCohortId} will be ignored", 
                         changeOfPartyRequest.Id, changeOfPartyRequest.CohortId, nameof(CohortWithChangeOfPartyCreatedEvent), message.CohortId);
                     return;
                 }
