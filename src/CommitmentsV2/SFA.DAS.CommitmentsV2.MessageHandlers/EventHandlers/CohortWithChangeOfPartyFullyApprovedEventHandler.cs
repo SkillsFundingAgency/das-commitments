@@ -18,17 +18,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortWithChangeOfPartyFullyApprovedEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation($"CohortWithChangeOfPartyFullyApprovedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}");
+            _logger.LogInformation("CohortWithChangeOfPartyFullyApprovedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}", message.CohortId, message.ChangeOfPartyRequestId);
 
             try
             {
-                var changeOfPartyRequest = await
-                    _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregateSafely(message.ChangeOfPartyRequestId, default);
+
+                if (changeOfPartyRequest == null)
+                {
+                    _logger.LogInformation("CohortWithChangeOfPartyFullyApprovedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}", message.CohortId, message.ChangeOfPartyRequestId);
+                    return;
+                }
 
                 if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
                 {
-                    _logger.LogWarning(
-                        $"Unable to Approve ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}");
+                    _logger.LogWarning("Unable to Approve ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}", message.ChangeOfPartyRequestId, changeOfPartyRequest.Status);
                     return;
                 }
 
