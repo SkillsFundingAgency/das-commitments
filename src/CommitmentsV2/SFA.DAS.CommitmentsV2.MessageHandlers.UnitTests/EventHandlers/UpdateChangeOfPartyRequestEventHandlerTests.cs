@@ -40,6 +40,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task When_HandlingCommand_And_Cohort_No_Longer_Exists_Then_ChangeOfPartyRequestIsNotUpdated()
+        {
+            _fixture.CohortNoLongerExists();
+
+            await _fixture.Handle();
+
+            _fixture.VerifyChangeOfPartyNotUpdated();
+        }
+
+        [Test]
         public async Task When_HandlingCommand_And_Cohort_Is_Already_Fully_Approved_Then_ChangeOfPartyRequestIsNotUpdated_And_Message_Is_Swallowed()
         {
             _fixture.AddChangeOfProviderRequest()
@@ -121,6 +131,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 return this;
             }
 
+            public UpdateChangeOfPartyRequestEventHandlerTestsFixture CohortNoLongerExists()
+            {
+                _mockDbContext
+                    .Setup(context => context.Cohorts)
+                    .ReturnsDbSet(new List<Cohort> {});
+                return this;
+            }
+
             public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddChangeOfEmployerRequest()
             {
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_cohort.ChangeOfPartyRequestId.Value);
@@ -131,6 +149,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 return this;
             }
+
             public async Task Handle()
             {
                 await _handler.Handle(_command, _messageHandlerContext.Object);

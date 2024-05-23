@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -19,13 +18,31 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortWithChangeOfPartyUpdatedEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation($"CohortWithChangeOfPartyUpdatedEvent received for Cohort : {message.CohortId}");
+            _logger.LogInformation("CohortWithChangeOfPartyUpdatedEvent received for Cohort : {CohortId}", message.CohortId);
 
             try
             {
-                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
+                var cohort = await _dbContext.Value.GetCohortAggregateSafely(message.CohortId, default);
 
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(cohort.ChangeOfPartyRequestId.Value, default);
+                if (cohort == null)
+                {
+                    _logger.LogInformation("Cohort {Cohort} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
+                    return;
+                }
+
+                if (cohort.IsApprovedByAllParties)
+                {
+                    _logger.LogInformation("Cohort {Cohort} is fully approved, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
+                    return;
+                }
+
+                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregateSafely(cohort.ChangeOfPartyRequestId.Value, default);
+
+                if (changeOfPartyRequest == null)
+                {
+                    _logger.LogInformation("ChangeOfParty request {ChangeOfPartyRequestId} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", cohort.ChangeOfPartyRequestId);
+                    return;
+                }
 
                 if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
                 {
@@ -35,13 +52,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         cohort.ProviderId, message.UserInfo, cohort.WithParty);
                 }
             }
-            catch (CohortAlreadyApprovedException e)
-            {
-                _logger.LogError(e, $"CohortAlreadyApprovedException processing CohortWithChangeOfPartyUpdatedEvent", e);
-            }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error processing CohortWithChangeOfPartyUpdatedEvent", e);
+                _logger.LogError(e, "Error processing CohortWithChangeOfPartyUpdatedEvent", e);
                 throw;
             }
         }
