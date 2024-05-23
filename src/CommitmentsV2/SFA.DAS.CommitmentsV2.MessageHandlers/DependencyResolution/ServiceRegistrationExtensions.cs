@@ -40,7 +40,6 @@ public static class ServiceRegistrationExtensions
             services.AddDatabaseRegistration();
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            //services.AddNServiceBusClientUnitOfWork();
             services.AddNServiceBusUnitOfWork();
             services.AddDomainServices();
             services.AddEmployerAccountServices(context.Configuration);
