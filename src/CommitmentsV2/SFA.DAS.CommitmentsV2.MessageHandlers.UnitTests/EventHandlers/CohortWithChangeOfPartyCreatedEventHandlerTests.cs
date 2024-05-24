@@ -40,6 +40,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             _fixture.WithCohortAlreadyFullyApproved();
             await _fixture.Handle();
+            _fixture.VerifyCohortIsSet();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_If_No_CoP_record_found_Then_Message_Is_Swallowed_And_No_Update()
+        {
+            _fixture.WithNoChangeOfPartyRequest();
+            await _fixture.Handle();
+            _fixture.VerifyCohortIdIsNotUpdated();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_If_No_Cohort_found_Then_Message_Is_Swallowed_And_No_Update()
+        {
+            _fixture.WithNoCohort();
+            await _fixture.Handle();
             _fixture.VerifyCohortIdIsNotUpdated();
         }
 
@@ -93,6 +109,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _cohort.SetValue(x => x.WithParty, null);
                 return this;
             }
+
+            public CohortWithChangeOfPartyCreatedEventHandlerTestsFixture WithNoChangeOfPartyRequest()
+            {
+                _db
+                    .Setup(context => context.ChangeOfPartyRequests)
+                    .ReturnsDbSet(new List<ChangeOfPartyRequest> { });
+                return this;
+            }
+
+            public CohortWithChangeOfPartyCreatedEventHandlerTestsFixture WithNoCohort()
+            {
+                _db
+                    .Setup(context => context.Cohorts)
+                    .ReturnsDbSet(new List<Cohort> { });
+                return this;
+            }
+
 
             public async Task Handle()
             {
