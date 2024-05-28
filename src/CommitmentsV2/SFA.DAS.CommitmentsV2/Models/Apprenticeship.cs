@@ -498,7 +498,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         if (PriceHistory.Count != 1)
             throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
-        pH.FromDate = update.StartDate ?? pH.FromDate;
+        pH.FromDate = update.ActualStartDate ?? update.StartDate.Value;
     }
 
     private void CheckNoPendingOrApprovedRequestsForChangeOfParty()
