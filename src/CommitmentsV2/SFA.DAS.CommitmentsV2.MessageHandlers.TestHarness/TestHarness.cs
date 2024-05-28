@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -62,8 +63,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("Y - ApprenticeshipEmailAddressChangedEvent Event");
                 Console.WriteLine("Z - ApprenticeshipStopDateChangedEvent Event");
                 Console.WriteLine("1 - ChangeOfPartyRequestCreatedEvent Event");
+                Console.WriteLine("2 - ApprenticeshipStartDateChangedEvent Event");
                 Console.WriteLine("X - Exit");
-                Console.WriteLine("Press [Key] for Test Option");
+				Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
 
                 try
@@ -229,8 +231,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCreatedEvent)}");
                             break;
+                        case ConsoleKey.D2:
+	                        await _publisher.Publish(new ApprenticeshipStartDateChangedEvent());
+	                        Console.WriteLine();
+	                        Console.WriteLine($"Sent {nameof(ApprenticeshipStartDateChangedEvent)}");
+	                        break;
 
-                    }
+					}
                 }
                 catch (Exception e)
                 {

@@ -210,6 +210,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
+                && request.ActualStartDate == apprenticeship.ActualStartDate
                 && request.DeliveryModel == apprenticeship.DeliveryModel
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln
