@@ -88,5 +88,26 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Assert.DoesNotThrowAsync(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
         }
-    }
+
+        [Test]
+        public async Task Handle_SetsDatesCorrectly()
+        {
+	        //Arrange
+	        var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
+	        var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+	        message.Initiator = "Provider";
+
+	        //Act
+	        await handler.Handle(message, _mockIMessageHandlerContext.Object);
+
+		    // Assert
+			_mockMediator.Verify(x => x.Send(It.Is<EditApprenticeshipCommand>(command 
+	            => command.EditApprenticeshipRequest.ActualStartDate == message.ActualStartDate
+	               && command.EditApprenticeshipRequest.StartDate.Value.Year == message.ActualStartDate.Year
+				   && command.EditApprenticeshipRequest.StartDate.Value.Month == message.ActualStartDate.Month
+	               && command.EditApprenticeshipRequest.StartDate.Value.Day == 1
+			), It.IsAny<CancellationToken>()));
+
+        }
+	}
 }

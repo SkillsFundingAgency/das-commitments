@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 ApprenticeshipId = message.ApprenticeshipId,
                 AccountId = partyUser.AccountId,
                 ProviderId = message.ProviderId,
-                StartDate = message.ActualStartDate,
+                StartDate = new DateTime(message.ActualStartDate.Year, message.ActualStartDate.Month, 1),
                 EndDate = message.PlannedEndDate,
                 ActualStartDate = message.ActualStartDate,
                 UserInfo = partyUser.UserInfo

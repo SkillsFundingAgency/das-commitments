@@ -24,6 +24,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 var cohort = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
+                if (cohort == null)
+                {
+                    _logger.LogInformation("Cohort {cohortId} not found when processing ApprovedCohortReturnedToProviderEvent", message.CohortId);
+                    return;
+                }
+
                 await _legacyTopicMessagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider
                 {
                     AccountId = cohort.AccountId,
