@@ -35,7 +35,7 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="SFA.DAS.Authorization.Mvc" Version="6.0.97" />
-    <PackageReference Include="SFA.DAS.Authorization.ProviderPermissions" Version="6.0.97" />
+    <PackageReference Include="SFA.DAS.Authorization.ProviderPermissions" Version="6.0.109" />
     <PackageReference Include="SFA.DAS.Telemetry" Version="17.1.70" />
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
