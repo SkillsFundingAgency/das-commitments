@@ -63,6 +63,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
+        public async Task Map_WhenMappingFlexiPaymentsApprenticeshipStandardWithActualStartDate_Then_UsesCalculatedTrainingProgramme()
+        {
+            var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapFlexiPaymentsLearnerWithStandard();
+
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.OriginatorReference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme2);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().Be(fixture.TrainingProgramme2.StandardUId);
+            result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme2.Version);
+            result.TrainingCourseVersionConfirmed.Should().BeTrue();
+            result.EmploymentPrice.Should().Be(fixture.Command.EmploymentPrice);
+            result.EmploymentEndDate.Should().Be(fixture.Command.EmploymentEndDate);
+            result.IsOnFlexiPaymentPilot.Should().Be(true);
+        }
+
+        [Test]
         public async Task Map_WhenMappingFramework_Then_VersionConfirmedIsFalse()
         {
             var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
@@ -122,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture()
         {
             Fixture = new Fixture();
-            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(x => x.IsOnFlexiPaymentPilot, true).Create();
+            Command = Fixture.Create<AddDraftApprenticeshipCommand>();
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue,
                 DateTime.MaxValue);
@@ -157,13 +182,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoVersionFieldsWhenStartDateIsNull()
         {
             Command.StartDate = null;
+            Command.ActualStartDate = null;
             Command.CourseCode = Fixture.Create<int>().ToString();
             return Mapper.Map(Command);
         }
 
         public Task<DraftApprenticeshipDetails> MapWithStandard()
         {
+            Command.StartDate = Fixture.Create<DateTime>();
+            Command.ActualStartDate = null;
             Command.CourseCode = Fixture.Create<int>().ToString();
+            Command.IsOnFlexiPaymentPilot = false;
+            return Mapper.Map(Command);
+        }
+
+        public Task<DraftApprenticeshipDetails> MapFlexiPaymentsLearnerWithStandard()
+        {
+            Command.StartDate = null;
+            Command.ActualStartDate = Fixture.Create<DateTime>();
+            Command.CourseCode = Fixture.Create<int>().ToString();
+            Command.IsOnFlexiPaymentPilot = true;
             return Mapper.Map(Command);
         }
     }

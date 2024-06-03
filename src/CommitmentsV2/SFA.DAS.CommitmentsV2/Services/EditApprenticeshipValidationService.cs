@@ -1,23 +1,25 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+﻿
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
-using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
-using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
+	public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
     {
         private readonly IProviderCommitmentsDbContext _context;
         private readonly IOverlapCheckService _overlapCheckService;
@@ -44,8 +46,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             _authenticationService = authenticationService;
         }
 
-        public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken)
+		public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
         {
+            var trustedParty = GetParty(party);
+
             var errors = new List<DomainError>();
             var apprenticeship = _context.Apprenticeships
                 .Include(y => y.Cohort)
@@ -58,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return null;
             }
 
-            errors.AddRange(NoChangeValidationFailures(request, apprenticeship));
+            errors.AddRange(NoChangeValidationFailures(request, apprenticeship, trustedParty));
             if (errors.Count == 0)
             {
                 CheckForInvalidOperations(request, apprenticeship);
@@ -68,9 +72,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(BuildStartDateValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEndDateValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildCostValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildEmployerRefValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildProviderRefValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship));
+                errors.AddRange(BuildEmployerRefValidationFailures(request, apprenticeship, trustedParty));
+                errors.AddRange(BuildProviderRefValidationFailures(request, apprenticeship, trustedParty));
+                errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship, trustedParty));
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
@@ -93,10 +97,22 @@ namespace SFA.DAS.CommitmentsV2.Services
             };
         }
 
-        private void CheckForInvalidOperations(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
-        {
-            var party = _authenticationService.GetUserParty();
+        /// <summary>
+        /// The party should only be resolved from the parameter if its come in from a message handler as
+        /// this is a trusted source.
+        /// </summary>
+		private Party GetParty(Party party)
+		{
+			if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+			{
+				return party;
+			}
 
+			return _authenticationService.GetUserParty();
+		}
+
+		private void CheckForInvalidOperations(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
+        {
             if (request.ULN != apprenticeship.Uln)
             {
                 throw new InvalidOperationException("Invalid operation - ULN can't be modified.");
@@ -181,12 +197,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         }
 
-        private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
+        private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
         {
-            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer
-                 ? request.EmployerReference == apprenticeship.EmployerRef
-                 : request.ProviderReference == apprenticeship.ProviderRef;
-
+            var referenceNotUpdated = party == Party.Employer
+				 ? request.EmployerReference == apprenticeship.EmployerRef
+				 : request.ProviderReference == apprenticeship.ProviderRef;
+            
             if (request.FirstName == apprenticeship.FirstName
                 && request.LastName == apprenticeship.LastName
                 && request.DateOfBirth == apprenticeship.DateOfBirth
@@ -303,11 +319,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             return errors;
         }
 
-        private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
+        private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
         {
             if (request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(_authenticationService.GetUserParty() == Party.Employer ? "training provider" : "employer")} for help";
+                var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
                 var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
                 if (overlapResult.HasOverlappingStartDate)
@@ -352,9 +368,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private IEnumerable<DomainError> BuildEmployerRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        private IEnumerable<DomainError> BuildEmployerRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
         {
-            if (_authenticationService.GetUserParty() == Party.Employer && request.EmployerReference != apprenticeshipDetails.EmployerRef)
+            if (party == Party.Employer && request.EmployerReference != apprenticeshipDetails.EmployerRef)
             {
                 if (!string.IsNullOrWhiteSpace(request.EmployerReference) && request.EmployerReference.Length > 20)
                 {
@@ -363,9 +379,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private IEnumerable<DomainError> BuildProviderRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        private IEnumerable<DomainError> BuildProviderRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
         {
-            if (_authenticationService.GetUserParty() == Party.Provider && request.ProviderReference != apprenticeshipDetails.ProviderRef)
+            if (party == Party.Provider && request.ProviderReference != apprenticeshipDetails.ProviderRef)
             {
                 if (!string.IsNullOrWhiteSpace(request.ProviderReference) && request.ProviderReference.Length > 20)
                 {

@@ -1,4 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+﻿
+using SFA.DAS.Authorization.Services;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -68,6 +71,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture();
             var result = await fixture.MapWithStandard();
             
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.Reference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme2);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().Be(fixture.TrainingProgramme2.StandardUId);
+            result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme2.Version);
+            result.TrainingCourseVersionConfirmed.Should().BeTrue();
+            result.DeliveryModel.Should().Be(fixture.Command.DeliveryModel);
+        }
+
+        [Test]
+        public async Task Map_WhenMappingFlexiPaymentsApprenticeshipWithDateAndStandardId_Then_UsesCalculatedTrainingProgramme()
+        {
+            var fixture = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapWithStandardFlexiPayments();
+
             result.FirstName.Should().Be(fixture.Command.FirstName);
             result.LastName.Should().Be(fixture.Command.LastName);
             result.Uln.Should().Be(fixture.Command.Uln);
@@ -161,13 +186,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoDateAndNoVersionFields()
         {
             Command.StartDate = null;
+            Command.IsOnFlexiPaymentPilot = false;
             Command.CourseCode = Fixture.Create<int>().ToString();
-            return Mapper.Map(Command);
-        }
-        
-        public Task<DraftApprenticeshipDetails> MapWithDate()
-        {
-            Command.StartDate = DateTime.Now;
             return Mapper.Map(Command);
         }
 
@@ -181,6 +201,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapWithStandard()
         {
             Command.CourseCode = Fixture.Create<int>().ToString();
+            return Mapper.Map(Command);
+        }
+
+        public Task<DraftApprenticeshipDetails> MapWithStandardFlexiPayments()
+        {
+            Command.CourseCode = Fixture.Create<int>().ToString();
+            Command.StartDate = null;
+            Command.IsOnFlexiPaymentPilot = true;
             return Mapper.Map(Command);
         }
     }

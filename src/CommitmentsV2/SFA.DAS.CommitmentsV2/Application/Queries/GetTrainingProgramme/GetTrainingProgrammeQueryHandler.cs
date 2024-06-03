@@ -1,3 +1,4 @@
+
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -46,7 +47,9 @@ public class GetTrainingProgrammeQueryHandler : IRequestHandler<GetTrainingProgr
                     }).ToList(),
                     StandardUId = result.StandardUId,
                     Version = result.Version,
-                    Options = result.Options
+                    Options = result.Options,
+                    VersionEarliestStartDate = result.VersionEarliestStartDate,
+                    VersionLatestStartDate = result.VersionLatestStartDate
                 }
             }; 
         }

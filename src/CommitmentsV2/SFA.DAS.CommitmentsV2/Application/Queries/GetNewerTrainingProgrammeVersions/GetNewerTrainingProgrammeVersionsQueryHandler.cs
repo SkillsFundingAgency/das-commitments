@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -47,7 +48,9 @@ public class GetNewerTrainingProgrammeVersionsQueryHandler : IRequestHandler<Get
                         EffectiveFrom = x.EffectiveFrom,
                         EffectiveTo = x.EffectiveTo,
                         FundingCap = x.FundingCap
-                    }).ToList()
+                    }).ToList(),
+                        VersionEarliestStartDate = version.VersionEarliestStartDate,
+                        VersionLatestStartDate = version.VersionLatestStartDate
                 })
             };
         }

@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -463,6 +464,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             StartDate = update.StartDate;
         }
+
+            if (update.ActualStartDate.HasValue)
+            {
+	            ActualStartDate = update.ActualStartDate;
+            }
 
         if (update.EndDate.HasValue)
         {
