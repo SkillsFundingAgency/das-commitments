@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
@@ -38,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.That(actual.Message, Is.EqualTo($"Invalid initiator {message.Initiator}"));
+            actual.Message.Should().Be($"Invalid initiator {message.Initiator}");
         }
 
         [Test]
@@ -55,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.That(actual.Message, Is.EqualTo("TEST"));
+            actual.Message.Should().Be("TEST");
         }
 
         [Test]
@@ -72,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.That(actual.Message, Is.EqualTo("TEST"));
+            actual.Message.Should().Be("TEST");
         }
 
 
@@ -85,8 +86,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             message.Initiator = "Provider";
 
             //Act / Assert
-            Assert.DoesNotThrowAsync(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
-
+            Action act = () => handler.Handle(message, _mockIMessageHandlerContext.Object);
+            act.Should().NotThrow();
         }
 
         [Test]
@@ -107,7 +108,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 				   && command.EditApprenticeshipRequest.StartDate.Value.Month == message.ActualStartDate.Month
 	               && command.EditApprenticeshipRequest.StartDate.Value.Day == 1
 			), It.IsAny<CancellationToken>()));
-
         }
 	}
 }
