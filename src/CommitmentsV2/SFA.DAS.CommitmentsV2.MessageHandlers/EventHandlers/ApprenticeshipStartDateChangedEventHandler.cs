@@ -1,13 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -43,7 +38,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 ApprenticeshipId = message.ApprenticeshipId,
                 AccountId = partyUser.AccountId,
                 ProviderId = message.ProviderId,
-                StartDate = message.ActualStartDate,
+                StartDate = new DateTime(message.ActualStartDate.Year, message.ActualStartDate.Month, 1),
+                EndDate = message.PlannedEndDate,
                 ActualStartDate = message.ActualStartDate,
                 UserInfo = partyUser.UserInfo
             };

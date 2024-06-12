@@ -1,14 +1,9 @@
-﻿using AutoFixture;
-using MediatR;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -44,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual($"Invalid initiator {message.Initiator}", actual.Message);
+            actual.Message.Should().Be($"Invalid initiator {message.Initiator}");
         }
 
         [Test]
@@ -61,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual("TEST", actual.Message);
+            actual.Message.Should().Be("TEST");
         }
 
         [Test]
@@ -78,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var actual = Assert.ThrowsAsync<Exception>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
 
             //Assert
-            Assert.AreEqual("TEST", actual.Message);
+            actual.Message.Should().Be("TEST");
         }
 
 
@@ -91,8 +86,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             message.Initiator = "Provider";
 
             //Act / Assert
-            Assert.DoesNotThrowAsync(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
-
+            Action act = () => handler.Handle(message, _mockIMessageHandlerContext.Object);
+            act.Should().NotThrow();
         }
-    }
+
+        [Test]
+        public async Task Handle_SetsDatesCorrectly()
+        {
+	        //Arrange
+	        var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
+	        var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+	        message.Initiator = "Provider";
+
+	        //Act
+	        await handler.Handle(message, _mockIMessageHandlerContext.Object);
+
+		    // Assert
+			_mockMediator.Verify(x => x.Send(It.Is<EditApprenticeshipCommand>(command 
+	            => command.EditApprenticeshipRequest.ActualStartDate == message.ActualStartDate
+	               && command.EditApprenticeshipRequest.StartDate.Value.Year == message.ActualStartDate.Year
+				   && command.EditApprenticeshipRequest.StartDate.Value.Month == message.ActualStartDate.Month
+	               && command.EditApprenticeshipRequest.StartDate.Value.Day == 1
+			), It.IsAny<CancellationToken>()));
+        }
+	}
 }
