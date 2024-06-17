@@ -1,8 +1,4 @@
-﻿using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers

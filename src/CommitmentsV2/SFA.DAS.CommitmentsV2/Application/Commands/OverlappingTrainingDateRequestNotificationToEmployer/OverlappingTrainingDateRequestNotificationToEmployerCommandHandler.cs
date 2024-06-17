@@ -34,27 +34,20 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler 
     }
     public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(_configuration.OLTD_GoLiveDate.HasValue 
-            ? "OLTD_GoLiveDate {GoLiveDate}" 
-            : "OLTD_GoLiveDate has no value", _configuration.OLTD_GoLiveDate.Value.ToString());
-
         var currentDate = _currentDateTime.UtcNow;
-        var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
 
         var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
             .Include(oltd => oltd.DraftApprenticeship)
             .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
             .Include(oltd => oltd.PreviousApprenticeship)
             .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
-            .Where(overlappingTrainingDateRequest => overlappingTrainingDateRequest.NotifiedServiceDeskOn == null
-                        && overlappingTrainingDateRequest.NotifiedEmployerOn == null
-                        && overlappingTrainingDateRequest.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                        && (overlappingTrainingDateRequest.CreatedOn < goLiveDate ? overlappingTrainingDateRequest.CreatedOn < currentDate.AddDays(-14).Date 
-                            : overlappingTrainingDateRequest.CreatedOn < currentDate.AddDays(-7).Date)
-                        )
-            .ToList();
+             .Where(x => x.NotifiedServiceDeskOn == null
+                            && x.NotifiedEmployerOn == null
+                            && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
+                            &&  x.CreatedOn < currentDate.AddDays(-7).Date)                            
+                .ToList();
 
-        _logger.LogInformation("Found {PendingRecordsCount} records which chaser email to employer.", pendingRecords.Count);
+        _logger.LogInformation("Found {count} records which chaser email to employer", pendingRecords.Count);
 
         foreach (var pendingRecord in pendingRecords)
         {
