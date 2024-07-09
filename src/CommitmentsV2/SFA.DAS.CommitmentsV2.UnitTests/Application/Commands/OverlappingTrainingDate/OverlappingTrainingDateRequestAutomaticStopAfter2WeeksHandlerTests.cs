@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.Paused)]
-        public async Task Handle_WhenPaymentStatusIsWithdrawnOrCompleted_Send_StopCommand_DontSendToZenDesk(PaymentStatus status)
+        public async Task Handle_WhenPaymentStatusIs_ActivePaused_Send_StopCommand_DontSendToZenDesk(PaymentStatus status)
         {
             using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
             fixture.SetStatus(status);

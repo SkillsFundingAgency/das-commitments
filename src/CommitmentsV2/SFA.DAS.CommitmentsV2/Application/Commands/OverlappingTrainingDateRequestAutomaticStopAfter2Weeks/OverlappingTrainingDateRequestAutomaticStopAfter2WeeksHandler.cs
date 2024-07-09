@@ -2,6 +2,7 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -94,10 +95,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         {
             _logger.LogInformation("Sending StopApprenticeshipRequest for ApprenticeshipId {PreviousApprenticeshipId}", request.PreviousApprenticeshipId);
 
+            var stopDate = request.DraftApprenticeship.StartDate.Value;
+
+            if (request.PreviousApprenticeship.IsWaitingToStart(_currentDateTime))
+            {
+                stopDate = request.PreviousApprenticeship.StartDate.Value;
+            }
+
             await _messageSession.Send(new AutomaticallyStopOverlappingTrainingDateRequestCommand(
                 request.PreviousApprenticeship.Cohort.EmployerAccountId,
                 request.PreviousApprenticeshipId,
-                request.DraftApprenticeship.StartDate.Value,
+                stopDate,
                 false,
                 UserInfo.System,
                 Party.Employer));
