@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
@@ -7,26 +6,20 @@ using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 
-public class SendEmailToProviderCommandHandler : IHandleMessages<SendEmailToProviderCommand>
+public class SendEmailToProviderCommandHandler(
+    IApprovalsOuterApiClient approvalsOuterApiClient, 
+    ILogger<SendEmailToProviderCommandHandler> logger)
+    : IHandleMessages<SendEmailToProviderCommand>
 {
-    private readonly IApprovalsOuterApiClient _approvalsOuterApiClient;
-    private readonly ILogger<SendEmailToProviderCommandHandler> _logger;
-
-    public SendEmailToProviderCommandHandler(IApprovalsOuterApiClient approvalsOuterApiClient, ILogger<SendEmailToProviderCommandHandler> logger)
-    {
-        _approvalsOuterApiClient = approvalsOuterApiClient;
-        _logger = logger;
-    }
-
     public async Task Handle(SendEmailToProviderCommand message, IMessageHandlerContext context)
     {
         try
         {
-            var providerUsersResponse = await _approvalsOuterApiClient.Get<ProvidersUsersResponse>(new GetProviderUsersRequest(message.ProviderId));
+            var providerUsersResponse = await approvalsOuterApiClient.Get<ProvidersUsersResponse>(new GetProviderUsersRequest(message.ProviderId));
 
             if (providerUsersResponse == null)
             {
-                _logger.LogWarning($"No users found for ProviderId {message.ProviderId}");
+                logger.LogWarning("{TypeName}. No users found for ProviderId {ProviderId}", nameof(SendEmailToProviderCommand), message.ProviderId);
                 return;
             }
 
@@ -38,15 +31,13 @@ public class SendEmailToProviderCommandHandler : IHandleMessages<SendEmailToProv
 
             if (explicitEmailAddresses.Any())
             {
-                _logger.LogInformation("Explicit recipients requested for email");
+                logger.LogInformation("{TypeName}. Explicit recipients requested for email", nameof(SendEmailToProviderCommand));
 
                 recipients = explicitEmailAddresses;
             }
             else
             {
-                recipients = providerUsersResponse.Users.Any(u => !u.IsSuperUser) ?
-                    providerUsersResponse.Users.Where(x => !x.IsSuperUser).Select(x => x.EmailAddress).ToList():
-                    providerUsersResponse.Users.Select(x => x.EmailAddress).ToList();
+                recipients = providerUsersResponse.Users.Any(u => !u.IsSuperUser) ? providerUsersResponse.Users.Where(x => !x.IsSuperUser).Select(x => x.EmailAddress).ToList() : providerUsersResponse.Users.Select(x => x.EmailAddress).ToList();
             }
 
             var optedOutList = providerUsersResponse.Users.Where(x => !x.ReceiveNotifications).Select(x => x.EmailAddress).ToList();
@@ -57,21 +48,22 @@ public class SendEmailToProviderCommandHandler : IHandleMessages<SendEmailToProv
 
             if (finalRecipients.Any())
             {
-                _logger.LogInformation($"Calling SendEmailCommand for {finalRecipients.Count} emails");
+                logger.LogInformation("{TypeName}. Total SendEmailCommand to provider calls: {Count}.", nameof(SendEmailToProviderCommand), finalRecipients.Count);
+
                 var tasks = finalRecipients.Select(email => context.Send(new SendEmailCommand(message.Template, email, message.Tokens)));
+
                 await Task.WhenAll(tasks);
 
-                _logger.LogInformation($"Sent email to {finalRecipients.Count} recipients for ukprn: {message.ProviderId}");
+                logger.LogInformation("{TypeName}. Sent email to {Count} provider recipients for ukprn: {ProviderId}", nameof(SendEmailToProviderCommand), finalRecipients.Count, message.ProviderId);
             }
             else
             {
-                _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for ProviderId {message.ProviderId}");
+                logger.LogWarning("{TypeName}. No Email Addresses found to send Template {Template} for ProviderId {ProviderId}", nameof(SendEmailToProviderCommand), message.Template, message.ProviderId);
             }
-
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            _logger.LogError($"Error processing {nameof(SendEmailToProviderCommand)}", e);
+            logger.LogError(exception, "Error processing {TypeName}", nameof(SendEmailToProviderCommand));
             throw;
         }
     }

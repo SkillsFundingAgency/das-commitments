@@ -50,7 +50,7 @@ public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmpl
 
             if (emails.Any())
             {
-                _logger.LogInformation("Calling SendEmailCommand for {Count} emails", emails.Count);
+                _logger.LogInformation("Total SendEmailCommand to employer calls: {Count} emails", emails.Count);
 
                 var emailTasks = emails.Select(email =>
                 {
