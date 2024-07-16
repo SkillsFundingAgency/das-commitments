@@ -1,92 +1,80 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer;
+using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestAutomaticStopAfter2Weeks;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate
 {
-    [TestFixture]
-    public class OverlappingTrainingDateRequestNotificationToEmployerTests
+    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTests
     {
-        [Test]
-        public async Task NotifiedEmployerOn_Updated_Successfully()
+        [TestCase(PaymentStatus.Completed)]
+        [TestCase(PaymentStatus.Withdrawn)]
+        public async Task Handle_ShouldSendToZenDesk_WhenPaymentStatusIsWithdrawnOrCompleted_No_StopCommandSent(PaymentStatus status)
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            await fixture.Handle();
-
-            fixture.Verify_NotifiedEmployerOn_Updated();
-        }
-
-        [Test]
-        public async Task Verify_EmailCommandSent()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandSent();
-        }
-
-        [TestCase(Types.OverlappingTrainingDateRequestStatus.Rejected)]
-        [TestCase(Types.OverlappingTrainingDateRequestStatus.Resolved)]
-        public async Task Verify_EmailIsSentOnlyForPendingRequests(Types.OverlappingTrainingDateRequestStatus status)
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
             fixture.SetStatus(status);
+
             await fixture.Handle();
 
-            fixture.Verify_EmailCommandIsNotSent();
+            fixture.Verify_ZenDesk_EmailCommandSent();
+            fixture.Verify_StopCommandIsNotSent();
         }
 
-        [Test]
-        public async Task Verify_SecondChaserEmailIsNotTriggered()
+        [TestCase(PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Paused)]
+        public async Task Handle_WhenPaymentStatusIs_ActivePaused_Send_StopCommand_DontSendToZenDesk(PaymentStatus status)
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
+            fixture.SetStatus(status);
+
+            await fixture.Handle();
+
+            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
+            fixture.Verify_StopCommandSent();
+        }
+
+        [TestCase(PaymentStatus.Active)]
+        public async Task Handle_When_No_Requests_OlderThan_TwoWeeks(PaymentStatus status)
+        {
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
+            fixture.SetCreatedOn(-1);
+            fixture.SetStatus(status);
+
+            await fixture.Handle();
+
+            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
+        }
+
+        [TestCase(PaymentStatus.Active)]
+        public async Task Handle_When_ServiceDeskNotifiedOn_IsNotNull(PaymentStatus status)
+        {
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
+            fixture.SetStatus(status);
             fixture.SetNotifiedEmployerOn();
             await fixture.Handle();
 
-            fixture.Verify_EmailCommandIsNotSent();
+            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
         }
 
-        public async Task Verify_EmailIsSentOnlyForNonExpiredRecords()
+        public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture : IDisposable
         {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            fixture.SetCreatedOn(-5);
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandIsNotSent();
-        }
-
-        [Test]
-        public async Task Verify_DontSendEmailWhenServiceDeskAlreadyNotified()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            fixture.SetServiceDeskNotifiedOn();
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandIsNotSent();
-        }
-
-        public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
-        {
-            OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
-            OverlappingTrainingDateRequestNotificationToEmployerCommand _command = null;
+            OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler _sut;
+            OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand _command = null;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             Mock<IMessageSession> _messageSession;
-            Mock<IEncodingService> _encodingService;
             DateTime currentProxyDateTime;
             CommitmentsV2Configuration _configuration;
 
-            public OverlappingTrainingDateRequestNotificationToEmployerTestsFixture()
+            public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture()
             {
-
-
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                           .EnableSensitiveDataLogging()
@@ -96,7 +84,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
                 _messageSession = new Mock<IMessageSession>();
-                _encodingService = new Mock<IEncodingService>();
 
                 _configuration = new CommitmentsV2Configuration()
                 {
@@ -104,16 +91,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                     EmployerCommitmentsBaseUrl = "https://employerurl"
                 };
 
-                _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(() => "EMPLOYERHASHEDID");
-                _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(() => "APPRENTICESHIPHASHEDID");
-
-                _sut = new OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(
+                _sut = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                     _currentDateTime.Object,
                      _messageSession.Object,
+                     _currentDateTime.Object,
                      _configuration,
-                     _encodingService.Object,
-                     Mock.Of<ILogger<OverlappingTrainingDateRequestNotificationToEmployerCommandHandler>>()
+                     Mock.Of<ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler>>()
                     );
 
                 SeedData();
@@ -124,10 +107,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 await _sut.Handle(_command, CancellationToken.None);
             }
 
-            internal void SetStatus(Types.OverlappingTrainingDateRequestStatus status)
+            internal void SetStatus(PaymentStatus status)
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                x.Status = status;
+                x.PreviousApprenticeship.PaymentStatus = status;
                 Db.SaveChanges();
             }
 
@@ -137,17 +120,48 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 x.NotifiedEmployerOn = DateTime.UtcNow;
                 Db.SaveChanges();
             }
-
-            internal void SetServiceDeskNotifiedOn()
+          
+            internal void Verify_ZenDesk_EmailCommandSent()
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                x.NotifiedServiceDeskOn = DateTime.UtcNow;
-                Db.SaveChanges();
+
+                var tokens = new Dictionary<string, string>
+                {
+                    { "RequestCreatedByProviderEmail", "Not available" },
+                    { "LastUpdatedByProviderEmail", x.DraftApprenticeship?.Cohort?.LastUpdatedByProviderEmail },
+                    { "ULN", x.DraftApprenticeship?.Uln },
+                    { "NewProviderUkprn", x.DraftApprenticeship?.Cohort?.ProviderId.ToString() },
+                    { "OldProviderUkprn", x.PreviousApprenticeship?.Cohort?.ProviderId.ToString() }
+                };
+                var emailCommand = new SendEmailCommand(
+                    OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler.TemplateId,
+                    _configuration.ZenDeskEmailAddress,
+                    tokens);
+
+                _messageSession.Verify(y => y.Send(
+                   It.Is<SendEmailCommand>(z =>
+                       z.TemplateId == OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler.TemplateId &&
+                       z.Tokens.SequenceEqual(tokens)),
+                   It.IsAny<SendOptions>()),
+                   Times.Once);
             }
 
-            internal void Verify_EmailCommandIsNotSent()
+            internal void Verify_ZenDesk_EmailCommandIsNotSent()
             {
-                _messageSession.Verify(y => y.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never);
+                _messageSession.Verify(y => y.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Never);
+            }
+
+            internal void Verify_StopCommandSent()
+            {
+                var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
+
+                _messageSession.Verify(y => y.Send(It.IsAny<AutomaticallyStopOverlappingTrainingDateRequestCommand>(),
+                           It.IsAny<SendOptions>()), Times.Once);
+            }
+
+            internal void Verify_StopCommandIsNotSent()
+            {
+                _messageSession.Verify(y => y.Send(It.IsAny<AutomaticallyStopOverlappingTrainingDateRequestCommand>(), It.IsAny<SendOptions>()), Times.Never);
             }
 
             internal void SetCreatedOn(int days)
@@ -155,30 +169,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 x.CreatedOn = currentProxyDateTime.AddDays(days);
                 Db.SaveChanges();
-            }
-
-            internal void Verify_EmailCommandSent()
-            {
-                var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                _messageSession.Verify(y => y.Send(It.Is<SendEmailToEmployerCommand>(z =>
-                           z.Template == OverlappingTrainingDateRequestNotificationToEmployerCommandHandler.TemplateId &&
-                           z.Tokens["RequestRaisedDate"] == x.CreatedOn.ToString("dd-MM-yyyy") &&
-                           z.Tokens["ULN"] == x.PreviousApprenticeship.Uln &&
-                           z.Tokens["Apprentice"] == x.PreviousApprenticeship.FirstName + " " + x.PreviousApprenticeship.LastName &&
-                           z.Tokens["URL"] == $"{_configuration.EmployerCommitmentsBaseUrl}/EMPLOYERHASHEDID/apprentices/APPRENTICESHIPHASHEDID/details"),
-                           It.IsAny<SendOptions>()), Times.Once);
-            }
-
-            internal void Verify_NotifiedEmployerOn_Updated()
-            {
-                var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                Assert.That(overlappingTrainingDateRequest, Is.Not.Null);
-                Assert.Multiple(() =>
-                {
-                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
-                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
-                    Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
-                });
             }
 
             private void SeedData()
@@ -204,7 +194,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
                 var Apprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
                  .With(s => s.Cohort, Cohort)
-                 .With(s => s.PaymentStatus, Types.PaymentStatus.Active)
+                 .With(s => s.PaymentStatus, PaymentStatus.Active)
                  .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                  .With(s => s.EndDate, DateTime.UtcNow.AddDays(100))
                  .Without(s => s.DataLockStatus)
@@ -245,10 +235,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
                 var oltd = new OverlappingTrainingDateRequest()
                     .Set(x => x.Id, 1)
-                    .Set(x => x.Status, Types.OverlappingTrainingDateRequestStatus.Pending)
+                    .Set(x => x.Status, OverlappingTrainingDateRequestStatus.Pending)
                     .Set(x => x.PreviousApprenticeship, Apprenticeship)
                     .Set(x => x.CreatedOn, currentProxyDateTime.AddDays(-20))
-                    .Set(x => x.DraftApprenticeship, draftApprenticeship);
+                    .Set(x => x.DraftApprenticeship, draftApprenticeship)
+                    .Set(x => x.NotifiedServiceDeskOn, null);
 
                 Db.Apprenticeships.Add(Apprenticeship);
                 Db.DraftApprenticeships.Add(draftApprenticeship);
