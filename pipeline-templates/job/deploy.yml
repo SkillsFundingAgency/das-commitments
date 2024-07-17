@@ -122,6 +122,8 @@ jobs:
             DeploymentType: zipDeploy
 
 - deployment: DeploySupportApp
+  dependsOn:
+  - DeployWebApp
   condition: in('${{ parameters.Environment }}', 'AT', 'TEST', 'PP', 'PROD')
   pool:
     name: DAS - Continuous Deployment Agents
