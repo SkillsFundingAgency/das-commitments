@@ -10,8 +10,6 @@ using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload;
@@ -25,7 +23,6 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
     public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
     public BulkUploadValidateCommand Command { get; set; }
-    public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
     public OverlapCheckResult OverlapCheckResult { get; set; }
     public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
     public RplSettingsConfiguration RplSettingsConfig { get; set; }

@@ -1,9 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
-using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 
@@ -11,15 +8,12 @@ public class GetProviderCommitmentAgreementsHandler : IRequestHandler<GetProvide
 {
     private readonly Lazy<ProviderCommitmentsDbContext> _db;
     private readonly ILogger<GetProviderCommitmentAgreementsHandler> _logger;
-    private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
 
     public GetProviderCommitmentAgreementsHandler(Lazy<ProviderCommitmentsDbContext> db,
-        ILogger<GetProviderCommitmentAgreementsHandler> logger,
-        IProviderRelationshipsApiClient providerRelationshipsApiClient)
+        ILogger<GetProviderCommitmentAgreementsHandler> logger)
     {
         _db = db;
         _logger = logger;
-        _providerRelationshipsApiClient = providerRelationshipsApiClient;
     }
 
     public async Task<GetProviderCommitmentAgreementResult> Handle(GetProviderCommitmentAgreementQuery command, CancellationToken cancellationToken)
@@ -29,13 +23,13 @@ public class GetProviderCommitmentAgreementsHandler : IRequestHandler<GetProvide
             var cohortsAgreements = new List<ProviderCommitmentAgreement>();
 
             var agreements = await (from c in _db.Value.Cohorts
-                join a in _db.Value.AccountLegalEntities on c.AccountLegalEntityId equals a.Id
-                where c.ProviderId == command.ProviderId && !c.IsDeleted
-                select new ProviderCommitmentAgreement
-                {
-                    LegalEntityName = c.AccountLegalEntity.Name,
-                    AccountLegalEntityPublicHashedId = a.PublicHashedId
-                }).ToListAsync(cancellationToken).ConfigureAwait(false);
+                                    join a in _db.Value.AccountLegalEntities on c.AccountLegalEntityId equals a.Id
+                                    where c.ProviderId == command.ProviderId && !c.IsDeleted
+                                    select new ProviderCommitmentAgreement
+                                    {
+                                        LegalEntityName = c.AccountLegalEntity.Name,
+                                        AccountLegalEntityPublicHashedId = a.PublicHashedId
+                                    }).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var permissionCheckRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
             {

@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.ProviderRelationships.Api.Client;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
@@ -18,7 +17,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private readonly EmployerSummaries _employerSummaries;
     private readonly IOverlapCheckService _overlapService;
     private readonly IAcademicYearDateProvider _academicYearDateProvider;
-    private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
     private readonly IEmployerAgreementService _employerAgreementService;
     private readonly RplSettingsConfiguration _rplConfig;
     private readonly IUlnValidator _ulnValidator;
@@ -34,7 +32,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         Lazy<ProviderCommitmentsDbContext> dbContext,
         IOverlapCheckService overlapService,
         IAcademicYearDateProvider academicYearDateProvider,
-        IProviderRelationshipsApiClient providerRelationshipsApiClient,
         IEmployerAgreementService employerAgreementService,
         RplSettingsConfiguration rplConfig,
         IUlnValidator ulnValidator,
@@ -45,7 +42,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         _employerSummaries = new EmployerSummaries();
         _overlapService = overlapService;
         _academicYearDateProvider = academicYearDateProvider;
-        _providerRelationshipsApiClient = providerRelationshipsApiClient;
         _employerAgreementService = employerAgreementService;
         _rplConfig = rplConfig;
         _ulnValidator = ulnValidator;
@@ -79,7 +75,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             {
                 continue;
             }
-            
+
             var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
             await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
@@ -117,7 +113,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         }
 
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-        if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) 
+        if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
             && !IsFundedByTransfer(csvRecord.CohortRef) && !await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
         {
             // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
@@ -156,7 +152,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         {
             return false;
         }
-        
+
         var cohortDetails = GetCohortDetails(cohortRef);
 
         return cohortDetails.TransferSenderId.HasValue;
@@ -216,7 +212,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         {
             return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
         }
-        
+
         if (_employerSummaries.ContainsKey(agreementId))
         {
             var result = _employerSummaries.GetValueOrDefault(agreementId);
@@ -230,14 +226,14 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         {
             return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
         }
-            
+
         var employerName = accountLegalEntity.Account.Name;
         var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
         var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
         var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
-        
+
         _employerSummaries.Add(employerSummary);
-        
+
         return employerSummary;
     }
 

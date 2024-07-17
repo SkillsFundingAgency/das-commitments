@@ -7,9 +7,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
-using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -18,19 +15,16 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IOverlapCheckService _overlapCheckService;
 
         public ChangeOfPartyRequestDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             IAuthenticationService authenticationService,
             ICurrentDateTime currentDateTime,
-            IProviderRelationshipsApiClient providerRelationshipsApiClient
-            , IOverlapCheckService overlapCheckService)
+            IOverlapCheckService overlapCheckService)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
             _currentDateTime = currentDateTime;
-            _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _overlapCheckService = overlapCheckService;
         }
 

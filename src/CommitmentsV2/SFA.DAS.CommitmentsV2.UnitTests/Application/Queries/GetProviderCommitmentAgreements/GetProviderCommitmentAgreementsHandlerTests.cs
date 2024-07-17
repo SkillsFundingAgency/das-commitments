@@ -3,8 +3,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitmentAgreements
@@ -91,8 +89,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
         public Account Account { get; }
         public Account TransferSender { get; }
         public Provider Provider { get; set; }
-        public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; }
-        public List<AccountProviderLegalEntityDto> SeedAccountProviderLegalEntitiesDto { get; }
 
         public GetProviderCommitmentAgreementsHandlerTestFixtures()
         {
@@ -111,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
                 new AccountLegalEntity(Account, 4, 4, "4", "D004", "D004", OrganisationType.Charities, "", DateTime.UtcNow)
             };
             SeedAccountProviderLegalEntitiesDto = _autoFixture.CreateMany<AccountProviderLegalEntityDto>(3).ToList();
-            
+
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient
                 .Setup(x => x.GetAccountProviderLegalEntitiesWithPermission(It.IsAny<GetAccountProviderLegalEntitiesWithPermissionRequest>(), It.IsAny<CancellationToken>()))
@@ -127,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
                 return handler.Handle(query, CancellationToken.None);
             });
         }
-        
+
         public GetProviderCommitmentAgreementsHandlerTestFixtures AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices()
         {
             var cohort = _autoFixture.Build<Cohort>()
@@ -174,7 +170,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             SeedCohorts.Add(cohort);
             return this;
         }
-       
+
         public GetProviderCommitmentAgreementsHandlerTestFixtures AddEmployersWithPermissions()
         {
             ProviderRelationshipsApiClient

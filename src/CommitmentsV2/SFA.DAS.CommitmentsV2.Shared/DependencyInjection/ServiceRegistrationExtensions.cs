@@ -8,8 +8,6 @@ using SFA.DAS.CommitmentsV2.Shared.ModelBinding;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Api.Client.Http;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
@@ -23,14 +21,12 @@ public static class ServiceRegistrationExtensions
         services.AddSingleton<ICurrentDateTime, CurrentDateTime>();
         services.AddTransient<IModelMapper, ModelMapper>();
         services.AddTransient<IAccountApiClient, AccountApiClient>();
-        services.AddTransient<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>();
-        services.AddTransient<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>();
         services.AddTransient<IModelBinder, StringModelBinder>();
         services.AddTransient<IModelBinderProvider, StringModelBinderProvider>();
         services.AddEncodingServices();
 
         services.AddTransient<ICommitmentsApiClientFactory, CommitmentsApiClientFactory>();
-        services.AddSingleton(x=> x.GetService<ICommitmentsApiClientFactory>().CreateClient());
+        services.AddSingleton(x => x.GetService<ICommitmentsApiClientFactory>().CreateClient());
 
         return services;
     }

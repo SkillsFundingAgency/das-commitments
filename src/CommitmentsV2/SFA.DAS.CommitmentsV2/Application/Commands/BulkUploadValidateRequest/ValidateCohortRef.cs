@@ -1,15 +1,14 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
     private const string CohortRefPermissionIssue = "CohortRefPermission";
-    
+
     private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
     {
         var domainErrors = new List<Error>();
@@ -18,7 +17,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             return domainErrors;
         }
-        
+
         var cohort = GetCohortDetails(csvRecord.CohortRef);
 
         if (cohort == null)
@@ -67,7 +66,7 @@ public partial class BulkUploadValidateCommandHandler
                 draftApprenticeship.CourseName == null ||
                 draftApprenticeship.Cost == null ||
                 draftApprenticeship.Uln == null ||
-                draftApprenticeship.Email == null))                                            
+                draftApprenticeship.Email == null))
         {
             domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef}, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort."));
         }
@@ -81,7 +80,7 @@ public partial class BulkUploadValidateCommandHandler
         var overlapEmailResult = OverlapEmailCheckForCohort(cohort);
         if (overlapEmailResult.Result != null && overlapEmailResult.Result.Exists(x => x.OverlapStatus != OverlapStatus.None))
         {
-            domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort."));                          
+            domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort."));
         }
 
         return domainErrors;
@@ -106,12 +105,12 @@ public partial class BulkUploadValidateCommandHandler
     private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
     {
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-        
+
         if (!employerDetails.LegalEntityId.HasValue || providerId == 0)
         {
             return true;
         }
-        
+
         _logger.LogInformation("Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {ProviderId}", employerDetails.LegalEntityId.Value, providerId);
         var request = new HasPermissionRequest
         {

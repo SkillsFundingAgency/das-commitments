@@ -5,12 +5,10 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Api.Client.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 
-public static class ServiceRegistrationExtensions 
+public static class ServiceRegistrationExtensions
 {
     public static IServiceCollection AddDefaultServices(this IServiceCollection services, IConfiguration config)
     {
@@ -19,12 +17,6 @@ public static class ServiceRegistrationExtensions
 
         services.AddTransient<IModelMapper, ModelMapper>();
         services.AddSingleton<ILinkGenerator, LinkGenerator>();
-
-        if (config["UseStubProviderRelationships"] != null && config["UseStubProviderRelationships"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
-        {
-            services.AddTransient<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>();
-            services.AddTransient<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>();
-        }
 
         return services;
     }

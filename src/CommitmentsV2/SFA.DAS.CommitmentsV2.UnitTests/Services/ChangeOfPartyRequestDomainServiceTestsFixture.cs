@@ -7,8 +7,6 @@ using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -23,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
         public Mock<ICurrentDateTime> CurrentDateTime { get; }
         public DateTime Now { get; }
-        public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; }
         public Mock<Apprenticeship> Apprenticeship { get; private set; }
         public Cohort Cohort { get; private set; }
 
