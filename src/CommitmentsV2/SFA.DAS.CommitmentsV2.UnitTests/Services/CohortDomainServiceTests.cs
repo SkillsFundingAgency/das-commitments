@@ -615,6 +615,7 @@ public class CohortDomainServiceTests
             .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
             .WithExistingDraftApprenticeship()
             .WithContinuation(overlap);
+        
         await _fixture.UpdateDraftApprenticeship();
 
         if (expectThrow)
@@ -688,7 +689,7 @@ public class CohortDomainServiceTests
     {
         _fixture.WithParty(Party.Employer)
             .WithEndDate(endDate)
-            .WithStartDate(DateTime.Now)
+            .WithStartDate(new DateTime(DateTime.UtcNow.Year,02, 02))
             .WithTrainingProgramme();
 
         await _fixture.CreateCohort();
@@ -758,7 +759,7 @@ public class CohortDomainServiceTests
 
     public class CohortDomainServiceTestFixture
     {
-        public DateTime Now { get; set; }
+        public DateTime ReferenceDate { get; set; }
         public CohortDomainService CohortDomainService { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public long ProviderId { get; }
@@ -808,7 +809,7 @@ public class CohortDomainServiceTests
 
         public CohortDomainServiceTestFixture()
         {
-            Now = DateTime.UtcNow;
+            ReferenceDate = new DateTime(DateTime.UtcNow.Year, 02, 02);
             var fixture = new Fixture();
 
             // We need this to allow the UoW to initialise it's internal static events collection.
@@ -886,6 +887,7 @@ public class CohortDomainServiceTests
                 IsOnFlexiPaymentPilot = false
             };
 
+            var referenceDate = new DateTime(DateTime.Now.Year, 02, 03);
             ExistingDraftApprenticeship = new DraftApprenticeship
             {
                 Id = DraftApprenticeshipId,
@@ -893,8 +895,8 @@ public class CohortDomainServiceTests
                 FirstName = fixture.Create<string>(),
                 LastName = fixture.Create<string>(),
                 Uln = "4860364820",
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddYears(1),
+                StartDate = referenceDate,
+                EndDate = referenceDate.AddYears(1),
                 CourseCode = fixture.Create<string>(),
                 Cost = fixture.Create<int>(),
                 IsOnFlexiPaymentPilot = false
@@ -938,7 +940,7 @@ public class CohortDomainServiceTests
             AuthenticationService = new Mock<IAuthenticationService>();
 
             CurrentDateTime = new Mock<ICurrentDateTime>();
-            CurrentDateTime.Setup(d => d.UtcNow).Returns(Now);
+            CurrentDateTime.Setup(d => d.UtcNow).Returns(ReferenceDate);
 
             AccountApiClient = new Mock<IAccountApiClient>();
             AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
@@ -1345,7 +1347,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.DateOfBirth = ExistingDraftApprenticeship.DateOfBirth;
             DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
             DraftApprenticeshipDetails.StartDate = ExistingDraftApprenticeship.StartDate;
-            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now, Now);
+            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, ReferenceDate, ReferenceDate);
 
             if (overlap)
             {
