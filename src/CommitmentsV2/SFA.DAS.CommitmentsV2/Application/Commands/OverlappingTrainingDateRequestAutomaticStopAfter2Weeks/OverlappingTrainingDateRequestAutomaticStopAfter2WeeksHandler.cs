@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         private readonly CommitmentsV2Configuration _configuration;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,        
+        public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
             IMessageSession messageSession,
             ICurrentDateTime currentDateTime,
             CommitmentsV2Configuration configuration,
@@ -101,6 +101,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             {
                 stopDate = request.PreviousApprenticeship.StartDate.Value;
             }
+            else
+            {
+                stopDate = SetStopDateIfDraftApprenticeshipHasFutureStartDate(request, stopDate, _currentDateTime.UtcNow);
+            }
 
             await _messageSession.Send(new AutomaticallyStopOverlappingTrainingDateRequestCommand(
                 request.PreviousApprenticeship.Cohort.EmployerAccountId,
@@ -109,6 +113,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 false,
                 UserInfo.System,
                 Party.Employer));
+        }
+
+        private static DateTime SetStopDateIfDraftApprenticeshipHasFutureStartDate(OverlappingTrainingDateRequest request, DateTime stopDate, DateTime today)
+        {
+            if (request.PreviousApprenticeship.StartDate.Value < today
+                && request.PreviousApprenticeship.EndDate.Value > today
+                && request.DraftApprenticeship.StartDate.Value > today)
+            {
+                stopDate = new DateTime(today.Year, today.Month, 1);
+            }
+            return stopDate;
         }
 
         private async Task SendToZenDesk(OverlappingTrainingDateRequest request)
