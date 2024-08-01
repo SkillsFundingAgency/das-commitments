@@ -54,7 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PledgeApplicationId = source.PledgeApplicationId,
                 ActualStartDate = source.ActualStartDate,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                EmployerHasEditedCost = source.EmployerHasEditedCost
+                EmployerHasEditedCost = source.EmployerHasEditedCost,
+                TrainingCourseVersion = source.TrainingCourseVersion
             };
         }
     }
