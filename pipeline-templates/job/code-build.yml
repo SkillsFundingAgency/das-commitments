@@ -59,3 +59,15 @@ jobs:
       inputs:
         targetPath: $(build.artifactstagingdirectory)/publish
         artifactName: ${{ parameters.SolutionBaseName }}
+
+    - template: azure-pipelines-templates/build/step/nuget-pack.yml@das-platform-building-blocks
+      parameters:
+        DotNetStandardPackagesToPack: |
+          src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;
+          src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;
+          src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;
+          src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;
+          src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj;
+          src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Types/SFA.DAS.ReservationsV2.Api.Types.csproj;
+          src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj;
+          
