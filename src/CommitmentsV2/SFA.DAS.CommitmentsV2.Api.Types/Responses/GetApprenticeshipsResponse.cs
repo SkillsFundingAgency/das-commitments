@@ -46,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public DateTime? ActualStartDate { get; set; }
             public bool? IsOnFlexiPaymentPilot { get; set; }
             public bool? EmployerHasEditedCost { get; set; }
+            public string TrainingCourseVersion { get; set; }
         }
     }
 }
