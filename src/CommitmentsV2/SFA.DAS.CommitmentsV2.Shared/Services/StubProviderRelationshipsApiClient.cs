@@ -1,8 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
-using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services;
 
@@ -31,7 +29,7 @@ public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsA
     {
         return new GetAccountProviderLegalEntitiesWithPermissionResponse
         {
-            AccountProviderLegalEntities = await GetPermissionsForProvider(withPermissionRequest.Ukprn, withPermissionRequest.Operation, cancellationToken).ConfigureAwait(false)
+            AccountProviderLegalEntities = await GetPermissionsForProvider(withPermissionRequest.Ukprn, Operation.CreateCohort, cancellationToken).ConfigureAwait(false)
         };
     }
 
@@ -44,8 +42,12 @@ public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsA
     public async Task<bool> HasRelationshipWithPermission(HasRelationshipWithPermissionRequest request,
         CancellationToken cancellationToken = new())
     {
-        return (await GetAccountProviderLegalEntitiesWithPermission(new GetAccountProviderLegalEntitiesWithPermissionRequest
-            { Ukprn = request.Ukprn, Operation = request.Operation }, cancellationToken)).AccountProviderLegalEntities.Any();
+        return (await GetAccountProviderLegalEntitiesWithPermission(
+            new GetAccountProviderLegalEntitiesWithPermissionRequest
+            {
+                Ukprn = request.Ukprn,
+                Operations = new List<Operation>() { request.Operation }
+            }, cancellationToken)).AccountProviderLegalEntities.Any();
     }
 
     public Task Ping(CancellationToken cancellationToken = new())
@@ -53,18 +55,8 @@ public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsA
         throw new NotImplementedException();
     }
 
-    public Task RevokePermissions(RevokePermissionsRequest request, CancellationToken cancellationToken = new())
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task HealthCheck()
-    {
-        throw new NotImplementedException();
-    }
-
     private sealed class AccountProviderLegalEntityDtoWrapper : AccountProviderLegalEntityDto
     {
-        public List<Operation> Permissions { get; } = new ();
+        public List<Operation> Permissions { get; } = new();
     }
 }
