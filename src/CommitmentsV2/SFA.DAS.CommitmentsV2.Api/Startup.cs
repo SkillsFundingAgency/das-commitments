@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -74,10 +75,6 @@ public class Startup
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
 
-        services
-            .AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
-
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -125,6 +122,10 @@ public class Startup
         services.AddDefaultServices(_configuration);
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderPermissionsAuthorization();
+
+        services
+            .AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
