@@ -64,10 +64,6 @@ public class Startup
             builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
         });
 
-        services
-            .AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
-
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
@@ -126,6 +122,10 @@ public class Startup
         services.AddDefaultServices(_configuration);
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderPermissionsAuthorization();
+
+        services
+            .AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
