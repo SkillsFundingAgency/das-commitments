@@ -64,6 +64,10 @@ public class Startup
             builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
         });
 
+        services
+            .AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
+
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
@@ -74,12 +78,6 @@ public class Startup
                 o.Filters.Add<ValidateModelStateFilterAttribute>();
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
-
-        services
-            .AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
-        services.AddTransient<IValidator<SendCohortRequest>, SendCohortRequestValidator>();
-
 
         services.AddSwaggerGen(c =>
         {
