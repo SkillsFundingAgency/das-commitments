@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -66,7 +67,7 @@ public class Startup
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
-            //.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
+            .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
             .AddMvc(o =>
             {
                 o.AddAuthorization();
@@ -77,6 +78,8 @@ public class Startup
         services
             .AddFluentValidationAutoValidation()
             .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
+        services.AddTransient<IValidator<SendCohortRequest>, SendCohortRequestValidator>();
+
 
         services.AddSwaggerGen(c =>
         {
