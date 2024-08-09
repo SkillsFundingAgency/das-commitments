@@ -4,6 +4,6 @@
     {
         public string AccountHashedId { get; set; }
         public long Ukprn { get; set; }
-        public List<Operation> Operations { get; set; } = new List<Operation>();
+        public int Operations { get; set; }
     }
 }

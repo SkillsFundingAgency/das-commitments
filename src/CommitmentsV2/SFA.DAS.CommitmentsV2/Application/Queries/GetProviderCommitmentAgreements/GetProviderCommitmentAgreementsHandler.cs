@@ -37,7 +37,7 @@ public class GetProviderCommitmentAgreementsHandler : IRequestHandler<GetProvide
 
             var permissionCheckRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
             {
-                Operations = new List<Operation>() { Operation.CreateCohort },
+                Operations = (int)Operation.CreateCohort,
                 Ukprn = command.ProviderId
             };
 

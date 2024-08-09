@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var permissionsRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
             {
                 Ukprn = providerId,
-                Operations = new List<Operation>() { Operation.CreateCohort }
+                Operations = (int)Operation.CreateCohort
             };
 
             var permissions = await

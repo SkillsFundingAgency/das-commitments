@@ -46,7 +46,7 @@ public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsA
             new GetAccountProviderLegalEntitiesWithPermissionRequest
             {
                 Ukprn = request.Ukprn,
-                Operations = new List<Operation>() { request.Operation }
+                Operations = (int)request.Operation
             }, cancellationToken)).AccountProviderLegalEntities.Any();
     }
 
