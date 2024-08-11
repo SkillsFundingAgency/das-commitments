@@ -116,7 +116,7 @@ public partial class BulkUploadValidateCommandHandler
         var request = new HasPermissionRequest
         {
             AccountLegalEntityId = employerDetails.LegalEntityId.Value,
-            Operation = Operation.CreateCohort,
+            Operations = (int)Operation.CreateCohort,
             Ukprn = providerId
         };
 

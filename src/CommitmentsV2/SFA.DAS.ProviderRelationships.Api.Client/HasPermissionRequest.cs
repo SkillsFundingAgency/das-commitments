@@ -4,6 +4,6 @@
     {
         public long Ukprn { get; set; }
         public long AccountLegalEntityId { get; set; }
-        public Operation Operation { get; set; }
+        public int Operations { get; set; }
     }
 }
