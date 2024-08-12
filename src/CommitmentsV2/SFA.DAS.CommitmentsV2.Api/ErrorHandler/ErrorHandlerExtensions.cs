@@ -2,14 +2,25 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
 namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 
+
+
+public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
+{
+    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
+    {
+        return new BadRequestObjectResult(new { Title = "Validation errors", ValidationErrors = validationProblemDetails?.Errors });
+    }
+}
 public static class ErrorHandlerExtensions
 {
     public static IApplicationBuilder UseApiGlobalExceptionHandler(this IApplicationBuilder app, ILogger logger)

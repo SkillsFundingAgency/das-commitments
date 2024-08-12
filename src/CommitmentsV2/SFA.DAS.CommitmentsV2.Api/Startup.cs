@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +39,8 @@ using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
 namespace SFA.DAS.CommitmentsV2.Api;
 public class Startup
@@ -123,9 +124,23 @@ public class Startup
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderPermissionsAuthorization();
 
-        services
-            .AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
+        services.AddFluentValidationAutoValidation(c=>
+        {
+            c.DisableBuiltInModelValidation = true;
+        });
+        services.AddTransient<IValidator<AddDraftApprenticeshipRequest>, AddDraftApprenticeshipRequestValidator>();
+        services.AddTransient<IValidator<ApprenticeshipAccessRequest>, ApprenticeshipAccessRequestValidator>();
+        //services.AddTransient<IValidator<>, >();
+        //services.AddTransient<IValidator<>, >();
+        //services.AddTransient<IValidator<>, >();
+        //services.AddTransient<IValidator<>, >();
+        services.AddTransient<IValidator<SendCohortRequest>, SendCohortRequestValidator>();
+        //services.AddTransient<IValidator<>, >();
+        //services.AddTransient<IValidator<>, >();
+        //services.AddTransient<IValidator<>, >();
+        services.AddTransient<IFluentValidationAutoValidationResultFactory, CustomResultFactory>();
+
+        //.AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
