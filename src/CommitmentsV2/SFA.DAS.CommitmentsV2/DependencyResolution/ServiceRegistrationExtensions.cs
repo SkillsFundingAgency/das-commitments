@@ -36,6 +36,7 @@ using SFA.DAS.CommitmentsV2.Shared.Services;
 using FluentValidation;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validators;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
@@ -129,23 +130,6 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<IFeatureTogglesService<FeatureToggle>, FeatureTogglesService<FeaturesConfiguration, FeatureToggle>>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddApiRequestValidators(this IServiceCollection services)
-    {
-        services.AddTransient<IValidator<AddDraftApprenticeshipRequest>, AddDraftApprenticeshipRequestValidator>();
-        services.AddTransient<IValidator<ApprenticeshipAccessRequest>, ApprenticeshipAccessRequestValidator>();
-        services.AddTransient<IValidator<ApproveCohortRequest>, ApproveCohortRequestValidator>();
-        services.AddTransient<IValidator<CohortAccessRequest>, CohortAccessRequestValidator>();
-        services.AddTransient<IValidator<CreateCohortRequest>, CreateCohortRequestValidator>();
-        services.AddTransient<IValidator<CreateCohortWithOtherPartyRequest>, CreateCohortWithOtherPartyRequestValidator>();
-        services.AddTransient<IValidator<EditEndDateRequest>, EditEndDateRequestValidator>();
-        services.AddTransient<IValidator<GetCohortsRequest>, GetCohortsRequestValidator>();
-        services.AddTransient<IValidator<SendCohortRequest>, SendCohortRequestValidator>();
-        services.AddTransient<IValidator<UpdateDraftApprenticeshipRequest>, UpdateDraftApprenticeshipRequestValidator>();
-        services.AddTransient<IValidator<UserInfo>, UserInfoValidator>();
 
         return services;
     }

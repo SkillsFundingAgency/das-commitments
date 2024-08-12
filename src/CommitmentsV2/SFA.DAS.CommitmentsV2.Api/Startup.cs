@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -65,16 +67,14 @@ public class Startup
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
-            .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
             .AddMvc(o =>
             {
                 o.AddAuthorization();
-                o.Filters.Add<ValidateModelStateFilterAttribute>();
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
 
         services.AddFluentValidationAutoValidation();
-        services.AddApiRequestValidators();
+        services.AddValidatorsFromAssembly(typeof(AddCohortValidator).Assembly);
         services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
 
         services.AddSwaggerGen(c =>

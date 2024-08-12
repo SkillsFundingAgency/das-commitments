@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +37,14 @@ public static class ErrorHandlerExtensions
                     logger.LogError("Model Error thrown: {bulkUploadDomainException}", bulkUploadDomainException);
                     await context.Response.WriteAsync(WriteErrorResponse(bulkUploadDomainException));
                 }
+                if (contextFeature.Error is ValidationException validationException)
+                {
+                    context.Response.SetStatusCode(HttpStatusCode.BadRequest);
+                    context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
+                    logger.LogError("Command/Query Validation Error thrown: {validationException}", validationException);
+                    await context.Response.WriteAsync(WriteErrorResponse(validationException));
+
+                }
                 else
                 {
                     logger.LogError("Something went wrong: {contextFeatureError}", contextFeature.Error);
@@ -62,6 +72,18 @@ public static class ErrorHandlerExtensions
         var responseAsString = JsonConvert.SerializeObject(response);
         return responseAsString;
     }
+
+    private static string WriteErrorResponse(ValidationException validationException)
+    {
+        var response = new ErrorResponse(MapToApiErrors(validationException.Errors));
+        return JsonConvert.SerializeObject(response);
+    }
+
+    private static List<ErrorDetail> MapToApiErrors(IEnumerable<ValidationFailure> source)
+    {
+        return source.Select(sourceItem => new ErrorDetail(sourceItem.PropertyName, sourceItem.ErrorMessage)).ToList();
+    }
+
 
     private static List<ErrorDetail> MapToApiErrors(IEnumerable<DomainError> source)
     {
