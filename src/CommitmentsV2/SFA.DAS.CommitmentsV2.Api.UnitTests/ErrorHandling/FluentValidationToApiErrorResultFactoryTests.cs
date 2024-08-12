@@ -54,6 +54,7 @@ public class FluentValidationToApiErrorResultFactoryTestsFixture
     public ModelStateDictionary ModelState { get; set; }
     public ActionContext ActionContext { get; set; }
     public ActionExecutingContext ActionExecutingContext { get; set; }
+    public ValidateModelStateFilterAttribute ValidateModelStateFilterAttribute { get; set; }
     public HttpSubStatusCode DomainExceptionHttpSubStatusCode { get; set; }
     public string DomainExceptionHttpSubStatusCodeHeaderValue { get; set; }
 
@@ -75,6 +76,7 @@ public class FluentValidationToApiErrorResultFactoryTestsFixture
         ModelState = new ModelStateDictionary();
         ActionContext = new ActionContext(HttpContext.Object, new RouteData(),  ActionDescriptor, ModelState);
         ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(), new Dictionary<string, object>(), null);
+        ValidateModelStateFilterAttribute = new ValidateModelStateFilterAttribute();
         DomainExceptionHttpSubStatusCode = HttpSubStatusCode.DomainException;
         DomainExceptionHttpSubStatusCodeHeaderValue = ((int)DomainExceptionHttpSubStatusCode).ToString();
 

@@ -65,9 +65,11 @@ public class Startup
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
+            .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
             .AddMvc(o =>
             {
                 o.AddAuthorization();
+                o.Filters.Add<ValidateModelStateFilterAttribute>();
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
 
