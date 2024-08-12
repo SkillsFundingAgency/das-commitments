@@ -73,6 +73,10 @@ public class Startup
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
 
+        services.AddFluentValidationAutoValidation();
+        services.AddApiRequestValidators();
+        services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
+
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -120,10 +124,6 @@ public class Startup
         services.AddDefaultServices(_configuration);
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderPermissionsAuthorization();
-
-        services.AddFluentValidationAutoValidation();
-        services.AddApiRequestValidators();
-        services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
