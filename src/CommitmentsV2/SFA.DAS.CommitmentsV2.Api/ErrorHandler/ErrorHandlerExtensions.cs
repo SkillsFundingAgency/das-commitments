@@ -43,7 +43,6 @@ public static class ErrorHandlerExtensions
                     context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
                     logger.LogError("Command/Query Validation Error thrown: {validationException}", validationException);
                     await context.Response.WriteAsync(WriteErrorResponse(validationException));
-
                 }
                 else
                 {
@@ -83,7 +82,6 @@ public static class ErrorHandlerExtensions
     {
         return source.Select(sourceItem => new ErrorDetail(sourceItem.PropertyName, sourceItem.ErrorMessage)).ToList();
     }
-
 
     private static List<ErrorDetail> MapToApiErrors(IEnumerable<DomainError> source)
     {
