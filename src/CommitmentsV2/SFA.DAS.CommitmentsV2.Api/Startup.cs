@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Reflection;
-using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +18,6 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -31,7 +29,6 @@ using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Startup;
-using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.Telemetry.Startup;
@@ -124,23 +121,9 @@ public class Startup
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderPermissionsAuthorization();
 
-        services.AddFluentValidationAutoValidation(c=>
-        {
-            c.DisableBuiltInModelValidation = true;
-        });
-        services.AddTransient<IValidator<AddDraftApprenticeshipRequest>, AddDraftApprenticeshipRequestValidator>();
-        services.AddTransient<IValidator<ApprenticeshipAccessRequest>, ApprenticeshipAccessRequestValidator>();
-        //services.AddTransient<IValidator<>, >();
-        //services.AddTransient<IValidator<>, >();
-        //services.AddTransient<IValidator<>, >();
-        //services.AddTransient<IValidator<>, >();
-        services.AddTransient<IValidator<SendCohortRequest>, SendCohortRequestValidator>();
-        //services.AddTransient<IValidator<>, >();
-        //services.AddTransient<IValidator<>, >();
-        //services.AddTransient<IValidator<>, >();
-        services.AddTransient<IFluentValidationAutoValidationResultFactory, CustomResultFactory>();
-
-        //.AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
+        services.AddFluentValidationAutoValidation();
+        services.AddApiRequestValidators();
+        services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
