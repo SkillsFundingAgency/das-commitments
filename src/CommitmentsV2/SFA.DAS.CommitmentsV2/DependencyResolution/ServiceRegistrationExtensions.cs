@@ -33,10 +33,6 @@ using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Services;
-using FluentValidation;
-using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Validators;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
