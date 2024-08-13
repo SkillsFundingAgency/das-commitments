@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
                 var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
                     .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-                if (expressionProvider?.CreateModelExpression(htmlHelper.ViewContext.ViewBag, expression) is ModelExpression modelExpression)
+                if (expressionProvider?.CreateModelExpression(htmlHelper.ViewData, expression) is ModelExpression modelExpression)
                 {
                     return modelExpression.Name;
                 }
