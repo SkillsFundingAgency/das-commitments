@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Apprenticeships.Types.Models;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
@@ -91,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task Handle_SetsDatesCorrectly()
+        public async Task Handle_SetsStartDatesCorrectly()
         {
 	        //Arrange
 	        var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
@@ -103,11 +104,34 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
 		    // Assert
 			_mockMediator.Verify(x => x.Send(It.Is<EditApprenticeshipCommand>(command 
-	            => command.EditApprenticeshipRequest.ActualStartDate == message.ActualStartDate
-	               && command.EditApprenticeshipRequest.StartDate.Value.Year == message.ActualStartDate.Year
-				   && command.EditApprenticeshipRequest.StartDate.Value.Month == message.ActualStartDate.Month
+	            => command.EditApprenticeshipRequest.ActualStartDate == message.StartDate
+	               && command.EditApprenticeshipRequest.StartDate.Value.Year == message.StartDate.Year
+				   && command.EditApprenticeshipRequest.StartDate.Value.Month == message.StartDate.Month
 	               && command.EditApprenticeshipRequest.StartDate.Value.Day == 1
 			), It.IsAny<CancellationToken>()));
         }
-	}
+
+        [Test]
+        public async Task Handle_SetsEndDateCorrectly()
+        {
+            //Arrange
+            var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
+            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var endDate = _fixture.Create<DateTime>();
+            message.Episode.Prices = new List<ApprenticeshipEpisodePrice>
+            {
+                new() { EndDate = endDate },
+                new() { EndDate = endDate.AddDays(-1) }
+            };
+            message.Initiator = "Provider";
+
+            //Act
+            await handler.Handle(message, _mockIMessageHandlerContext.Object);
+
+            // Assert
+            _mockMediator.Verify(x => x.Send(It.Is<EditApprenticeshipCommand>(command
+                => command.EditApprenticeshipRequest.EndDate == endDate
+            ), It.IsAny<CancellationToken>()));
+        }
+    }
 }
