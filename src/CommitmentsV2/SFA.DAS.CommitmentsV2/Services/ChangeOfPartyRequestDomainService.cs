@@ -8,8 +8,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
-using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -135,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var permissionsRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
             {
                 Ukprn = providerId,
-                Operation = Operation.CreateCohort
+                Operations = (int)Operation.CreateCohort
             };
 
             var permissions = await
