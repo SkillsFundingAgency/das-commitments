@@ -10,7 +10,6 @@ using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.Authorization.Mvc.Extensions;
-using SFA.DAS.Authorization.ProviderPermissions.DependencyResolution.Microsoft;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
@@ -33,6 +32,7 @@ using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
+using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.Telemetry.Startup;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
@@ -113,17 +113,17 @@ public class Startup
         services.AddSingleton<IEncodingService, EncodingService>();
         services.AddDatabaseRegistration();
         services.AddCurrentDateTimeService(_configuration);
-        
+
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(AddHistoryCommand).GetTypeInfo().Assembly));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddReservationsApiClient();
-        services.AddTransient<IStateService,StateService>();
+        services.AddTransient<IStateService, StateService>();
         services.AddTransient<ICacheStorageService, CacheStorageService>();
 
         services.AddMappingServices();
         services.AddDefaultServices(_configuration);
         services.AddNServiceBusClientUnitOfWork();
-        services.AddProviderPermissionsAuthorization();
+        services.AddProviderRelationshipsApiClient(_configuration);
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)

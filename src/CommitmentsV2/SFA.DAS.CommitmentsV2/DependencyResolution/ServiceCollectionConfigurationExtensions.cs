@@ -4,7 +4,6 @@ using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
-using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
@@ -17,7 +16,6 @@ public static class ServiceCollectionConfigurationExtensions
 
         services.AddConfigurationFor<CommitmentsV2Configuration>(configuration, CommitmentsConfigurationKeys.CommitmentsV2);
         services.AddConfigurationFor<AccountApiConfiguration>(configuration, CommitmentsConfigurationKeys.AccountApi);
-        services.AddConfigurationFor<ProviderRelationshipsApiConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderRelationshipsApi);
         services.AddConfigurationFor<AzureActiveDirectoryApiConfiguration>(configuration, CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
         services.AddConfigurationFor<EncodingConfig>(configuration, CommitmentsConfigurationKeys.EncodingConfiguration);
         services.AddConfigurationFor<ApprovalsOuterApiConfiguration>(configuration, CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
