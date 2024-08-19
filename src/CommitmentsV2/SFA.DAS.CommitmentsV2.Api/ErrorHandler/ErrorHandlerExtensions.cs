@@ -40,7 +40,7 @@ public static class ErrorHandlerExtensions
                 if (contextFeature.Error is ValidationException validationException)
                 {
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
-                    context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
+                    context.Response.SetSubStatusCode(HttpSubStatusCode.DomainException);
                     logger.LogError("Command/Query Validation Error thrown: {validationException}", validationException);
                     await context.Response.WriteAsync(WriteErrorResponse(validationException));
                 }
