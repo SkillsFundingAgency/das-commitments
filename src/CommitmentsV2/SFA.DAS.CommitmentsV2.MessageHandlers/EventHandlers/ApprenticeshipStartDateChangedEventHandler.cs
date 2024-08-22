@@ -37,10 +37,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 ApprenticeshipId = message.ApprenticeshipId,
                 AccountId = partyUser.AccountId,
-                ProviderId = message.ProviderId,
-                StartDate = new DateTime(message.ActualStartDate.Year, message.ActualStartDate.Month, 1),
-                EndDate = message.PlannedEndDate,
-                ActualStartDate = message.ActualStartDate,
+                ProviderId = message.Episode.Ukprn,
+                StartDate = new DateTime(message.StartDate.Year, message.StartDate.Month, 1),
+                EndDate = message.Episode.Prices.OrderBy(x => x.EndDate).Last().EndDate,
+                ActualStartDate = message.StartDate,
                 UserInfo = partyUser.UserInfo
             };
 
@@ -79,13 +79,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             switch (message.Initiator)
             {
                 case "Employer":
-                    initiator = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerApprovedBy);
-                    approver = new PartyUser(Party.Provider, message.ProviderId, message.ProviderApprovedBy);
+                    initiator = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
+                    approver = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
                     break;
 
                 case "Provider":
-                    initiator = new PartyUser(Party.Provider, message.ProviderId, message.ProviderApprovedBy);
-                    approver = new PartyUser(Party.Employer, message.EmployerAccountId, message.EmployerApprovedBy);
+                    initiator = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
+                    approver = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
                     break;
 
                 default:

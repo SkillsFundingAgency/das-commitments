@@ -63,6 +63,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_ZenDesk_EmailCommandIsNotSent();
         }
 
+        [TestCase(PaymentStatus.Active)]
+        public async Task Handle_When_PreviousApprenticeship_WaitingToStart(PaymentStatus status)
+        {
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
+            fixture.SetStatus(status);
+            fixture.SetPreviousApprenticeshipStartDate_And_EndDate(10, 30);
+            fixture.SetDraftApprenticeshipStartDate_And_EndDate(15, 25);
+            await fixture.Handle();
+
+            fixture.Verify_StopDate_Is_PreviousApprenticeship_StartDate();
+            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
+            fixture.Verify_StopCommandSent();
+        }
+
+        [TestCase(PaymentStatus.Active)]
+        public async Task Handle_When_DraftApprenticeship_HasFutureStartDate(PaymentStatus status)
+        {
+            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
+            fixture.SetStatus(status);
+            fixture.SetPreviousApprenticeshipStartDate_And_EndDate(-10, 20);
+            fixture.SetDraftApprenticeshipStartDate_And_EndDate(10, 30);
+            await fixture.Handle();
+
+            fixture.Verify_StopDate_Is_Start_Of_CurrentMonth();
+            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
+            fixture.Verify_StopCommandSent();
+        }
+
         public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture : IDisposable
         {
             OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler _sut;
@@ -120,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 x.NotifiedEmployerOn = DateTime.UtcNow;
                 Db.SaveChanges();
             }
-          
+
             internal void Verify_ZenDesk_EmailCommandSent()
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
@@ -164,10 +192,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _messageSession.Verify(y => y.Send(It.IsAny<AutomaticallyStopOverlappingTrainingDateRequestCommand>(), It.IsAny<SendOptions>()), Times.Never);
             }
 
+            internal void Verify_StopDate_Is_PreviousApprenticeship_StartDate()
+            {
+                var previousApprenticeship = Db.Apprenticeships.FirstOrDefault();
+
+                _messageSession.Verify(y => y.Send(
+                                It.Is<AutomaticallyStopOverlappingTrainingDateRequestCommand>(z =>
+                                    z.StopDate == previousApprenticeship.StartDate.Value
+                                  ),
+                                It.IsAny<SendOptions>()),
+                                Times.Once);
+            }
+
+            internal void Verify_StopDate_Is_Start_Of_CurrentMonth()
+            {
+                var firstOfMonth = new DateTime(currentProxyDateTime.Year, currentProxyDateTime.Month, 1);
+
+                _messageSession.Verify(y => y.Send(
+                                It.Is<AutomaticallyStopOverlappingTrainingDateRequestCommand>(z =>
+                                    z.StopDate == firstOfMonth
+                                  ),
+                                It.IsAny<SendOptions>()),
+                                Times.Once);
+            }
+
+
             internal void SetCreatedOn(int days)
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 x.CreatedOn = currentProxyDateTime.AddDays(days);
+                Db.SaveChanges();
+            }
+
+            internal void SetPreviousApprenticeshipStartDate_And_EndDate(int startDays, int endDays)
+            {
+                var x = Db.Apprenticeships.FirstOrDefault();
+                x.StartDate = currentProxyDateTime.AddDays(startDays);
+                x.EndDate = currentProxyDateTime.AddDays(endDays);
+                Db.SaveChanges();
+            }
+
+            internal void SetDraftApprenticeshipStartDate_And_EndDate(int startDays, int endDays)
+            {
+                var x = Db.DraftApprenticeships.FirstOrDefault();
+                x.StartDate = currentProxyDateTime.AddDays(startDays);
+                x.EndDate = currentProxyDateTime.AddDays(endDays);
                 Db.SaveChanges();
             }
 

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -30,7 +30,6 @@ using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Startup;
-using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.ProviderRelationships.Api.Client;
@@ -39,6 +38,8 @@ using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
 namespace SFA.DAS.CommitmentsV2.Api;
 public class Startup
@@ -66,17 +67,15 @@ public class Startup
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
-            .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
             .AddMvc(o =>
             {
                 o.AddAuthorization();
-                o.Filters.Add<ValidateModelStateFilterAttribute>();
                 o.Filters.Add<StopwatchFilterAttribute>();
             });
 
-        services
-            .AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssembly(typeof(AddCohortValidator).Assembly);
+        services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
 
         services.AddSwaggerGen(c =>
         {
