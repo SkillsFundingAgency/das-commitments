@@ -3,16 +3,17 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
+using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
-using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
-using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -21,16 +22,50 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     public class DraftApprenticeshipControllerTests
     {
         [Test]
-        public async Task Update_ValidRequest_ShouldReturnAnOkResult()
+        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_IsContinuation_true()
         {
             //Arrange
-            var fixture = new DraftApprenticeshipControllerTestsFixture().WithUpdateDraftApprenticeshipCommandResponse();
+            var fixture = new DraftApprenticeshipControllerTestsFixture()
+                .WithUpdateDraftApprenticeshipCommandResponse()
+                .WithGetApprenticeshipQueryResponse();
 
             //Act
             var response = await fixture.Update();
 
             //Assert
             Assert.That(response is OkResult);
+            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(true));
+        }
+
+        [Test]
+        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_IsContinuation_false()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture()
+                .WithUpdateDraftApprenticeshipCommandResponse()
+                .WithGetApprenticeshipQueryResponseWithNoContinuationOfId(); 
+
+            //Act
+            var response = await fixture.Update();
+
+            //Assert
+            Assert.That(response is OkResult);
+            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(false));
+        }
+
+        [Test]
+        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_No_ApprenticeshipFound_IsContinuation_false()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture()
+                .WithUpdateDraftApprenticeshipCommandResponse();
+
+            //Act
+            var response = await fixture.Update();
+
+            //Assert
+            Assert.That(response is OkResult);
+            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(false));
         }
 
         [Test]
@@ -217,6 +252,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public UpdateDraftApprenticeshipCommand UpdateDraftApprenticeshipCommand { get; set; }
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
         public GetDraftApprenticeshipsQuery GetDraftApprenticeshipsQuery { get; set; }
+        public GetApprenticeshipQuery GetApprenticeshipQuery { get; set; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; set; }
         public PriorLearningDetailsRequest PriorLearningDetailsRequest { get; set; }
         public RecognisePriorLearningRequest RecognisePriorLearningRequest { get; set; }
@@ -289,13 +325,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AddDraftApprenticeshipCommand = new AddDraftApprenticeshipCommand();
             AddDraftApprenticeshipMapper.Setup(m => m.Map(AddDraftApprenticeshipRequest)).ReturnsAsync(AddDraftApprenticeshipCommand);
             Mediator.Setup(m => m.Send(AddDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new AddDraftApprenticeshipResult { Id = DraftApprenticeshipId });
-            
+
             return this;
         }
 
         public DraftApprenticeshipControllerTestsFixture WithRecognisePriorLearningRequest()
         {
-            RecognisePriorLearningRequest = new RecognisePriorLearningRequest { RecognisePriorLearning = true};
+            RecognisePriorLearningRequest = new RecognisePriorLearningRequest { RecognisePriorLearning = true };
             return this;
         }
 
@@ -307,7 +343,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public DraftApprenticeshipControllerTestsFixture VerifyRecognisePriorLearningCommandIsMappedCorrectly()
         {
-            Mediator.Verify(x=>x.Send(It.Is<RecognisePriorLearningCommand>(p =>
+            Mediator.Verify(x => x.Send(It.Is<RecognisePriorLearningCommand>(p =>
             p.CohortId == CohortId && p.ApprenticeshipId == DraftApprenticeshipId &&
                 p.RecognisePriorLearning == RecognisePriorLearningRequest.RecognisePriorLearning), It.IsAny<CancellationToken>()));
             return this;
@@ -331,7 +367,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipCommandResponse()
         {
-            Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeshipQuery>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipQueryResult{Id = DraftApprenticeshipId});
+            Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeshipQuery>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipQueryResult { Id = DraftApprenticeshipId });
             GetDraftApprenticeshipMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipQueryResult>())).ReturnsAsync(new GetDraftApprenticeshipResponse());
             return this;
         }
@@ -340,7 +376,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             GetDraftApprenticeshipsQuery = new GetDraftApprenticeshipsQuery(CohortId);
             Mediator.Setup(m => m.Send(GetDraftApprenticeshipsQuery, CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipsQueryResult());
-            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsQueryResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse{ DraftApprenticeships = new List<DraftApprenticeshipDto>()});
+            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsQueryResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse { DraftApprenticeships = new List<DraftApprenticeshipDto>() });
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture WithGetApprenticeshipQueryResponse()
+        {
+            Mediator.Setup(m => m.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipQueryResult { ContinuationOfId = 789 });
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture WithGetApprenticeshipQueryResponseWithNoContinuationOfId()
+        {
+            Mediator.Setup(m => m.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipQueryResult { ContinuationOfId = null});
             return this;
         }
 

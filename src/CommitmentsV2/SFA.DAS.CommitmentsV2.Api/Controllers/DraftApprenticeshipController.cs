@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -108,6 +109,12 @@ public class DraftApprenticeshipController : Controller
         var command = await _updateDraftApprenticeshipMapper.Map(request);
         command.CohortId = cohortId;
         command.ApprenticeshipId = apprenticeshipId;
+
+        var apprenticeship = await _mediator.Send(new GetApprenticeshipQuery(apprenticeshipId));
+        if (apprenticeship != null)
+        {
+            command.IsContinuation = apprenticeship.ContinuationOfId.HasValue;
+        }
 
         await _mediator.Send(command);
 
