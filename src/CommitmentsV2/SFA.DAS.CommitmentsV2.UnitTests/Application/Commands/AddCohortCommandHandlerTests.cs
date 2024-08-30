@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -28,7 +29,7 @@ public class AddCohortCommandHandlerTests
         using var fixtures = new AddCohortCommandHandlerTestFixture()
             .WithGeneratedHash(expectedHash);
 
-        var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1");
+        var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1", Guid.NewGuid());
 
         fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId,
             It.IsAny<DraftApprenticeshipDetails>(),
@@ -36,7 +37,33 @@ public class AddCohortCommandHandlerTests
             AddCohortCommandHandlerTestFixture.RequestingParty,
             It.IsAny<CancellationToken>()));
 
-        Assert.That(response.Reference, Is.EqualTo(expectedHash));
+        response.Reference.Should().Be(expectedHash);
+    }
+
+    [Test]
+    public async Task ShouldCallAutoCreateReservationAndAllocateItToFirstApprenticeship()
+    {
+        const string expectedHash = "ABC123";
+
+        const long providerId = 1;
+        const long accountId = 2;
+        const long accountLegalEntityId = 3;
+        long? transferSenderId = null;
+        int? pledgeApplicationId = null;
+
+        using var fixtures = new AddCohortCommandHandlerTestFixture()
+            .WithGeneratedHash(expectedHash);
+
+       await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1", null);
+
+        fixtures.ReservationsApiClientMock.Verify(x =>
+            x.CreateAutoReservation(
+                It.Is<CreateAutoReservationRequest>(p =>
+                    p.AccountId == accountId && p.StartDate == fixtures.StartDate && p.ProviderId == providerId &&
+                    p.Id != null),
+                It.IsAny<CancellationToken>()));
+        fixtures.Db.DraftApprenticeships.FirstOrDefault().ReservationId.Should()
+            .Be(fixtures.AutoReservationResponse.Id);
     }
 }
 
@@ -85,6 +112,17 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
                 It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commitment);
 
+        AutoReservationResponse = new CreateAutoReservationResponse
+        {
+            Id = Guid.NewGuid()
+        };
+
+        ReservationsApiClientMock = new Mock<IReservationsApiClient>();
+        ReservationsApiClientMock
+            .Setup(
+                x => x.CreateAutoReservation(It.IsAny<CreateAutoReservationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(AutoReservationResponse);
+
         Logger = new TestLogger();
         UserInfo = new UserInfo();
     }
@@ -95,9 +133,13 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
     public Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
     public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
-
+    public Mock<IReservationsApiClient> ReservationsApiClientMock { get; }
+    public CreateAutoReservationResponse AutoReservationResponse { get; set; }
+    public DateTime StartDate = new (2024, 01, 01);
     public TestLogger Logger { get; }
     public UserInfo UserInfo { get; }
+    public CreateAutoReservationResponse AutReservationResoAutoReservationResponse { set; get; }
+
     public const Party RequestingParty = Party.Provider;
 
     public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
@@ -109,7 +151,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
         return this;
     }
 
-    public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, int? pledgeApplicationId, string courseCode)
+    public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, int? pledgeApplicationId, string courseCode, Guid? reservationId)
     {
         await Db.SaveChangesAsync();
             
@@ -121,11 +163,11 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             courseCode, 
             null,
             null,
+            new DateTime(2024, 01, 01),
             null,
             null,
             null,
-            null,
-            null,
+            reservationId,
             null,
             null,
             null,
@@ -145,7 +187,9 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             EncodingService,
             Logger,
             DraftApprenticeshipDetailsMapperMock.Object,
-            CohortDomainServiceMock.Object);
+            CohortDomainServiceMock.Object,
+            ReservationsApiClientMock.Object
+            );
 
         var response = await handler.Handle(command, CancellationToken.None);
         await Db.SaveChangesAsync();

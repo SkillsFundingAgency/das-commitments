@@ -56,6 +56,12 @@ namespace SFA.DAS.Reservations.Api.Types
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
         }
 
+        public Task<CreateAutoReservationResponse> CreateAutoReservation(CreateAutoReservationRequest request, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/accounts/{request.AccountId}/reservations");
+            return _httpHelper.PostAsJson<CreateAutoReservationRequest, CreateAutoReservationResponse>(url, request, cancellationToken);
+        }
+
         private string BuildUrl(string path)
         {
             var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] { '/' });
@@ -65,3 +71,4 @@ namespace SFA.DAS.Reservations.Api.Types
         }
     }
 }
+
