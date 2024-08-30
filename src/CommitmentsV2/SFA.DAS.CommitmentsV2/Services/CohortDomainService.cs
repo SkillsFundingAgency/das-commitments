@@ -452,6 +452,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
             await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
             await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
+            ValidateAutoCreateReservation(draftApprenticeshipDetails, cancellationToken);
         }
 
         private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -489,6 +490,47 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (details.EndDate.Value < Domain.Constants.DasStartDate)
             {
                 throw new DomainException(nameof(details.EndDate), "The end date must not be earlier than May 2017");
+            }
+        }
+
+        private void ValidateAutoCreateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        {
+            if (details.ReservationId.HasValue)
+                return;
+
+            var validFromDate = _currentDateTime.UtcNow.AddMonths(-1).ToString("MM yyyy");
+            var validToDate = _currentDateTime.UtcNow.AddMonths(2).ToString("MM yyyy");
+
+            var errors = new List<DomainError>();
+
+            if (!details.StartDate.HasValue)
+            {
+                errors.Add(new DomainError(nameof(details.StartDate), "You must enter a start date to reserve new funding"));
+            }
+            else
+            {
+                var errorMessage = $"Training start date must be between the funding reservation dates {validFromDate} to {validToDate}";
+                var startDate = details.StartDate.Value;
+
+                if (startDate.AddMonths(2) < _currentDateTime.UtcNow)
+                {
+                    errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
+                }
+
+                if (startDate.AddMonths(-1) > _currentDateTime.UtcNow)
+                {
+                    errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
+                }
+            }
+
+            if (details.TrainingProgramme == null)
+            {
+                errors.Add(new DomainError(nameof(details.TrainingProgramme), "Training Program is required"));
+            }
+
+            if (errors.Count > 0)
+            {
+                throw new DomainException(errors);
             }
         }
 

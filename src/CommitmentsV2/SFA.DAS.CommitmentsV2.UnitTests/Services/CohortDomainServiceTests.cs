@@ -757,6 +757,30 @@ public class CohortDomainServiceTests
         _fixture.VerifyPriorLearningIsNotSetToNewRPLValues();
     }
 
+    [Test]
+    public async Task AutoCreateReservation_StartDate_Validated()
+    {
+        await _fixture.WithAutoReservation(null).CreateCohort();
+        var error = _fixture.DomainErrors.FirstOrDefault(x=>x.PropertyName == "StartDate");
+        error.ErrorMessage.Should().Be("You must enter a start date to reserve new funding");
+    }
+
+    [Test]
+    public async Task AutoCreateReservation_StartDate_Validates_Too_Early()
+    {
+        await _fixture.WithAutoReservation(_fixture.ReferenceDate.AddMonths(-2)).CreateCohort();
+        var error = _fixture.DomainErrors.FirstOrDefault(x => x.PropertyName == "StartDate");
+        error.ErrorMessage.Should().StartWith("Training start date must be between the funding reservation dates");
+    }
+
+    [Test]
+    public async Task AutoCreateReservation_StartDate_Validates_Too_Late()
+    {
+        await _fixture.WithAutoReservation(_fixture.ReferenceDate.AddMonths(3)).CreateCohort();
+        var error = _fixture.DomainErrors.FirstOrDefault(x => x.PropertyName == "StartDate");
+        error.ErrorMessage.Should().StartWith("Training start date must be between the funding reservation dates");
+    }
+
     public class CohortDomainServiceTestFixture
     {
         public DateTime ReferenceDate { get; set; }
@@ -884,7 +908,8 @@ public class CohortDomainServiceTests
                 LastName = "Test",
                 DeliveryModel = DeliveryModel.Regular,
                 IgnoreStartDateOverlap = false,
-                IsOnFlexiPaymentPilot = false
+                IsOnFlexiPaymentPilot = false,
+                ReservationId = Guid.NewGuid()
             };
 
             var referenceDate = new DateTime(DateTime.Now.Year, 02, 03);
@@ -1366,6 +1391,19 @@ public class CohortDomainServiceTests
             Party = party;
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party);
             RequestingParty = party;
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithAutoReservation(DateTime? newDate)
+        {
+            DateTime? startDate = null;
+            if (newDate.HasValue)
+            {
+                startDate = new DateTime(newDate.Value.Year, newDate.Value.Month, 1);
+            }
+
+            DraftApprenticeshipDetails.ReservationId = null;
+            DraftApprenticeshipDetails.StartDate = startDate;
             return this;
         }
 

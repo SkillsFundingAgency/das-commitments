@@ -39,15 +39,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(r => r.ProviderId, request, expectedValid);
         }
 
-        [TestCase(false, false)]
-        [TestCase(true, true)]
-        public void Validate_ReservationId_ShouldBeValidated(bool hasValue, bool expectedValid)
-        {
-            var request = new CreateCohortRequest { ReservationId = hasValue ? Guid.NewGuid() : (Guid?)null };
-            
-            AssertValidationResult(r => r.ReservationId, request, expectedValid);
-        }
-
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
         [TestCase("", true)]
