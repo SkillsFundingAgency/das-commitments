@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(Uln), "Only providers are allowed to update the Uln");
             }
             
-            if (PreviousApprenticeship is not { IsContinuation: true })
+            if (!IsContinuation)
             {
                 ProgrammeType = source.TrainingProgramme?.ProgrammeType;
                 CourseCode = source.TrainingProgramme?.CourseCode;
