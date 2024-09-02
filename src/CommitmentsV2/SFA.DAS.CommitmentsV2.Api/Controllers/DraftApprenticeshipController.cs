@@ -110,12 +110,6 @@ public class DraftApprenticeshipController : Controller
         command.CohortId = cohortId;
         command.ApprenticeshipId = apprenticeshipId;
 
-        var apprenticeship = await _mediator.Send(new GetApprenticeshipQuery(apprenticeshipId));
-        if (apprenticeship != null)
-        {
-            command.IsContinuation = apprenticeship.ContinuationOfId.HasValue;
-        }
-
         await _mediator.Send(command);
 
         return Ok();
