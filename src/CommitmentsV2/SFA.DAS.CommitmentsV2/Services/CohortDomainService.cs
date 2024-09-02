@@ -498,8 +498,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (details.ReservationId.HasValue)
                 return;
 
-            var validFromDate = _currentDateTime.UtcNow.AddMonths(-1).ToString("MM yyyy");
-            var validToDate = _currentDateTime.UtcNow.AddMonths(2).ToString("MM yyyy");
+            var currentDate = _currentDateTime.UtcNow;
+            var validFromDate = currentDate.AddMonths(-1).ToString("MM yyyy");
+            var validToDate = currentDate.AddMonths(2).ToString("MM yyyy");
 
             var errors = new List<DomainError>();
 
@@ -512,12 +513,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                 var errorMessage = $"Training start date must be between the funding reservation dates {validFromDate} to {validToDate}";
                 var startDate = details.StartDate.Value;
 
-                if (startDate.AddMonths(2) < _currentDateTime.UtcNow)
+                if (currentDate.AddMonths(2) < startDate)
                 {
                     errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
                 }
 
-                if (startDate.AddMonths(-1) > _currentDateTime.UtcNow)
+                if (currentDate.AddMonths(-1) > startDate)
                 {
                     errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
                 }
