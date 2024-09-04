@@ -72,6 +72,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_EmailCommandIsNotSent();
         }
 
+        [Test]
+        public async Task Verify_DontSendEmailWhenCohortIsDeleted()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            fixture.SetPreviousApprenticeshipCohortIsDeleted();
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandIsNotSent();
+        }
+
         public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
@@ -144,6 +154,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 x.NotifiedServiceDeskOn = DateTime.UtcNow;
                 Db.SaveChanges();
             }
+            
+            internal void SetPreviousApprenticeshipCohortIsDeleted()
+            {
+                var x = Db.Apprenticeships.FirstOrDefault();
+                x.Cohort.IsDeleted = true;
+                Db.SaveChanges();
+            }
 
             internal void Verify_EmailCommandIsNotSent()
             {
@@ -202,7 +219,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                    .Set(c => c.Provider, oldProvider)
                    .Set(c => c.AccountLegalEntity, oldAccountLegalEntity);
 
-                var Apprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+                var previousApprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
                  .With(s => s.Cohort, Cohort)
                  .With(s => s.PaymentStatus, Types.PaymentStatus.Active)
                  .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
@@ -246,11 +263,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 var oltd = new OverlappingTrainingDateRequest()
                     .Set(x => x.Id, 1)
                     .Set(x => x.Status, Types.OverlappingTrainingDateRequestStatus.Pending)
-                    .Set(x => x.PreviousApprenticeship, Apprenticeship)
+                    .Set(x => x.PreviousApprenticeship, previousApprenticeship)
                     .Set(x => x.CreatedOn, currentProxyDateTime.AddDays(-20))
                     .Set(x => x.DraftApprenticeship, draftApprenticeship);
 
-                Db.Apprenticeships.Add(Apprenticeship);
+                Db.Apprenticeships.Add(previousApprenticeship);
                 Db.DraftApprenticeships.Add(draftApprenticeship);
                 Db.OverlappingTrainingDateRequests.Add(oltd);
                 Db.SaveChanges();

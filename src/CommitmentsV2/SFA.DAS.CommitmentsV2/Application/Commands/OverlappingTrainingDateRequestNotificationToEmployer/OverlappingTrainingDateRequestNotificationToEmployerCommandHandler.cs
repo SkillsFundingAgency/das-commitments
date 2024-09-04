@@ -44,7 +44,8 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler 
              .Where(x => x.NotifiedServiceDeskOn == null
                             && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            &&  x.CreatedOn < currentDate.AddDays(-7).Date)                            
+                            &&  x.CreatedOn < currentDate.AddDays(-7).Date
+                            && x.PreviousApprenticeship.Cohort != null)                            
                 .ToList();
 
         _logger.LogInformation("Found {count} records which chaser email to employer", pendingRecords.Count);

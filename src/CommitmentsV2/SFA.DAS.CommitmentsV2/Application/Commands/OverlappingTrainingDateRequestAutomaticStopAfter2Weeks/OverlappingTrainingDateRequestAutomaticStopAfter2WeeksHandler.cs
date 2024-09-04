@@ -46,7 +46,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < currentDate.AddDays(-14).Date)
+                            && x.CreatedOn < currentDate.AddDays(-14).Date
+                            && x.PreviousApprenticeship.Cohort != null)
                 .ToListAsync(cancellationToken);
 
                 if (pendingRecords != null && pendingRecords.Any())
