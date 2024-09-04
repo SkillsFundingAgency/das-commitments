@@ -37,7 +37,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                     return;
                 }
 
-                var overlappingTrainingDateRequest = cohort.Apprenticeships.FirstOrDefault().OverlappingTrainingDateRequests?.OrderByDescending(x => x.Id).FirstOrDefault();
+                var overlappingTrainingDateRequest = cohort.Apprenticeships
+                    .OrderByDescending(apprenticeship => apprenticeship.CreatedOn)
+                    .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
+                    .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                    .OrderByDescending(request => request.Id)
+                    .FirstOrDefault();
 
                 if (overlappingTrainingDateRequest == null)
                 {
