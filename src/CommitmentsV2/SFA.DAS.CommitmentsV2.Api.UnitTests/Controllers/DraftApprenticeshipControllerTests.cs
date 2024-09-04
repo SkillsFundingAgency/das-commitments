@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     public class DraftApprenticeshipControllerTests
     {
         [Test]
-        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_IsContinuation_true()
+        public async Task Update_ValidRequest_ShouldReturnAnOkResult()
         {
             //Arrange
             var fixture = new DraftApprenticeshipControllerTestsFixture()
@@ -33,28 +33,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Update();
 
             //Assert
-            Assert.That(response is OkResult);
-            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(true));
+            response.Should().BeOfType<OkResult>();
         }
 
         [Test]
-        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_IsContinuation_false()
-        {
-            //Arrange
-            var fixture = new DraftApprenticeshipControllerTestsFixture()
-                .WithUpdateDraftApprenticeshipCommandResponse()
-                .WithGetApprenticeshipQueryResponseWithNoContinuationOfId(); 
-
-            //Act
-            var response = await fixture.Update();
-
-            //Assert
-            Assert.That(response is OkResult);
-            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(false));
-        }
-
-        [Test]
-        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_No_ApprenticeshipFound_IsContinuation_false()
+        public async Task Update_ValidRequest_ShouldReturnAnOkResult_With_No_ApprenticeshipFound()
         {
             //Arrange
             var fixture = new DraftApprenticeshipControllerTestsFixture()
@@ -65,7 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Assert
             Assert.That(response is OkResult);
-            Assert.That(fixture.UpdateDraftApprenticeshipCommand.IsContinuation, Is.EqualTo(false));
         }
 
         [Test]
