@@ -41,9 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
 
                 var overlappingTrainingDateRequests = cohort.Apprenticeships
                   .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
-                  .OrderByDescending(apprenticeship => apprenticeship.CreatedOn)
                   .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                  .OrderByDescending(request => request.Id)
                   .ToList();
 
                 if (!overlappingTrainingDateRequests.Any())
