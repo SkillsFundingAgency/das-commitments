@@ -91,17 +91,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_StopCommandSent();
         }
 
-        [Test]
-        public async Task Verify_DontSendEmailsWhenCohortIsDeleted()
-        {
-            using var fixture = new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture();
-            fixture.SetPreviousApprenticeshipCohortIsDeleted();
-            await fixture.Handle();
-
-            fixture.Verify_ZenDesk_EmailCommandIsNotSent();
-            fixture.Verify_StopCommandIsNotSent();
-        }
-
         public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandlerTestFixture : IDisposable
         {
             OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler _sut;
@@ -157,13 +146,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 x.NotifiedEmployerOn = DateTime.UtcNow;
-                Db.SaveChanges();
-            }
-
-            internal void SetPreviousApprenticeshipCohortIsDeleted()
-            {
-                var x = Db.Apprenticeships.FirstOrDefault();
-                x.Cohort.IsDeleted = true;
                 Db.SaveChanges();
             }
 

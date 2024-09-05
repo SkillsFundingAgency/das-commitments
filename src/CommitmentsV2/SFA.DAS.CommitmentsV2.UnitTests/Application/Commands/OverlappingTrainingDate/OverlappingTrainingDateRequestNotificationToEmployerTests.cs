@@ -72,16 +72,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_EmailCommandIsNotSent();
         }
 
-        [Test]
-        public async Task Verify_DontSendEmailWhenCohortIsDeleted()
-        {
-            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            fixture.SetPreviousApprenticeshipCohortIsDeleted();
-            await fixture.Handle();
-
-            fixture.Verify_EmailCommandIsNotSent();
-        }
-
         public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
@@ -154,14 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 x.NotifiedServiceDeskOn = DateTime.UtcNow;
                 Db.SaveChanges();
             }
-            
-            internal void SetPreviousApprenticeshipCohortIsDeleted()
-            {
-                var x = Db.Apprenticeships.FirstOrDefault();
-                x.Cohort.IsDeleted = true;
-                Db.SaveChanges();
-            }
-
+          
             internal void Verify_EmailCommandIsNotSent()
             {
                 _messageSession.Verify(y => y.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never);

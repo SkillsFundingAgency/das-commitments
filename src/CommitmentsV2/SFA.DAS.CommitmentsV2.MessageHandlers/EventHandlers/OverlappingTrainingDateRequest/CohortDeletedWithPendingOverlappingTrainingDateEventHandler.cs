@@ -27,7 +27,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
             try
             {
                 var cohort = await _dbContext.Value.Cohorts
+                    .IgnoreQueryFilters()
                     .Include(x => x.Apprenticeships)
+                    .ThenInclude(a => a.OverlappingTrainingDateRequests)
                     .Where(x => x.Id == message.CohortId)
                     .FirstOrDefaultAsync();
 
@@ -37,31 +39,34 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                     return;
                 }
 
-                var overlappingTrainingDateRequest = cohort.Apprenticeships
-                    .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
-                    .OrderByDescending(apprenticeship => apprenticeship.CreatedOn)
-                    .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                    .OrderByDescending(request => request.Id)
-                    .FirstOrDefault();
+                var overlappingTrainingDateRequests = cohort.Apprenticeships
+                  .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
+                  .OrderByDescending(apprenticeship => apprenticeship.CreatedOn)
+                  .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                  .OrderByDescending(request => request.Id)
+                  .ToList();
 
-                if (overlappingTrainingDateRequest == null)
+                if (!overlappingTrainingDateRequests.Any())
                 {
                     _logger.LogWarning("No OverlappingTrainingDateRequests found for Cohort Id {cohortId}", message.CohortId);
                     return;
                 }
 
-                if (overlappingTrainingDateRequest.Status == OverlappingTrainingDateRequestStatus.Pending)
+                foreach (var request in overlappingTrainingDateRequests)
                 {
-                    await _resolveOverlappingTrainingDateRequestService.Resolve(
-                      overlappingTrainingDateRequest.PreviousApprenticeshipId,
-                      null,
-                      OverlappingTrainingDateRequestResolutionType.CohortDeleted);
-                    return;
-                }
-                else
-                {
-                    _logger.LogWarning("Unable to modify OverlappingTrainingDateRequest {id} - status is already {status}", overlappingTrainingDateRequest.Id, overlappingTrainingDateRequest.Status);
-                    return;
+                    if (request.Status == OverlappingTrainingDateRequestStatus.Pending)
+                    {
+                        _logger.LogInformation("Resolving OverlappingTrainingDateRequest {id} for Cohort Id {cohortId}", request.Id, message.CohortId);
+
+                        await _resolveOverlappingTrainingDateRequestService.Resolve(
+                          request.PreviousApprenticeshipId,
+                          null,
+                          OverlappingTrainingDateRequestResolutionType.CohortDeleted);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Unable to modify OverlappingTrainingDateRequest {id} - status is already {status}", request.Id, request.Status);
+                    }
                 }
             }
             catch (Exception e)

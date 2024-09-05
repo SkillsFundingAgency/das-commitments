@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
@@ -31,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         }
 
         [Test]
-        public async Task WhenHandlingEvent_If_No_OverlappingTrainingDateRequest_Found()
+        public async Task WhenHandlingEvent_If_No_OverlappingTrainingDateRequests_Found()
         {
             _fixture.WithNoOverlappingTrainingDateRequest();
             await _fixture.Handle();
@@ -39,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         }
 
         [Test]
-        public async Task WhenHandlingEvent_If_OverlappingTrainingDateRequest_IsNotPending()
+        public async Task WhenHandlingEvent_If_OverlappingTrainingDateRequests_AreNotPending()
         {
             _fixture.WithResolvedOverlappingTrainingDateRequest();
             await _fixture.Handle();
@@ -47,10 +46,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         }
 
         [Test]
-        public async Task WhenHandlingEvent_If_OverlappingTrainingDateRequest_IsPending()
+        public async Task WhenHandlingEvent_If_Multiple_OverlappingTrainingDateRequests_ArePending()
         {
+            _fixture.WithMultiplePendingOverlappingTrainingDateRequests(3);
             await _fixture.Handle();
-            _fixture.VerifyOverlappingTrainingDateRequestResolved();
+            _fixture.VerifyAllOverlappingTrainingDateRequestsResolved(3);
         }
 
         private class CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture
@@ -87,7 +87,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 _resolveOverlappingTrainingDateRequestService.Setup(x => x.Resolve(
                     It.IsAny<long?>(),
                     It.IsAny<long?>(),
-                    It.IsAny<OverlappingTrainingDateRequestResolutionType>()
+                    It.Is<OverlappingTrainingDateRequestResolutionType>(r => 
+                    r == OverlappingTrainingDateRequestResolutionType.CohortDeleted)
                 )).Returns(Task.CompletedTask);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
@@ -100,26 +101,54 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             public CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture WithNoCohort()
             {
-                _db
-                    .Setup(context => context.Cohorts)
+                _db.Setup(context => context.Cohorts)
                     .ReturnsDbSet([]);
                 return this;
             }
 
             public CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture WithNoOverlappingTrainingDateRequest()
             {
-                _cohort.Apprenticeships.FirstOrDefault().OverlappingTrainingDateRequests = null;
-                _db
-                    .Setup(context => context.Cohorts)
+                foreach (var apprenticeship in _cohort.Apprenticeships)
+                {
+                    apprenticeship.OverlappingTrainingDateRequests = null;
+                }
+
+                _db.Setup(context => context.Cohorts)
                     .ReturnsDbSet([_cohort]);
                 return this;
             }
 
             public CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture WithResolvedOverlappingTrainingDateRequest()
             {
-                _cohort.Apprenticeships.FirstOrDefault().OverlappingTrainingDateRequests.FirstOrDefault().Status = OverlappingTrainingDateRequestStatus.Resolved;
-                _db
-                    .Setup(context => context.Cohorts)
+                foreach (var apprenticeship in _cohort.Apprenticeships)
+                {
+                    foreach (var request in apprenticeship.OverlappingTrainingDateRequests)
+                    {
+                        request.Status = OverlappingTrainingDateRequestStatus.Resolved;
+                    }
+                }
+
+                _db.Setup(context => context.Cohorts)
+                    .ReturnsDbSet([_cohort]);
+                return this;
+            }
+
+            public CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture WithMultiplePendingOverlappingTrainingDateRequests(int numberOfRequests)
+            {
+                foreach (var apprenticeship in _cohort.Apprenticeships)
+                {
+                    apprenticeship.OverlappingTrainingDateRequests = [];
+                    for (int i = 0; i < numberOfRequests; i++)
+                    {
+                        var request = new Models.OverlappingTrainingDateRequest
+                        {
+                            Status = OverlappingTrainingDateRequestStatus.Pending,
+                        };
+                        apprenticeship.OverlappingTrainingDateRequests.Add(request);
+                    }
+                }
+
+                _db.Setup(context => context.Cohorts)
                     .ReturnsDbSet([_cohort]);
                 return this;
             }
@@ -132,14 +161,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             public void VerifyOverlappingTrainingDateRequestNotResolved()
             {
-                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_overlappingTrainingDateRequest.PreviousApprenticeshipId,
-                    _overlappingTrainingDateRequest.DraftApprenticeshipId, OverlappingTrainingDateRequestResolutionType.CohortDeleted), Times.Never);
+                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(
+                    It.IsAny<long?>(),
+                    It.IsAny<long?>(),
+                    It.IsAny<OverlappingTrainingDateRequestResolutionType>()), Times.Never);
             }
 
-            public void VerifyOverlappingTrainingDateRequestResolved()
+            public void VerifyAllOverlappingTrainingDateRequestsResolved(int numberOfRequests)
             {
-                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_overlappingTrainingDateRequest.PreviousApprenticeshipId,
-                    null, OverlappingTrainingDateRequestResolutionType.CohortDeleted), Times.Once);
+                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(
+                    It.IsAny<long?>(),
+                    It.IsAny<long?>(),
+                    OverlappingTrainingDateRequestResolutionType.CohortDeleted), Times.Exactly(numberOfRequests));
             }
         }
     }
