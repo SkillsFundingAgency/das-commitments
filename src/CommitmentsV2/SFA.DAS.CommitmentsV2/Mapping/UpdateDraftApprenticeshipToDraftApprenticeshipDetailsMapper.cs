@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             // Only populate standard version specific items if start is specified.
             // The course is returned as latest version if no start date is specified
             // Which is fine for setting the training programmer.
-            if (startDate.HasValue)
+            if (!source.IsContinuation  && startDate.HasValue)
             {
                 result.TrainingCourseVersion = trainingProgramme?.Version;
                 result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;

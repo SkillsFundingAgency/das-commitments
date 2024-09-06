@@ -62,13 +62,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException(nameof(Uln), "Only providers are allowed to update the Uln");
             }
-            ProgrammeType = source.TrainingProgramme?.ProgrammeType;
-            CourseCode = source.TrainingProgramme?.CourseCode;
-            CourseName = source.TrainingProgramme?.Name;
-            TrainingCourseVersion = source.TrainingCourseVersion;
-            TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
-            TrainingCourseOption = selectedOption;
-            StandardUId = source.StandardUId;
+            
+            if (!IsContinuation)
+            {
+                ProgrammeType = source.TrainingProgramme?.ProgrammeType;
+                CourseCode = source.TrainingProgramme?.CourseCode;
+                CourseName = source.TrainingProgramme?.Name;
+                TrainingCourseVersion = source.TrainingCourseVersion;
+                TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
+                TrainingCourseOption = selectedOption;
+                StandardUId = source.StandardUId;
+            }
+            
             if (source.DeliveryModel.HasValue)
             {
                 DeliveryModel = source.DeliveryModel.Value;
