@@ -44,6 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public DateTime? ActualStartDate { get; set; }
             public bool? IsOnFlexiPaymentPilot { get; set; }
             public bool? EmployerHasEditedCost { get; set; }
+            public string TrainingCourseVersion { get; set; }
         }
     }
 }
