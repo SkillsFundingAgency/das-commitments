@@ -66,6 +66,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
+        public async Task Map_WhenMapping_WithIsContinuationTrue_VersionPropertiesNotSet()
+        {
+            var fixture = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapWithIsContinuationTrue();
+
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.Reference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme2);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().BeNull();
+            result.TrainingCourseVersion.Should().BeNull();
+            result.TrainingCourseVersionConfirmed.Should().BeFalse();
+            result.DeliveryModel.Should().Be(fixture.Command.DeliveryModel);
+        }
+
+        [Test]
         public async Task Map_WhenMappingWithDateAndStandardId_Then_UsesCalculatedTrainingProgramme()
         {
             var fixture = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture();
@@ -201,6 +223,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapWithStandard()
         {
             Command.CourseCode = Fixture.Create<int>().ToString();
+            Command.IsContinuation = false;
+
             return Mapper.Map(Command);
         }
 
@@ -209,6 +233,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command.CourseCode = Fixture.Create<int>().ToString();
             Command.StartDate = null;
             Command.IsOnFlexiPaymentPilot = true;
+            Command.IsContinuation = false;
+            return Mapper.Map(Command);
+        }
+
+        public Task<DraftApprenticeshipDetails> MapWithIsContinuationTrue()
+        {
+            Command.CourseCode = Fixture.Create<int>().ToString();
+            Command.IsContinuation = true;
             return Mapper.Map(Command);
         }
     }

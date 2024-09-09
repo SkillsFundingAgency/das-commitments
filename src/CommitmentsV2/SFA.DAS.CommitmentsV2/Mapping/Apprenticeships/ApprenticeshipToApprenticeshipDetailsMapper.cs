@@ -55,7 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 PledgeApplicationId = source.Cohort.PledgeApplicationId,
                 ActualStartDate = source.ActualStartDate,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                EmployerHasEditedCost = source.EmployerHasEditedCost
+                EmployerHasEditedCost = source.EmployerHasEditedCost,
+                TrainingCourseVersion = source.TrainingCourseVersion
             });
         }
     }
