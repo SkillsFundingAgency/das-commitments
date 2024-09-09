@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LevyStatus = apprenticeshipEmployerType;
         }
 
-        public void RemoveAccountLegalEntity(AccountLegalEntity accountLegalEntity, DateTime removed)
+        public void RemoveAccountLegalEntity(AccountLegalEntity accountLegalEntity, DateTime? removed)
         {
             EnsureAccountLegalEntityHasBeenAdded(accountLegalEntity);
 

@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        internal void Delete(DateTime deleted)
+        internal void Delete(DateTime? deleted)
         {
             EnsureAccountLegalEntityHasNotBeenDeleted();
             Deleted = deleted;
