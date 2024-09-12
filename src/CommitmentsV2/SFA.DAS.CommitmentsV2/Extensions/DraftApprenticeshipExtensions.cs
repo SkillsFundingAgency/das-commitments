@@ -215,6 +215,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
             }
+
+            if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&
+                details.ActualStartDate.HasValue &&
+                details.ActualStartDate.Value < Constants.SimplifiedPaymentsStartDate)
+            {
+                yield return new DomainError(startDateField, $"The start date must not be earlier than 1 October 2024.");
+            }
+
         }
 
         private static IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, ICollection<ApprenticeshipBase> apprenticeships)

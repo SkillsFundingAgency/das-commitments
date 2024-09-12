@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(366)]
         public void IfEndDateIs365DaysAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
         {
-            var endDate = new DateTime(2023, 12, 31);
+            var endDate = new DateTime(2025, 12, 31);
             var startDate = endDate.AddDays(-(daysAfterStartDate - 1));
 
             _fixture.AssertValidationForProperty(() =>
@@ -80,8 +80,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [Test]
         public void IfEndDateIsMoreThan10YearsAfterStartDateForAPilotApprenticeshipValidationFails()
         {
-            var endDate = new DateTime(2032, 01, 31);
-            var startDate = new DateTime(2022, 01, 31);
+            var endDate = new DateTime(2035, 01, 31);
+            var startDate = new DateTime(2025, 01, 31);
 
             _fixture.AssertValidationForProperty(() =>
                 {
@@ -97,9 +97,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(366)]
         public void IfEndDateIsLessThan10YearsAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
         {
-            var endDate = new DateTime(2032, 01, 1);
-            var assumedEndDate = new DateTime(2032, 1, 31);
-            var startDate = new DateTime(2022, 02, 1);
+            var endDate = new DateTime(2035, 01, 1);
+            var assumedEndDate = new DateTime(2035, 1, 31);
+            var startDate = new DateTime(2025, 02, 1);
 
             _fixture.AssertValidationForProperty(() =>
                 {
@@ -198,16 +198,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(null, true)]
-        [TestCase("2017-04-30", false)]
-        [TestCase("2017-05-01", true)]
-        public void ActualStartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        [TestCase("2024-09-30", false)]
+        [TestCase("2024-10-01", true)]
+        public void ActualStartDate_CheckNotBeforeOctober2024_Validation(DateTime? startDate, bool passes)
         {
             var utcStartDate = startDate.HasValue
                 ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
                 : default(DateTime?);
 
-            _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate,
+            _fixture.WithCurrentDate(new DateTime(2024, 10, 1))
+                .AssertValidationForProperty(() =>
+                    {
+                        _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+                        _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate;
+                    },
                     nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate)
                     , passes);
         }
