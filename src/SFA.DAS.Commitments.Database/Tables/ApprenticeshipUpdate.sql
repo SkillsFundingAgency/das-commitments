@@ -25,7 +25,9 @@
     [DeliveryModel] TINYINT NULL, 
     [EmploymentPrice] INT NULL, 
     [EmploymentEndDate] DATETIME2 NULL,
-    [ActualStartDate] DATETIME NULL
+    [ActualStartDate] DATETIME NULL,
+    [TrainingPrice] DECIMAL NULL, 
+    [EndPointAssessmentPrice] DECIMAL NULL
 )
 GO
 
