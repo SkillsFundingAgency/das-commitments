@@ -220,7 +220,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 details.ActualStartDate.HasValue &&
                 details.ActualStartDate.Value < Constants.SimplifiedPaymentsStartDate)
             {
-                yield return new DomainError(startDateField, $"The start date must not be earlier than 1 October 2024.");
+                yield return new DomainError(startDateField, $"The start date must not be earlier than {Constants.SimplifiedPaymentsStartDate.ToString("d MMMM yyyy")}.");
             }
 
         }
