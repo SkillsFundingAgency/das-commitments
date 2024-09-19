@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest
@@ -29,7 +30,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                 var cohort = await _dbContext.Value.Cohorts
                     .IgnoreQueryFilters()
                     .Include(x => x.Apprenticeships)
-                    .ThenInclude(a => a.OverlappingTrainingDateRequests)
+                        .ThenInclude(a => (a as Apprenticeship).OverlappingTrainingDateRequests)
+                    .Include(x => x.Apprenticeships)
+                        .ThenInclude(a => (a as DraftApprenticeship).OverlappingTrainingDateRequests)
                     .Where(x => x.Id == message.CohortId)
                     .FirstOrDefaultAsync();
 
