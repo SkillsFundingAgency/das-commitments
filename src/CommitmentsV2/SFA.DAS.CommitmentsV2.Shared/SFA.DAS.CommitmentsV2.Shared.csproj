@@ -10,7 +10,7 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84">
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.108">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
