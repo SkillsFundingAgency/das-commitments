@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>default</LangVersion>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
