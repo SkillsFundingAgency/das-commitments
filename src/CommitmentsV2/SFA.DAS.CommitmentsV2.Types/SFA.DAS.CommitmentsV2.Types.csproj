@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 
     <Authors>DAS</Authors>
     <Description>SFA.DAS.CommitmentsV2.Types library</Description>

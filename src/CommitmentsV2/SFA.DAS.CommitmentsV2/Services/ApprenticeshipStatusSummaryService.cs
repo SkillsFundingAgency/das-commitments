@@ -43,10 +43,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     LegalEntityIdentifier = x.LegalEntityId,
                     LegalEntityOrganisationType = x.OrganisationType,
-                    ActiveCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Active).Count(),
-                    WithdrawnCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Withdrawn).Count(),
-                    CompletedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Completed).Count(),
-                    PausedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Paused).Count()
+                    ActiveCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Active),
+                    WithdrawnCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Withdrawn),
+                    CompletedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Completed),
+                    PausedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Paused)
                 })
                
             };  
