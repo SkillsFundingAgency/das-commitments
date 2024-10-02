@@ -33,7 +33,7 @@
     <PackageReference Include="Polly" Version="8.3.0" />
     <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.113" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="6.0.97" />
-    <PackageReference Include="SFA.DAS.EmailValidationService" Version="1.0.17" />
+    <PackageReference Include="SFA.DAS.EmailValidationService" Version="17.1.87" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21">
