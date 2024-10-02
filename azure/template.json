@@ -601,8 +601,8 @@
                                     "value": "[parameters('loggingRedisKey')]"
                                 },
                                 {
-                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[if(parameters('deploySupportApp'), reference(concat(variables('supportAppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value, '')]"
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[if(parameters('deploySupportApp'), reference(concat(variables('supportAppServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value, '')]"
                                 }
                             ]
                         }
