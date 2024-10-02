@@ -79,7 +79,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerAccountId = _autoFixture.Create<long>(),
                     ProviderId = provider.UkPrn,
                     Provider = provider,
-                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy
+                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
+                    Reference = Guid.NewGuid().ToString()
                 };
 
                 var endpointAssessmentOrganisation = new AssessmentOrganisation
@@ -89,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Name = _autoFixture.Create<string>()
                 };
 
-                var previousAccount = new Account();
+                var previousAccount = new Account(2, "", "", "", DateTime.UtcNow);
                 var previousAccountLegalEntity = new AccountLegalEntity(previousAccount,
                     _autoFixture.Create<long>(),
                     0,
@@ -107,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerAccountId = previousAccount.Id,
                     AccountLegalEntityId = previousAccountLegalEntity.Id,
                     AccountLegalEntity = previousAccountLegalEntity,
+                    Reference = Guid.NewGuid().ToString(),
                 };
 
                 var previousApprenticeship = new Apprenticeship
