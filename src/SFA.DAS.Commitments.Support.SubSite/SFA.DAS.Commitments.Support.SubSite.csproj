@@ -14,8 +14,6 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.7.1" />
-    <PackageReference Include="NLog" Version="5.3.4"/>
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
     <PackageReference Include="SFA.DAS.Authorization.Mvc" Version="6.0.59">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
@@ -31,12 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="nlog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>

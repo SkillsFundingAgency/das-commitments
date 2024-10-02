@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Jobs.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Jobs.Extensions;
 using SFA.DAS.CommitmentsV2.Startup;
