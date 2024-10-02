@@ -48,24 +48,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapFlexiPaymentsLearnerWithStandard();
 
-            Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
-            Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
-            Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
-            Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
-            Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
-            Assert.AreEqual(fixture.Command.TrainingPrice, draftApprenticeshipDetails.TrainingPrice);
-            Assert.AreEqual(fixture.Command.EndPointAssessmentPrice, draftApprenticeshipDetails.EndPointAssessmentPrice);
-            Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
-            Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
-            Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
-            Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgrammeStandard, draftApprenticeshipDetails.TrainingProgramme);
-            Assert.AreEqual(fixture.TrainingProgrammeStandard.StandardUId, draftApprenticeshipDetails.StandardUId);
-            Assert.AreEqual(fixture.TrainingProgrammeStandard.Version, draftApprenticeshipDetails.TrainingCourseVersion);
-            Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
-            Assert.AreEqual(fixture.Command.EmploymentPrice, draftApprenticeshipDetails.EmploymentPrice);
-            Assert.AreEqual(fixture.Command.EmploymentEndDate, draftApprenticeshipDetails.EmploymentEndDate);
-            Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
+            Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
+            Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
+            Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
+            Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
+            Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
+            Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
+            Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
+            Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
+            Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
+            Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
+            Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
+            Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
+            Assert.That(draftApprenticeshipDetails.StandardUId, Is.EqualTo(fixture.TrainingProgrammeStandard.StandardUId));
+            Assert.That(draftApprenticeshipDetails.TrainingCourseVersion, Is.EqualTo(fixture.TrainingProgrammeStandard.Version));
+            Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+            Assert.That(draftApprenticeshipDetails.EmploymentPrice, Is.EqualTo(fixture.Command.EmploymentPrice));
+            Assert.That(draftApprenticeshipDetails.EmploymentEndDate, Is.EqualTo(fixture.Command.EmploymentEndDate));
+            Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
         }
 
         [Test]
