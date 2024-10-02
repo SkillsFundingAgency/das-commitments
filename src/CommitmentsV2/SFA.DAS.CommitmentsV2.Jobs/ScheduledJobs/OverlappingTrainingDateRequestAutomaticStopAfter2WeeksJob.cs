@@ -2,25 +2,17 @@
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
-    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob
+    public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob(
+        ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> logger,
+        IMediator mediator)
     {
-        private readonly ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> _logger;
-        private readonly IMediator _mediator;
-
-        public OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob(ILogger<OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob> logger,
-            IMediator mediator)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
-
         public async Task StopApprenticeships([TimerTrigger("%SFA.DAS.CommitmentsV2:OLTDStopApprenticeshipAfter2WeeksJobSchedule%", RunOnStartup = false)] TimerInfo timer)
         {
-            _logger.LogInformation("Starting OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob");
+            logger.LogInformation("Starting OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob");
 
-            await _mediator.Send(new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand());
+            await mediator.Send(new OverlappingTrainingDateRequestAutomaticStopAfter2WeeksCommand());
 
-            _logger.LogInformation("OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob - Finished");
+            logger.LogInformation("OverlappingTrainingDateRequestAutomaticStopAfter2WeeksJob - Finished");
         }
     }
 }

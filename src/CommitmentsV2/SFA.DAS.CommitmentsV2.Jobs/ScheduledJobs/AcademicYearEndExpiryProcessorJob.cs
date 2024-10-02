@@ -30,7 +30,12 @@ public class AcademicYearEndExpiryProcessorJob
     {
         if (_currentDateTime.UtcNow < _academicYearProvider.LastAcademicYearFundingPeriod)
         {
-            _logger.LogInformation($"The {nameof(AcademicYearEndExpiryProcessorService)} job cannot run before last academic year funding period. ({_academicYearProvider.LastAcademicYearFundingPeriod}) - current date time {_currentDateTime.UtcNow} , JobId: {_jobId}");
+            _logger.LogInformation("The {TypeName} job cannot run before last academic year funding period. ({LastAcademicYearFundingPeriod}) - current date time {CurrentDateTime} , JobId: {JobId}",
+                nameof(AcademicYearEndExpiryProcessorService),
+                _academicYearProvider.LastAcademicYearFundingPeriod,
+                _currentDateTime.UtcNow,
+                _jobId);
+
             return;
         }
 
@@ -39,21 +44,24 @@ public class AcademicYearEndExpiryProcessorJob
             await _academicYearProcessor.ExpireApprenticeshipUpdates($"{_jobId}.ChangeOfCircs")
                 .ContinueWith(t => WhenDone(t, _logger, "ChangeOfCircs"));
 
-
             await _academicYearProcessor.ExpireDataLocks($"{_jobId}.DataLocks")
                 .ContinueWith(t => WhenDone(t, _logger, "DataLocks"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error running {nameof(AcademicYearEndExpiryProcessorService)}.WebJob");
+            _logger.LogError(ex, "Error running {TypeName}.WebJob", nameof(AcademicYearEndExpiryProcessorService));
         }
     }
 
     private void WhenDone(Task task, ILogger<AcademicYearEndExpiryProcessorJob> logger, string identifier)
     {
         if (task.IsFaulted)
-            logger.LogError(task.Exception, $"Error running {identifier} AcademicYearEndProcessor.WebJob, JobId: {_jobId}.{identifier}");
+        {
+            logger.LogError(task.Exception, "Error running {Identifier} AcademicYearEndProcessor.WebJob, JobId: {JobId}.{Identifier}", identifier, _jobId, identifier);
+        }
         else
-            logger.LogInformation($"Successfully ran AcademicYearEndProcessor.WebJob for {identifier}, JobId: {_jobId}.{identifier}");
+        {
+            logger.LogInformation("Successfully ran AcademicYearEndProcessor.WebJob for {Identifier}, JobId: {JobId}.{Identifier}", identifier, _jobId, identifier);
+        }
     }
 }

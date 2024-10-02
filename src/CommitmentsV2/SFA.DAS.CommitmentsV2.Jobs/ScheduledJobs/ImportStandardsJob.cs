@@ -6,24 +6,13 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 
-public class ImportStandardsJob
+public class ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
 {
-    private readonly ILogger<ImportStandardsJob> _logger;
-    private readonly IApprovalsOuterApiClient _apiClient;
-    private readonly IProviderCommitmentsDbContext _providerContext;
-
-    public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
-    {
-        _logger = logger;
-        _apiClient = apiClient;
-        _providerContext = providerContext;
-    }
-
     public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
     {
-        _logger.LogInformation("ImportStandardsJob - Started");
+        logger.LogInformation("ImportStandardsJob - Started");
 
-        var response = await _apiClient.Get<StandardResponse>(new GetStandardsRequest());
+        var response = await apiClient.Get<StandardResponse>(new GetStandardsRequest());
 
         var filteredStandards = FilterResponse(response);
 
@@ -33,7 +22,7 @@ public class ImportStandardsJob
 
         await ProcessFunding(filteredStandards);
 
-        _logger.LogInformation("ImportStandardsJob - Finished");
+        logger.LogInformation("ImportStandardsJob - Finished");
     }
 
     private async Task ProcessFunding(IEnumerable<StandardSummary> filteredStandards)
@@ -64,7 +53,7 @@ public class ImportStandardsJob
             ));
         foreach (var batch in fundingBatches)
         {
-            await ImportStandardsFunding(_providerContext, batch);
+            await ImportStandardsFunding(providerContext, batch);
         }
     }
 
@@ -76,10 +65,11 @@ public class ImportStandardsJob
             p => p.StandardUId,
             p => p.Option));
 
-        await ClearStandardOptions(_providerContext);
+        await ClearStandardOptions(providerContext);
+        
         foreach (var batch in optionBatches)
         {
-            await ImportStandardOptions(_providerContext, batch);
+            await ImportStandardOptions(providerContext, batch);
         }
     }
 
@@ -108,13 +98,13 @@ public class ImportStandardsJob
 
         foreach (var batch in batches)
         {
-            await ImportStandards(_providerContext, batch);
+            await ImportStandards(providerContext, batch);
         }
     }
-    private static IEnumerable<StandardSummary> FilterResponse(StandardResponse response)
+    private static List<StandardSummary> FilterResponse(StandardResponse response)
     {
-        var statusList = new string[] { "Approved for delivery", "Retired" };
-        var filteredStandards = response.Standards.Where(s => statusList.Contains(s.Status));
+        var statusList = new[] { "Approved for delivery", "Retired" };
+        var filteredStandards = response.Standards.Where(s => statusList.Contains(s.Status)).ToList();
 
         var latestVersionsOfStandards = filteredStandards.
             GroupBy(s => s.LarsCode).
@@ -164,6 +154,7 @@ public class ImportStandardsJob
             TypeName = "StandardsFunding",
             Value = standardsFundingDataTable
         };
+        
         return db.ExecuteSqlCommandAsync("EXEC ImportStandardsFunding @standardsFunding", standardsFunding);
     }
 }
