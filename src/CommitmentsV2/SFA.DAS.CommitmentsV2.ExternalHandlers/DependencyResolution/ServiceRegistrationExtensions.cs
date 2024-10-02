@@ -51,7 +51,7 @@ public static class ServiceRegistrationExtensions
         return hostBuilder;
     }
 
-    public static IServiceCollection AddDefaultExternalHandlerServices(this IServiceCollection services)
+    private static IServiceCollection AddDefaultExternalHandlerServices(this IServiceCollection services)
     {
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
         services.AddTransient<ITopicClientFactory, TopicClientFactory>();
