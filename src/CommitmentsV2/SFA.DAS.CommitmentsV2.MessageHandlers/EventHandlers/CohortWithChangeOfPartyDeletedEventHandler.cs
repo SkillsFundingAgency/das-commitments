@@ -3,49 +3,39 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortWithChangeOfPartyDeletedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<CohortWithChangeOfPartyDeletedEventHandler> logger)
+    : IHandleMessages<CohortWithChangeOfPartyDeletedEvent>
 {
-    public class CohortWithChangeOfPartyDeletedEventHandler :IHandleMessages<CohortWithChangeOfPartyDeletedEvent>
+    public async Task Handle(CohortWithChangeOfPartyDeletedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<CohortWithChangeOfPartyDeletedEventHandler> _logger;
+        logger.LogInformation("CohortWithChangeOfPartyDeletedEvent received for Cohort {Id}, ChangeOfPartyRequest {ChangeOfPartyRequestId}", message.CohortId, message.ChangeOfPartyRequestId);
 
-        public CohortWithChangeOfPartyDeletedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<CohortWithChangeOfPartyDeletedEventHandler> logger)
+        try
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            var changeOfPartyRequest =
+                await dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+
+            if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
+            {
+                logger.LogWarning("Unable to modify ChangeOfPartyRequest {ChangeOfPartyRequestId} - status is already {Status}", message.ChangeOfPartyRequestId, changeOfPartyRequest.Status);
+                return;
+            }
+
+            if (message.DeletedBy == changeOfPartyRequest.OriginatingParty)
+            {
+                changeOfPartyRequest.Withdraw(message.DeletedBy, message.UserInfo);
+            }
+            else
+            {
+                changeOfPartyRequest.Reject(message.DeletedBy, message.UserInfo);
+            }
         }
-
-        public async Task Handle(CohortWithChangeOfPartyDeletedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation($"CohortWithChangeOfPartyDeletedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}");
-
-            try
-            {
-                var changeOfPartyRequest =
-                    await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-
-                if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
-                {
-                    _logger.LogWarning(
-                        $"Unable to modify ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}");
-                    return;
-                }
-
-                if (message.DeletedBy == changeOfPartyRequest.OriginatingParty)
-                {
-                    changeOfPartyRequest.Withdraw(message.DeletedBy, message.UserInfo);
-                }
-                else
-                {
-                    changeOfPartyRequest.Reject(message.DeletedBy, message.UserInfo);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error processing CohortWithChangeOfPartyDeletedEvent", e);
-                throw;
-            }
+            logger.LogError(e, "Error processing CohortWithChangeOfPartyDeletedEvent");
+            throw;
         }
     }
 }

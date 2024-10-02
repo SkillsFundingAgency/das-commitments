@@ -9,36 +9,23 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class CohortWithChangeOfPartyCreatedEventHandlerForEmail : IHandleMessages<CohortWithChangeOfPartyCreatedEvent>
+public class CohortWithChangeOfPartyCreatedEventHandlerForEmail(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IMediator mediator,
+    IEncodingService encodingService,
+    ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> logger,
+    CommitmentsV2Configuration commitmentsV2Configuration)
+    : IHandleMessages<CohortWithChangeOfPartyCreatedEvent>
 {
     public const string TemplateApproveNewEmployerDetailsLevy = "ApproveNewEmployerDetails_Levy";
     public const string TemplateApproveNewEmployerDetailsNonLevy = "ApproveNewEmployerDetails_NonLevy";
     public const string TemplateProviderApprenticeshipChangeOfProviderRequested = "ProviderApprenticeshipChangeOfProviderRequested";
 
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly IMediator _mediator;
-    private readonly IEncodingService _encodingService;
-    private readonly ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> _logger;
-    private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-
-    public CohortWithChangeOfPartyCreatedEventHandlerForEmail(Lazy<ProviderCommitmentsDbContext> dbContext,
-        IMediator mediator,
-        IEncodingService encodingService,
-        ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> logger,
-        CommitmentsV2Configuration commitmentsV2Configuration)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _mediator = mediator;
-        _encodingService = encodingService;
-        _commitmentsV2Configuration = commitmentsV2Configuration;
-    }
-
     public async Task Handle(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Received CohortWithChangeOfPartyCreatedEvent for cohort Id: {CohortId}", message.CohortId);
+        logger.LogInformation("Received CohortWithChangeOfPartyCreatedEvent for cohort Id: {CohortId}", message.CohortId);
 
-        var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
+        var cohortSummary = await mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
         switch (message.OriginatingParty)
         {
@@ -56,8 +43,8 @@ public class CohortWithChangeOfPartyCreatedEventHandlerForEmail : IHandleMessage
         var tokens = new Dictionary<string, string>
         {
             {"provider_name", cohortSummary.ProviderName },
-            {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
-            {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
+            {"employer_hashed_account", encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
+            {"cohort_reference", encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
         };
 
         var templateName = cohortSummary.LevyStatus == ApprenticeshipEmployerType.Levy
@@ -68,12 +55,12 @@ public class CohortWithChangeOfPartyCreatedEventHandlerForEmail : IHandleMessage
             templateName,
             tokens));
 
-        _logger.LogInformation($"Sent SendEmailToEmployerCommand with template: {templateName}");
+        logger.LogInformation("Sent SendEmailToEmployerCommand with template: {TemplateName}", templateName);
     }
 
     private async Task SendProviderEmail(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context, GetCohortSummaryQueryResult cohortSummary)
     {
-        var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+        var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
 
         var apprenticeNamePossessive = await GetApprenticeNamePossessive(changeOfPartyRequest.ApprenticeshipId);            
 
@@ -83,17 +70,17 @@ public class CohortWithChangeOfPartyCreatedEventHandlerForEmail : IHandleMessage
             { "TrainingProviderName" , cohortSummary.ProviderName},
             { "EmployerName" , cohortSummary.LegalEntityName},
             { "ApprenticeNamePossessive" , apprenticeNamePossessive },
-            { "RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{cohortSummary.ProviderId}/unapproved/{cohortSummary.CohortReference}/details" }
+            { "RequestUrl", $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{cohortSummary.ProviderId}/unapproved/{cohortSummary.CohortReference}/details" }
         };
 
         await context.Send(new SendEmailToProviderCommand(cohortSummary.ProviderId.Value, TemplateProviderApprenticeshipChangeOfProviderRequested, tokens));
 
-        _logger.LogInformation($"Sent SendEmailToProviderCommand with template: ProviderApprenticeshipChangeOfProviderRequested");
+        logger.LogInformation($"Sent SendEmailToProviderCommand with template: ProviderApprenticeshipChangeOfProviderRequested");
     }
 
     private async Task<string> GetApprenticeNamePossessive(long apprenticeshipId)
     {
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, default);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, default);
 
         return apprenticeship.ApprenticeName.EndsWith('s') ? apprenticeship.ApprenticeName + "'" : apprenticeship.ApprenticeName + "'s";
     }

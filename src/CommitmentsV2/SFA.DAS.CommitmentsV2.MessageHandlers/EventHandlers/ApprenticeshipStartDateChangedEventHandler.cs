@@ -4,113 +4,101 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipStartDateChangedEventHandler(
+    ILogger<ApprenticeshipStartDateChangedEventHandler> logger,
+    IMediator mediator)
+    : IHandleMessages<ApprenticeshipStartDateChangedEvent>
 {
-    public class ApprenticeshipStartDateChangedEventHandler : IHandleMessages<ApprenticeshipStartDateChangedEvent>
+    public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
     {
-        private readonly ILogger<ApprenticeshipStartDateChangedEventHandler> _logger;
-        private readonly IMediator _mediator;
+        logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
 
-        public ApprenticeshipStartDateChangedEventHandler(
-            ILogger<ApprenticeshipStartDateChangedEventHandler> logger,
-            IMediator mediator)
+        ResolveUsers(message, out var initiator, out var approver);
+
+        await EditApprenticeship(message, initiator);
+        await ApproveApprenticeship(message, approver);
+
+        logger.LogInformation("Successfully completed handling of {EventName}", nameof(ApprenticeshipStartDateChangedEvent));
+    }
+
+    private async Task EditApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
+    {
+        var editApprenticeshipRequest = new EditApprenticeshipApiRequest
         {
-            _logger = logger;
-            _mediator = mediator;
+            ApprenticeshipId = message.ApprenticeshipId,
+            AccountId = partyUser.AccountId,
+            ProviderId = message.Episode.Ukprn,
+            StartDate = new DateTime(message.StartDate.Year, message.StartDate.Month, 1),
+            EndDate = message.Episode.Prices.OrderBy(x => x.EndDate).Last().EndDate,
+            ActualStartDate = message.StartDate,
+            UserInfo = partyUser.UserInfo
+        };
+
+        var command = new EditApprenticeshipCommand(editApprenticeshipRequest, partyUser.Party);
+
+        try
+        {
+            await mediator.Send(command);
         }
-
-        public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
+        catch (Exception ex)
         {
-            _logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
-
-            ResolveUsers(message, out var initiator, out var approver);
-
-            await EditApprenticeship(message, initiator);
-            await ApproveApprenticeship(message, approver);
-
-            _logger.LogInformation("Successfully completed handling of {eventName}", nameof(ApprenticeshipStartDateChangedEvent));
-        }
-
-        private async Task EditApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
-        {
-            var editApprenticeshipRequest = new EditApprenticeshipApiRequest
-            {
-                ApprenticeshipId = message.ApprenticeshipId,
-                AccountId = partyUser.AccountId,
-                ProviderId = message.Episode.Ukprn,
-                StartDate = new DateTime(message.StartDate.Year, message.StartDate.Month, 1),
-                EndDate = message.Episode.Prices.OrderBy(x => x.EndDate).Last().EndDate,
-                ActualStartDate = message.StartDate,
-                UserInfo = partyUser.UserInfo
-            };
-
-            var command = new EditApprenticeshipCommand(editApprenticeshipRequest, partyUser.Party);
-
-            try
-            {
-                var response = await _mediator.Send(command);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
-                throw;
-            }
-        }
-
-        private async Task ApproveApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
-        {
-            var command = new AcceptApprenticeshipUpdatesCommand(
-                partyUser.Party, partyUser.AccountId, message.ApprenticeshipId, partyUser.UserInfo);
-
-            try
-            {
-                await _mediator.Send(command);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
-                throw;
-            }
-        }
-
-        private static void ResolveUsers(
-            ApprenticeshipStartDateChangedEvent message, out PartyUser initiator, out PartyUser approver)
-        {
-            switch (message.Initiator)
-            {
-                case "Employer":
-                    initiator = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
-                    approver = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
-                    break;
-
-                case "Provider":
-                    initiator = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
-                    approver = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Invalid initiator {message.Initiator}");
-            }
+            logger.LogError(ex, "Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
+            throw;
         }
     }
 
-    public class PartyUser
+    private async Task ApproveApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
     {
-        public Party Party { get; }
-        public long AccountId { get; set; }
-        public UserInfo UserInfo { get; }
+        var command = new AcceptApprenticeshipUpdatesCommand(partyUser.Party, partyUser.AccountId, message.ApprenticeshipId, partyUser.UserInfo);
 
-        public PartyUser(Party party, long accountId, string userId)
+        try
         {
-            Party = party;
-            AccountId = accountId;
-            UserInfo = new UserInfo
-            {
-                UserId = userId,
-                UserDisplayName = "SYSTEM",
-                UserEmail = "SYSTEM"
-            };
+            await mediator.Send(command);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
+            throw;
+        }
+    }
+
+    private static void ResolveUsers(ApprenticeshipStartDateChangedEvent message, out PartyUser initiator, out PartyUser approver)
+    {
+        switch (message.Initiator)
+        {
+            case "Employer":
+                initiator = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
+                approver = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
+                break;
+
+            case "Provider":
+                initiator = new PartyUser(Party.Provider, message.Episode.Ukprn, message.ProviderApprovedBy);
+                approver = new PartyUser(Party.Employer, message.Episode.EmployerAccountId, message.EmployerApprovedBy);
+                break;
+
+            default:
+                throw new ArgumentException($"Invalid initiator {message.Initiator}");
         }
     }
 }
 
+public class PartyUser
+{
+    public Party Party { get; }
+    public long AccountId { get; set; }
+    public UserInfo UserInfo { get; }
+
+    public PartyUser(Party party, long accountId, string userId)
+    {
+        Party = party;
+        AccountId = accountId;
+        UserInfo = new UserInfo
+        {
+            UserId = userId,
+            UserDisplayName = "SYSTEM",
+            UserEmail = "SYSTEM"
+        };
+    }
+}

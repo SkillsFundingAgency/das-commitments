@@ -3,37 +3,25 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortDeletedEventHandler(ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortDeletedEventHandler> logger)
+    : IHandleMessages<CohortDeletedEvent>
 {
-    public class CohortDeletedEventHandler : IHandleMessages<CohortDeletedEvent>
+    public async Task Handle(CohortDeletedEvent message, IMessageHandlerContext context)
     {
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<CohortDeletedEventHandler> _logger;
-
-        public CohortDeletedEventHandler(ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortDeletedEventHandler> logger)
+        try
         {
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
-            _logger = logger;
+            if (message.ApprovedBy.HasFlag(Party.Provider))
+            {
+                await legacyTopicMessagePublisher.PublishAsync(new ProviderCohortApprovalUndoneByEmployerUpdate(message.AccountId, message.ProviderId, message.CohortId));
+                logger.LogInformation("Sent message '{TypeName}' for commitment {CohortId}", nameof(ProviderCohortApprovalUndoneByEmployerUpdate), message.CohortId);
+            }
         }
-
-        public async Task Handle(CohortDeletedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            try
-            {
-                if (message.ApprovedBy.HasFlag(Party.Provider))
-                {
-                    await _legacyTopicMessagePublisher.PublishAsync(
-                        new ProviderCohortApprovalUndoneByEmployerUpdate(message.AccountId, message.ProviderId,
-                            message.CohortId));
-                    _logger.LogInformation(
-                        $"Sent message '{nameof(ProviderCohortApprovalUndoneByEmployerUpdate)}' for commitment {message.CohortId}");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error when trying to publish {nameof(ProviderCohortApprovalUndoneByEmployerUpdate)}");
-                throw;
-            }
+            logger.LogError(e, "Error when trying to publish {TypeName}", nameof(ProviderCohortApprovalUndoneByEmployerUpdate));
+            throw;
         }
     }
 }

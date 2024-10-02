@@ -1,20 +1,12 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+
+public class RejectTransferRequestCommandHandler(ITransferRequestDomainService transferRequestDomainService) : IHandleMessages<RejectTransferRequestCommand>
 {
-    public class RejectTransferRequestCommandHandler : IHandleMessages<RejectTransferRequestCommand>
+    public async Task Handle(RejectTransferRequestCommand message, IMessageHandlerContext context)
     {
-        private readonly ITransferRequestDomainService _transferRequestDomainService;
-
-        public RejectTransferRequestCommandHandler(ITransferRequestDomainService transferRequestDomainService)
-        {
-            _transferRequestDomainService = transferRequestDomainService;
-        }
-
-        public async Task Handle(RejectTransferRequestCommand message, IMessageHandlerContext context)
-        {
-            await _transferRequestDomainService.RejectTransferRequest(message.TransferRequestId, message.UserInfo, message.RejectedOn, default);
-        }
+        await transferRequestDomainService.RejectTransferRequest(message.TransferRequestId, message.UserInfo, message.RejectedOn, default);
     }
 }

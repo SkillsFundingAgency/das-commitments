@@ -5,40 +5,29 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipUpdatedApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<ApprenticeshipUpdatedApprovedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipUpdatedApprovedEvent>
 {
-    public class ApprenticeshipUpdatedApprovedEventHandler : IHandleMessages<ApprenticeshipUpdatedApprovedEvent>
+    public async Task Handle(ApprenticeshipUpdatedApprovedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<ApprenticeshipUpdatedApprovedEventHandler> _logger;
-
-        public ApprenticeshipUpdatedApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<ApprenticeshipUpdatedApprovedEventHandler> logger)
+        logger.LogInformation("ApprenticeshipUpdatedApprovedEvent received for apprenticeshipId: {Id}", message.ApprenticeshipId);
+        try
         {
-            _dbContext = dbContext;
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
-            _logger = logger;
+            var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, CancellationToken.None);
+
+            await legacyTopicMessagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted
+            {
+                AccountId = apprenticeship.Cohort.EmployerAccountId,
+                ProviderId = apprenticeship.Cohort.ProviderId,
+                ApprenticeshipId = message.ApprenticeshipId
+            });
         }
-
-        public async Task Handle(ApprenticeshipUpdatedApprovedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation("ApprenticeshipUpdatedApprovedEvent received for apprenticeshipId :" + message.ApprenticeshipId);
-            try
-            {
-               var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, CancellationToken.None);
-
-                await _legacyTopicMessagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted
-                {
-                    AccountId = apprenticeship.Cohort.EmployerAccountId,
-                    ProviderId = apprenticeship.Cohort.ProviderId,
-                    ApprenticeshipId = message.ApprenticeshipId
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateAccepted");
-                throw;
-            }
+            logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateAccepted");
+            throw;
         }
     }
 }

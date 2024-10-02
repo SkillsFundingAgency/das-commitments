@@ -4,42 +4,35 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortAssignedToEmployerEventHandlerForLegacyTaskCounter(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILegacyTopicMessagePublisher legacyTopicMessagePublisher,
+    ILogger<CohortAssignedToEmployerEventHandlerForLegacyTaskCounter> logger)
+    : IHandleMessages<CohortAssignedToEmployerEvent>
 {
-    public class CohortAssignedToEmployerEventHandlerForLegacyTaskCounter : IHandleMessages<CohortAssignedToEmployerEvent>
+    public async Task Handle(CohortAssignedToEmployerEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<CohortAssignedToEmployerEventHandlerForLegacyTaskCounter> _logger;
-
-        public CohortAssignedToEmployerEventHandlerForLegacyTaskCounter(Lazy<ProviderCommitmentsDbContext> dbContext,  ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortAssignedToEmployerEventHandlerForLegacyTaskCounter> logger)
+        try
         {
-            _dbContext = dbContext;
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
-            _logger = logger;
-        }
-
-        public async Task Handle(CohortAssignedToEmployerEvent message, IMessageHandlerContext context)
-        {
-            try
+            if (message.AssignedBy == Party.Provider)
             {
-                if (message.AssignedBy == Party.Provider)
+                var cohort = await dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
+                if (cohort.WithParty == Party.Employer)
                 {
-                    var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId); 
-                    if(cohort.WithParty == Party.Employer)
-                    {
-                        await _legacyTopicMessagePublisher.PublishAsync(
-                            new CohortApprovalRequestedByProvider(cohort.EmployerAccountId, cohort.ProviderId, cohort.Id));
-                        _logger.LogInformation($"Published legacy event '{typeof(CohortApprovalRequestedByProvider)}' for Cohort {message.CohortId}");
-                    }
+                    await legacyTopicMessagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(cohort.EmployerAccountId, cohort.ProviderId, cohort.Id));
+
+                    logger.LogInformation("Published legacy event '{TypeName}' for Cohort {CohortId}", typeof(CohortApprovalRequestedByProvider), message.CohortId);
                 }
-                _logger.LogInformation($"Handled event '{typeof(CohortAssignedToEmployerEvent)}' for Cohort {message.CohortId}");
             }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error publishing legacy Event '{typeof(CohortApprovalRequestedByProvider)}' for Cohort {message.CohortId}");
-                throw;
-            }
+
+            logger.LogInformation("Handled event '{TypeName}' for Cohort {CohortId}", typeof(CohortApprovalRequestedByProvider), message.CohortId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error publishing legacy Event '{TypeName}' for Cohort {CohortId}", typeof(CohortApprovalRequestedByProvider), message.CohortId);
+            throw;
         }
     }
 }
