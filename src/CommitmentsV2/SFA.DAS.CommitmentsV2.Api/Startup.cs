@@ -42,6 +42,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
 namespace SFA.DAS.CommitmentsV2.Api;
+
 public class Startup
 {
     private readonly IWebHostEnvironment _env;
@@ -93,7 +94,7 @@ public class Startup
         services.AddDasDistributedMemoryCache(_configuration, _env.IsDevelopment());
         services.AddDasHealthChecks(_configuration);
         services.AddMemoryCache();
-        services.AddApiClients(_configuration);
+        services.AddApiClients();
         services.AddTelemetryUriRedaction("firstName,lastName,dateOfBirth,email");
 
         services.AddAcademicYearDateProviderServices();
@@ -169,12 +170,7 @@ public class Startup
             .UseUnitOfWork()
             .UseRouting()
             .UseAuthorization()
-            .UseEndpoints(builder =>
-            {
-                builder.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            })
+            .UseEndpoints(builder => builder.MapDefaultControllerRoute())
             .UseSwagger()
             .UseSwaggerUI(c =>
             {

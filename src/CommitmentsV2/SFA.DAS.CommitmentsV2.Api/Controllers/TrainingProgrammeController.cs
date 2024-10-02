@@ -14,24 +14,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class TrainingProgrammeController : ControllerBase
+public class TrainingProgrammeController(IMediator mediator, ILogger<TrainingProgrammeController> logger)
+    : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<TrainingProgrammeController> _logger;
-
-    public TrainingProgrammeController(IMediator mediator, ILogger<TrainingProgrammeController> logger)
-    {
-        _mediator = mediator;
-        _logger = logger;
-    }
-
     [HttpGet]
     [Route("all")]
     public async Task<IActionResult> GetAll()
     {
         try
         {
-            var result = await _mediator.Send(new GetAllTrainingProgrammesQuery());
+            var result = await mediator.Send(new GetAllTrainingProgrammesQuery());
+            
             return Ok(new GetAllTrainingProgrammesResponse
             {
                 TrainingProgrammes = result.TrainingProgrammes
@@ -39,7 +32,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting all courses");
+            logger.LogError(e, "Error getting all courses");
             return BadRequest();
         }
     }
@@ -50,7 +43,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetAllTrainingProgrammeStandardsQuery());
+            var result = await mediator.Send(new GetAllTrainingProgrammeStandardsQuery());
             return Ok(new GetAllTrainingProgrammeStandardsResponse
             {
                 TrainingProgrammes = result.TrainingProgrammes
@@ -58,7 +51,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting all standards");
+            logger.LogError(e, "Error getting all standards");
             return BadRequest();
         }
     }
@@ -69,7 +62,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetTrainingProgrammeQuery
+            var result = await mediator.Send(new GetTrainingProgrammeQuery
             {
                 Id = id
             });
@@ -86,7 +79,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting training programme {id}", id);
+            logger.LogError(e, "Error getting training programme {id}", id);
             return BadRequest();
         }
     }
@@ -97,7 +90,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
+            var result = await mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
 
             if (result.TrainingProgramme == null)
             {
@@ -111,7 +104,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting standard options for {standardUId}", standardUId);
+            logger.LogError(e, "Error getting standard options for {standardUId}", standardUId);
             return BadRequest();
         }
     }
@@ -122,7 +115,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
+            var result = await mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
 
             if (result.TrainingProgramme == null)
             {
@@ -136,7 +129,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting standard version for standard {courseCode} version {version}", courseCode, version);
+            logger.LogError(e, "Error getting standard version for standard {courseCode} version {version}", courseCode, version);
             return BadRequest();
         }
     }
@@ -147,7 +140,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetTrainingProgrammeVersionsQuery(id));
+            var result = await mediator.Send(new GetTrainingProgrammeVersionsQuery(id));
 
             if (result.TrainingProgrammes == null)
             {
@@ -161,7 +154,7 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting standard versions for {id}", id);
+            logger.LogError(e, "Error getting standard versions for {id}", id);
             return BadRequest();
         }
     }
@@ -172,7 +165,7 @@ public class TrainingProgrammeController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
+            var result = await mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
 
             return Ok(new GetNewerTrainingProgrammeVersionsResponse
             {
@@ -181,18 +174,18 @@ public class TrainingProgrammeController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error getting newer versions for standardUId {standardUId}", standardUId);
+            logger.LogError(e, "Error getting newer versions for standardUId {standardUId}", standardUId);
             return BadRequest();
         }
     }
 
     [HttpGet]
-    [Route("calculate-version/{courseCode}")]
+    [Route("calculate-version/{courseCode:int}")]
     public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
     {
         try
         {
-            var result = await _mediator.Send(new GetCalculatedTrainingProgrammeVersionQuery
+            var result = await mediator.Send(new GetCalculatedTrainingProgrammeVersionQuery
             {
                 CourseCode = courseCode,
                 StartDate = request.StartDate.Value

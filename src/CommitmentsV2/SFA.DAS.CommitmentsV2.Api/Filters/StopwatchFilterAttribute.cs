@@ -3,16 +3,10 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SFA.DAS.CommitmentsV2.Api.Filters;
 
-public class StopwatchFilterAttribute : ActionFilterAttribute
+public class StopwatchFilterAttribute(ILogger<StopwatchFilterAttribute> logger) : ActionFilterAttribute
 {
-    private readonly ILogger<StopwatchFilterAttribute> _logger;
     private Stopwatch _stopWatch;
     private const int WarningThreshold = 5000;
-
-    public StopwatchFilterAttribute(ILogger<StopwatchFilterAttribute> logger)
-    {
-        _logger = logger;
-    }
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
@@ -28,6 +22,6 @@ public class StopwatchFilterAttribute : ActionFilterAttribute
 
         var controllerName = context.RouteData.Values["controller"];
         var actionName = context.RouteData.Values["action"];
-        _logger.LogWarning("Controller action took {ElapsedMilliseconds} to complete: {controllerName}.{actionName}.", _stopWatch.ElapsedMilliseconds, controllerName, actionName);
+        logger.LogWarning("Controller action took {ElapsedMilliseconds} to complete: {controllerName}.{actionName}.", _stopWatch.ElapsedMilliseconds, controllerName, actionName);
     }
 }
