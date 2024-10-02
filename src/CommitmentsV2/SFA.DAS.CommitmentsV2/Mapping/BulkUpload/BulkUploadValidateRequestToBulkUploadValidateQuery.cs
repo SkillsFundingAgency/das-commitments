@@ -12,7 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             {
                 CsvRecords = source.CsvRecords,
                 ProviderId = source.ProviderId,
-                RplDataExtended = source.RplDataExtended,
                 ReservationValidationResults = source.BulkReservationValidationResults,
                 ProviderStandardResults = source.ProviderStandardsData
             });
