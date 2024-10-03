@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
             IsCompleteForEmployer(apprenticeEmailRequired) &&
             Uln != null &&
-            (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
+            !RecognisingPriorLearningExtendedStillNeedsToBeConsidered;
 
         public DraftApprenticeship()
         {
