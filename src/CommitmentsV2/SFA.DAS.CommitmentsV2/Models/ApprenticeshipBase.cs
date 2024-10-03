@@ -65,35 +65,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public int? TrainingTotalHours { get; set; }
         public bool? EmployerHasEditedCost { get; set; }
-
-        public bool RecognisingPriorLearningStillNeedsToBeConsidered
-        {
-            get
-            {
-                if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
-                {
-                    switch (RecognisePriorLearning)
-                    {
-                        case null:
-                            return true;
-                        case false:
-                            return false;
-                    }
-
-                    if (PriorLearning?.DurationReducedBy == null || PriorLearning?.PriceReducedBy == null)
-                    {
-                        return true;
-                    }
-
-                    if (PriorLearning is {DurationReducedBy: { }, IsDurationReducedByRpl: true})
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
         public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered
         {
             get

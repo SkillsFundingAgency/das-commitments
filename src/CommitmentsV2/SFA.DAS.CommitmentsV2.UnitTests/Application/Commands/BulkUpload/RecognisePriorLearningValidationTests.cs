@@ -6,7 +6,6 @@
         public async Task Prior_learning_is_not_required_when_start_is_before_aug2022()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-07-31");
             fixture.SetPriorLearning(null, null, null);
 
@@ -19,7 +18,6 @@
         public async Task Prior_learning_should_not_be_entered_when_start_is_before_aug2022()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-07-31");
             fixture.SetPriorLearning(true, null, null);
 
@@ -32,7 +30,6 @@
         public async Task Prior_Learning_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: null);
 
@@ -45,7 +42,6 @@
         public async Task RecognisePriorLearning_Field_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
             fixture.CsvRecords[0].RecognisePriorLearningAsString = "XXX";
 
@@ -68,7 +64,6 @@
         public async Task RecognisePriorLearning_Field_Validation_Check(string flag)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
             fixture.CsvRecords[0].RecognisePriorLearningAsString = flag;
 
@@ -80,7 +75,6 @@
         public async Task Prior_Learning_DurationReducedBy_IsBlank()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 101);
 
@@ -92,7 +86,6 @@
         public async Task Prior_Learning_PriceReducedBy_IsBlank()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: null);
 

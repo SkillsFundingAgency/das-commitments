@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
             IsCompleteForEmployer(apprenticeEmailRequired) &&
             Uln != null &&
-            (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
+            !RecognisingPriorLearningExtendedStillNeedsToBeConsidered;
 
         public DraftApprenticeship()
         {
@@ -234,96 +234,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 PriorLearning.DurationReducedBy = null;
                 PriorLearning.PriceReducedBy = null;
             }
-        }
-
-        public void SetPriorLearningDetails(int? durationReducedBy, int? priceReducedBy)
-        {
-            if (!durationReducedBy.HasValue)
-            {
-                throw new DomainException("ReducedDuration", "You must enter the number of weeks");
-            }
-            if (durationReducedBy.Value < 0)
-            {
-                throw new DomainException("ReducedDuration", "The number can't be negative");
-            }
-            if (durationReducedBy.Value > 999)
-            {
-                throw new DomainException("ReducedDuration", "The number of weeks must be 999 or less");
-            }
-            if (!priceReducedBy.HasValue)
-            {
-                throw new DomainException("ReducedPrice", "You must enter the price");
-            }
-            if (priceReducedBy.Value < 0)
-            {
-                throw new DomainException("ReducedPrice", "The number can't be negative");
-            }
-            if (priceReducedBy.Value > Constants.MaximumApprenticeshipCost)
-            {
-                throw new DomainException("ReducedPrice", "The price must be 100,000 or less");
-            }
-
-            if (RecognisePriorLearning != true)
-            {
-                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
-            }
-
-            PriorLearning ??= new ApprenticeshipPriorLearning();
-            PriorLearning.DurationReducedBy = durationReducedBy;
-            PriorLearning.PriceReducedBy = priceReducedBy;
-
-            PriorLearning.DurationReducedByHours = null;
-        }
-
-        public void SetPriorLearningDetailsExtended(int? durationReducedByHours, int? priceReduction)
-        {
-
-            if (RecognisePriorLearning != true)
-            {
-                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
-            }
-
-            var errors = ValidateDraftApprenticeshipRplExtendedDetails(durationReducedByHours, priceReduction);
-            errors.ThrowIfAny();
-
-            PriorLearning ??= new ApprenticeshipPriorLearning();
-            PriorLearning.DurationReducedByHours = durationReducedByHours;
-            PriorLearning.PriceReducedBy = priceReduction;
-
-            PriorLearning.DurationReducedBy = null;
-        }
-
-        private List<DomainError> ValidateDraftApprenticeshipRplExtendedDetails(int? durationReducedByHours, int? priceReduction)
-        {
-            var errors = new List<DomainError>();
-
-            if (!durationReducedByHours.HasValue)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "You must enter the number of hours"));
-            }
-            else if (durationReducedByHours.Value < 0)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The number can't be negative"));
-            }
-            else if (durationReducedByHours.Value > 999)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
-            }
-
-            if (!priceReduction.HasValue)
-            {
-                errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
-            }
-            else if (priceReduction.Value < 0)
-            {
-                errors.Add(new DomainError("ReducedPrice", "The price can't be negative"));
-            }
-            else if (priceReduction.Value > Constants.MaximumApprenticeshipCost)
-            {
-                errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
-            }
-
-            return errors;
         }
 
         public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction, int maximumTrainingTimeReduction)

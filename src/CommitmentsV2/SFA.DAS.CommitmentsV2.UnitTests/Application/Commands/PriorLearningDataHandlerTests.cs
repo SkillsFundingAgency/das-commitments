@@ -195,10 +195,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AccountLegalEntity = new AccountLegalEntity()
                 .Set(c => c.Id, 555)
+                .Set(c => c.Address, "High street")
+                .Set(c => c.LegalEntityId, "SOMEID")
+                .Set(c => c.PublicHashedId, "XXXX")
+                .Set(c => c.Name, "Name")
                 .Set(c => c.AccountId, 444);
 
             Cohort = new CommitmentsV2.Models.Cohort()
                 .Set(c => c.Id, 111)
+                .Set(c => c.Reference, "XXXX")
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c=>c.WithParty, Party.Employer)
                 .Set(c => c.ProviderId, 333)

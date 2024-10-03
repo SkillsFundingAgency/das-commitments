@@ -260,31 +260,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeDetails);
         }
 
-        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", null, null, null, AllowedApproval.CannotApprove)]
-        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)] 
-        [TestCase("2022-08-01", true, null, null, AllowedApproval.CannotApprove)]
-        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
-        {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
-            });
-
-            var apprenticeDetails = new Fixture()
-                .Build<DraftApprenticeshipDetails>()
-                .With(x => x.StartDate, startDate)
-                .With(x => x.EndDate, startDate.AddYears(1))
-                .Create();
-
-            await CheckQueryResponse(response =>
-                {
-                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
-                },
-                apprenticeDetails, arrange);
-        }
-
         [TestCase("2022-07-01", null, null, null, null, null, null, AllowedApproval.BothCanApprove)]
         [TestCase("2022-08-01", null, null, null, null, null, null, AllowedApproval.CannotApprove)]
         [TestCase("2022-08-01", false, null, null, null, null, null, AllowedApproval.BothCanApprove)]
@@ -310,60 +285,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response =>
                 {
                     response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
-                },
-                apprenticeDetails, arrange);
-        }
-
-
-        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]
-        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, null, null, AllowedApproval.EmployerCanApprove)]
-        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedEmployerCanApprove(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
-        {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
-            });
-
-            var apprenticeDetails = new Fixture()
-                .Build<DraftApprenticeshipDetails>()
-                .With(x => x.StartDate, startDate)
-                .Without(x => x.ActualStartDate)
-                .With(x => x.EndDate, startDate.AddYears(1))
-                .Create();
-
-            await CheckQueryResponse(response =>
-                {
-                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
-                },
-                apprenticeDetails, arrange);
-        }
-
-
-        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]
-        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, null, null, AllowedApproval.EmployerCanApprove)]
-        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedEmployerCanApproveOnFlexiPaymentPilot(DateTime actualStartDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
-        {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
-            });
-
-            var apprenticeDetails = new Fixture()
-                .Build<DraftApprenticeshipDetails>()
-                .Without(x => x.StartDate)
-                .With(x => x.ActualStartDate, actualStartDate)
-                .With(x => x.EndDate, actualStartDate.AddYears(1))
-                .Create();
-
-            await CheckQueryResponse(response =>
-                {
-                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
                 },
                 apprenticeDetails, arrange);
         }
@@ -601,16 +522,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             builder.SetMinimumLevel(LogLevel.Debug);
         });
 
-        public GetCohortSummaryHandlerTestFixtures SetupRPLData(bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy)
-        {
-            var apprenticeship = SeedCohorts.First().Apprenticeships.First();
-            apprenticeship.RecognisePriorLearning = recognisePriorLearning;
-            apprenticeship.PriorLearning = new ApprenticeshipPriorLearning();
-            apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
-            apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
+        //public GetCohortSummaryHandlerTestFixtures SetupRPLData(bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy)
+        //{
+        //    var apprenticeship = SeedCohorts.First().Apprenticeships.First();
+        //    apprenticeship.RecognisePriorLearning = recognisePriorLearning;
+        //    apprenticeship.PriorLearning = new ApprenticeshipPriorLearning();
+        //    apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
+        //    apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
 
-            return this;
-        }
+        //    return this;
+        //}
 
         public GetCohortSummaryHandlerTestFixtures SetupRPLExtendedData(bool? recognisePriorLearning, int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReduced, int? durationReducedBy, int? priceReducedBy)
         {
