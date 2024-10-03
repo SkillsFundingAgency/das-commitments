@@ -1,116 +1,115 @@
 ﻿using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Extensions
+namespace SFA.DAS.CommitmentsV2.Domain.Extensions;
+
+public static class AlertsExtensions
 {
-    public static class AlertsExtensions
+    public static IEnumerable<Alerts> MapAlerts(this Apprenticeship source)
     {
-        public static IEnumerable<Alerts> MapAlerts(this Apprenticeship source)
-        {
-            var result = new List<Alerts>();
+        var result = new List<Alerts>();
 
-            if (HasCourseDataLock(source) ||
-                HasPriceDataLock(source))
+        if (HasCourseDataLock(source) ||
+            HasPriceDataLock(source))
+        {
+            result.Add(Alerts.IlrDataMismatch);
+        }
+
+        if (HasCourseDataLockPendingChanges(source) ||
+            HasPriceDataLockPendingChanges(source))
+        {
+            result.Add(Alerts.ChangesPending);
+        }
+
+        if (HasCourseDataLockChangesRequested(source))
+        {
+            result.Add(Alerts.ChangesRequested);
+        }
+        else if (EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(source))
+        {
+            result.Add(Alerts.ChangesRequested);
+        }
+
+        if (source.ApprenticeshipUpdate != null)
+        {
+            if (source.ApprenticeshipUpdate.Any(c =>
+                    c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add(Alerts.IlrDataMismatch);
+                result.Add(source.IsProviderSearch ? Alerts.ChangesForReview : Alerts.ChangesPending);
             }
-
-            if (HasCourseDataLockPendingChanges(source) ||
-                HasPriceDataLockPendingChanges(source))
+            else if (source.ApprenticeshipUpdate.Any(c =>
+                         c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add(Alerts.ChangesPending);
+                result.Add(source.IsProviderSearch ? Alerts.ChangesPending : Alerts.ChangesForReview);
             }
-
-            if (HasCourseDataLockChangesRequested(source))
-            {
-                result.Add(Alerts.ChangesRequested);
-            }
-            else if (EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(source))
-            {
-                result.Add(Alerts.ChangesRequested);
-            }
-
-            if (source.ApprenticeshipUpdate != null)
-            {
-                if (source.ApprenticeshipUpdate.Any(c =>
-                c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
-                {
-                    result.Add(source.IsProviderSearch ? Alerts.ChangesForReview : Alerts.ChangesPending);
-                }
-                else if (source.ApprenticeshipUpdate.Any(c =>
-                    c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
-                {
-                    result.Add(source.IsProviderSearch ? Alerts.ChangesPending : Alerts.ChangesForReview);
-                }
-            }
-
-            if (HasOverlappingTrainingDateRequests(source))
-            {
-                result.Add(Alerts.ConfirmDates);
-            }
-
-            return result;
         }
 
-        private static bool HasCourseDataLock(Apprenticeship source)
+        if (HasOverlappingTrainingDateRequests(source))
         {
-            return source.DataLockStatus.Any(x =>
-                x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Unknown &&
-                !x.IsResolved &&
-                !x.IsExpired);
+            result.Add(Alerts.ConfirmDates);
         }
 
-        private static bool HasPriceDataLock(Apprenticeship source)
-        {
-            return source.IsProviderSearch && source.DataLockStatus.Any(x =>
-                x.IsPriceOnly() &&
-                x.TriageStatus == TriageStatus.Unknown &&
-                !x.IsResolved &&
-                !x.IsExpired);
-        }
+        return result;
+    }
 
-        private static bool HasCourseDataLockPendingChanges(Apprenticeship source)
-        {
-            return source.DataLockStatus.Any(x =>
-                x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Change &&
-                !x.IsResolved &&
-                !x.IsExpired);
-        }
+    private static bool HasCourseDataLock(Apprenticeship source)
+    {
+        return source.DataLockStatus.Any(x =>
+            x.WithCourseError() &&
+            x.TriageStatus == TriageStatus.Unknown &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
 
-        private static bool HasPriceDataLockPendingChanges(Apprenticeship source)
-        {
-            return source.DataLockStatus.Any(x =>
-                x.IsPriceOnly() &&
-                x.TriageStatus == TriageStatus.Change &&
-                !x.IsResolved &&
-                !x.IsExpired);
-        }
+    private static bool HasPriceDataLock(Apprenticeship source)
+    {
+        return source.IsProviderSearch && source.DataLockStatus.Any(x =>
+            x.IsPriceOnly() &&
+            x.TriageStatus == TriageStatus.Unknown &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
 
-        private static bool HasCourseDataLockChangesRequested(Apprenticeship source)
-        {
-            return source.DataLockStatus.Any(x =>
-                x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Restart &&
-                !x.IsResolved &&
-                !x.IsExpired);
-        }
+    private static bool HasCourseDataLockPendingChanges(Apprenticeship source)
+    {
+        return source.DataLockStatus.Any(x =>
+            x.WithCourseError() &&
+            x.TriageStatus == TriageStatus.Change &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
 
-        private static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
-        {
-            return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
-                x.Status == Status.Fail &&
-                (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
-                !x.IsResolved &&
-                !x.IsExpired);
-        }
+    private static bool HasPriceDataLockPendingChanges(Apprenticeship source)
+    {
+        return source.DataLockStatus.Any(x =>
+            x.IsPriceOnly() &&
+            x.TriageStatus == TriageStatus.Change &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
 
-        private static bool HasOverlappingTrainingDateRequests(Apprenticeship source)
-        {
-            return
-                !source.IsProviderSearch &&
-                source.OverlappingTrainingDateRequests?.Any(x => x.Status == OverlappingTrainingDateRequestStatus.Pending) == true;
-        }
+    private static bool HasCourseDataLockChangesRequested(Apprenticeship source)
+    {
+        return source.DataLockStatus.Any(x =>
+            x.WithCourseError() &&
+            x.TriageStatus == TriageStatus.Restart &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
+
+    private static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
+    {
+        return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
+            x.Status == Status.Fail &&
+            (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
+            !x.IsResolved &&
+            !x.IsExpired);
+    }
+
+    private static bool HasOverlappingTrainingDateRequests(Apprenticeship source)
+    {
+        return
+            !source.IsProviderSearch &&
+            source.OverlappingTrainingDateRequests?.Any(x => x.Status == OverlappingTrainingDateRequestStatus.Pending) == true;
     }
 }

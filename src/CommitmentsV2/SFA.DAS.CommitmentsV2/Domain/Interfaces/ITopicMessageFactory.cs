@@ -1,9 +1,8 @@
 ﻿using Microsoft.Azure.ServiceBus;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface ITopicClientFactory
 {
-    public interface ITopicClientFactory
-    {
-        ITopicClient CreateClient(string connectionString, string messageGroupName);
-    }
+    ITopicClient CreateClient(string connectionString, string messageGroupName);
 }

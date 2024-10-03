@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IEmployerProviderIdentifier
 {
-    public interface IEmployerProviderIdentifier
-    {
-        long? EmployerAccountId { get; set; }
-        long? ProviderId { get; set; }
-    }
+    long? EmployerAccountId { get; set; }
+    long? ProviderId { get; set; }
 }

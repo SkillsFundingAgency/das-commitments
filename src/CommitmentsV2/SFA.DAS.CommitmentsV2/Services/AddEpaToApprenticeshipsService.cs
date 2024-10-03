@@ -7,44 +7,43 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
-namespace SFA.DAS.CommitmentsV2.Services
+namespace SFA.DAS.CommitmentsV2.Services;
+
+public class AddEpaToApprenticeshipsService(IMediator mediator, ILogger<AddEpaToApprenticeshipsService> logger)
+    : IAddEpaToApprenticeshipService
 {
-    public class AddEpaToApprenticeshipsService : IAddEpaToApprenticeshipService
+    public async Task Update()
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<AddEpaToApprenticeshipsService> _logger;
+        var lastId = await mediator.Send(new GetLastSubmissionEventIdQuery());
+        
+        await mediator.Send(new UpdateCacheOfAssessmentOrganisationsCommand());
 
-        public AddEpaToApprenticeshipsService(IMediator mediator, ILogger<AddEpaToApprenticeshipsService> logger)
+        PageOfResults<SubmissionEvent> page;
+        long? pageLastId;
+        
+        do
         {
-            _mediator = mediator;
-            _logger = logger;
-        }
-
-        public async Task Update()
-        {
-            var lastId = await _mediator.Send(new GetLastSubmissionEventIdQuery());
-            await _mediator.Send(new UpdateCacheOfAssessmentOrganisationsCommand());
-
-            PageOfResults<SubmissionEvent> page;
-            long? pageLastId;
-            do
+            page = await mediator.Send(new GetSubmissionEventsQuery(lastId));
+            
+            if (page == null || page.Items == null || page.Items.Length == 0)
             {
-                page =  await _mediator.Send(new GetSubmissionEventsQuery(lastId));
-                if (page == null || page.Items == null || !page.Items.Any())
-                {
-                    _logger.LogInformation("No SubmissionEvents to process");
-                    return;
-                }
-                _logger.LogInformation($"Retrieved {page.Items.Length} SubmissionEvents");
+                logger.LogInformation("No SubmissionEvents to process");
+                return;
+            }
 
-                pageLastId = await _mediator.Send(new UpdateApprenticeshipsWithEpaOrgIdCommand(page.Items));
-                if (pageLastId != null)
-                {
-                    _logger.LogInformation($"Storing latest SubmissionEventId as {pageLastId.Value}");
-                    await _mediator.Send(new AddLastSubmissionEventIdCommand(pageLastId.Value));
-                    lastId = pageLastId.Value;
-                }
-            } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
-        }
+            logger.LogInformation("Retrieved {ItemsLength} SubmissionEvents", page.Items.Length);
+
+            pageLastId = await mediator.Send(new UpdateApprenticeshipsWithEpaOrgIdCommand(page.Items));
+
+            if (pageLastId != null)
+            {
+                logger.LogInformation("Storing latest SubmissionEventId as {PageLastId}", pageLastId.Value);
+                
+                await mediator.Send(new AddLastSubmissionEventIdCommand(pageLastId.Value));
+                
+                lastId = pageLastId.Value;
+            }
+            
+        } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
     }
 }

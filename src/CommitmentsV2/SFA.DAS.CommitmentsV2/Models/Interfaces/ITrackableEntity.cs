@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Models.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Models.Interfaces;
+
+public interface ITrackableEntity
 {
-    public interface ITrackableEntity
-    {
-        long Id { get; }
-    }
+    long Id { get; }
 }

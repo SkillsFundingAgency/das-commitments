@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Models
+﻿namespace SFA.DAS.CommitmentsV2.Models;
+
+public class DataLockUpdaterJobStatus
 {
-    public class DataLockUpdaterJobStatus
-    {
-        public long Id { get; set; }
-        public long LastEventId { get; set; }
-    }
+    public long Id { get; set; }
+    public long LastEventId { get; set; }
 }
