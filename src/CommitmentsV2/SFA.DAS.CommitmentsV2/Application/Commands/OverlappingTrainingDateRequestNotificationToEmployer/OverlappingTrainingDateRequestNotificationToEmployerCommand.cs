@@ -1,6 +1,5 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer;
+
+public class OverlappingTrainingDateRequestNotificationToEmployerCommand : IRequest
 {
-    public class OverlappingTrainingDateRequestNotificationToEmployerCommand : IRequest
-    {
-    }
 }

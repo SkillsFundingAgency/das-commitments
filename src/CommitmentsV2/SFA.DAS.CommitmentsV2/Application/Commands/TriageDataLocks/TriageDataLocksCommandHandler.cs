@@ -8,26 +8,17 @@ using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks;
 
-public class TriageDataLocksCommandHandler : IRequestHandler<TriageDataLocksCommand>
-{       
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly ILogger<TriageDataLocksCommandHandler> _logger;
-
-    public TriageDataLocksCommandHandler(
-        Lazy<ProviderCommitmentsDbContext> db, ILogger<TriageDataLocksCommandHandler> logger, IAuthenticationService authenticationService
-    )
-    {
-        _db = db;
-        _logger = logger;
-        _authenticationService = authenticationService;
-    }
-
+public class TriageDataLocksCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> db,
+    ILogger<TriageDataLocksCommandHandler> logger, 
+    IAuthenticationService authenticationService)
+    : IRequestHandler<TriageDataLocksCommand>
+{
     public async Task Handle(TriageDataLocksCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Triage Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+        logger.LogInformation("Triage Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
 
-        var apprenticeship = await _db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
         var dataLocksToBeUpdated = apprenticeship.DataLockStatus
             .Where(DataLockStatusExtensions.UnHandled)
@@ -47,10 +38,10 @@ public class TriageDataLocksCommandHandler : IRequestHandler<TriageDataLocksComm
 
         if (dataLocksToBeUpdated.Any())
         {
-            apprenticeship.TriageDataLocks(_authenticationService.GetUserParty(), dataLocksToBeUpdated.Select(m => m.DataLockEventId).ToList(), request.TriageStatus, request.UserInfo);
+            apprenticeship.TriageDataLocks(authenticationService.GetUserParty(), dataLocksToBeUpdated.Select(m => m.DataLockEventId).ToList(), request.TriageStatus, request.UserInfo);
         }
 
-        _logger.LogInformation("Triage Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+        logger.LogInformation("Triage Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
     }       
 
     private static void Validate(TriageDataLocksCommand command, List<DataLockStatus> dataLocksToBeUpdated, Apprenticeship apprenticeship)

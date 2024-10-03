@@ -42,7 +42,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     {
         _logger = logger;
         _dbContext = dbContext;
-        _employerSummaries = new EmployerSummaries();
+        _employerSummaries = [];
         _overlapService = overlapService;
         _academicYearDateProvider = academicYearDateProvider;
         _providerRelationshipsApiClient = providerRelationshipsApiClient;
@@ -62,7 +62,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
 
         var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
 
-        if (standardsError.Any())
+        if (standardsError.Count != 0)
         {
             return new BulkUploadValidateApiResponse
             {
@@ -75,12 +75,13 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
             await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
 
-            if (criticalDomainError.Any())
+            if (criticalDomainError.Count != 0)
             {
                 continue;
             }
             
             var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
+            
             await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
 
@@ -92,7 +93,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
 
     private async Task AddError(ICollection<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
     {
-        if (domainErrors.Any())
+        if (domainErrors.Count != 0)
         {
             bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                 csvRecord.RowNumber,
@@ -107,13 +108,15 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
     {
         var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
-        if (!domainErrors.Any())
+        if (domainErrors.Count == 0)
         {
             domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
 
             // when a valid agreement has not been signed validation will stop
-            if (domainErrors.Any())
+            if (domainErrors.Count != 0)
+            {
                 return domainErrors;
+            }
         }
 
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
@@ -131,7 +134,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     {
         var domainErrors = ValidateDeclaredStandards(providerStandardResults);
 
-        if (domainErrors.Any())
+        if (domainErrors.Count != 0)
         {
             bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                 0,
@@ -165,13 +168,16 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults)
     {
         var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
-        if (!domainErrors.Any())
+        
+        if (domainErrors.Count == 0)
         {
             domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
 
             // when a valid agreement has not been signed validation will stop
-            if (domainErrors.Any())
+            if (domainErrors.Count != 0)
+            {
                 return domainErrors;
+            }
         }
 
         domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
@@ -224,7 +230,8 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         }
 
         var accountLegalEntity = _dbContext.Value.AccountLegalEntities
-            .Include(x => x.Account).FirstOrDefault(x => x.PublicHashedId == agreementId);
+            .Include(x => x.Account)
+            .FirstOrDefault(x => x.PublicHashedId == agreementId);
 
         if (accountLegalEntity == null)
         {
@@ -251,6 +258,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         var cohort = _dbContext.Value.Cohorts
             .Include(x => x.AccountLegalEntity)
             .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
+        
         _cachedCohortDetails.Add(cohortRef, cohort);
 
         return cohort;

@@ -1,21 +1,13 @@
 using SFA.DAS.CommitmentsV2.Data;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName
+namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName;
+
+public class UpdateAccountNameCommandHandler(Lazy<ProviderCommitmentsDbContext> db) : IRequestHandler<UpdateAccountNameCommand>
 {
-    public class UpdateAccountNameCommandHandler : IRequestHandler<UpdateAccountNameCommand>
+    public async Task Handle(UpdateAccountNameCommand request, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        var account = await db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
 
-        public UpdateAccountNameCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
-        {
-            _db = db;
-        }
-
-        public async Task Handle(UpdateAccountNameCommand request, CancellationToken cancellationToken)
-        {
-            var account = await _db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
-
-            account.UpdateName(request.Name, request.Created);
-        }
+        account.UpdateName(request.Name, request.Created);
     }
 }

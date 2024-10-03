@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+
+public class AddCohortResult
 {
-    public class AddCohortResult
-    {
-        public long Id { get; set; }
-        public string Reference { get; set; }
-    }
+    public long Id { get; set; }
+    public string Reference { get; set; }
 }

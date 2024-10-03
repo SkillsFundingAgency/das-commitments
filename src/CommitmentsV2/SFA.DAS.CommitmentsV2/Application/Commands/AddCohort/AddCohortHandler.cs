@@ -7,36 +7,21 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
-public class AddCohortHandler : IRequestHandler<AddCohortCommand, AddCohortResult>
+public class AddCohortHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IEncodingService encodingService,
+    ILogger<AddCohortHandler> logger,
+    IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+    ICohortDomainService cohortDomainService)
+    : IRequestHandler<AddCohortCommand, AddCohortResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ILogger<AddCohortHandler> _logger;
-    private readonly IEncodingService _encodingService;
-
-    private readonly IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
-    private readonly ICohortDomainService _cohortDomainService;
-
-    public AddCohortHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        IEncodingService encodingService,
-        ILogger<AddCohortHandler> logger,
-        IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
-        ICohortDomainService cohortDomainService)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
-        _cohortDomainService = cohortDomainService;
-        _encodingService = encodingService;
-    }
-
     public async Task<AddCohortResult> Handle(AddCohortCommand command, CancellationToken cancellationToken)
     {
-        var db = _dbContext.Value;
+        var db = dbContext.Value;
 
-        var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
+        var draftApprenticeshipDetails = await draftApprenticeshipDetailsMapper.Map(command);
 
-        var cohort = await _cohortDomainService.CreateCohort(command.ProviderId, 
+        var cohort = await cohortDomainService.CreateCohort(command.ProviderId,
             command.AccountId,
             command.AccountLegalEntityId,
             command.TransferSenderId,
@@ -50,18 +35,21 @@ public class AddCohortHandler : IRequestHandler<AddCohortCommand, AddCohortResul
         await db.SaveChangesAsync(cancellationToken);
 
         //this encoding and re-save could be removed and put elsewhere
-        cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+        cohort.Reference = encodingService.Encode(cohort.Id, EncodingType.CohortReference);
         await db.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Saved cohort. Provider: {ProviderId} Account-Legal-Entity:{AccountLegalEntityId} Reservation-Id:{ReservationId} Commitment-Id:{Id} Apprenticeship:{ApprenticeshipId}",
-            command.ProviderId, command.AccountLegalEntityId, command.ReservationId, cohort.Id, cohort.Apprenticeships?.FirstOrDefault()?.Id);
+        logger.LogInformation("Saved cohort. Provider: {ProviderId} Account-Legal-Entity:{AccountLegalEntityId} Reservation-Id:{ReservationId} Commitment-Id:{Id} Apprenticeship:{ApprenticeshipId}",
+            command.ProviderId,
+            command.AccountLegalEntityId,
+            command.ReservationId,
+            cohort.Id,
+            cohort.Apprenticeships?.FirstOrDefault()?.Id
+        );
 
-        var response = new AddCohortResult
+        return new AddCohortResult
         {
             Id = cohort.Id,
             Reference = cohort.Reference
         };
-
-        return response;
     }
 }
