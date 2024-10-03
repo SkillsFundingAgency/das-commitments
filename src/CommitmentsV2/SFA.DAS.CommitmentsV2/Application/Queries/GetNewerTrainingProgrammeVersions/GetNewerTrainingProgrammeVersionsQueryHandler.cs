@@ -5,22 +5,14 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetNewerTrainingProgrammeVersions;
 
-public class GetNewerTrainingProgrammeVersionsQueryHandler : IRequestHandler<GetNewerTrainingProgrammeVersionsQuery, GetNewerTrainingProgrammeVersionsQueryResult>
+public class GetNewerTrainingProgrammeVersionsQueryHandler(ITrainingProgrammeLookup trainingProgrammeService, ILogger<GetNewerTrainingProgrammeVersionsQueryHandler> logger)
+    : IRequestHandler<GetNewerTrainingProgrammeVersionsQuery, GetNewerTrainingProgrammeVersionsQueryResult>
 {
-    private readonly ITrainingProgrammeLookup _trainingProgrammeService;
-    private readonly ILogger<GetNewerTrainingProgrammeVersionsQueryHandler> _logger;
-
-    public GetNewerTrainingProgrammeVersionsQueryHandler(ITrainingProgrammeLookup trainingProgrammeService, ILogger<GetNewerTrainingProgrammeVersionsQueryHandler> logger)
-    {
-        _trainingProgrammeService = trainingProgrammeService;
-        _logger = logger;
-    }
-
     public async Task<GetNewerTrainingProgrammeVersionsQueryResult> Handle(GetNewerTrainingProgrammeVersionsQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var newerVersions = await _trainingProgrammeService.GetNewerTrainingProgrammeVersions(request.StandardUId);
+            var newerVersions = await trainingProgrammeService.GetNewerTrainingProgrammeVersions(request.StandardUId);
 
             if (newerVersions == null)
             {
@@ -56,7 +48,7 @@ public class GetNewerTrainingProgrammeVersionsQueryHandler : IRequestHandler<Get
         }
         catch (Exception exception)
         {
-            _logger.LogInformation(exception, "Standard not found: {request.StandardUId}", request.StandardUId);
+            logger.LogInformation(exception, "Standard not found: {request.StandardUId}", request.StandardUId);
         }
 
         return new GetNewerTrainingProgrammeVersionsQueryResult

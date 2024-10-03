@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
+
+public class GetCalculatedTrainingProgrammeVersionQuery: IRequest<GetCalculatedTrainingProgrammeVersionQueryResult>
 {
-    public class GetCalculatedTrainingProgrammeVersionQuery: IRequest<GetCalculatedTrainingProgrammeVersionQueryResult>
-    {
-        public int CourseCode { get; set; }
-        public DateTime StartDate { get; set; }
-    }
+    public int CourseCode { get; set; }
+    public DateTime StartDate { get; set; }
 }

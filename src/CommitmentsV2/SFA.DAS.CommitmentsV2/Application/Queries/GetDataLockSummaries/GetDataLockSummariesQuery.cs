@@ -1,12 +1,11 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries
-{
-    public class GetDataLockSummariesQuery : IRequest<GetDataLockSummariesQueryResult>
-    {
-        public long ApprenticeshipId { get; }
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
 
-        public GetDataLockSummariesQuery(long apprenticeshipId)
-        {
-            ApprenticeshipId = apprenticeshipId;
-        }
+public class GetDataLockSummariesQuery : IRequest<GetDataLockSummariesQueryResult>
+{
+    public long ApprenticeshipId { get; }
+
+    public GetDataLockSummariesQuery(long apprenticeshipId)
+    {
+        ApprenticeshipId = apprenticeshipId;
     }
 }

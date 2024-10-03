@@ -1,12 +1,11 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders
-{
-    public class GetApprovedProvidersQuery : IRequest<GetApprovedProvidersQueryResult>
-    {
-        public long? AccountId { get; set; }
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 
-        public GetApprovedProvidersQuery(long? accountId)
-        {
-            AccountId = accountId;
-        }
+public class GetApprovedProvidersQuery : IRequest<GetApprovedProvidersQueryResult>
+{
+    public long? AccountId { get; set; }
+
+    public GetApprovedProvidersQuery(long? accountId)
+    {
+        AccountId = accountId;
     }
 }

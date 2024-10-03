@@ -1,20 +1,19 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
+
+public class GetTrainingProgrammeVersionQuery : IRequest<GetTrainingProgrammeVersionQueryResult>
 {
-    public class GetTrainingProgrammeVersionQuery : IRequest<GetTrainingProgrammeVersionQueryResult>
+    public string StandardUId { get; set; }
+    public string CourseCode { get; set; }
+    public string Version { get; set; }
+
+    public GetTrainingProgrammeVersionQuery(string standardUId)
     {
-        public string StandardUId { get; set; }
-        public string CourseCode { get; set; }
-        public string Version { get; set; }
+        StandardUId = standardUId;
+    }
 
-        public GetTrainingProgrammeVersionQuery(string standardUId)
-        {
-            StandardUId = standardUId;
-        }
-
-        public GetTrainingProgrammeVersionQuery(string courseCode, string version)
-        {
-            CourseCode = courseCode;
-            Version = version;
-        }
+    public GetTrainingProgrammeVersionQuery(string courseCode, string version)
+    {
+        CourseCode = courseCode;
+        Version = version;
     }
 }

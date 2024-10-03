@@ -1,12 +1,11 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
-{
-    public class GetPriceEpisodesQuery: IRequest<GetPriceEpisodesQueryResult>
-    {
-        public long ApprenticeshipId { get; }
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 
-        public GetPriceEpisodesQuery(long apprenticeshipId)
-        {
-            ApprenticeshipId = apprenticeshipId;
-        }
+public class GetPriceEpisodesQuery: IRequest<GetPriceEpisodesQueryResult>
+{
+    public long ApprenticeshipId { get; }
+
+    public GetPriceEpisodesQuery(long apprenticeshipId)
+    {
+        ApprenticeshipId = apprenticeshipId;
     }
 }
