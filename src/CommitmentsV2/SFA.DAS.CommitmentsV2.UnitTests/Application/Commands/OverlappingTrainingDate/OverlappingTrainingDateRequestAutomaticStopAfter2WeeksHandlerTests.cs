@@ -258,6 +258,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
                 var Cohort = new CommitmentsV2.Models.Cohort()
                    .Set(c => c.Id, 1)
+                   .Set(c => c.Reference, "XXXX")
                    .Set(c => c.Provider, oldProvider)
                    .Set(c => c.AccountLegalEntity, oldAccountLegalEntity);
 

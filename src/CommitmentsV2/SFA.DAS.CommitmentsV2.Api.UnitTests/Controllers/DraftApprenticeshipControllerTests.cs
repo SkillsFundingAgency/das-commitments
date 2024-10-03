@@ -222,7 +222,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public GetDraftApprenticeshipsQuery GetDraftApprenticeshipsQuery { get; set; }
         public GetApprenticeshipQuery GetApprenticeshipQuery { get; set; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; set; }
-        public PriorLearningDetailsRequest PriorLearningDetailsRequest { get; set; }
         public RecognisePriorLearningRequest RecognisePriorLearningRequest { get; set; }
         public DeleteDraftApprenticeshipCommand DeleteDraftApprenticeshipCommand { get; set; }
 
