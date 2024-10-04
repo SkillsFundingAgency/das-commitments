@@ -494,10 +494,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            if (!details.ReservationId.HasValue || !details.StartDate.HasValue || details.TrainingProgramme == null)
+            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
+
+            if (!details.ReservationId.HasValue || !startDate.HasValue || details.TrainingProgramme == null)
                 return;
 
-            var validationRequest = new ReservationValidationRequest(details.ReservationId.Value, details.StartDate.Value, details.TrainingProgramme.CourseCode);
+            var validationRequest = new ReservationValidationRequest(details.ReservationId.Value, startDate.Value, details.TrainingProgramme.CourseCode);
 
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 
@@ -507,9 +509,11 @@ namespace SFA.DAS.CommitmentsV2.Services
          
         private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
+            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
 
-            var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value.To(details.EndDate.Value), default, cancellationToken);
+            if (string.IsNullOrWhiteSpace(details.Uln) || !startDate.HasValue || !details.EndDate.HasValue) return;
+
+            var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, startDate.Value.To(details.EndDate.Value), default, cancellationToken);
 
             if (!overlapResult.HasOverlaps) return;
 
@@ -521,7 +525,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if ((!details.IgnoreStartDateOverlap || overlapResult.HasOverlappingEndDate) && overlapResult.HasOverlappingStartDate)
             {
-                errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
+                errors.Add(new DomainError(details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? nameof(details.ActualStartDate) : nameof(details.StartDate), errorMessage));
             }
 
             if (overlapResult.HasOverlappingEndDate)
@@ -537,9 +541,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateEmailOverlaps(DraftApprenticeshipDetails details, long? cohortId, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(details.Email) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
+            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
 
-            var overlapCheck = await _overlapCheckService.CheckForEmailOverlaps(details.Email, details.StartDate.Value.To(details.EndDate.Value), details.Id, cohortId, cancellationToken);
+            if (string.IsNullOrWhiteSpace(details.Email) || !startDate.HasValue || !details.EndDate.HasValue) return;
+
+            var overlapCheck = await _overlapCheckService.CheckForEmailOverlaps(details.Email, startDate.Value.To(details.EndDate.Value), details.Id, cohortId, cancellationToken);
 
             if (overlapCheck == null) return;
 
