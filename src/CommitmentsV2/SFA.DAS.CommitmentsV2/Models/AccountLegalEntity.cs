@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿#nullable enable
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -13,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public long AccountId { get; private set; }
         public string Name { get; private set; }
         public OrganisationType OrganisationType { get; private set; }
-        public string Address { get; private set; }
+        public string? Address { get; private set; }
         public DateTime Created { get; private set; }
         public DateTime? Updated { get; private set; }
         public DateTime? Deleted { get; private set; }
