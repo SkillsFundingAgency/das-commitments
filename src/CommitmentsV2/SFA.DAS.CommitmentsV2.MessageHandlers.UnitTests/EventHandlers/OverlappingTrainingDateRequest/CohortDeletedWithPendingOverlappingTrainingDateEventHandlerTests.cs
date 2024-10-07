@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         {
             _fixture.WithMultiplePendingOverlappingTrainingDateRequests(3);
             await _fixture.Handle();
-            _fixture.VerifyAllOverlappingTrainingDateRequestsResolved(3);
+            _fixture.VerifyAllOverlappingTrainingDateRequestsResolved(6);
         }
 
         private class CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture
@@ -62,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             private readonly Models.OverlappingTrainingDateRequest _overlappingTrainingDateRequest;
             private readonly Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
             private readonly Apprenticeship _apprenticeship;
+            private readonly DraftApprenticeship _draftApprenticeship;
             private readonly Mock<IMessageHandlerContext> _messageHandlerContext;
 
             public CohortDeletedWithPendingOverlappingTrainingDateEventHandlerTestsFixture()
@@ -72,12 +73,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 _overlappingTrainingDateRequest = autoFixture.Create<Models.OverlappingTrainingDateRequest>();
 
                 _apprenticeship = new Apprenticeship();
+                _draftApprenticeship = new DraftApprenticeship();
                 _apprenticeship.SetValue(x => x.OverlappingTrainingDateRequests,
                     new List<Models.OverlappingTrainingDateRequest> { _overlappingTrainingDateRequest });
 
                 _cohort = new Cohort();
                 _cohort.SetValue(x => x.Id, _event.CohortId);
-                _cohort.SetValue(x => x.Apprenticeships, new List<ApprenticeshipBase> { _apprenticeship });
+                _cohort.SetValue(x => x.Apprenticeships, new List<ApprenticeshipBase> { _apprenticeship, _draftApprenticeship });
 
                 _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
                 _db.Setup(context => context.Cohorts)
@@ -87,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 _resolveOverlappingTrainingDateRequestService.Setup(x => x.Resolve(
                     It.IsAny<long?>(),
                     It.IsAny<long?>(),
-                    It.Is<OverlappingTrainingDateRequestResolutionType>(r => 
+                    It.Is<OverlappingTrainingDateRequestResolutionType>(r =>
                     r == OverlappingTrainingDateRequestResolutionType.CohortDeleted)
                 )).Returns(Task.CompletedTask);
 
