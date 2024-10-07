@@ -20,7 +20,7 @@ public class UpdateApprenticeshipsWithEpaOrgIdCommandHandler(
             {
                 try
                 {
-                    var apprenticeship = dbContext.Value.Apprenticeships.FirstOrDefault(x => x.Id == submissionEvent.ApprenticeshipId.Value);
+                    var apprenticeship = await dbContext.Value.Apprenticeships.FirstOrDefaultAsync(x => x.Id == submissionEvent.ApprenticeshipId.Value, cancellationToken);
                     if (apprenticeship != null)
                     {
                         apprenticeship.EpaOrgId = submissionEvent.EPAOrgId;

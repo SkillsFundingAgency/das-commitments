@@ -41,7 +41,8 @@ public class CommitmentsRestHttpClient : RestHttpClient
         var errors = new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors);
 
         var errorDetails = string.Join(";", errors.Errors.Select(errorDetail => $"{errorDetail.Field} ({errorDetail.Message})"));
-        _logger.Log(errors.Errors.Count == 0 ? LogLevel.Warning : LogLevel.Debug, $"{httpResponseMessage.RequestMessage.RequestUri} has returned {errors.Errors.Count} errors: {errorDetails}");
+        _logger.Log(errors.Errors.Count == 0 ? LogLevel.Warning : LogLevel.Debug, "{RequestUri} has returned {ErrorCount} errors: {ErrorDetails}", 
+            httpResponseMessage.RequestMessage.RequestUri, errors.Errors.Count, errorDetails);
 
         return errors;
     }

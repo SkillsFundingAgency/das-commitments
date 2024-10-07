@@ -26,7 +26,7 @@ public class DraftApprenticeshipController(
     IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper,
     IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
     IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper)
-    : Controller
+    : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(long cohortId)

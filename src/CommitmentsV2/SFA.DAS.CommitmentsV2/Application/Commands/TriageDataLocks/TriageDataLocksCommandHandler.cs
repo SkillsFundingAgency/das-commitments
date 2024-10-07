@@ -36,7 +36,7 @@ public class TriageDataLocksCommandHandler(
             throw new InvalidOperationException($"Trying to update data lock for apprenticeship: {request.ApprenticeshipId} with the same TriageStatus ({request.TriageStatus}) ");
         }
 
-        if (dataLocksToBeUpdated.Any())
+        if (dataLocksToBeUpdated.Count != 0)
         {
             apprenticeship.TriageDataLocks(authenticationService.GetUserParty(), dataLocksToBeUpdated.Select(m => m.DataLockEventId).ToList(), request.TriageStatus, request.UserInfo);
         }

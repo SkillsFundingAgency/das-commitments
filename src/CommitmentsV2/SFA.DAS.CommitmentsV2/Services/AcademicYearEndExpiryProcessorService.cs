@@ -19,14 +19,20 @@ public class AcademicYearEndExpiryProcessorService(
 {
     public async Task ExpireDataLocks(string jobId)
     {
-        logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessorService)} run at {currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
+        logger.LogInformation("{TypeName} run at {UtcNow} for Academic Year CurrentAcademicYearStartDate: {CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {LastAcademicYearFundingPeriod}, JobId: {JobId}",
+            nameof(AcademicYearEndExpiryProcessorService),
+            currentDateTime.UtcNow,
+            academicYearProvider.CurrentAcademicYearStartDate,
+            academicYearProvider.CurrentAcademicYearEndDate,
+            academicYearProvider.LastAcademicYearFundingPeriod,
+            jobId);
 
         var expirableDataLocks = await GetExpirableDataLocks(academicYearProvider.CurrentAcademicYearStartDate);
         long expiredCount = 0;
-        
+
         foreach (var expirableDatalock in expirableDataLocks)
         {
-            logger.LogInformation($"Updating DataLockStatus for apprenticeshipId: {expirableDatalock.ApprenticeshipId} and PriceEpisodeIdentifier: {expirableDatalock.ApprenticeshipId}, JobId: {jobId}");
+            logger.LogInformation("Updating DataLockStatus for apprenticeshipId: {ApprenticeshipId} and PriceEpisodeIdentifier: {ApprenticeshipId}, JobId: {JobId}", expirableDatalock.ApprenticeshipId, expirableDatalock.ApprenticeshipId, jobId);
 
             expirableDatalock.IsExpired = true;
             expirableDatalock.Expired = currentDateTime.UtcNow;
@@ -34,21 +40,27 @@ public class AcademicYearEndExpiryProcessorService(
             expiredCount++;
         }
 
-        logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessorService)} expired {expiredCount} items, JobId: {jobId}");
+        logger.LogInformation("{TypeName} expired {ExpiredCount} items, JobId: {JobId}", nameof(AcademicYearEndExpiryProcessorService), expiredCount, jobId);
     }
 
     public async Task ExpireApprenticeshipUpdates(string jobId)
     {
-        logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessorService)} run at {currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
+        logger.LogInformation("{TypeName} run at {UtcNow} for Academic Year CurrentAcademicYearStartDate: {CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {LastAcademicYearFundingPeriod}, JobId: {JobId}",
+            nameof(AcademicYearEndExpiryProcessorService),
+            currentDateTime.UtcNow,
+            academicYearProvider.CurrentAcademicYearStartDate,
+            academicYearProvider.CurrentAcademicYearEndDate,
+            academicYearProvider.LastAcademicYearFundingPeriod,
+            jobId);
 
         var expiredApprenticeshipUpdatesQuery = GetExpirableApprenticeshipUpdates(academicYearProvider.CurrentAcademicYearStartDate);
         var expiredApprenticeshipUpdates = expiredApprenticeshipUpdatesQuery.ToList();
 
-        logger.LogInformation($"Found {expiredApprenticeshipUpdates.Count} apprenticeship updates that will be set to expired, JobId: {jobId}");
+        logger.LogInformation("Found {Count} apprenticeship updates that will be set to expired, JobId: {JobId}", expiredApprenticeshipUpdates.Count, jobId);
 
         foreach (var apprenticeshipUpdate in expiredApprenticeshipUpdates)
         {
-            logger.LogInformation($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {apprenticeshipUpdate.Id}, JobId: {jobId}");
+            logger.LogInformation("Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {Id}, JobId: {JobId}", apprenticeshipUpdate.Id, jobId);
 
             var apprenticeship = await dbContext
                 .Apprenticeships
@@ -71,7 +83,7 @@ public class AcademicYearEndExpiryProcessorService(
         // re-enumerate same query variable
         if (expiredApprenticeshipUpdatesQuery.Count() != 0)
         {
-            throw new Exception($"AcademicYearEndProcessor not completed successfull, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesQuery.Count()} , JobId: {jobId}");
+            throw new Exception($"AcademicYearEndProcessor not completed successfully, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesQuery.Count()} , JobId: {jobId}");
         }
     }
 

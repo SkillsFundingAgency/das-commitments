@@ -21,9 +21,9 @@ public class DataLockUpdaterService : IDataLockUpdaterService
     private readonly IApprovalsOuterApiClient _outerApiClient;
     private readonly CommitmentPaymentsWebJobConfiguration _config;
     private readonly IFilterOutAcademicYearRollOverDataLocks _filterOutAcademicYearRollOverDataLocks;
-    private readonly IList<DataLockErrorCode> _whiteList;
+    private readonly List<DataLockErrorCode> _whiteList;
 
-    private readonly DateTime _1718AcademicYearStartDate = new DateTime(2017, 08, 01);
+    private readonly DateTime _1718AcademicYearStartDate = new(2017, 08, 01);
 
     public DataLockUpdaterService(ILogger<DataLockUpdaterService> logger,
         Lazy<ProviderCommitmentsDbContext> db,
@@ -36,14 +36,14 @@ public class DataLockUpdaterService : IDataLockUpdaterService
         _outerApiClient = outerApiClient;
         _config = config;
         _filterOutAcademicYearRollOverDataLocks = filterOutAcademicYearRollOverDataLocks;
-        _whiteList = new List<DataLockErrorCode>
-        {
+        _whiteList =
+        [
             DataLockErrorCode.Dlock03,
             DataLockErrorCode.Dlock04,
             DataLockErrorCode.Dlock05,
             DataLockErrorCode.Dlock06,
             DataLockErrorCode.Dlock07
-        };
+        ];
     }
 
     public async Task RunUpdate()
@@ -80,8 +80,7 @@ public class DataLockUpdaterService : IDataLockUpdaterService
 
         foreach (var dataLockStatus in page)
         {
-            _logger.LogInformation($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                                   $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode} and EventStatus: {dataLockStatus.EventStatus}");
+            _logger.LogInformation("Read datalock Apprenticeship {ApprenticeshipId} Event Id {DataLockEventId} Status {ErrorCode} and EventStatus: {EventStatus}", dataLockStatus.ApprenticeshipId, dataLockStatus.DataLockEventId, dataLockStatus.ErrorCode, dataLockStatus.EventStatus);
 
             var datalockSuccess = dataLockStatus.ErrorCode == DataLockErrorCode.None;
 
@@ -108,8 +107,7 @@ public class DataLockUpdaterService : IDataLockUpdaterService
                 }
                 else
                 {
-                    _logger.LogInformation($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                                           $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+                    _logger.LogInformation("Updating Apprenticeship {ApprenticeshipId} Event Id {DataLockEventId} Status {ErrorCode}", dataLockStatus.ApprenticeshipId, dataLockStatus.DataLockEventId, dataLockStatus.ErrorCode);
 
                     AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(apprenticeship, dataLockStatus);
 
@@ -240,8 +238,7 @@ public class DataLockUpdaterService : IDataLockUpdaterService
 
     private static DateTime GetDateFromPriceEpisodeIdentifier(DataLockStatus dataLockStatus)
     {
-        return
-            DateTime.ParseExact(dataLockStatus.PriceEpisodeIdentifier.Substring(dataLockStatus.PriceEpisodeIdentifier.Length - 10), "dd/MM/yyyy", new CultureInfo("en-GB"));
+        return DateTime.ParseExact(dataLockStatus.PriceEpisodeIdentifier.Substring(dataLockStatus.PriceEpisodeIdentifier.Length - 10), "dd/MM/yyyy", new CultureInfo("en-GB"));
     }
 
     private async Task<ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long apprenticeshipId)
@@ -331,10 +328,9 @@ public class DataLockUpdaterService : IDataLockUpdaterService
 
     private async Task SetHasHadDataLockSuccess(long apprenticeshipId)
     {
-        _logger.LogDebug($"Setting HasHadDataLockSuccess for apprenticeship {apprenticeshipId}");
+        _logger.LogDebug("Setting HasHadDataLockSuccess for apprenticeship {ApprenticeshipId}", apprenticeshipId);
 
-        var apprenticeship = await _db.Value.Apprenticeships
-            .SingleOrDefaultAsync(x => x.Id == apprenticeshipId);
+        var apprenticeship = await _db.Value.Apprenticeships.SingleOrDefaultAsync(x => x.Id == apprenticeshipId);
 
         if (apprenticeship == null || apprenticeship.HasHadDataLockSuccess)
         {
@@ -347,20 +343,23 @@ public class DataLockUpdaterService : IDataLockUpdaterService
         {
             await _db.Value.SaveChangesAsync();
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException exception )
         {
-            _logger.LogError($"InvalidOperationException occurred in SetHasHadDataLockSuccess - Apprenticeship {apprenticeshipId}");
+            _logger.LogError(exception, "InvalidOperationException occurred in SetHasHadDataLockSuccess - Apprenticeship {ApprenticeshipId}", apprenticeship);
         }
     }
 
     private async Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId)
     {
-        _logger.LogInformation($"Updating apprenticeship update {apprenticeshipUpdateId} - to expired");
+        _logger.LogInformation("Updating apprenticeship update {ApprenticeshipUpdateId} - to expired", apprenticeshipUpdateId);
 
         var apprenticeshipUpdate = _db.Value.ApprenticeshipUpdates
             .FirstOrDefault(x => x.Id == apprenticeshipUpdateId);
+        
         if (apprenticeshipUpdate == null)
+        {
             return;
+        }
 
         var apprenticeship = _db.Value.Apprenticeships
             .FirstOrDefault(x => x.Id == apprenticeshipUpdate.ApprenticeshipId);
@@ -376,6 +375,4 @@ public class DataLockUpdaterService : IDataLockUpdaterService
 
         await _db.Value.SaveChangesAsync();
     }
-
-        
 }

@@ -43,7 +43,7 @@ public class ApprenticeshipPausedEventHandler(
 
     private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
     {
-        var providerCommitmentsBaseUrl = commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith("/")
+        var providerCommitmentsBaseUrl = commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith('/')
             ? commitmentsV2Configuration.ProviderCommitmentsBaseUrl
             : $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/";
 

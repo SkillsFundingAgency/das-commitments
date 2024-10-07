@@ -66,7 +66,7 @@ public class SendEmailToEmployerCommandHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing {CommandName)}", nameof(SendEmailToEmployerCommand));
+            logger.LogError(e, "Error processing {CommandName}", nameof(SendEmailToEmployerCommand));
             throw;
         }
     }

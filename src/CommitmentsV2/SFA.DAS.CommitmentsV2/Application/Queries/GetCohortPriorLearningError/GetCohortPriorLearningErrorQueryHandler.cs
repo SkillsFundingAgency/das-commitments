@@ -12,10 +12,10 @@ public class GetCohortPriorLearningErrorQueryHandler(
     {
         var draftApprenticeshipIds = new List<long>();
 
-        var query = dbContext.Value.DraftApprenticeships
+        var query = await dbContext.Value.DraftApprenticeships
             .Include(x => x.PriorLearning)
             .Where(x => x.CommitmentId == request.CohortId)
-            .ToList();
+            .ToListAsync(cancellationToken);
 
         foreach (var draftApprenticeship in query)
         {

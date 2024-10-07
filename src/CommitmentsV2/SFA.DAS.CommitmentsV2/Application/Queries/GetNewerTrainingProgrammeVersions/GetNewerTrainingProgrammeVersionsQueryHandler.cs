@@ -48,7 +48,7 @@ public class GetNewerTrainingProgrammeVersionsQueryHandler(ITrainingProgrammeLoo
         }
         catch (Exception exception)
         {
-            logger.LogInformation(exception, "Standard not found: {request.StandardUId}", request.StandardUId);
+            logger.LogInformation(exception, "Standard not found: {StandardUId}", request.StandardUId);
         }
 
         return new GetNewerTrainingProgrammeVersionsQueryResult

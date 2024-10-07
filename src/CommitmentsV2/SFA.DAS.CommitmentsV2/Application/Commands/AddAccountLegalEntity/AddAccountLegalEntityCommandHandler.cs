@@ -10,10 +10,8 @@ public class AddAccountLegalEntityCommandHandler(
 {
     public async Task Handle(AddAccountLegalEntityCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("{TypeName} processing started.", nameof(AddAccountLegalEntityCommandHandler));
-
-        logger.LogInformation("Retrieving account with Id: {AccountId}.", request.AccountId);
-
+        logger.LogInformation("{TypeName} processing started. Retrieving account with Id: {AccountId}.", nameof(AddAccountLegalEntityCommandHandler), request.AccountId);
+        
         var account = await db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
 
         account.AddAccountLegalEntity(

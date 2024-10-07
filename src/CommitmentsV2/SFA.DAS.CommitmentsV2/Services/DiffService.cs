@@ -32,7 +32,7 @@ public class DiffService : IDiffService
         foreach (var item in initial)
         {
             var initialValue = item.Value;
-            var updatedValue = updated == null ? null : updated.ContainsKey(item.Key) ? updated[item.Key] : null;
+            var updatedValue = updated == null ? null : updated.TryGetValue(item.Key, out var value) ? value : null;
 
             if (initialValue == null)
             {

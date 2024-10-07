@@ -16,7 +16,7 @@ public class ProviderAlertSummaryEmailService(
     IProviderCommitmentsDbContext context,
     ILogger<ProviderAlertSummaryEmailService> logger,
     CommitmentsV2Configuration commitmentsV2Configuration,
-    IMessageSession nserviceBusContext)
+    IMessageSession messageSession)
     : IProviderAlertSummaryEmailService
 {
     public async Task SendAlertSummaryEmails(string jobId)
@@ -26,7 +26,9 @@ public class ProviderAlertSummaryEmailService(
         logger.LogInformation("Found {Count} provider summary records.", alertSummaries.Count);
 
         if (alertSummaries.Count == 0)
+        {
             return;
+        }
 
         var distinctProviderIds = alertSummaries
             .Select(m => m.ProviderId)
@@ -63,7 +65,7 @@ public class ProviderAlertSummaryEmailService(
                 }
             });
 
-        await nserviceBusContext.Send(sendEmailToProviderCommand);
+        await messageSession.Send(sendEmailToProviderCommand);
     }
 
     private static string GetMismatchText(int dataLockCount)
@@ -94,7 +96,7 @@ public class ProviderAlertSummaryEmailService(
             .Where(app => app.Cohort.Provider != null && app.Cohort.AccountLegalEntity != null)
             .Where(app => app.PaymentStatus > 0)
             .Where(app => app.PendingUpdateOriginator == Originator.Employer ||
-                          app.DataLockStatus.AsQueryable().Any(unhandledCourseOrPriceDlock))
+                          app.DataLockStatus.AsQueryable().Any(_unhandledCourseOrPriceDlock))
             .Select(app => new
             {
                 ProviderId = app.Cohort.ProviderId,
@@ -110,8 +112,8 @@ public class ProviderAlertSummaryEmailService(
             var changesForReview = providerGroup.Count(app => app.PendingOriginator == Originator.Employer);
 
             var dataMismatchCount = providerGroup.Count(app => app.DLocks.Any(
-                dlock => DataLockStatusExtensions.UnHandled(dlock) &&
-                         (DataLockStatusExtensions.WithCourseError(dlock) || DataLockStatusExtensions.IsPriceOnly(dlock))));
+                dlock => dlock.UnHandled() &&
+                         (dlock.WithCourseError() || dlock.IsPriceOnly())));
 
             summaries.Add(new ProviderAlertSummary
             {
@@ -126,7 +128,7 @@ public class ProviderAlertSummaryEmailService(
         return summaries;
     }
 
-    Expression<Func<DataLockStatus, bool>> unhandledCourseOrPriceDlock = dl =>
+    private readonly Expression<Func<DataLockStatus, bool>> _unhandledCourseOrPriceDlock = dl =>
         !dl.IsResolved && dl.Status != Status.Pass && !dl.IsExpired && dl.TriageStatus == TriageStatus.Unknown
         && (dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
             || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)

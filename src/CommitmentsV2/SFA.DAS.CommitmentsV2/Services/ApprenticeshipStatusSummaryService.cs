@@ -21,9 +21,14 @@ public class ApprenticeshipStatusSummaryService(
             .Where(w => w.AccountId == accountId) 
             .ToListAsync(cancellationToken);
 
-        logger.LogInformation(results.Count != 0 
-            ? "Retrieved Apprenticeship Status Summary for employer account {AccountId}" 
-            : "Cannot find Apprenticeship Status Summary for employer account {AccountId}", accountId);
+        if (results.Count == 0)
+        {
+            logger.LogInformation("Cannot find Apprenticeship Status Summary for employer account {AccountId}", accountId);
+        }
+        else
+        {
+            logger.LogInformation("Retrieved Apprenticeship Status Summary for employer account {AccountId}", accountId);
+        }
 
         return new GetApprenticeshipStatusSummaryQueryResults
         {

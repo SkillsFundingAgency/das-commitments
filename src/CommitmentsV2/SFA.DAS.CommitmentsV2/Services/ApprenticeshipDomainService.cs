@@ -62,14 +62,18 @@ public class ApprenticeshipDomainService(
                 TotalCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0) + courseTriaged.GetValueOrDefault(p, 0),
                 ChangesForReviewCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0),
                 RestartRequestCount = courseTriaged.GetValueOrDefault(p, 0)
-
             })
             .ToList();
 
-        logger.LogInformation(results.Count != 0 
-            ? "Retrieved Alert Summaries for employer accounts" 
-            : "Cannot find any Alert Summaries for employer accounts");
-
+        if (results.Count == 0)
+        {
+            logger.LogInformation("Cannot find any Alert Summaries for employer accounts");
+        }
+        else
+        {
+            logger.LogInformation("Retrieved Alert Summaries for employer accounts");
+        }
+        
         return results;
     }
 }

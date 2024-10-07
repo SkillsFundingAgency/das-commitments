@@ -91,7 +91,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         };
     }
 
-    private async Task AddError(ICollection<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
+    private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
     {
         if (domainErrors.Count != 0)
         {

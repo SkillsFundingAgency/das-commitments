@@ -2,15 +2,8 @@
 
 namespace SFA.DAS.CommitmentsV2.Shared.ModelBinding;
 
-public class StringModelBinder : IModelBinder
+public class StringModelBinder(IModelBinder fallbackBinder) : IModelBinder
 {
-    private readonly IModelBinder _fallbackBinder;
-
-    public StringModelBinder(IModelBinder fallbackBinder)
-    {
-        _fallbackBinder = fallbackBinder ?? throw new ArgumentNullException(nameof(fallbackBinder));
-    }
-
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
         if (bindingContext == null)
@@ -20,7 +13,7 @@ public class StringModelBinder : IModelBinder
 
         if (bindingContext.ValueProvider.GetValue(bindingContext.ModelName).Length != 1)
         {
-            return _fallbackBinder.BindModelAsync(bindingContext);
+            return fallbackBinder.BindModelAsync(bindingContext);
         }
 
         var value = bindingContext.ValueProvider.GetValue(bindingContext.ModelName).FirstValue;
@@ -33,6 +26,6 @@ public class StringModelBinder : IModelBinder
             return Task.CompletedTask;
         }
 
-        return _fallbackBinder.BindModelAsync(bindingContext);
+        return fallbackBinder.BindModelAsync(bindingContext);
     }
 }

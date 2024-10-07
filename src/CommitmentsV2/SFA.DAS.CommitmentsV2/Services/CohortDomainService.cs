@@ -31,8 +31,7 @@ public class CohortDomainService(
     IEncodingService encodingService,
     IAccountApiClient accountApiClient,
     IEmailOptionalService emailOptionalService,
-    ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
-    IRplFundingCalculationService rplFundingCalculationService)
+    ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
     : ICohortDomainService
 {
     public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)

@@ -30,7 +30,7 @@ public class BulkUploadAddDraftApprenticeshipCommandHandler(
 
         if (request.LogId != null)
         {
-            var fileUploadLog = providerCommitmentsDbContext.FileUploadLogs.First(x => x.Id.Equals(request.LogId.Value));
+            var fileUploadLog = await providerCommitmentsDbContext.FileUploadLogs.FirstAsync(x => x.Id.Equals(request.LogId.Value), cancellationToken);
             
             fileUploadLog.ProviderAction = request.ProviderAction;
             fileUploadLog.CompletedOn = DateTime.UtcNow;

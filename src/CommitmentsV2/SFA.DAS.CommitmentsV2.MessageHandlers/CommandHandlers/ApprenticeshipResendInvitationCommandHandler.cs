@@ -11,12 +11,12 @@ public class ApprenticeshipResendInvitationCommandHandler(ILogger<Apprenticeship
         try
         {
             logger.LogInformation("Forwarding SendApprenticeshipInvitationCommand to Apprentice Commitments for Apprenticeship {ApprenticeshipId}", message.ApprenticeshipId);
-            
-            await context.Send(new SendApprenticeshipInvitationCommand {CommitmentsApprenticeshipId = message.ApprenticeshipId, ResendOn = message.ResendOn});
+
+            await context.Send(new SendApprenticeshipInvitationCommand { CommitmentsApprenticeshipId = message.ApprenticeshipId, ResendOn = message.ResendOn });
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            logger.LogError("Forwarding SendApprenticeshipInvitationCommand failed");
+            logger.LogError(exception, "Forwarding SendApprenticeshipInvitationCommand failed");
             throw;
         }
     }

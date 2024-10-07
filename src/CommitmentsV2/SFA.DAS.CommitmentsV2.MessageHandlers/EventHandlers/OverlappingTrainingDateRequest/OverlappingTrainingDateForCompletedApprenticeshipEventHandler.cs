@@ -21,7 +21,7 @@ public class OverlappingTrainingDateForCompletedApprenticeshipEventHandler(
     {
         try
         {
-            logger.LogInformation("Received {TypeName)} for Uln {Uln}",nameof(OverlappingTrainingDateCreatedEvent), message?.Uln);
+            logger.LogInformation("Received {TypeName} for Uln {Uln}",nameof(OverlappingTrainingDateCreatedEvent), message?.Uln);
 
             if (message != null)
             {

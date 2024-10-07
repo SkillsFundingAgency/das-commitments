@@ -97,12 +97,12 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
 
         // Given the above resetting
         // If an apprentice start date is then 29th October 2020
-        // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
+        // 29/10/2020 is > 1/7/2020 and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
         // 29/10/2020 is > 1/10/2020 and Effective To Is null, so then ovewrites with a 1.2 Training Programme
-        var selectedVersion = standardVersions.Last();
+        var selectedVersion = standardVersions[standardVersions.Count - 1];
         foreach (var version in standardVersions)
         {
-            if (startDate >= version.VersionEarliestStartDate && (version.VersionLatestStartDate.HasValue == false || startDate <= version.VersionLatestStartDate.Value)) 
+            if (startDate >= version.VersionEarliestStartDate && (version.VersionLatestStartDate.HasValue == false || startDate <= version.VersionLatestStartDate.Value))
             {
                 selectedVersion = version;
             }

@@ -57,11 +57,11 @@ public class AcademicYearEndExpiryProcessorJob
     {
         if (task.IsFaulted)
         {
-            logger.LogError(task.Exception, "Error running {Identifier} AcademicYearEndProcessor.WebJob, JobId: {JobId}.{Identifier}", identifier, _jobId, identifier);
+            logger.LogError(task.Exception, "Error running {Identifier} AcademicYearEndProcessor.WebJob, JobId: {JobId}", identifier, _jobId);
         }
         else
         {
-            logger.LogInformation("Successfully ran AcademicYearEndProcessor.WebJob for {Identifier}, JobId: {JobId}.{Identifier}", identifier, _jobId, identifier);
+            logger.LogInformation("Successfully ran AcademicYearEndProcessor.WebJob for {Identifier}, JobId: {JobId}", identifier, _jobId);
         }
     }
 }

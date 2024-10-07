@@ -27,9 +27,10 @@ public class
 
         logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
 
-        var latestCachedEPAOrgId = providerDbContext.Value.AssessmentOrganisations
+        var latestCachedEPAOrgId = await providerDbContext.Value.AssessmentOrganisations
             .Select(x => x.EpaOrgId)
-            .OrderByDescending(x => x).FirstOrDefault();
+            .OrderByDescending(x => x)
+            .FirstOrDefaultAsync(cancellationToken);
 
         logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
 

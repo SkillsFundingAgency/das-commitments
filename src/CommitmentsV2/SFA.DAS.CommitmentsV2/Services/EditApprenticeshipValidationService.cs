@@ -34,11 +34,11 @@ public class EditApprenticeshipValidationService(
         var trustedParty = GetParty(party);
 
         var errors = new List<DomainError>();
-        var apprenticeship = context.Apprenticeships
+        var apprenticeship = await context.Apprenticeships
             .Include(y => y.Cohort)
             .Include(y => y.PriceHistory)
             .Include(y => y.FlexibleEmployment)
-            .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
+            .FirstOrDefaultAsync(x => x.Id == request.ApprenticeshipId, cancellationToken);
 
         if (apprenticeship == null)
         {
@@ -46,6 +46,7 @@ public class EditApprenticeshipValidationService(
         }
 
         errors.AddRange(NoChangeValidationFailures(request, apprenticeship, trustedParty));
+        
         if (errors.Count == 0)
         {
             CheckForInvalidOperations(request, apprenticeship);
@@ -86,12 +87,7 @@ public class EditApprenticeshipValidationService(
     /// </summary>
     private Party GetParty(Party party)
     {
-        if (authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
-        {
-            return party;
-        }
-
-        return authenticationService.GetUserParty();
+        return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler ? party : authenticationService.GetUserParty();
     }
 
     private void CheckForInvalidOperations(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
@@ -207,7 +203,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private IEnumerable<DomainError> BuildFirstNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildFirstNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (!string.IsNullOrWhiteSpace(request.FirstName))
         {
@@ -225,7 +221,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private IEnumerable<DomainError> BuildLastNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildLastNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (!string.IsNullOrWhiteSpace(request.LastName))
         {
@@ -243,7 +239,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (apprenticeshipDetails.Email != null && string.IsNullOrWhiteSpace(request.Email))
         {
@@ -290,7 +286,7 @@ public class EditApprenticeshipValidationService(
 
         return null;
 
-        bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
+        bool NoChangesRequested() => request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate;
     }
 
     private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
@@ -310,20 +306,22 @@ public class EditApprenticeshipValidationService(
 
     private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
     {
-        if (request.StartDate.HasValue && request.EndDate.HasValue)
+        if (!request.StartDate.HasValue || !request.EndDate.HasValue)
         {
-            var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
-            var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
+            yield break;
+        }
 
-            if (overlapResult.HasOverlappingStartDate)
-            {
-                yield return new DomainError(nameof(request.StartDate), errorMessage);
-            }
+        var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
+        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
-            if (overlapResult.HasOverlappingEndDate)
-            {
-                yield return new DomainError(nameof(request.EndDate), errorMessage);
-            }
+        if (overlapResult.HasOverlappingStartDate)
+        {
+            yield return new DomainError(nameof(request.StartDate), errorMessage);
+        }
+
+        if (overlapResult.HasOverlappingEndDate)
+        {
+            yield return new DomainError(nameof(request.EndDate), errorMessage);
         }
     }
 
@@ -384,7 +382,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (request.DateOfBirth.HasValue)
         {
@@ -523,7 +521,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
     {
         if (apprenticeshipRequest.DeliveryModel != DeliveryModel.PortableFlexiJob)
         {

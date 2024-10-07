@@ -23,16 +23,16 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(
     {
         var currentDate = currentDateTime.UtcNow;
 
-        var pendingRecords = commitmentsDbContext.Value.OverlappingTrainingDateRequests
+        var pendingRecords = await commitmentsDbContext.Value.OverlappingTrainingDateRequests
             .Include(oltd => oltd.DraftApprenticeship)
             .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
             .Include(oltd => oltd.PreviousApprenticeship)
             .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
-             .Where(x => x.NotifiedServiceDeskOn == null
-                            && x.NotifiedEmployerOn == null
-                            && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            &&  x.CreatedOn < currentDate.AddDays(-7).Date)                            
-                .ToList();
+            .Where(x => x.NotifiedServiceDeskOn == null
+                        && x.NotifiedEmployerOn == null
+                        && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
+                        && x.CreatedOn < currentDate.AddDays(-7).Date)
+            .ToListAsync(cancellationToken);
 
         logger.LogInformation("Found {count} records which chaser email to employer", pendingRecords.Count);
 
@@ -44,23 +44,23 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(
             {
                 continue;
             }
-                
+
             var tokens = new Dictionary<string, string>
             {
-                { "Cohort", pendingRecord.PreviousApprenticeship.Cohort.Reference},
+                { "Cohort", pendingRecord.PreviousApprenticeship.Cohort.Reference },
                 { "RequestRaisedDate", pendingRecord.CreatedOn.ToString("dd-MM-yyyy") },
                 { "Apprentice", pendingRecord.PreviousApprenticeship.FirstName + " " + pendingRecord.PreviousApprenticeship.LastName },
                 { "ULN", pendingRecord.PreviousApprenticeship.Uln },
-                { "URL", $"{configuration.EmployerCommitmentsBaseUrl}/{encodingService.Encode(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{encodingService.Encode(pendingRecord.PreviousApprenticeshipId, EncodingType.ApprenticeshipId)}/details"}
+                { "URL", $"{configuration.EmployerCommitmentsBaseUrl}/{encodingService.Encode(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId, EncodingType.AccountId)}/apprentices/{encodingService.Encode(pendingRecord.PreviousApprenticeshipId, EncodingType.ApprenticeshipId)}/details" }
             };
 
-            var emailCommand = new SendEmailToEmployerCommand(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,  TemplateId, tokens, null, "NAME");
-                
+            var emailCommand = new SendEmailToEmployerCommand(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId, TemplateId, tokens, null, "NAME");
+
             await messageSession.Send(emailCommand);
 
             pendingRecord.NotifiedEmployerOn = currentDateTime.UtcNow;
         }
 
         await commitmentsDbContext.Value.SaveChangesAsync(cancellationToken);
-    }    
+    }
 }

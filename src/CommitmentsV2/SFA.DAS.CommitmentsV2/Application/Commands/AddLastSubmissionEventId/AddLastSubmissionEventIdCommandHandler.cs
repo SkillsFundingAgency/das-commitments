@@ -6,7 +6,7 @@ public class AddLastSubmissionEventIdCommandHandler(Lazy<ProviderCommitmentsDbCo
 {
     public async Task Handle(AddLastSubmissionEventIdCommand request, CancellationToken cancellationToken)
     {
-        var jobProgress = dbContext.Value.JobProgress.FirstOrDefault(x => x.Lock == "X");
+        var jobProgress = await dbContext.Value.JobProgress.FirstOrDefaultAsync(x => x.Lock == "X", cancellationToken);
         
         if (jobProgress != null)
         {

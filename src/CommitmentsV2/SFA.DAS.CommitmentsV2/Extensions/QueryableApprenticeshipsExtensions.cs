@@ -200,6 +200,7 @@ public static class QueryableApprenticeshipsExtensions
                                                            apprenticeship.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending)
             );
         }
+
         return apprenticeships.Where(apprenticeship =>
             !apprenticeship.DataLockStatus.Any(c => !c.IsResolved
                                                     && c.Status == Status.Fail
@@ -207,9 +208,9 @@ public static class QueryableApprenticeshipsExtensions
                                                     && c.TriageStatus != TriageStatus.Unknown
                                                     && !c.IsExpired)
             &&
-            (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending))
+            (apprenticeship.ApprenticeshipUpdate.Count == 0 || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending))
             &&
-            (!apprenticeship.OverlappingTrainingDateRequests.Any() || apprenticeship.OverlappingTrainingDateRequests.All(c => c.Status != OverlappingTrainingDateRequestStatus.Pending)));
+            (apprenticeship.OverlappingTrainingDateRequests.Count == 0 || apprenticeship.OverlappingTrainingDateRequests.All(c => c.Status != OverlappingTrainingDateRequestStatus.Pending)));
     }
 
     public static IQueryable<Apprenticeship> WithProviderOrEmployerId(this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)
@@ -221,15 +222,15 @@ public static class QueryableApprenticeshipsExtensions
                 .Where(app => app.Cohort.ProviderId == identifier.ProviderId);
         }
 
-        return identifier.EmployerAccountId.HasValue ?
-            apprenticeships
+        return identifier.EmployerAccountId.HasValue
+            ? apprenticeships
                 .Include(app => app.ApprenticeshipConfirmationStatus)
                 .Include(app => app.Cohort)
                 .Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId)
             : apprenticeships;
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlert(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
     {
         // Doing this because we can't use extension method for LINQ to SQL query
         switch (alert)
@@ -247,107 +248,83 @@ public static class QueryableApprenticeshipsExtensions
                 return FilterApprenticeshipByAlertForChangesForReview(apprenticeships, alert, isProvider);
 
             case Alerts.ConfirmDates:
-                return FilterApprenticeshipByAlertForConfirmDates(apprenticeships, alert, isProvider);
+                return FilterApprenticeshipByAlertForConfirmDates(apprenticeships, isProvider);
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
         }
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForIlrDataMismatch(IQueryable<Apprenticeship> apprenticeships, Alerts alert)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForIlrDataMismatch(IQueryable<Apprenticeship> apprenticeships, Alerts alert)
     {
         return apprenticeships.Where(a =>
-            (
-                //HasCourseDataLock
-                a.DataLockStatus.Any(x =>
-                    (x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
-                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
-                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
-                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)) &&
-                    x.TriageStatus == TriageStatus.Unknown &&
-                    !x.IsResolved && !x.IsExpired)
-            ) ||
-            (
-                //Has Only PriceDataLock
-                a.DataLockStatus.Any(x =>
-                    ((int)x.ErrorCode == (int)DataLockErrorCode.Dlock07) &&
-                    x.TriageStatus == TriageStatus.Unknown &&
-                    !x.IsResolved && !x.IsExpired)
-            )
+            //HasCourseDataLock
+            a.DataLockStatus.Any(x =>
+                (x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)) &&
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved && !x.IsExpired) ||
+            //Has Only PriceDataLock
+            a.DataLockStatus.Any(x =>
+                (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07 &&
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved && !x.IsExpired)
         );
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesPending(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesPending(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
     {
         if (isProvider)
         {
             return apprenticeships.Where(a =>
-                (
-                    //HasCourseDataLockPendingChanges
-                    a.DataLockStatus.Any(x =>
-                        (
-                            x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
-                        ) &&
-                        x.TriageStatus == TriageStatus.Change &&
-                        !x.IsResolved && !x.IsExpired)
-                )
+                //HasCourseDataLockPendingChanges
+                a.DataLockStatus.Any(x =>
+                    (
+                        x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                        || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                        || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                        || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+                    ) &&
+                    x.TriageStatus == TriageStatus.Change &&
+                    !x.IsResolved && !x.IsExpired)
                 ||
-                (
-                    //HasPrice Only DataLockPendingChanges
-                    a.DataLockStatus.Any(x =>
-                        (
-                            (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07
-                        ) &&
-                        x.TriageStatus == TriageStatus.Change &&
-                        !x.IsResolved && !x.IsExpired)
-                )
+                //HasPrice Only DataLockPendingChanges
+                a.DataLockStatus.Any(x =>
+                    (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07 &&
+                    x.TriageStatus == TriageStatus.Change &&
+                    !x.IsResolved && !x.IsExpired)
                 ||
-                (
-                    a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending)
+                a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending));
+        }
 
-                ));
-        }
-        else
-        {
-            return apprenticeships.Where(a =>
+        return apprenticeships.Where(a =>
+            //HasCourseDataLockPendingChanges
+            a.DataLockStatus.Any(x =>
                 (
-                    //HasCourseDataLockPendingChanges
-                    a.DataLockStatus.Any(x =>
-                        (
-                            x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
-                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
-                        ) &&
-                        x.TriageStatus == TriageStatus.Change &&
-                        !x.IsResolved && !x.IsExpired)
-                )
-                ||
-                (
-                    //HasPrice Only DataLockPendingChanges
-                    a.DataLockStatus.Any(x =>
-                        (
-                            (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07
-                        ) &&
-                        x.TriageStatus == TriageStatus.Change &&
-                        !x.IsResolved && !x.IsExpired)
-                )
-                ||
-                (
-                    a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending)
-                ));
-        }
+                    x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+                ) &&
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved && !x.IsExpired)
+            ||
+            //HasPrice Only DataLockPendingChanges
+            a.DataLockStatus.Any(x =>
+                (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07 &&
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved && !x.IsExpired)
+            ||
+            a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending));
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesRequested(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesRequested(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
     {
         if (isProvider)
         {
             return apprenticeships.Where(a =>
-            (
                 //Has Any CourseDataLock Change Requested
                 a.DataLockStatus.Any(x =>
                 (
@@ -355,24 +332,18 @@ public static class QueryableApprenticeshipsExtensions
                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+                ) && x.TriageStatus == TriageStatus.Restart && !x.IsResolved && !x.IsExpired));
+        }
 
-                ) && x.TriageStatus == TriageStatus.Restart && !x.IsResolved && !x.IsExpired)
-            ));
-        }
-        else
-        {
-            return apprenticeships.Where(a =>
-            (
-                //EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus
-                a.DataLockStatus.Any(x =>
-                    x.Status == Status.Fail &&
-                    (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
-                    !x.IsResolved && !x.IsExpired)
-            ));
-        }
+        return apprenticeships.Where(a =>
+            //EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus
+            a.DataLockStatus.Any(x =>
+                x.Status == Status.Fail &&
+                x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change &&
+                !x.IsResolved && !x.IsExpired));
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesForReview(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesForReview(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
     {
         if (isProvider)
         {
@@ -386,13 +357,10 @@ public static class QueryableApprenticeshipsExtensions
         );
     }
 
-    public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForConfirmDates(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForConfirmDates(IQueryable<Apprenticeship> apprenticeships, bool isProvider)
     {
-        if (isProvider)
-        {
-            return apprenticeships;
-        }
-
-        return apprenticeships.Where(a => a.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending));
+        return isProvider
+            ? apprenticeships
+            : apprenticeships.Where(a => a.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending));
     }
 }

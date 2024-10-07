@@ -14,16 +14,12 @@ public class ApprenticeshipEmailAddressConfirmedCommandHandler(Lazy<ProviderComm
         try
         {
             var apprenticeshipTask = db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
-
             var apprenticeTask = apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
-
-            logger.LogInformation("Getting Apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
             
-            var apprenticeship = await apprenticeshipTask;
+            await Task.WhenAll(apprenticeshipTask, apprenticeTask);
             
-            logger.LogInformation("Getting Apprentice details for apprentice {ApprenticeshipId}", request.ApprenticeId);
-            
-            var apprentice = await apprenticeTask;
+            var apprenticeship = apprenticeshipTask.Result;
+            var apprentice =  apprenticeTask.Result;
             
             logger.LogInformation("Setting Email Address for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
             

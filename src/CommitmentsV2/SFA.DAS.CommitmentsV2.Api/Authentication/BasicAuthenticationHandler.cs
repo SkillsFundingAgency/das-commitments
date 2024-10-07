@@ -6,23 +6,18 @@ using System.Text.Encodings.Web;
 
 namespace SFA.DAS.CommitmentsV2.Api.Authentication;
 
-public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class BasicAuthenticationHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public BasicAuthenticationHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        ISystemClock clock)
-        : base(options, logger, encoder, clock)
-    {
-    }
-
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         string username;
         try
         {
-            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers.Authorization);
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
             var credentials = System.Text.Encoding.UTF8.GetString(credentialBytes).Split([':'], 2);
             username = credentials[0];

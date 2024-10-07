@@ -47,7 +47,7 @@ public sealed class FilterOutAcademicYearRollOverDataLocks(Lazy<ProviderCommitme
             {
                 var message = $"Unexpected price episode identifier matched: {augustDataLock.PriceEpisodeIdentifier} for apprenticeship: {apprenticeshipId}";
                 var exception = new AcademicYearFilterException(message);
-                logger.LogError(exception, message);
+                logger.LogError(exception, "An exception occurred whilst filtering out academic year roll over data locks.");
                 continue;
             }
 

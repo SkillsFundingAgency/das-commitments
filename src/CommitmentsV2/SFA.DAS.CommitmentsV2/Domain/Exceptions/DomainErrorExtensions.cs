@@ -6,7 +6,7 @@ public static class DomainErrorExtensions
 {
     public static void ThrowIfAny(this List<DomainError> errors)
     {
-        if (errors.Any())
+        if (errors.Count != 0)
         {
             throw new DomainException(errors);
         }
@@ -14,7 +14,7 @@ public static class DomainErrorExtensions
 
     public static void ThrowIfAny(this List<BulkUploadValidationError> errors)
     {
-        if (errors.Any())
+        if (errors.Count != 0)
         {
             throw new BulkUploadDomainException(errors);
         }

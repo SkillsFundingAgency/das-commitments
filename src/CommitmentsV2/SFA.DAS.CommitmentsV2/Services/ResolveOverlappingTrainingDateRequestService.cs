@@ -57,11 +57,11 @@ public class ResolveOverlappingTrainingDateRequestService(
     {
         if (overlappingTrainingDateRequest != null)
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest found Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest found Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
 
             if (await CheckCanResolveOverlap(overlappingTrainingDateRequest, resolutionType))
             {
-                logger.LogInformation($"OverlappingTrainingDateRequest Resolving Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                logger.LogInformation("OverlappingTrainingDateRequest Resolving Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
                 Resolve(overlappingTrainingDateRequest, resolutionType);
             }
         }
@@ -71,47 +71,46 @@ public class ResolveOverlappingTrainingDateRequestService(
     {
         var apprenticeship = overlappingTrainingDateRequest.PreviousApprenticeship;
         apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequest.DraftApprenticeshipId, resolutionType);
-        logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeship.Id}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+        logger.LogInformation("OverlappingTrainingDateRequest resolved Apprenticeship-Id:{Id}, DraftApprenticeshipId : {DraftApprenticeshipId}", apprenticeship.Id, overlappingTrainingDateRequest.DraftApprenticeshipId);
     }
 
     private async Task<bool> CheckCanResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
     {
         if (Mandatory_Fields_Missing(overlappingTrainingDateRequest))
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest Mandatory field missing, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest Mandatory field missing, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             // resolve overlap if any of the mandatory fields missing
             return true;
         }
 
         if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive)
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprentieship is still active, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest  employer confirm that Apprenticeship is still active, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
         }
 
         if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect)
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprenticeship Stop Date Is Correct, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest  employer confirm that Apprenticeship Stop Date Is Correct, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
         }
 
         if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateIsCorrect)
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprenticeship End Date Is Correct, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest  employer confirm that Apprenticeship End Date Is Correct, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
         }
 
         if (ULN_Changed(overlappingTrainingDateRequest))
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest Uln changed, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest Uln changed, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             // resolve overlap if the draft apprenticeship uln has changed.
             return true;
         }
 
-        if (OverlapCheckRequired(resolutionType) &&
-            await IsThereStillAOverlap(overlappingTrainingDateRequest))
+        if (OverlapCheckRequired(resolutionType) && await IsThereStillAOverlap(overlappingTrainingDateRequest))
         {
-            logger.LogInformation($"OverlappingTrainingDateRequest not resolving, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+            logger.LogInformation("OverlappingTrainingDateRequest not resolving, Apprenticeship-Id:{PreviousApprenticeshipId}, DraftApprenticeshipId : {DraftApprenticeshipId}", overlappingTrainingDateRequest.PreviousApprenticeshipId, overlappingTrainingDateRequest.DraftApprenticeshipId);
             // Don't resolve if there is still an overlap.
             return false;
         }
@@ -119,20 +118,15 @@ public class ResolveOverlappingTrainingDateRequestService(
         return true;
     }
 
-    private bool ULN_Changed(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+    private static bool ULN_Changed(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
     {
         return overlappingTrainingDateRequest.DraftApprenticeship.Uln != overlappingTrainingDateRequest.PreviousApprenticeship.Uln;
     }
 
-    private bool Mandatory_Fields_Missing(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+    private static bool Mandatory_Fields_Missing(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
     {
         var draftApprenticeship = overlappingTrainingDateRequest.DraftApprenticeship;
-        if (!draftApprenticeship.StartDate.HasValue || !draftApprenticeship.EndDate.HasValue || string.IsNullOrWhiteSpace(draftApprenticeship.Uln))
-        {
-            return true;
-        }
-
-        return false;
+        return !draftApprenticeship.StartDate.HasValue || !draftApprenticeship.EndDate.HasValue || string.IsNullOrWhiteSpace(draftApprenticeship.Uln);
     }
 
     private async Task<bool> IsThereStillAOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequestAggregate)

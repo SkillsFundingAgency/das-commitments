@@ -37,9 +37,9 @@ public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovals
         }
     }
 
-    private Task SendEmailToAllProviderRecipients(long providerId, ProviderEmailRequest request)
+    private async Task SendEmailToAllProviderRecipients(long providerId, ProviderEmailRequest request)
     {
-        return outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
+        await outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
     }
 
     private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)

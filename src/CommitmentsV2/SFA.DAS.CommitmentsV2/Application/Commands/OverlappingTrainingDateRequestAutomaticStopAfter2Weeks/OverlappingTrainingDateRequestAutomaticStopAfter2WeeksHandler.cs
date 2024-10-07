@@ -74,7 +74,6 @@ public class OverlappingTrainingDateRequestAutomaticStopAfter2WeeksHandler(
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while automatically stopping overlapping training date requests");
-
             throw;
         }
     }

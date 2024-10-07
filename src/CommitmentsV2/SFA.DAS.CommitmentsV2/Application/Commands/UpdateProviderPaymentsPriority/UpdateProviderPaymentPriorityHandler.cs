@@ -96,6 +96,6 @@ public class UpdateProviderPaymentsPriorityCommandHandler(Lazy<ProviderCommitmen
         
         account.NotifyCustomProviderPaymentPrioritiesChanged();
 
-        logger.LogInformation("Notified Provider Payment Priorities Updated for employer account {account.Id}", account.Id);
+        logger.LogInformation("Notified Provider Payment Priorities Updated for employer account {Id}", account.Id);
     }
 }
