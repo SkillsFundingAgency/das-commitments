@@ -492,6 +492,12 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             {
                 priceHistoryEpisode.TrainingPrice = update.TrainingPrice.Value;
                 priceHistoryEpisode.AssessmentPrice = update.EndPointAssessmentPrice.Value;
+
+                if (IsOnFlexiPaymentPilot == true)
+                {
+                    TrainingPrice = (int)update.TrainingPrice.Value;
+                    EndPointAssessmentPrice = (int)update.EndPointAssessmentPrice.Value;
+                }
             }
         }
 
