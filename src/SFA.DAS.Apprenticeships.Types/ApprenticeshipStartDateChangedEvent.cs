@@ -3,9 +3,8 @@ using SFA.DAS.Apprenticeships.Types.Models;
 
 namespace SFA.DAS.Apprenticeships.Types
 {
-    public class ApprenticeshipStartDateChangedEvent : EpisodeUpdatedEvent
+    public class ApprenticeshipStartDateChangedEvent : ApprenticeshipEvent
     {
-        public Guid ApprenticeshipKey { get; set; }
         public long ApprenticeshipId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ApprovedDate { get; set; }
