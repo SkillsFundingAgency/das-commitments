@@ -12,5 +12,6 @@
         ApprenticeshipEndDateUpdate = 7,
         ApprenticeshipStopDateIsCorrect = 8,
         ApprenticeshipEndDateIsCorrect = 9,
+        CohortDeleted = 10,
     }
 }

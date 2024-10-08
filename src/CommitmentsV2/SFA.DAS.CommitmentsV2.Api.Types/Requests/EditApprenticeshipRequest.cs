@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public int? EmploymentPrice { get; set; }
         public string TrainingName { get; set; }
         public decimal? Cost { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? EndPointAssessmentPrice { get; set; }
         public string EmployerReference { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string CourseCode { get; set; }
