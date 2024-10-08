@@ -209,6 +209,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.Email == apprenticeship.Email
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
+                && request.TrainingPrice == apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow)
+                && request.EndPointAssessmentPrice == apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
                 && request.ActualStartDate == apprenticeship.ActualStartDate
                 && request.DeliveryModel == apprenticeship.DeliveryModel

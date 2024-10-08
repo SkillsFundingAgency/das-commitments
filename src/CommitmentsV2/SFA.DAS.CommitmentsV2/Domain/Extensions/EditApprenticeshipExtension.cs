@@ -41,6 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 StartDate = source.StartDate ?? apprenticeship.StartDate,
                 ActualStartDate = source.ActualStartDate ?? apprenticeship.ActualStartDate,
                 Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
+                TrainingPrice = source.TrainingPrice ?? apprenticeship.PriceHistory.GetTrainingPrice(dateTimeNow),
+                EndPointAssessmentPrice = source.EndPointAssessmentPrice ?? apprenticeship.PriceHistory.GetAssessmentPrice(dateTimeNow),
                 ProviderReference = source.ProviderReference
             };
 
@@ -64,6 +66,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             apprenticeshipUpdate.LastName = command.EditApprenticeshipRequest.LastName;
             apprenticeshipUpdate.Email = command.EditApprenticeshipRequest.Email;
             apprenticeshipUpdate.Cost = command.EditApprenticeshipRequest.Cost;
+            apprenticeshipUpdate.TrainingPrice = command.EditApprenticeshipRequest.TrainingPrice;
+            apprenticeshipUpdate.EndPointAssessmentPrice = command.EditApprenticeshipRequest.EndPointAssessmentPrice;
             apprenticeshipUpdate.ApprenticeshipId = apprenticeship.Id;
             apprenticeshipUpdate.Originator = party == Party.Employer ? Originator.Employer : Originator.Provider;
             apprenticeshipUpdate.UpdateOrigin = ApprenticeshipUpdateOrigin.ChangeOfCircumstances;
