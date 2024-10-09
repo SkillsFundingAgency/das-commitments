@@ -50,12 +50,6 @@
             "type": "string",
             "defaultValue": "Standard"
         },
-        "loggingRedisConnectionString": {
-            "type": "securestring"
-        },
-        "loggingRedisKey": {
-            "type": "string"
-        },
         "apiV2CustomHostName": {
             "type": "string"
         },
@@ -332,14 +326,6 @@
                                     "value": "[parameters('environmentName')]"
                                 },
                                 {
-                                    "name": "LoggingRedisConnectionString",
-                                    "value": "[parameters('loggingRedisConnectionString')]"
-                                },
-                                {
-                                    "name": "LoggingRedisKey",
-                                    "value": "[parameters('loggingRedisKey')]"
-                                },
-                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -470,14 +456,6 @@
                                     "value": "[parameters('environmentName')]"
                                 },
                                 {
-                                    "name": "LoggingRedisConnectionString",
-                                    "value": "[parameters('loggingRedisConnectionString')]"
-                                },
-                                {
-                                    "name": "LoggingRedisKey",
-                                    "value": "[parameters('loggingRedisKey')]"
-                                },
-                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -591,14 +569,6 @@
                                 {
                                     "name": "EnvironmentName",
                                     "value": "[parameters('environmentName')]"
-                                },
-                                {
-                                    "name": "LoggingRedisConnectionString",
-                                    "value": "[parameters('loggingRedisConnectionString')]"
-                                },
-                                {
-                                    "name": "LoggingRedisKey",
-                                    "value": "[parameters('loggingRedisKey')]"
                                 },
                                 {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
