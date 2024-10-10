@@ -11,5 +11,7 @@ public class ApprenticeshipBuilder : IEntityTypeConfiguration<Apprenticeship>
 
         builder.Property(e => e.PauseDate).HasColumnType("date");
         builder.Property(e => e.StopDate).HasColumnType("date");
+
+        builder.ToTable(x => x.HasTrigger("Trg_Apprenticeship_Update"));
     }
 }
