@@ -8,5 +8,9 @@ public class ApprenticeshipConfiguration : IEntityTypeConfiguration<Apprenticesh
     public void Configure(EntityTypeBuilder<Apprenticeship> builder)
     {
         builder.HasBaseType<ApprenticeshipBase>();
+        
+        // Fix for "Could not save changes because the target table has database triggers" exception.
+        // https://learn.microsoft.com/en-gb/ef/core/what-is-new/ef-core-7.0/breaking-changes?tabs=v7#sqlserver-tables-with-triggers
+        builder.ToTable(x => x.UseSqlOutputClause(false));
     }
 }
