@@ -8,6 +8,10 @@ public class ApprenticeshipBaseConfiguration : IEntityTypeConfiguration<Apprenti
     public void Configure(EntityTypeBuilder<ApprenticeshipBase> builder)
     {
         SetTablePerHierarchy(builder);
+        
+        // Fix for "Could not save changes because the target table has database triggers" exception.
+        // https://learn.microsoft.com/en-gb/ef/core/what-is-new/ef-core-7.0/breaking-changes?tabs=v7#sqlserver-tables-with-triggers
+        builder.ToTable(x => x.UseSqlOutputClause(false));
 
         builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
         builder.Property(e => e.CreatedOn).HasColumnType("datetime");
@@ -113,10 +117,6 @@ public class ApprenticeshipBaseConfiguration : IEntityTypeConfiguration<Apprenti
             .HasDiscriminator<bool>(nameof(ApprenticeshipBase.IsApproved))
             .HasValue<DraftApprenticeship>(false)
             .HasValue<Apprenticeship>(true);
-        
-        // Fix for "Could not save changes because the target table has database triggers" exception.
-        // https://learn.microsoft.com/en-gb/ef/core/what-is-new/ef-core-7.0/breaking-changes?tabs=v7#sqlserver-tables-with-triggers
-        builder.ToTable(x => x.UseSqlOutputClause(false));
 
         builder.Property(p => p.IsApproved)
             .HasComputedColumnSql("CASE WHEN PaymentStatus > 0 THEN 1 ELSE 0 END");
