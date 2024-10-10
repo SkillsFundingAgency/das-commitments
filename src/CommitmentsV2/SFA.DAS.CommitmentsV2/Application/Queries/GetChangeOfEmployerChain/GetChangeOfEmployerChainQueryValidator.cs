@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain;
+
+public class GetChangeOfEmployerChainQueryValidator : AbstractValidator<GetChangeOfEmployerChainQuery>
 {
-    public class GetChangeOfEmployerChainQueryValidator : AbstractValidator<GetChangeOfEmployerChainQuery>
+    public GetChangeOfEmployerChainQueryValidator()
     {
-        public GetChangeOfEmployerChainQueryValidator()
-        {
-            RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
     }
 }

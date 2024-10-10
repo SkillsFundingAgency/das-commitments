@@ -5,32 +5,24 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 
-public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
+public class GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
+    : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly IEmailOptionalService _emailService;
-
-    public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
-    {
-        _db = db;
-        _emailService = emailService;
-    }
-
     public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
     {
-        var db = _db.Value;
+        var db1 = db.Value;
         var apprenticeEmailIsRequired = false;
 
-        var parties = await db.Cohorts
+        var parties = await db1.Cohorts
             .Select(x => new { x.Id, x.EmployerAccountId, x.ProviderId })
             .FirstOrDefaultAsync(c => c.Id == request.CohortId, cancellationToken);
 
         if (parties != null)
         {
-            apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
+            apprenticeEmailIsRequired = emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
         }
 
-        var result = await db.Cohorts
+        var result = await db1.Cohorts
             .Select(cohort => new GetCohortSummaryQueryResult
             {
                 CohortId = cohort.Id,
@@ -65,7 +57,7 @@ public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuer
             return null;
         }
         
-        var cohortApprenticeships = await db.DraftApprenticeships
+        var cohortApprenticeships = await db1.DraftApprenticeships
             .Include(a => a.PriorLearning)
             .Include(a => a.FlexibleEmployment)
             .Where(a => a.CommitmentId == request.CohortId)
@@ -90,9 +82,14 @@ public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuer
         return apprenticeships.Any(apprenticeship =>
         {
             if (!apprenticeship.RecognisingPriorLearningStillNeedsToBeConsidered)
+            {
                 return false;
+            }
+
             if(!apprenticeship.RecognisingPriorLearningExtendedStillNeedsToBeConsidered)
+            {
                 return false;
+            }
 
             return true;
         });
@@ -100,7 +97,7 @@ public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuer
 
     private static bool CalculateIsCompleteForEmployer(IReadOnlyCollection<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired)
     {
-        return apprenticeships.Any() && !apprenticeships.Any(HasMissingData);
+        return apprenticeships.Count != 0 && !apprenticeships.Any(HasMissingData);
 
         bool HasMissingData(ApprenticeshipBase apprenticeship)
         {

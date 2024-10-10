@@ -2,21 +2,15 @@
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Infrastructure
+namespace SFA.DAS.CommitmentsV2.Infrastructure;
+
+public class AccessTokenProvider(LevyTransferMatchingApiConfiguration configuration) : IAccessTokenProvider
 {
-    public class AccessTokenProvider : IAccessTokenProvider
+    // Take advantage of built-in token caching
+    private readonly AzureServiceTokenProvider _tokenProvider = new();
+    
+    public async Task<string> GetAccessToken()
     {
-        private readonly LevyTransferMatchingApiConfiguration _configuration;
-
-        public AccessTokenProvider(LevyTransferMatchingApiConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public async Task<string> GetAccessToken()
-        {
-            var tokenProvider = new AzureServiceTokenProvider();
-            return await tokenProvider.GetAccessTokenAsync(_configuration.Identifier);
-        }
+        return await _tokenProvider.GetAccessTokenAsync(configuration.Identifier);
     }
 }

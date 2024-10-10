@@ -3,39 +3,28 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortApprovedByEmployerEventHandler(IMediator mediator, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortApprovedByEmployerEventHandler> logger)
+    : IHandleMessages<CohortApprovedByEmployerEvent>
 {
-    public class CohortApprovedByEmployerEventHandler : IHandleMessages<CohortApprovedByEmployerEvent>
+    public async Task Handle(CohortApprovedByEmployerEvent message, IMessageHandlerContext context)
     {
-        private readonly IMediator _mediator;
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<CohortApprovedByEmployerEventHandler> _logger;
-
-        public CohortApprovedByEmployerEventHandler(IMediator mediator, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortApprovedByEmployerEventHandler> logger)
+        try
         {
-            _mediator = mediator;
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
-            _logger = logger;
+            var cohort = await mediator.Send(new GetCohortSummaryQuery(message.CohortId));
+
+            await legacyTopicMessagePublisher.PublishAsync(new CohortApprovedByEmployer
+            {
+                AccountId = cohort.AccountId,
+                ProviderId = cohort.ProviderId.Value,
+                CommitmentId = message.CohortId
+            });
         }
-
-        public async Task Handle(CohortApprovedByEmployerEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            try
-            {
-                var cohort = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
-
-                await _legacyTopicMessagePublisher.PublishAsync(new CohortApprovedByEmployer
-                {
-                    AccountId = cohort.AccountId,
-                    ProviderId = cohort.ProviderId.Value,
-                    CommitmentId = message.CohortId
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error when trying to publish CohortApprovedByEmployer");
-                throw;
-            }
+            logger.LogError(e, "Error when trying to publish CohortApprovedByEmployer");
+            throw;
         }
     }
 }

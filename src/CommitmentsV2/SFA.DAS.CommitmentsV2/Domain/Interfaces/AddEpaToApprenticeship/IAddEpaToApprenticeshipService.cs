@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
+
+public interface IAddEpaToApprenticeshipService
 {
-    public interface IAddEpaToApprenticeshipService
-    {
-        Task Update();
-    }
+    Task Update();
 }

@@ -1,23 +1,15 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
 using SFA.DAS.EmployerFinance.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class LevyAddedToAccountEventHandler(IMediator mediator, ILogger<LevyAddedToAccountEventHandler> logger)
+    : IHandleMessages<LevyAddedToAccount>
 {
-    public class LevyAddedToAccountEventHandler : IHandleMessages<LevyAddedToAccount>
+    public async Task Handle(LevyAddedToAccount message, IMessageHandlerContext context)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<LevyAddedToAccountEventHandler> _logger;
-
-        public LevyAddedToAccountEventHandler(IMediator mediator, ILogger<LevyAddedToAccountEventHandler> logger)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
-
-        public async Task Handle(LevyAddedToAccount message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation($"LevyAddedToAccount event received for Account {message.AccountId}");
-            await _mediator.Send(new UpdateLevyStatusToLevyCommand { AccountId = message.AccountId });
-        }
+        logger.LogInformation("LevyAddedToAccount event received for Account {AccountId}", message.AccountId);
+        
+        await mediator.Send(new UpdateLevyStatusToLevyCommand { AccountId = message.AccountId });
     }
 }

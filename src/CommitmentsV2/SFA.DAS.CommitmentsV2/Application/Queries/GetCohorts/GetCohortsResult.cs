@@ -1,14 +1,13 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
-{
-    public class GetCohortsResult
-    {
-        public CohortSummary[] Cohorts { get; }
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 
-        public GetCohortsResult(IEnumerable<CohortSummary> cohorts)
-        {
-            Cohorts = cohorts.ToArray();
-        }
+public class GetCohortsResult
+{
+    public CohortSummary[] Cohorts { get; }
+
+    public GetCohortsResult(IEnumerable<CohortSummary> cohorts)
+    {
+        Cohorts = cohorts.ToArray();
     }
 }

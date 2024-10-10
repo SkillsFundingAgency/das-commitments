@@ -1,13 +1,12 @@
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Route("api/ping")]
+public class PingController : ControllerBase
 {
-    [ApiController]
-    [Route("api/ping")]
-    public class PingController : ControllerBase
+    [HttpGet]
+    public IActionResult Ping()
     {
-        [HttpGet]
-        public IActionResult Ping()
-        {
-            return Ok();
-        }
+        return Ok();
     }
 }

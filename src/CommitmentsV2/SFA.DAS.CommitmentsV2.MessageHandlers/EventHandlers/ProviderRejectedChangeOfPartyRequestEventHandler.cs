@@ -7,20 +7,12 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class ProviderRejectedChangeOfPartyRequestEventHandler : IHandleMessages<ProviderRejectedChangeOfPartyRequestEvent>
+public class ProviderRejectedChangeOfPartyRequestEventHandler(IEncodingService encodingService, Lazy<ProviderCommitmentsDbContext> dbContext)
+    : IHandleMessages<ProviderRejectedChangeOfPartyRequestEvent>
 {
-    private readonly IEncodingService _encodingService;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public ProviderRejectedChangeOfPartyRequestEventHandler(IEncodingService encodingService, Lazy<ProviderCommitmentsDbContext> dbContext)
-    {
-        _encodingService = encodingService;
-        _dbContext = dbContext;
-    }
-
     public async Task Handle(ProviderRejectedChangeOfPartyRequestEvent message, IMessageHandlerContext context)
     {
-        var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+        var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
            
         if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
         {
@@ -31,8 +23,8 @@ public class ProviderRejectedChangeOfPartyRequestEventHandler : IHandleMessages<
                     { "EmployerName", message.EmployerName },
                     { "TrainingProviderName", message.TrainingProviderName },
                     { "ApprenticeNamePossessive", message.ApprenticeName.EndsWith('s') ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
-                    { "AccountHashedId", _encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId) },
-                    { "ApprenticeshipHashedId", _encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) } 
+                    { "AccountHashedId", encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId) },
+                    { "ApprenticeshipHashedId", encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) } 
                 },
                 message.RecipientEmailAddress
             );

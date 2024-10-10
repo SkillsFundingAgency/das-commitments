@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+
+public class GetOverlappingTrainingDateRequestQueryValidator : AbstractValidator<GetOverlappingTrainingDateRequestQuery>
 {
-    public class GetOverlappingTrainingDateRequestQueryValidator : AbstractValidator<GetOverlappingTrainingDateRequestQuery>
+    public GetOverlappingTrainingDateRequestQueryValidator()
     {
-        public GetOverlappingTrainingDateRequestQueryValidator()
-        {
-            RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
     }
 }

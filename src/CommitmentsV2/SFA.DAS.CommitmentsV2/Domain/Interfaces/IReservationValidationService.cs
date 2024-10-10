@@ -1,9 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IReservationValidationService
 {
-    public interface IReservationValidationService
-    {
-        Task<Entities.Reservations.ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken);
-    }
+    Task<Entities.Reservations.ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken);
 }

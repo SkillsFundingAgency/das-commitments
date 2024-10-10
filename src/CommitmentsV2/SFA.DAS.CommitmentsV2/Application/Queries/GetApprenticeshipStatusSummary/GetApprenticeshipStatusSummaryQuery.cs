@@ -1,12 +1,11 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary
-{
-    public class GetApprenticeshipStatusSummaryQuery : IRequest<GetApprenticeshipStatusSummaryQueryResults>
-    {
-        public long EmployerAccountId { get; }
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 
-        public GetApprenticeshipStatusSummaryQuery(long employerAccountId)
-        {
-            EmployerAccountId = employerAccountId;
-        }
+public class GetApprenticeshipStatusSummaryQuery : IRequest<GetApprenticeshipStatusSummaryQueryResults>
+{
+    public long EmployerAccountId { get; }
+
+    public GetApprenticeshipStatusSummaryQuery(long employerAccountId)
+    {
+        EmployerAccountId = employerAccountId;
     }
 }

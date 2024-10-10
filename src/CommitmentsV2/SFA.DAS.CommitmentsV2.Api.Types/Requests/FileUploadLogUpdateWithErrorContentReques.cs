@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
+
+public class FileUploadLogUpdateWithErrorContentRequest : SaveDataRequest
 {
-    public class FileUploadLogUpdateWithErrorContentRequest : SaveDataRequest
-    {
-        public string ErrorContent { get; set; }
-    }
+    public string ErrorContent { get; set; }
 }

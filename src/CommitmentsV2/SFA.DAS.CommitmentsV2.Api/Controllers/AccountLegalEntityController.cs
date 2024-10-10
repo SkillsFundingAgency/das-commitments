@@ -10,18 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class AccountLegalEntityController : ControllerBase
+public class AccountLegalEntityController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public AccountLegalEntityController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [Authorize]
     [HttpGet]
-    [Route("{AccountLegalEntityId}")]
+    [Route("{AccountLegalEntityId:long}")]
     public async Task<IActionResult> GetAccountLegalEntity(long accountLegalEntityId)
     {
         if (!ModelState.IsValid)
@@ -29,7 +22,7 @@ public class AccountLegalEntityController : ControllerBase
             return BadRequest(ModelState.CreateErrorResponse());
         }
 
-        var employer = await _mediator.Send(new GetAccountLegalEntityQuery
+        var employer = await mediator.Send(new GetAccountLegalEntityQuery
         {
             AccountLegalEntityId = accountLegalEntityId
         });

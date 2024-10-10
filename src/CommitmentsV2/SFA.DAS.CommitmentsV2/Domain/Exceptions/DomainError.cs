@@ -1,14 +1,13 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Exceptions
-{
-    public class DomainError
-    {
-        public DomainError(string propertyName, string errorMessage)
-        {
-            PropertyName = propertyName;
-            ErrorMessage = errorMessage;
-        }
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
-        public string PropertyName { get; }
-        public string ErrorMessage { get; }
+public class DomainError
+{
+    public DomainError(string propertyName, string errorMessage)
+    {
+        PropertyName = propertyName;
+        ErrorMessage = errorMessage;
     }
+
+    public string PropertyName { get; }
+    public string ErrorMessage { get; }
 }

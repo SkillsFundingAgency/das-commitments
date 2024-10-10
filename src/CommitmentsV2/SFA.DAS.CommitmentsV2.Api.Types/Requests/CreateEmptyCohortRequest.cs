@@ -1,9 +1,8 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
+
+public class CreateEmptyCohortRequest : SaveDataRequest
 {
-    public class CreateEmptyCohortRequest : SaveDataRequest
-    {
-        public long AccountId { get; set; }
-        public long AccountLegalEntityId { get; set; }
-        public long ProviderId { get; set; }
-    }
+    public long AccountId { get; set; }
+    public long AccountLegalEntityId { get; set; }
+    public long ProviderId { get; set; }
 }

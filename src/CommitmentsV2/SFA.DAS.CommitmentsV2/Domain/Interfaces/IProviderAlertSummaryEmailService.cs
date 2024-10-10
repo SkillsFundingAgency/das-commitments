@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IProviderAlertSummaryEmailService
 {
-    public interface IProviderAlertSummaryEmailService
-    {
-        Task SendAlertSummaryEmails(string jobId);
-    }
+    Task SendAlertSummaryEmails(string jobId);
 }

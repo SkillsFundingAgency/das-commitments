@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+
+public class GetPriceEpisodesQueryValidator : AbstractValidator<GetPriceEpisodesQuery>
 {
-    public class GetPriceEpisodesQueryValidator : AbstractValidator<GetPriceEpisodesQuery>
+    public GetPriceEpisodesQueryValidator()
     {
-        public GetPriceEpisodesQueryValidator()
-        {
-            RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
     }
 }

@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+
+public class GetApprovedProvidersQueryValidator : AbstractValidator<GetApprovedProvidersQuery>
 {
-    public class GetApprovedProvidersQueryValidator : AbstractValidator<GetApprovedProvidersQuery>
+    public GetApprovedProvidersQueryValidator()
     {
-        public GetApprovedProvidersQueryValidator()
-        {
-            RuleFor(q => q.AccountId).GreaterThan(0).WithMessage("The account ID must be supplied");
-        }
+        RuleFor(q => q.AccountId).GreaterThan(0).WithMessage("The account ID must be supplied");
     }
 }

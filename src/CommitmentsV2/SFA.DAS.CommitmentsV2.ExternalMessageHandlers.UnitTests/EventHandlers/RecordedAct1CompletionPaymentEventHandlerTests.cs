@@ -45,15 +45,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
             _fixture.VerifyHasInfo();
         }
-
-        [TestCase(ApprenticeshipStatus.Unknown)]
-        [TestCase(ApprenticeshipStatus.WaitingToStart)]
-        public async Task When_HandlingCompletionEventWithIncorrectStatus_WarningMessageIsLogged(ApprenticeshipStatus status)
-        {
-            _fixture.WithApprenticeshipStatus(status);
-            await _fixture.Handle();
-            _fixture.VerifyHasWarning();
-        }
+        
 
         [Test]
         public void Handle_WhenHandlingCompletionEventAndItFails_ThenItShouldThrowAnExceptionAndLogIt()

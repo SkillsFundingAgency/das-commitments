@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface ILegacyTopicMessagePublisher
 {
-    public interface ILegacyTopicMessagePublisher
-    {
-        Task PublishAsync<T>(T @event);
-    }
+    Task PublishAsync<T>(T @event);
 }

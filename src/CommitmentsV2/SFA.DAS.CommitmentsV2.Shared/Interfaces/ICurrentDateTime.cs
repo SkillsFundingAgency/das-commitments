@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces;
+
+public interface ICurrentDateTime
 {
-    public interface ICurrentDateTime
-    {
-        DateTime UtcNow { get; }
-    }
+    DateTime UtcNow { get; }
 }

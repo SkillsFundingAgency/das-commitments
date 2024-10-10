@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
+
+public class GetDraftApprenticeshipsQueryValidator : AbstractValidator<GetDraftApprenticeshipsQuery>
 {
-    public class GetDraftApprenticeshipsQueryValidator : AbstractValidator<GetDraftApprenticeshipsQuery>
+    public GetDraftApprenticeshipsQueryValidator()
     {
-        public GetDraftApprenticeshipsQueryValidator()
-        {
-            RuleFor(model => model.CohortId).GreaterThan(0);
-        }
+        RuleFor(model => model.CohortId).GreaterThan(0);
     }
 }

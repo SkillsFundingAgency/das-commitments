@@ -1,9 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
+
+public class GetApprenticeshipUpdatesRequest
 {
-    public class GetApprenticeshipUpdatesRequest
-    {
-        public ApprenticeshipUpdateStatus? Status { get; set; }
-    }
+    public ApprenticeshipUpdateStatus? Status { get; set; }
 }

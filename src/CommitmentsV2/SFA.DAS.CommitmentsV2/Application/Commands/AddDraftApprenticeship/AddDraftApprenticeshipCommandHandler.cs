@@ -6,40 +6,30 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 
-public class AddDraftApprenticeshipCommandHandler : IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult>
+public class AddDraftApprenticeshipCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<AddDraftApprenticeshipCommandHandler> logger,
+    IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+    ICohortDomainService cohortDomainService)
+    : IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ILogger<AddDraftApprenticeshipCommandHandler> _logger;
-    private readonly IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
-    private readonly ICohortDomainService _cohortDomainService;
-
-    public AddDraftApprenticeshipCommandHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<AddDraftApprenticeshipCommandHandler> logger,
-        IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
-        ICohortDomainService cohortDomainService)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
-        _cohortDomainService = cohortDomainService;
-    }
-
     public async Task<AddDraftApprenticeshipResult> Handle(AddDraftApprenticeshipCommand request, CancellationToken cancellationToken)
     {
-        var db = _dbContext.Value;
-        var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(request);
-        var draftApprenticeship = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, request.RequestingParty, cancellationToken);
-            
+        var db = dbContext.Value;
+        var draftApprenticeshipDetails = await draftApprenticeshipDetailsMapper.Map(request);
+        var draftApprenticeship = await cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, request.RequestingParty, cancellationToken);
+
         await db.SaveChangesAsync(cancellationToken);
-            
-        _logger.LogInformation("Added draft apprenticeship. Reservation-Id:{ReservationId} Commitment-Id:{CohortId} Apprenticeship-Id:{DraftApprenticeshipId}", request.ReservationId, request.CohortId, draftApprenticeship.Id);
-            
-        var response = new AddDraftApprenticeshipResult
+
+        logger.LogInformation("Added draft apprenticeship. Reservation-Id:{ReservationId} Commitment-Id:{CohortId} Apprenticeship-Id:{DraftApprenticeshipId}",
+            request.ReservationId,
+            request.CohortId,
+            draftApprenticeship.Id
+        );
+
+        return new AddDraftApprenticeshipResult
         {
             Id = draftApprenticeship.Id
         };
-
-        return response;
     }
 }

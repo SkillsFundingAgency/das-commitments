@@ -3,33 +3,24 @@ using NServiceBus.Persistence;
 using SFA.DAS.NServiceBus.SqlServer.Data;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.Data
+namespace SFA.DAS.CommitmentsV2.Data;
+
+public class SynchronizedDbContextFactory(IUnitOfWorkContext unitOfWorkContext, ILoggerFactory loggerFactory)
+    : IDbContextFactory
 {
-    public class SynchronizedDbContextFactory : IDbContextFactory
+    public ProviderCommitmentsDbContext CreateDbContext()
     {
-        private readonly IUnitOfWorkContext _unitOfWorkContext;
-        private readonly ILoggerFactory _loggerFactory;
+        var synchronizedStorageSession = unitOfWorkContext.Find<SynchronizedStorageSession>();
+        var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
 
-        public SynchronizedDbContextFactory(IUnitOfWorkContext unitOfWorkContext, ILoggerFactory loggerFactory)
-        {
-            _unitOfWorkContext = unitOfWorkContext;
-            _loggerFactory = loggerFactory;
-        }
+        var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseSqlServer(sqlStorageSession.Connection)
+            .UseLoggerFactory(loggerFactory);
 
-        public ProviderCommitmentsDbContext CreateDbContext()
-        {
-            var synchronizedStorageSession = _unitOfWorkContext.Find<SynchronizedStorageSession>();
-            var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
+        var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
 
-            var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseSqlServer(sqlStorageSession.Connection)
-                .UseLoggerFactory(_loggerFactory);
+        dbContext.Database.UseTransaction(sqlStorageSession.Transaction);
 
-            var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
-
-            dbContext.Database.UseTransaction(sqlStorageSession.Transaction);
-
-            return dbContext;
-        }
+        return dbContext;
     }
 }

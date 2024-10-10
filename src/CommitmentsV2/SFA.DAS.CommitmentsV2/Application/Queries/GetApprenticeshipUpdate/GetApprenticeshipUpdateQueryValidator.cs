@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+
+public class GetApprenticeshipUpdateQueryValidator : AbstractValidator<GetApprenticeshipUpdateQuery>
 {
-    public class GetApprenticeshipUpdateQueryValidator : AbstractValidator<GetApprenticeshipUpdateQuery>
+    public GetApprenticeshipUpdateQueryValidator()
     {
-        public GetApprenticeshipUpdateQueryValidator()
-        {
-            RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 
@@ -10,10 +9,6 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        var logger = NLogBuilder.ConfigureNLog(environment == "Development" ? "nlog.Development.config" : "nlog.config").GetCurrentClassLogger();
-        logger.Info("Starting up host");
-
         CreateHostBuilder(args).Build().Run();
     }
 
@@ -21,7 +16,6 @@ public static class Program
         Host.CreateDefaultBuilder(args)
             .UseNServiceBusContainer()
             .ConfigureDasAppConfiguration()
-            .UseNLog()
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.ConfigureKestrel(c => c.AddServerHeader = false)

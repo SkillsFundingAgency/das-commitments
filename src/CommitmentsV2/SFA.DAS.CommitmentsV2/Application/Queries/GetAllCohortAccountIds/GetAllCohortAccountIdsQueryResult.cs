@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
+
+public class GetAllCohortAccountIdsQueryResult
 {
-    public class GetAllCohortAccountIdsQueryResult
-    {
-        public List<long> AccountIds { get; set; }
-    }
+    public List<long> AccountIds { get; set; }
 }

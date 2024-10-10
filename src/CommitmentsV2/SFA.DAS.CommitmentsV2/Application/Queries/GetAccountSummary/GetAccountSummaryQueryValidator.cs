@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
+
+public class GetAccountSummaryQueryValidator : AbstractValidator<GetAccountSummaryQuery>
 {
-    public class GetAccountSummaryQueryValidator : AbstractValidator<GetAccountSummaryQuery>
+    public GetAccountSummaryQueryValidator()
     {
-        public GetAccountSummaryQueryValidator()
-        {
-            RuleFor(model => model.AccountId).Must(id => id > 0);
-        }
+        RuleFor(model => model.AccountId).Must(id => id > 0);
     }
 }

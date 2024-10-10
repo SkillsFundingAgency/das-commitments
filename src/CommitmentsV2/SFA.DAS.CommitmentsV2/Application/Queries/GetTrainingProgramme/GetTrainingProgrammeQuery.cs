@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+
+public class GetTrainingProgrammeQuery : IRequest<GetTrainingProgrammeQueryResult>
 {
-    public class GetTrainingProgrammeQuery : IRequest<GetTrainingProgrammeQueryResult>
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

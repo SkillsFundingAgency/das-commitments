@@ -2,18 +2,14 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 
-public class ValidateUlnOverlapOnStartDateQueryHandler : IRequestHandler<ValidateUlnOverlapOnStartDateQuery, ValidateUlnOverlapOnStartDateQueryResult>
+public class ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService overlapCheckService) : IRequestHandler<ValidateUlnOverlapOnStartDateQuery, ValidateUlnOverlapOnStartDateQueryResult>
 {
-    private readonly IOverlapCheckService _overlapCheckService;
-
-    public ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService overlapCheckService) => _overlapCheckService = overlapCheckService;
-
     public async Task<ValidateUlnOverlapOnStartDateQueryResult> Handle(ValidateUlnOverlapOnStartDateQuery request, CancellationToken cancellationToken)
     {
         var startDate = DateTime.ParseExact(request.StartDate, "dd-MM-yyyy", null);
         var endDate = DateTime.ParseExact(request.EndDate, "dd-MM-yyyy", null);
 
-        var apprenticeshipWithOverlap = await _overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(startDate, endDate), null, cancellationToken);
+        var apprenticeshipWithOverlap = await overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(startDate, endDate), null, cancellationToken);
 
         var result = new ValidateUlnOverlapOnStartDateQueryResult { HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate, HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId };
 

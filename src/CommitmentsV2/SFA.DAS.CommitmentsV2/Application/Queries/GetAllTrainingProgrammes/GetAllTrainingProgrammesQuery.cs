@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
+
+public class GetAllTrainingProgrammesQuery : IRequest<GetAllTrainingProgrammesQueryResult>
 {
-    public class GetAllTrainingProgrammesQuery : IRequest<GetAllTrainingProgrammesQueryResult>
-    {
         
-    }
 }

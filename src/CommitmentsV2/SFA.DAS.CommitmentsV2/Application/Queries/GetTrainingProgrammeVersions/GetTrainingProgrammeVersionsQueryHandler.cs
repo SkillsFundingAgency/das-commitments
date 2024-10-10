@@ -5,22 +5,14 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 
-public class GetTrainingProgrammeVersionsQueryHandler : IRequestHandler<GetTrainingProgrammeVersionsQuery, GetTrainingProgrammeVersionsQueryResult>
+public class GetTrainingProgrammeVersionsQueryHandler(ITrainingProgrammeLookup trainingProgrammeService, ILogger<GetTrainingProgrammeVersionsQueryHandler> logger)
+    : IRequestHandler<GetTrainingProgrammeVersionsQuery, GetTrainingProgrammeVersionsQueryResult>
 {
-    private readonly ITrainingProgrammeLookup _trainingProgrammeService;
-    private readonly ILogger<GetTrainingProgrammeVersionsQueryHandler> _logger;
-
-    public GetTrainingProgrammeVersionsQueryHandler(ITrainingProgrammeLookup trainingProgrammeService, ILogger<GetTrainingProgrammeVersionsQueryHandler> logger)
-    {
-        _trainingProgrammeService = trainingProgrammeService;
-        _logger = logger;
-    }
-
     public async Task<GetTrainingProgrammeVersionsQueryResult> Handle(GetTrainingProgrammeVersionsQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await _trainingProgrammeService.GetTrainingProgrammeVersions(request.Id);
+            var result = await trainingProgrammeService.GetTrainingProgrammeVersions(request.Id);
 
             if (result == null)
             {
@@ -56,7 +48,7 @@ public class GetTrainingProgrammeVersionsQueryHandler : IRequestHandler<GetTrain
         }
         catch (Exception exception)
         {
-            _logger.LogInformation(exception, "Standard not found: {request.Id}", request.Id);
+            logger.LogInformation(exception, "Standard not found: {request.Id}", request.Id);
         }
 
         return new GetTrainingProgrammeVersionsQueryResult

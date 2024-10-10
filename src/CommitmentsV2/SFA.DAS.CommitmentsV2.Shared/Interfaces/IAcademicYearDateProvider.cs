@@ -1,10 +1,9 @@
-﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
-{
-    public interface IAcademicYearDateProvider
-    {
-        DateTime CurrentAcademicYearStartDate { get; }
-        DateTime CurrentAcademicYearEndDate { get; }
+﻿namespace SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-        DateTime LastAcademicYearFundingPeriod { get; }
-    }
+public interface IAcademicYearDateProvider
+{
+    DateTime CurrentAcademicYearStartDate { get; }
+    DateTime CurrentAcademicYearEndDate { get; }
+
+    DateTime LastAcademicYearFundingPeriod { get; }
 }

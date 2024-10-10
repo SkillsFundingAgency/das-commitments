@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 

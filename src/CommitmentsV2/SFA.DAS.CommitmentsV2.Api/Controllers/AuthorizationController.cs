@@ -9,17 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
 [Route("api/authorization")]
 [Authorize]
-public class AuthorizationController : ControllerBase
+public class AuthorizationController(IMediator mediator, ILogger<AuthorizationController> logger)
+    : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<AuthorizationController> _logger;
-
-    public AuthorizationController(IMediator mediator, ILogger<AuthorizationController> logger)
-    {
-        _mediator = mediator;            
-        _logger = logger;
-    }
-
     [HttpGet]
     [Route("access-cohort")]
     public async Task<IActionResult> CanAccessCohort(CohortAccessRequest request)
@@ -31,7 +23,7 @@ public class AuthorizationController : ControllerBase
             PartyId = request.PartyId
         };
 
-        return Ok(await _mediator.Send(query));
+        return Ok(await mediator.Send(query));
     }
 
     [HttpGet]
@@ -45,25 +37,25 @@ public class AuthorizationController : ControllerBase
             PartyId = request.PartyId
         };
 
-        return Ok(await _mediator.Send(query));
+        return Ok(await mediator.Send(query));
     }
 
     [HttpGet]
-    [Route("features/providers/{providerId}/apprentice-email-required")]
+    [Route("features/providers/{providerId:long}/apprentice-email-required")]
     public async Task <IActionResult> ApprenticeEmailRequired(long providerId)
     {
-        _logger.LogInformation("Check feature 'apprentice-email-required' is enabled for provider {providerId}", providerId);
+        logger.LogInformation("Check feature 'apprentice-email-required' is enabled for provider {providerId}", providerId);
         var query = new GetEmailOptionalQuery(0, providerId);
 
-        bool resp = await _mediator.Send(query);
+        var resp = await mediator.Send(query);
 
         if (resp)
         {
-            _logger.LogInformation("Feature 'apprentice-email-required' is off for provider {providerId}", providerId);
+            logger.LogInformation("Feature 'apprentice-email-required' is off for provider {providerId}", providerId);
             return NotFound();
         }
 
-        _logger.LogInformation("Feature 'apprentice-email-required' is on for provider {providerId}", providerId);
+        logger.LogInformation("Feature 'apprentice-email-required' is on for provider {providerId}", providerId);
         return Ok();
     }
 
@@ -73,11 +65,13 @@ public class AuthorizationController : ControllerBase
     {
         var query = new GetEmailOptionalQuery(employerid, providerId);
 
-        var resp = await _mediator.Send(query);
+        var resp = await mediator.Send(query);
 
         if (resp)
+        {
             return Ok();
-                
+        }
+
         return NotFound();
     }
 }

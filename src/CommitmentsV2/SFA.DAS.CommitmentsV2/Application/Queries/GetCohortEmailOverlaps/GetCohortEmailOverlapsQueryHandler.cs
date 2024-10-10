@@ -4,15 +4,12 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 
-public class GetCohortEmailOverlapsQueryHandler : IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult>
+public class GetCohortEmailOverlapsQueryHandler(IOverlapCheckService overlapCheckService) : IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult>
 {
-    private readonly IOverlapCheckService _overlapCheckService;
-
-    public GetCohortEmailOverlapsQueryHandler(IOverlapCheckService overlapCheckService) => _overlapCheckService = overlapCheckService;
-
     public async Task<GetCohortEmailOverlapsQueryResult> Handle(GetCohortEmailOverlapsQuery request, CancellationToken cancellationToken)
     {
-        var results = await _overlapCheckService.CheckForEmailOverlaps(request.CohortId, cancellationToken);
+        var results = await overlapCheckService.CheckForEmailOverlaps(request.CohortId, cancellationToken);
+        
         return Map(results);
     }
 
@@ -21,7 +18,10 @@ public class GetCohortEmailOverlapsQueryHandler : IRequestHandler<GetCohortEmail
         return new GetCohortEmailOverlapsQueryResult
         {
             Overlaps = results.Select(x => new ApprenticeshipEmailOverlap
-                {Id = x.RowId, ErrorMessage = x.BuildErrorMessage()}).ToList()
+            {
+                Id = x.RowId,
+                ErrorMessage = x.BuildErrorMessage()
+            }).ToList()
         };
     }
 }

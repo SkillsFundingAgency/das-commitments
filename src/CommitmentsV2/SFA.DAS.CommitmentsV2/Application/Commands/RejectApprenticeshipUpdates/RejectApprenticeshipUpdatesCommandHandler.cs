@@ -7,27 +7,18 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates;
 
-public class RejectApprenticeshipUpdatesCommandHandler : IRequestHandler<RejectApprenticeshipUpdatesCommand>
+public class RejectApprenticeshipUpdatesCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IAuthenticationService authenticationService,
+    ILogger<RejectApprenticeshipUpdatesCommandHandler> logger)
+    : IRequestHandler<RejectApprenticeshipUpdatesCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    private readonly IAuthenticationService _authenticationService;
-    private readonly ILogger<RejectApprenticeshipUpdatesCommandHandler> _logger;
-
-    public RejectApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        IAuthenticationService authenticationService,
-        ILogger<RejectApprenticeshipUpdatesCommandHandler> logger)
-    {
-        _dbContext = dbContext;
-        _authenticationService = authenticationService;
-        _logger = logger;
-    }
-
     public async Task Handle(RejectApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("RejectApprenticeshipUpdatesCommand received from ApprenticeshipId : {Id}.", command.ApprenticeshipId);
-        var party = _authenticationService.GetUserParty();
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        logger.LogInformation("RejectApprenticeshipUpdatesCommand received from ApprenticeshipId : {Id}.", command.ApprenticeshipId);
+        
+        var party = authenticationService.GetUserParty();
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
         
         CheckPartyIsValid(party, command, apprenticeship);
 

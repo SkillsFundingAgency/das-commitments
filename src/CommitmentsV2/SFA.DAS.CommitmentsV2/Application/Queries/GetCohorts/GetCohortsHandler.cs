@@ -4,24 +4,16 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 
-public class GetCohortsHandler : IRequestHandler<GetCohortsQuery, GetCohortsResult>
+public class GetCohortsHandler(Lazy<ProviderCommitmentsDbContext> db, ILogger<GetCohortsHandler> logger)
+    : IRequestHandler<GetCohortsQuery, GetCohortsResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly ILogger<GetCohortsHandler> _logger;
-
-    public GetCohortsHandler(Lazy<ProviderCommitmentsDbContext> db, ILogger<GetCohortsHandler> logger)
-    {
-        _db = db;
-        _logger = logger;
-    }
-
     public async Task<GetCohortsResult> Handle(GetCohortsQuery command, CancellationToken cancellationToken)
     {
         try
         {
             //filter cohorts
-            var cohortFiltered = await (from cohort in _db.Value.Cohorts
-                join a in _db.Value.Accounts on cohort.TransferSenderId equals a.Id into account
+            var cohortFiltered = await (from cohort in db.Value.Cohorts
+                join a in db.Value.Accounts on cohort.TransferSenderId equals a.Id into account
                 from transferSender in account.DefaultIfEmpty()
                 where cohort.EmployerAccountId == (command.AccountId ?? cohort.EmployerAccountId) && cohort.ProviderId == (command.ProviderId ?? cohort.ProviderId) &&
                       (cohort.EditStatus != EditStatus.Both ||
@@ -47,7 +39,7 @@ public class GetCohortsHandler : IRequestHandler<GetCohortsQuery, GetCohortsResu
             var cohortIds = cohortFiltered.Select(x => x.CohortId);
 
             //Get apprentices count for cohorts.
-            var apprentices = await _db.Value.DraftApprenticeships.Where(y => cohortIds.Contains(y.CommitmentId))
+            var apprentices = await db.Value.DraftApprenticeships.Where(y => cohortIds.Contains(y.CommitmentId))
                 .GroupBy(x => x.CommitmentId).Select(z => new
                 {
                     CohortId = z.Key,
@@ -55,10 +47,11 @@ public class GetCohortsHandler : IRequestHandler<GetCohortsQuery, GetCohortsResu
                 }).ToArrayAsync(cancellationToken);
 
             //Get latest messages for cohorts.
-            var filteredMessages = _db.Value.Messages.Where(y => cohortIds.Contains(y.CommitmentId))
+            var filteredMessages = db.Value.Messages.Where(y => cohortIds.Contains(y.CommitmentId))
                 .GroupBy(message => new { message.CreatedBy, message.CommitmentId })
                 .Select(z => z.Max(x => x.Id));
-            var messages = await _db.Value.Messages.Where(m => filteredMessages.Contains(m.Id)).Select(message => new
+            
+            var messages = await db.Value.Messages.Where(m => filteredMessages.Contains(m.Id)).Select(message => new
             {
                 message.CommitmentId,
                 message.CreatedBy,
@@ -84,7 +77,7 @@ public class GetCohortsHandler : IRequestHandler<GetCohortsQuery, GetCohortsResu
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{message}", exception.Message);
+            logger.LogError(exception, "Exception caught in GetCohortsHandler.");
             throw;
         }
     }

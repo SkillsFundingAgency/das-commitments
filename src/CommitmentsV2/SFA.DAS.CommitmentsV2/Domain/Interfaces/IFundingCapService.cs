@@ -1,10 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IFundingCapService
 {
-    public interface IFundingCapService
-    {
-        Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<ApprenticeshipBase> list);
-    }
+    Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<ApprenticeshipBase> list);
 }

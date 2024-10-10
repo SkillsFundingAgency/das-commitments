@@ -5,65 +5,56 @@ using SFA.DAS.CommitmentsV2.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
-namespace SFA.DAS.CommitmentsV2.Services
+namespace SFA.DAS.CommitmentsV2.Services;
+
+public class EmailOverlapService(IDbContextFactory dbContextFactory, ILogger<EmailOverlapService> logger)
+    : IEmailOverlapService
 {
-    public class EmailOverlapService : IEmailOverlapService
+    public async Task<List<OverlappingEmail>> GetOverlappingEmails(EmailToValidate emailToValidate, long? cohortId, CancellationToken cancellationToken)
     {
-        private readonly IDbContextFactory _dbContextFactory;
-        private readonly ILogger<EmailOverlapService> _logger;
+        await using var db = dbContextFactory.CreateDbContext();
 
-        public EmailOverlapService(IDbContextFactory dbContextFactory, ILogger<EmailOverlapService> logger)
+        var emailParam = new SqlParameter("@Email", emailToValidate.Email);
+        var startDateParam = new SqlParameter("@StartDate", emailToValidate.StartDate);
+        var endDateParam = new SqlParameter("@EndDate", emailToValidate.EndDate);
+        var apprenticeshipIdParam = new SqlParameter("@ApprenticeshipId", emailToValidate.ApprenticeshipId);
+        apprenticeshipIdParam.Value ??= DBNull.Value;
+
+        var cohortIdParam = new SqlParameter("@CohortId", cohortId);
+        cohortIdParam.Value ??= DBNull.Value;
+
+        try
         {
-            _dbContextFactory = dbContextFactory;
-            _logger = logger;
+
+            var query = db.OverlappingEmails.FromSqlRaw(
+                "EXEC CheckForOverlappingEmails @Email, @StartDate, @EndDate, @ApprenticeshipId, @CohortId", emailParam, startDateParam, endDateParam, apprenticeshipIdParam, cohortIdParam);
+
+            return await query.ToListAsync(cancellationToken);
         }
-
-        public async Task<List<OverlappingEmail>> GetOverlappingEmails(EmailToValidate emailToValidate, long? cohortId, CancellationToken cancellationToken)
+        catch (Exception e)
         {
-            using var db = _dbContextFactory.CreateDbContext();
-
-            var emailParam = new SqlParameter("@Email", emailToValidate.Email);
-            var startDateParam = new SqlParameter("@StartDate", emailToValidate.StartDate);
-            var endDateParam = new SqlParameter("@EndDate", emailToValidate.EndDate);
-            var apprenticeshipIdParam = new SqlParameter("@ApprenticeshipId", emailToValidate.ApprenticeshipId);
-            apprenticeshipIdParam.Value ??= DBNull.Value;
-
-            var cohortIdParam = new SqlParameter("@CohortId", cohortId);
-            cohortIdParam.Value ??= DBNull.Value;
-
-            try
-            {
-
-                var query = db.OverlappingEmails.FromSqlRaw(
-                    "EXEC CheckForOverlappingEmails @Email, @StartDate, @EndDate, @ApprenticeshipId, @CohortId", emailParam, startDateParam, endDateParam, apprenticeshipIdParam, cohortIdParam);
-
-                return await query.ToListAsync(cancellationToken);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmails");
-                throw;
-            }
+            logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmails");
+            throw;
         }
+    }
 
-        public async Task<List<OverlappingEmail>> GetOverlappingEmails(long cohortId, CancellationToken cancellationToken)
+    public async Task<List<OverlappingEmail>> GetOverlappingEmails(long cohortId, CancellationToken cancellationToken)
+    {
+        await using var db = dbContextFactory.CreateDbContext();
+
+        var cohortIdParam = new SqlParameter("@CohortId", cohortId);
+
+        try
         {
-            using var db = _dbContextFactory.CreateDbContext();
+            var query = db.OverlappingEmails.FromSqlRaw(
+                "EXEC CheckForOverlappingEmailsInCohort @CohortId", cohortIdParam);
 
-            var cohortIdParam = new SqlParameter("@CohortId", cohortId);
-
-            try
-            {
-                var query = db.OverlappingEmails.FromSqlRaw(
-                    "EXEC CheckForOverlappingEmailsInCohort @CohortId", cohortIdParam);
-
-                return await query.ToListAsync(cancellationToken);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmailsInCohort");
-                throw;
-            }
+            return await query.ToListAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmailsInCohort");
+            throw;
         }
     }
 }

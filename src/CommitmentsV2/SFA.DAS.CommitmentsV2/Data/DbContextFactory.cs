@@ -1,28 +1,21 @@
 ﻿using System.Data.Common;
 using Microsoft.Extensions.Logging;
 
-namespace SFA.DAS.CommitmentsV2.Data
+namespace SFA.DAS.CommitmentsV2.Data;
+
+public interface IDbContextFactory
 {
-    public class DbContextFactory : IDbContextFactory
+    ProviderCommitmentsDbContext CreateDbContext();
+}
+
+public class DbContextFactory(DbConnection dbConnection, ILoggerFactory loggerFactory) : IDbContextFactory
+{
+    public ProviderCommitmentsDbContext CreateDbContext()
     {
-        private readonly DbConnection _dbConnection;
-        private readonly ILoggerFactory _loggerFactory;
+        var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseSqlServer(dbConnection)
+            .UseLoggerFactory(loggerFactory);
 
-        public DbContextFactory(DbConnection dbConnection, ILoggerFactory loggerFactory)
-        {
-            _dbConnection = dbConnection;
-            _loggerFactory = loggerFactory;
-        }
-
-        public ProviderCommitmentsDbContext CreateDbContext()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseSqlServer(_dbConnection)
-                .UseLoggerFactory(_loggerFactory);
-
-            var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
-
-            return dbContext;
-        }
+        return new ProviderCommitmentsDbContext(optionsBuilder.Options);
     }
 }

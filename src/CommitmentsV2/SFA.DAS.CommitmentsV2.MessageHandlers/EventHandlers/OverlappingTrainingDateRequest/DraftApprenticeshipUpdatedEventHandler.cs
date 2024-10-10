@@ -1,20 +1,14 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
+
+public class DraftApprenticeshipUpdatedEventHandler(
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    : IHandleMessages<DraftApprenticeshipUpdatedEvent>
 {
-    public class DraftApprenticeshipUpdatedEventHandler : IHandleMessages<DraftApprenticeshipUpdatedEvent>
+    public async Task Handle(DraftApprenticeshipUpdatedEvent message, IMessageHandlerContext context)
     {
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
-
-        public DraftApprenticeshipUpdatedEventHandler(IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
-        {
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-        }
-
-        public async Task Handle(DraftApprenticeshipUpdatedEvent message, IMessageHandlerContext context)
-        {
-            await _resolveOverlappingTrainingDateRequestService.Resolve(null, message.DraftApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated);
-        }
+        await resolveOverlappingTrainingDateRequestService.Resolve(null, message.DraftApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated);
     }
 }

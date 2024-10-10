@@ -9,6 +9,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 public static class DatabaseExtensions
 {
     private const string AzureResource = "https://database.windows.net/";
+    
+    // Take advantage of ChainedTokenCredential's built-in caching
+    private static readonly ChainedTokenCredential AzureServiceTokenProvider = new(
+        new ManagedIdentityCredential(),
+        new AzureCliCredential(),
+        new VisualStudioCodeCredential(),
+        new VisualStudioCredential());
 
     public static DbConnection GetSqlConnection(string connectionString)
     {
@@ -18,25 +25,17 @@ public static class DatabaseExtensions
         }
 
         var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
-        bool useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
+        var useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
 
         if (!useManagedIdentity)
         {
             return new SqlConnection(connectionString);
         }
 
-        var azureServiceTokenProvider = new ChainedTokenCredential(
-            new ManagedIdentityCredential(),
-            new AzureCliCredential(),
-            new VisualStudioCodeCredential(),
-            new VisualStudioCredential());
-
-        var sqlConn = new SqlConnection
+        return new SqlConnection
         {
             ConnectionString = connectionString,
-            AccessToken = azureServiceTokenProvider.GetToken(new TokenRequestContext(scopes: new string[] { AzureResource })).Token
+            AccessToken = AzureServiceTokenProvider.GetToken(new TokenRequestContext(scopes: [AzureResource])).Token
         };
-
-        return sqlConn;
     }
 }

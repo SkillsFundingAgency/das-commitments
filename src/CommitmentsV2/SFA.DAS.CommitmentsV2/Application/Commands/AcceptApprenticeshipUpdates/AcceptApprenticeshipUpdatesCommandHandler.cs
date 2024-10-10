@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
@@ -8,36 +7,24 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 
-public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptApprenticeshipUpdatesCommand>
+public class AcceptApprenticeshipUpdatesCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IAuthenticationService authenticationService,
+    IOverlapCheckService overlapCheckService,
+    ICurrentDateTime dateTimeService,
+    ILogger<AcceptApprenticeshipUpdatesCommandHandler> logger)
+    : IRequestHandler<AcceptApprenticeshipUpdatesCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IOverlapCheckService _overlapCheckService;
-    private readonly ICurrentDateTime _dateTimeService;
-    private readonly ILogger<AcceptApprenticeshipUpdatesCommandHandler> _logger;
-
-    public AcceptApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        IAuthenticationService authenticationService,
-        IOverlapCheckService overlapCheckService,
-        ICurrentDateTime dateTimeService,
-        ILogger<AcceptApprenticeshipUpdatesCommandHandler> logger)
-    {
-        _dbContext = dbContext;
-        _authenticationService = authenticationService;
-        _overlapCheckService = overlapCheckService;
-        _dateTimeService = dateTimeService;
-        _logger = logger;
-    }
-
     public async Task Handle(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId : {Id}", command.ApprenticeshipId);
+        logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId : {Id}", command.ApprenticeshipId);
 
         var party = GetParty(command);
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
         CheckPartyIsValid(party, command, apprenticeship);
 
         if (apprenticeship.ApprenticeshipUpdate.FirstOrDefault(x => x.Status == ApprenticeshipUpdateStatus.Pending) == null)
@@ -57,37 +44,33 @@ public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptA
 
             await CheckEmailOverlap(command, apprenticeship, apprenticeshipUpdate, cancellationToken);
         }
-        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
+        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, dateTimeService);
     }
 
 		private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
-		{
-			if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
-			{
-				return command.Party;
-			}
-
-			return _authenticationService.GetUserParty();
-		}
+        {
+            return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler 
+                ? command.Party 
+                : authenticationService.GetUserParty();
+        }
 
     private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
-        var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
-            new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+        var overlapCheckResult = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
+            new DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
             command.ApprenticeshipId,
             cancellationToken);
 
         if (overlapCheckResult.HasOverlaps)
         {
-            throw new DomainException("ApprenticeshipId",
-                "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
+            throw new DomainException("ApprenticeshipId", "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
         }
     }
 
     private async Task CheckEmailOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
-        var overlapCheckResult = await _overlapCheckService.CheckForEmailOverlaps(apprenticeshipUpdate.Email,
-            new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+        var overlapCheckResult = await overlapCheckService.CheckForEmailOverlaps(apprenticeshipUpdate.Email,
+            new DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
             command.ApprenticeshipId,
             null,
             cancellationToken);

@@ -2,14 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
 
-public class GetTransferRequestQueryHandler : IRequestHandler<GetTransferRequestQuery, GetTransferRequestQueryResult>
+public class GetTransferRequestQueryHandler(ITransferRequestDomainService transferRequestDomainService) : IRequestHandler<GetTransferRequestQuery, GetTransferRequestQueryResult>
 {
-    private readonly ITransferRequestDomainService _transferRequestDomainService;
-
-    public GetTransferRequestQueryHandler(ITransferRequestDomainService transferRequestDomainService)
-    {
-        _transferRequestDomainService = transferRequestDomainService ?? throw new ArgumentNullException(nameof(transferRequestDomainService));
-    }
+    private readonly ITransferRequestDomainService _transferRequestDomainService = transferRequestDomainService ?? throw new ArgumentNullException(nameof(transferRequestDomainService));
 
     public async Task<GetTransferRequestQueryResult> Handle(GetTransferRequestQuery message, CancellationToken cancellationToken)
     {

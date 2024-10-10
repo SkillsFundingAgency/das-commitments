@@ -12,65 +12,54 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 
-public class StopApprenticeshipCommandHandler : IRequestHandler<StopApprenticeshipCommand>
+public class StopApprenticeshipCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ICurrentDateTime currentDate,
+    IMessageSession nserviceBusContext,
+    IEncodingService encodingService,
+    ILogger<StopApprenticeshipCommandHandler> logger,
+    CommitmentsV2Configuration commitmentsV2Configuration,
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    : IRequestHandler<StopApprenticeshipCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ICurrentDateTime _currentDate;
-    private readonly IMessageSession _nserviceBusContext;
-    private readonly IEncodingService _encodingService;
-    private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
-    private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-    private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
     private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
-
-    public StopApprenticeshipCommandHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        ICurrentDateTime currentDate,
-        IMessageSession nserviceBusContext,
-        IEncodingService encodingService,
-        ILogger<StopApprenticeshipCommandHandler> logger,
-        CommitmentsV2Configuration commitmentsV2Configuration,
-        IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
-    {
-        _dbContext = dbContext;
-        _currentDate = currentDate;
-        _nserviceBusContext = nserviceBusContext;
-        _encodingService = encodingService;
-        _logger = logger;
-        _commitmentsV2Configuration = commitmentsV2Configuration;
-        _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-    }
 
     public async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            _logger.LogInformation("Begin stopping apprenticeShip. Apprenticeship-Id:{ApprenticeshipId}",
+            logger.LogInformation("Begin stopping apprenticeShip. Apprenticeship-Id:{ApprenticeshipId}",
                 request.ApprenticeshipId);
 
             CheckPartyIsValid(request.Party);
 
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
+            var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
-            apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, _currentDate, request.Party);
-            await _dbContext.Value.SaveChangesAsync(cancellationToken);
+            apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, currentDate, request.Party);
+            await dbContext.Value.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Stopped apprenticeship. Apprenticeship-Id:{ApprenticeshipId}",
+            logger.LogInformation("Stopped apprenticeship. Apprenticeship-Id:{ApprenticeshipId}",
                 request.ApprenticeshipId);
 
-            await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null,
-                Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
+            await resolveOverlappingTrainingDateRequestService.Resolve(
+                request.ApprenticeshipId,
+                null,
+                OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped
+                );
 
-            _logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}",
-                apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
+            logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
 
-            await NotifyProvider(apprenticeship.Cohort.ProviderId, apprenticeship.Id,
-                apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, request.StopDate);
+            await NotifyProvider(
+                apprenticeship.Cohort.ProviderId,
+                apprenticeship.Id,
+                apprenticeship.Cohort.AccountLegalEntity.Name,
+                apprenticeship.ApprenticeName, 
+                request.StopDate
+            );
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Error Stopping Apprenticeship with id {ApprenticeshipId}",
-                request.ApprenticeshipId);
+            logger.LogError(exception, "Error Stopping Apprenticeship with id {ApprenticeshipId}", request.ApprenticeshipId);
             throw;
         }
     }
@@ -86,11 +75,11 @@ public class StopApprenticeshipCommandHandler : IRequestHandler<StopApprenticesh
                 {"DATE", stopDate.ToString("dd/MM/yyyy")},
                 {
                     "URL",
-                    $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{_encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}"
+                    $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}"
                 }
             });
 
-        await _nserviceBusContext.Send(sendEmailToProviderCommand);
+        await nserviceBusContext.Send(sendEmailToProviderCommand);
     }
 
     private static void CheckPartyIsValid(Party party)

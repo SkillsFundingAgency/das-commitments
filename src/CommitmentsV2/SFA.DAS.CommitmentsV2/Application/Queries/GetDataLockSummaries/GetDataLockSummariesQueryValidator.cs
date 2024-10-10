@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
+
+public class GetDataLockSummariesQueryValidator : AbstractValidator<GetDataLockSummariesQuery>
 {
-    public class GetDataLockSummariesQueryValidator : AbstractValidator<GetDataLockSummariesQuery>
+    public GetDataLockSummariesQueryValidator()
     {
-        public GetDataLockSummariesQueryValidator()
-        {
-            RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
     }
 }

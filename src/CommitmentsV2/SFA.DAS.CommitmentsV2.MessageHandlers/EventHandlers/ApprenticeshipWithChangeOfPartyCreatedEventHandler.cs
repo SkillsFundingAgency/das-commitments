@@ -2,41 +2,37 @@
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipWithChangeOfPartyCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipWithChangeOfPartyCreatedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipWithChangeOfPartyCreatedEvent>
 {
-    public class ApprenticeshipWithChangeOfPartyCreatedEventHandler : IHandleMessages<ApprenticeshipWithChangeOfPartyCreatedEvent>
+    public async Task Handle(ApprenticeshipWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<ApprenticeshipWithChangeOfPartyCreatedEventHandler> _logger;
+        logger.LogInformation("ApprenticeshipWithChangeOfPartyCreatedEvent received for Apprenticeship {ApprenticeshipId}, ChangeOfPartyRequest {ChangeOfPartyRequestId}", message.ApprenticeshipId, message.ChangeOfPartyRequestId);
 
-        public ApprenticeshipWithChangeOfPartyCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipWithChangeOfPartyCreatedEventHandler> logger)
+        try
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+            var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+
+            if (changeOfPartyRequest.NewApprenticeshipId.HasValue)
+            {
+                logger.LogWarning("ChangeOfPartyRequest {Id} already has NewApprenticeshipId {CohortId} - {TypeName} with new ApprenticeshipId {ApprenticeshipId} will be ignored",
+                    changeOfPartyRequest.Id,
+                    changeOfPartyRequest.CohortId,
+                    nameof(ApprenticeshipWithChangeOfPartyCreatedEvent),
+                    message.ApprenticeshipId
+                );
+                return;
+            }
+
+            changeOfPartyRequest.SetNewApprenticeship(apprenticeship, message.UserInfo, message.LastApprovedBy);
         }
-
-        public async Task Handle(ApprenticeshipWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation($"ApprenticeshipWithChangeOfPartyCreatedEvent received for Apprenticeship {message.ApprenticeshipId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}");
-
-            try
-            {
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-
-                if (changeOfPartyRequest.NewApprenticeshipId.HasValue)
-                {
-                    _logger.LogWarning($"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has NewApprenticeshipId {changeOfPartyRequest.CohortId} - {nameof(ApprenticeshipWithChangeOfPartyCreatedEvent)} with new ApprenticeshipId {message.ApprenticeshipId} will be ignored");
-                    return;
-                }
-
-                changeOfPartyRequest.SetNewApprenticeship(apprenticeship, message.UserInfo, message.LastApprovedBy);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error processing ApprenticeshipWithChangeOfPartyCreatedEvent", e);
-                throw;
-            }
+            logger.LogError(e, "Error processing ApprenticeshipWithChangeOfPartyCreatedEvent");
+            throw;
         }
     }
 }

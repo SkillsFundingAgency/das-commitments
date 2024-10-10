@@ -8,76 +8,68 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Reservations.Api.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ChangeOfPartyRequestCreatedEventHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IReservationsApiClient reservationsApiClient,
+    ILogger<ChangeOfPartyRequestCreatedEventHandler> logger,
+    IEncodingService encodingService,
+    IOverlappingTrainingDateRequestDomainService overlappingTrainingDateRequestDomainService)
+    : IHandleMessages<ChangeOfPartyRequestCreatedEvent>
 {
-    public class ChangeOfPartyRequestCreatedEventHandler : IHandleMessages<ChangeOfPartyRequestCreatedEvent>
+    public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IReservationsApiClient _reservationsApiClient;
-        private readonly ILogger<ChangeOfPartyRequestCreatedEventHandler> _logger;
-        private readonly IEncodingService _encodingService;
-        private readonly IOverlappingTrainingDateRequestDomainService _overlappingTrainingDateRequestDomainService;
+        logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler received ChangeOfPartyRequestId {Id}", message.ChangeOfPartyRequestId);
 
-        public ChangeOfPartyRequestCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            IReservationsApiClient reservationsApiClient,
-            ILogger<ChangeOfPartyRequestCreatedEventHandler> logger,
-            IEncodingService encodingService,
-            IOverlappingTrainingDateRequestDomainService overlappingTrainingDateRequestDomainService)
+        var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(changeOfPartyRequest.ApprenticeshipId, default);
+
+        var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
+
+        var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOverlappingTrainingDates);
+
+        logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler adding Cohort");
+        dbContext.Value.Cohorts.Add(cohort);
+        await dbContext.Value.SaveChangesAsync();
+
+        //this encoding and re-save could be removed and put elsewhere
+        cohort.Reference = encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+        await dbContext.Value.SaveChangesAsync();
+
+        if (message.HasOverlappingTrainingDates)
         {
-            _dbContext = dbContext;
-            _reservationsApiClient = reservationsApiClient;
-            _logger = logger;
-            _encodingService = encodingService;
-            _overlappingTrainingDateRequestDomainService = overlappingTrainingDateRequestDomainService;
+            logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler {ChangeOfPartyRequestId} HasOverlappingTrainingDates. Creating new CreateOverlappingTrainingDatesRequest", message.ChangeOfPartyRequestId);
+
+            await overlappingTrainingDateRequestDomainService.CreateOverlappingTrainingDateRequest(
+                cohort.Apprenticeships.First().Id,
+                changeOfPartyRequest.OriginatingParty,
+                apprenticeship.Id,
+                message.UserInfo,
+                new CancellationToken()
+            );
+        }
+    }
+
+    private async Task<Guid?> GetReservationId(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship)
+    {
+        if (!apprenticeship.ReservationId.HasValue)
+        {
+            return null;
         }
 
-        public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
+        var createChangeOfPartyReservationRequest = new CreateChangeOfPartyReservationRequest
         {
-            _logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler received ChangeOfPartyRequestId {id}", message.ChangeOfPartyRequestId);
+            AccountLegalEntityId = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                ? changeOfPartyRequest.AccountLegalEntityId
+                : null,
+            ProviderId = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider
+                ? changeOfPartyRequest.ProviderId
+                : null
+        };
 
-            var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(changeOfPartyRequest.ApprenticeshipId, default);
-
-            var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
-
-            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOverlappingTrainingDates);
-
-            _logger.LogInformation("ChangeOfPartyRequestCreatedEventHandler adding Cohort");
-            _dbContext.Value.Cohorts.Add(cohort);
-            await _dbContext.Value.SaveChangesAsync();
-
-            //this encoding and re-save could be removed and put elsewhere
-            cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
-            await _dbContext.Value.SaveChangesAsync();
-
-            if (message.HasOverlappingTrainingDates)
-            {
-                _logger.LogInformation($"ChangeOfPartyRequestCreatedEventHandler {message.ChangeOfPartyRequestId} HasOverlappingTrainingDates. Creating new CreateOverlappingTrainingDatesRequest");
-
-                await _overlappingTrainingDateRequestDomainService
-                .CreateOverlappingTrainingDateRequest(cohort.Apprenticeships.First().Id, changeOfPartyRequest.OriginatingParty, apprenticeship.Id, message.UserInfo, new CancellationToken());
-            }
-        }
-
-        private async Task<Guid?> GetReservationId(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship)
-        {
-            if (!apprenticeship.ReservationId.HasValue)
-            {
-                return null;
-            }
-
-            var createChangeOfPartyReservationRequest = new CreateChangeOfPartyReservationRequest
-            {
-                AccountLegalEntityId = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                    ? changeOfPartyRequest.AccountLegalEntityId
-                    : null,
-                ProviderId = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider
-                    ? changeOfPartyRequest.ProviderId
-                    : null
-            };
-
-            var result = await _reservationsApiClient.CreateChangeOfPartyReservation(apprenticeship.ReservationId.Value, createChangeOfPartyReservationRequest, default);
-            return result.ReservationId;
-        }
+        var result = await reservationsApiClient.CreateChangeOfPartyReservation(apprenticeship.ReservationId.Value, createChangeOfPartyReservationRequest, default);
+        
+        return result.ReservationId;
     }
 }

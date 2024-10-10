@@ -1,19 +1,12 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
+
+public class GetApprenticeshipStatusSummaryQueryHandler(IApprenticeshipStatusSummaryService apprenticeshipStatusSummaryService)
+    : IRequestHandler<GetApprenticeshipStatusSummaryQuery, GetApprenticeshipStatusSummaryQueryResults>
 {
-    public class GetApprenticeshipStatusSummaryQueryHandler : IRequestHandler<GetApprenticeshipStatusSummaryQuery, GetApprenticeshipStatusSummaryQueryResults>
-    {
-        private readonly IApprenticeshipStatusSummaryService _apprenticeshipStatusSummaryService;        
-
-        public GetApprenticeshipStatusSummaryQueryHandler(IApprenticeshipStatusSummaryService apprenticeshipStatusSummaryService)
-        {
-            _apprenticeshipStatusSummaryService = apprenticeshipStatusSummaryService;
-        }        
-
-        public async Task<GetApprenticeshipStatusSummaryQueryResults> Handle(GetApprenticeshipStatusSummaryQuery request, CancellationToken cancellationToken)
-        {           
-           return await _apprenticeshipStatusSummaryService.GetApprenticeshipStatusSummary(request.EmployerAccountId, cancellationToken);          
-        }
+    public async Task<GetApprenticeshipStatusSummaryQueryResults> Handle(GetApprenticeshipStatusSummaryQuery request, CancellationToken cancellationToken)
+    {           
+        return await apprenticeshipStatusSummaryService.GetApprenticeshipStatusSummary(request.EmployerAccountId, cancellationToken);          
     }
 }

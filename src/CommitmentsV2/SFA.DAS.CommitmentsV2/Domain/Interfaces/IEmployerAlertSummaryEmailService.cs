@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IEmployerAlertSummaryEmailService
 {
-    public interface IEmployerAlertSummaryEmailService
-    {
-        Task SendEmployerAlertSummaryNotifications();
-    }
+    Task SendEmployerAlertSummaryNotifications();
 }

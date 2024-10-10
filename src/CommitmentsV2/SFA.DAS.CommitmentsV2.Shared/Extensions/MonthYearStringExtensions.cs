@@ -1,20 +1,19 @@
 ﻿using SFA.DAS.CommitmentsV2.Shared.Models;
 
-namespace SFA.DAS.CommitmentsV2.Shared.Extensions
+namespace SFA.DAS.CommitmentsV2.Shared.Extensions;
+
+public static class MonthYearStringExtensions
 {
-    public static class MonthYearStringExtensions
+    public static bool IsValidMonthYear(this string monthYear)
     {
-        public static bool IsValidMonthYear(this string monthYear)
+        try
         {
-            try
-            {
-                MonthYearModel dateModel = new MonthYearModel(monthYear);
-                return dateModel.IsValid;
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
+            var dateModel = new MonthYearModel(monthYear);
+            return dateModel.IsValid;
+        }
+        catch (ArgumentException)
+        {
+            return false;
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
+
+public class GetAccountSummaryQuery : IRequest<GetAccountSummaryQueryResult>
 {
-    public class GetAccountSummaryQuery : IRequest<GetAccountSummaryQueryResult>
-    {
-        public long AccountId { get; set; }
-    }
+    public long AccountId { get; set; }
 }

@@ -1,41 +1,34 @@
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
+
+public class GetAllTrainingProgrammeStandardsQueryHandler(ITrainingProgrammeLookup service) : IRequestHandler<GetAllTrainingProgrammeStandardsQuery,
+    GetAllTrainingProgrammeStandardsQueryResult>
 {
-    public class GetAllTrainingProgrammeStandardsQueryHandler : IRequestHandler<GetAllTrainingProgrammeStandardsQuery,
-        GetAllTrainingProgrammeStandardsQueryResult>
+    public async Task<GetAllTrainingProgrammeStandardsQueryResult> Handle(
+        GetAllTrainingProgrammeStandardsQuery request, CancellationToken cancellationToken)
     {
-        private readonly ITrainingProgrammeLookup _service;
-
-        public GetAllTrainingProgrammeStandardsQueryHandler (ITrainingProgrammeLookup service)
+        var result = await service.GetAllStandards();
+        
+        return new GetAllTrainingProgrammeStandardsQueryResult
         {
-            _service = service;
-        }
-
-        public async Task<GetAllTrainingProgrammeStandardsQueryResult> Handle(
-            GetAllTrainingProgrammeStandardsQuery request, CancellationToken cancellationToken)
-        {
-            var result = await _service.GetAllStandards();
-            return new GetAllTrainingProgrammeStandardsQueryResult
+            TrainingProgrammes = result.Select(c => new TrainingProgramme
             {
-                TrainingProgrammes = result.Select(c => new TrainingProgramme
+                Name = c.Name,
+                CourseCode = c.CourseCode,
+                EffectiveFrom = c.EffectiveFrom,
+                EffectiveTo = c.EffectiveTo,
+                ProgrammeType = c.ProgrammeType,
+                FundingPeriods = c.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
                 {
-                    Name = c.Name,
-                    CourseCode = c.CourseCode,
-                    EffectiveFrom = c.EffectiveFrom,
-                    EffectiveTo = c.EffectiveTo,
-                    ProgrammeType = c.ProgrammeType,
-                    FundingPeriods = c.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
-                    {
-                        EffectiveFrom = x.EffectiveFrom,
-                        EffectiveTo = x.EffectiveTo,
-                        FundingCap = x.FundingCap
-                    }).ToList(),
-                    VersionEarliestStartDate = c.VersionEarliestStartDate,
-                    VersionLatestStartDate = c.VersionLatestStartDate
-                })
-            };
-        }
+                    EffectiveFrom = x.EffectiveFrom,
+                    EffectiveTo = x.EffectiveTo,
+                    FundingCap = x.FundingCap
+                }).ToList(),
+                VersionEarliestStartDate = c.VersionEarliestStartDate,
+                VersionLatestStartDate = c.VersionLatestStartDate
+            })
+        };
     }
 }

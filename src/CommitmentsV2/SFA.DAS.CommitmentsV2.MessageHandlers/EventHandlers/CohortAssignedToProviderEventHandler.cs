@@ -4,103 +4,93 @@ using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovalsOuterApiClient outerApiClient, ILogger<CohortAssignedToProviderEventHandler> logger)
+    : IHandleMessages<CohortAssignedToProviderEvent>
 {
-    public class CohortAssignedToProviderEventHandler : IHandleMessages<CohortAssignedToProviderEvent>
+    public async Task Handle(CohortAssignedToProviderEvent message, IMessageHandlerContext context)
     {
-        private readonly IMediator _mediator;
-        private readonly IApprovalsOuterApiClient _outerApiClient;
-        private readonly ILogger<CohortAssignedToProviderEventHandler> _logger;
-
-        public CohortAssignedToProviderEventHandler(IMediator mediator, IApprovalsOuterApiClient outerApiClient, ILogger<CohortAssignedToProviderEventHandler> logger)
+        try
         {
-            _mediator = mediator;
-            _outerApiClient = outerApiClient;
-            _logger = logger;
-        }
-
-        public async Task Handle(CohortAssignedToProviderEvent message, IMessageHandlerContext context)
-        {
-            try
+            logger.LogInformation("Received {TypeName} for cohort {Id}", nameof(CohortAssignedToProviderEvent), message?.CohortId);
+            if (message != null)
             {
-                _logger.LogInformation($"Received {nameof(CohortAssignedToProviderEvent)} for cohort {message?.CohortId}");
-                if (message != null)
+                var cohortSummary = await mediator.Send(new GetCohortSummaryQuery(message.CohortId));
+
+                if (cohortSummary == null)
                 {
-                    var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
-
-                    if (cohortSummary == null)
-                    {
-                        _logger.LogError($"CohortSummary is null for cohortId {message.CohortId}");
-                        return;
-                    }
-                    if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
-               
-                    var emailRequest = BuildEmailRequest(cohortSummary);
-                    await SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest);
+                    logger.LogError("CohortSummary is null for cohortId {Id}", message.CohortId);
+                    return;
                 }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Send message to provider for cohort {message?.CohortId} failed");
-                throw;
+
+                if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
+
+                var emailRequest = BuildEmailRequest(cohortSummary);
+                await SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest);
             }
         }
-
-        private Task SendEmailToAllProviderRecipients(long providerId, ProviderEmailRequest request)
+        catch (Exception e)
         {
-            return _outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
-        }
-
-        private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
-        {
-            var request = new ProviderEmailRequest
-            {
-                ExplicitEmailAddresses = [],
-                Tokens = new()
-            };
-
-            if (!string.IsNullOrWhiteSpace(cohortSummary.LastUpdatedByProviderEmail))
-            {
-                request.ExplicitEmailAddresses.Add(cohortSummary.LastUpdatedByProviderEmail);
-            }
-
-            request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
-            request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
-
-            if (cohortSummary.IsFundedByTransfer)
-            {
-                request.TemplateId = "ProviderTransferCommitmentNotification";
-                request.Tokens.Add("employer_name", cohortSummary.LegalEntityName);
-            }
-            else
-            {
-                request.TemplateId = "ProviderCommitmentNotification";
-            }
-
-            return request;
+            logger.LogError(e, "Send message to provider for cohort {Id} failed", message?.CohortId);
+            throw;
         }
     }
 
-    public class PostProviderEmailRequest : IPostApiRequest<ProviderEmailRequest>
+    private async Task SendEmailToAllProviderRecipients(long providerId, ProviderEmailRequest request)
     {
-        public string PostUrl => $"providers/{_providerId}/emails";
-        public ProviderEmailRequest Data { get; set; }
-
-        private readonly long _providerId;
-
-        public PostProviderEmailRequest(long providerId, ProviderEmailRequest request)
-        {
-            _providerId = providerId;
-            Data = request;
-        }
+        await outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
     }
 
-    public class ProviderEmailRequest
+    private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
     {
-        public string TemplateId { get; set; }
+        var request = new ProviderEmailRequest
+        {
+            ExplicitEmailAddresses = [],
+            Tokens = new()
+        };
 
-        public Dictionary<string, string> Tokens { get; set; }
+        if (!string.IsNullOrWhiteSpace(cohortSummary.LastUpdatedByProviderEmail))
+        {
+            request.ExplicitEmailAddresses.Add(cohortSummary.LastUpdatedByProviderEmail);
+        }
 
-        public List<string> ExplicitEmailAddresses { get; set; }
+        request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
+        request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
+
+        if (cohortSummary.IsFundedByTransfer)
+        {
+            request.TemplateId = "ProviderTransferCommitmentNotification";
+            request.Tokens.Add("employer_name", cohortSummary.LegalEntityName);
+        }
+        else
+        {
+            request.TemplateId = "ProviderCommitmentNotification";
+        }
+
+        return request;
     }
+}
+
+public class PostProviderEmailRequest : IPostApiRequest<ProviderEmailRequest>
+{
+    public string PostUrl => $"providers/{_providerId}/emails";
+    public ProviderEmailRequest Data { get; set; }
+
+    private readonly long _providerId;
+
+    public PostProviderEmailRequest(long providerId, ProviderEmailRequest request)
+    {
+        _providerId = providerId;
+        Data = request;
+    }
+}
+
+public class ProviderEmailRequest
+{
+    public string TemplateId { get; set; }
+
+    public Dictionary<string, string> Tokens { get; set; }
+
+    public List<string> ExplicitEmailAddresses { get; set; }
 }

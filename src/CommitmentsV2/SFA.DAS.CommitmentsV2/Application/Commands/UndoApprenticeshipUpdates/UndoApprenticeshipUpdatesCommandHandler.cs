@@ -7,27 +7,19 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates;
 
-public class UndoApprenticeshipUpdatesCommandHandler : IRequestHandler<UndoApprenticeshipUpdatesCommand>
+public class UndoApprenticeshipUpdatesCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IAuthenticationService authenticationService,
+    ILogger<UndoApprenticeshipUpdatesCommandHandler> logger)
+    : IRequestHandler<UndoApprenticeshipUpdatesCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    private readonly IAuthenticationService _authenticationService;
-    private readonly ILogger<UndoApprenticeshipUpdatesCommandHandler> _logger;
-
-    public UndoApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        IAuthenticationService authenticationService,
-        ILogger<UndoApprenticeshipUpdatesCommandHandler> logger)
-    {
-        _dbContext = dbContext;
-        _authenticationService = authenticationService;
-        _logger = logger;
-    }
-
     public async Task Handle(UndoApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("UndoApprenticeshipUpdatesCommand received from ApprenticeshipId :{Id}", command.ApprenticeshipId);
-        var party = _authenticationService.GetUserParty();
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        logger.LogInformation("UndoApprenticeshipUpdatesCommand received from ApprenticeshipId :{Id}", command.ApprenticeshipId);
+        
+        var party = authenticationService.GetUserParty();
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        
         CheckPartyIsValid(party, command, apprenticeship);
 
         if (apprenticeship.ApprenticeshipUpdate.All(x => x.Status != ApprenticeshipUpdateStatus.Pending))

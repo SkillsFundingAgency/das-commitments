@@ -1,24 +1,21 @@
 ﻿using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipConfirmedEventHandler(IMediator mediator, ILogger<ApprenticeshipConfirmedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
 {
-    public class ApprenticeshipConfirmedEventHandler : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
+    public Task Handle(ApprenticeshipConfirmationConfirmedEvent message, IMessageHandlerContext context)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<ApprenticeshipConfirmedEventHandler> _logger;
+        logger.LogInformation("Message {TypeName} received, for commitments apprenticeship id {CommitmentsApprenticeshipId}", nameof(ApprenticeshipConfirmationConfirmedEvent), message.CommitmentsApprenticeshipId);
 
-        public ApprenticeshipConfirmedEventHandler(IMediator mediator, ILogger<ApprenticeshipConfirmedEventHandler> logger)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
+        var command = new ApprenticeshipConfirmedCommand(
+            message.CommitmentsApprenticeshipId,
+            message.CommitmentsApprovedOn,
+            message.ConfirmedOn
+        );
 
-        public Task Handle(ApprenticeshipConfirmationConfirmedEvent message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation($"Message {nameof(ApprenticeshipConfirmationConfirmedEvent)} received, for commitments apprenticeship id {message.CommitmentsApprenticeshipId}");
-            return _mediator.Send(new ApprenticeshipConfirmedCommand(message.CommitmentsApprenticeshipId,
-                message.CommitmentsApprovedOn, message.ConfirmedOn));
-        }
+        return mediator.Send(command);
     }
 }

@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
-using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;

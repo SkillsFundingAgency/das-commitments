@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 using Microsoft.Extensions.Hosting;
-using NLog.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.Extensions;
 
@@ -25,9 +24,6 @@ public static class HostBuilderExtensions
             var connectionString = context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
             if (!string.IsNullOrEmpty(connectionString))
             {
-                loggingBuilder.AddNLog(context.HostingEnvironment.IsDevelopment()
-                    ? "nlog.development.config"
-                    : "nlog.config");
                 loggingBuilder.AddApplicationInsightsWebJobs(o => o.ConnectionString = connectionString);
                 loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
                 loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);

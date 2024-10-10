@@ -2,20 +2,19 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
+namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload;
+
+public class BulkUploadAddDraftApprenticeshipsRequestToCommandMapper : IMapper<BulkUploadAddDraftApprenticeshipsRequest, BulkUploadAddDraftApprenticeshipsCommand>
 {
-    public class BulkUploadAddDraftApprenticeshipsRequestToCommandMapper : IMapper<BulkUploadAddDraftApprenticeshipsRequest, BulkUploadAddDraftApprenticeshipsCommand>
+    public Task<BulkUploadAddDraftApprenticeshipsCommand> Map(BulkUploadAddDraftApprenticeshipsRequest source)
     {
-        public Task<BulkUploadAddDraftApprenticeshipsCommand> Map(BulkUploadAddDraftApprenticeshipsRequest source)
+        return Task.FromResult(new BulkUploadAddDraftApprenticeshipsCommand
         {
-            return Task.FromResult(new BulkUploadAddDraftApprenticeshipsCommand
-            {
-                BulkUploadDraftApprenticeships = source.BulkUploadDraftApprenticeships.ToList(),
-                UserInfo = source.UserInfo,
-                ProviderId = source.ProviderId,
-                LogId = source.LogId,
-                ProviderAction = "SaveAsDraft"
-            });
-        }
+            BulkUploadDraftApprenticeships = source.BulkUploadDraftApprenticeships.ToList(),
+            UserInfo = source.UserInfo,
+            ProviderId = source.ProviderId,
+            LogId = source.LogId,
+            ProviderAction = "SaveAsDraft"
+        });
     }
 }

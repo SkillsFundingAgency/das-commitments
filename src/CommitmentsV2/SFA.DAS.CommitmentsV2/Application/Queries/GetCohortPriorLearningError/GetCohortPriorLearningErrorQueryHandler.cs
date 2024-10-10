@@ -1,54 +1,44 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
+
+public class GetCohortPriorLearningErrorQueryHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IRplFundingCalculationService rplFundingCalculationService)
+    : IRequestHandler<GetCohortPriorLearningErrorQuery, GetCohortPriorLearningErrorQueryResult>
 {
-    public class GetCohortPriorLearningErrorQueryHandler : IRequestHandler<GetCohortPriorLearningErrorQuery, GetCohortPriorLearningErrorQueryResult>
+    public async Task<GetCohortPriorLearningErrorQueryResult> Handle(GetCohortPriorLearningErrorQuery request, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IRplFundingCalculationService _rplFundingCalculationService;
+        var draftApprenticeshipIds = new List<long>();
 
+        var query = await dbContext.Value.DraftApprenticeships
+            .Include(x => x.PriorLearning)
+            .Where(x => x.CommitmentId == request.CohortId)
+            .ToListAsync(cancellationToken);
 
-        public GetCohortPriorLearningErrorQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalculationService rplFundingCalculationService)
+        foreach (var draftApprenticeship in query)
         {
-            _dbContext = dbContext;
-            _rplFundingCalculationService = rplFundingCalculationService;
-        }
+            var rplCalculation = await rplFundingCalculationService.GetRplFundingCalculations(
+                draftApprenticeship.CourseCode,
+                draftApprenticeship.StartDate,
+                draftApprenticeship.PriorLearning?.DurationReducedByHours,
+                draftApprenticeship.TrainingTotalHours,
+                draftApprenticeship.PriorLearning?.PriceReducedBy,
+                draftApprenticeship.PriorLearning?.IsDurationReducedByRpl,
+                dbContext.Value.StandardFundingPeriods,
+                dbContext.Value.FrameworkFundingPeriods
+            );
 
-        public async Task<GetCohortPriorLearningErrorQueryResult> Handle(GetCohortPriorLearningErrorQuery request, CancellationToken cancellationToken)
-        {
-            var draftApprenticeshipIds = new List<long>();
-
-            var query = _dbContext.Value.DraftApprenticeships
-                .Include(x => x.PriorLearning)
-                .Where(x => x.CommitmentId == request.CohortId)
-                .ToList();
-
-            foreach (var draftApprenticeship in query)
+            if (draftApprenticeship.PriorLearning != null && rplCalculation.RplPriceReductionError)
             {
-
-                var rplCalculation = await _rplFundingCalculationService.GetRplFundingCalculations(
-                                                                    draftApprenticeship.CourseCode,
-                                                                    draftApprenticeship.StartDate,
-                                                                    draftApprenticeship.PriorLearning?.DurationReducedByHours,
-                                                                    draftApprenticeship.TrainingTotalHours,
-                                                                    draftApprenticeship.PriorLearning?.PriceReducedBy,
-                                                                    draftApprenticeship.PriorLearning?.IsDurationReducedByRpl,
-                                                                    _dbContext.Value.StandardFundingPeriods,
-                                                                    _dbContext.Value.FrameworkFundingPeriods
-                                                                    );
-
-                if (draftApprenticeship.PriorLearning != null && rplCalculation.RplPriceReductionError)
-                {
-                    draftApprenticeshipIds.Add(draftApprenticeship.Id);
-                }
+                draftApprenticeshipIds.Add(draftApprenticeship.Id);
             }
-
-            return new GetCohortPriorLearningErrorQueryResult
-            {
-                DraftApprenticeshipIds = draftApprenticeshipIds,
-            };
         }
 
+        return new GetCohortPriorLearningErrorQueryResult
+        {
+            DraftApprenticeshipIds = draftApprenticeshipIds,
+        };
     }
 }

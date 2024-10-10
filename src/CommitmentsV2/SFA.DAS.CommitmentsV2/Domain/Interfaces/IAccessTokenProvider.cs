@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IAccessTokenProvider
 {
-    public interface IAccessTokenProvider
-    {
-        Task<string> GetAccessToken();
-    }
+    Task<string> GetAccessToken();
 }

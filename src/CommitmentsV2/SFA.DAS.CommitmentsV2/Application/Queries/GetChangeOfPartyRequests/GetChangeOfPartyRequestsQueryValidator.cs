@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
+
+public class GetChangeOfPartyRequestsQueryValidator : AbstractValidator<GetChangeOfPartyRequestsQuery>
 {
-    public class GetChangeOfPartyRequestsQueryValidator : AbstractValidator<GetChangeOfPartyRequestsQuery>
+    public GetChangeOfPartyRequestsQueryValidator()
     {
-        public GetChangeOfPartyRequestsQueryValidator()
-        {
-            RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-        }
+        RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
     }
 }

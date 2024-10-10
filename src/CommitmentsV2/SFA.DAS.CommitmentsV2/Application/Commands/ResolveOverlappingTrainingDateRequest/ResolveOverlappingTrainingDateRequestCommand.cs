@@ -1,10 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
+
+public class ResolveOverlappingTrainingDateRequestCommand : IRequest
 {
-    public class ResolveOverlappingTrainingDateRequestCommand : IRequest
-    {
-        public long? ApprenticeshipId { get; set; }
-        public OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
-    }
+    public long? ApprenticeshipId { get; set; }
+    public OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
 }

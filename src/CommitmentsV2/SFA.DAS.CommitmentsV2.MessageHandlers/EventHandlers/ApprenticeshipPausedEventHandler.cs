@@ -9,38 +9,26 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class ApprenticeshipPausedEventHandler : IHandleMessages<ApprenticeshipPausedEvent>
+public class ApprenticeshipPausedEventHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<ApprenticeshipPausedEventHandler> logger,
+    IEncodingService encodingService,
+    CommitmentsV2Configuration commitmentsV2Configuration)
+    : IHandleMessages<ApprenticeshipPausedEvent>
 {
-    private readonly ILogger<ApprenticeshipPausedEventHandler> _logger;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly IEncodingService _encodingService;
-    private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-
     public const string EmailTemplateName = "ProviderApprenticeshipPauseNotification";
-
-    public ApprenticeshipPausedEventHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<ApprenticeshipPausedEventHandler> logger,
-        IEncodingService encodingService,
-        CommitmentsV2Configuration commitmentsV2Configuration)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _encodingService = encodingService;
-        _commitmentsV2Configuration = commitmentsV2Configuration;
-    }
 
     public async Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Received {HandlerName} for apprentice {ApprenticeshipId}", nameof(ApprenticeshipPausedEventHandler), message?.ApprenticeshipId);
+        logger.LogInformation("Received {HandlerName} for apprentice {ApprenticeshipId}", nameof(ApprenticeshipPausedEventHandler), message?.ApprenticeshipId);
 
         if (message != null)
         {
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+            var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
             if (apprenticeship.PaymentStatus != PaymentStatus.Paused)
             {
-                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.",
+                logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.",
                     apprenticeship.Id,
                     apprenticeship.PaymentStatus.ToString());
 
@@ -55,9 +43,9 @@ public class ApprenticeshipPausedEventHandler : IHandleMessages<ApprenticeshipPa
 
     private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
     {
-        var providerCommitmentsBaseUrl = _commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith("/")
-            ? _commitmentsV2Configuration.ProviderCommitmentsBaseUrl
-            : $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/";
+        var providerCommitmentsBaseUrl = commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith('/')
+            ? commitmentsV2Configuration.ProviderCommitmentsBaseUrl
+            : $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/";
 
         return new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId, EmailTemplateName,
             new Dictionary<string, string>
@@ -65,7 +53,7 @@ public class ApprenticeshipPausedEventHandler : IHandleMessages<ApprenticeshipPa
                     { "EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name },
                     { "APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}" },
                     { "DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy") },
-                    { "URL", $"{providerCommitmentsBaseUrl}{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
+                    { "URL", $"{providerCommitmentsBaseUrl}{apprenticeship.Cohort.ProviderId}/apprentices/{encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
             });
     }
 }

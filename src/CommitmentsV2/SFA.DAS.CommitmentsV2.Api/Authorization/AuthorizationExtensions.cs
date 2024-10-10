@@ -47,7 +47,9 @@ public static class AuthorizationExtensions
         options.AddPolicy(PolicyNames.Employer, policy =>
         {
             if (isDevelopment)
+            {
                 policy.AllowAnonymousUser();
+            }
             else
             {
                 policy.RequireAuthenticatedUser();
@@ -61,7 +63,9 @@ public static class AuthorizationExtensions
         options.AddPolicy(PolicyNames.Provider, policy =>
         {
             if (isDevelopment)
+            {
                 policy.AllowAnonymousUser();
+            }
             else
             {
                 policy.RequireAuthenticatedUser();
@@ -75,9 +79,13 @@ public static class AuthorizationExtensions
         options.AddPolicy(PolicyNames.Default, policy =>
         {
             if (isDevelopment)
+            {
                 policy.AllowAnonymousUser();
+            }
             else
+            {
                 policy.RequireAuthenticatedUser();
+            }
         });
     }
 }

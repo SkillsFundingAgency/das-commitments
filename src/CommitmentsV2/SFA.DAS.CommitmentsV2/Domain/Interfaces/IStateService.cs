@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IStateService
 {
-    public interface IStateService
-    {
-        Dictionary<string, object> GetState(object item);
-    }
+    Dictionary<string, object> GetState(object item);
 }

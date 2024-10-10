@@ -4,22 +4,14 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 
-public class PriorLearningDetailsHandler : IRequestHandler<PriorLearningDetailsCommand>
+public class PriorLearningDetailsHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<PriorLearningDetailsHandler> logger)
+    : IRequestHandler<PriorLearningDetailsCommand>
 {
-    private readonly ILogger<PriorLearningDetailsHandler> _logger;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public PriorLearningDetailsHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<PriorLearningDetailsHandler> logger)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-    }
-
     public async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
     {
-        var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
         if (command.Rpl2Mode)
         {
@@ -30,6 +22,6 @@ public class PriorLearningDetailsHandler : IRequestHandler<PriorLearningDetailsC
             apprenticeship.SetPriorLearningDetails(command.DurationReducedBy, command.PriceReducedBy);
         }
 
-        _logger.LogInformation("Set PriorLearning details set for draft Apprenticeship:{ApprenticeshipId}, Rpl Extended Mode: {Rpl2Mode}", command.ApprenticeshipId, command.Rpl2Mode);
+        logger.LogInformation("Set PriorLearning details set for draft Apprenticeship:{ApprenticeshipId}, Rpl Extended Mode: {Rpl2Mode}", command.ApprenticeshipId, command.Rpl2Mode);
     }
 }

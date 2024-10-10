@@ -3,60 +3,51 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortWithChangeOfPartyUpdatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<CohortWithChangeOfPartyUpdatedEventHandler> logger)
+    : IHandleMessages<CohortWithChangeOfPartyUpdatedEvent>
 {
-    public class CohortWithChangeOfPartyUpdatedEventHandler : IHandleMessages<CohortWithChangeOfPartyUpdatedEvent>
+    public async Task Handle(CohortWithChangeOfPartyUpdatedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<CohortWithChangeOfPartyUpdatedEventHandler> _logger;
+        logger.LogInformation("CohortWithChangeOfPartyUpdatedEvent received for Cohort : {CohortId}", message.CohortId);
 
-        public CohortWithChangeOfPartyUpdatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<CohortWithChangeOfPartyUpdatedEventHandler> logger)
+        try
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            var cohort = await dbContext.Value.GetCohortAggregateSafely(message.CohortId, default);
+
+            if (cohort == null)
+            {
+                logger.LogInformation("Cohort {Cohort} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
+                return;
+            }
+
+            if (cohort.IsApprovedByAllParties)
+            {
+                logger.LogInformation("Cohort {Cohort} is fully approved, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
+                return;
+            }
+
+            var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregateSafely(cohort.ChangeOfPartyRequestId.Value, default);
+
+            if (changeOfPartyRequest == null)
+            {
+                logger.LogInformation("ChangeOfParty request {ChangeOfPartyRequestId} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", cohort.ChangeOfPartyRequestId);
+                return;
+            }
+
+            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                var draftApprenticeship = cohort.DraftApprenticeships.FirstOrDefault();
+
+                changeOfPartyRequest.UpdateChangeOfPartyRequest(draftApprenticeship, cohort.EmployerAccountId,
+                    cohort.ProviderId, message.UserInfo, cohort.WithParty);
+            }
         }
-
-        public async Task Handle(CohortWithChangeOfPartyUpdatedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation("CohortWithChangeOfPartyUpdatedEvent received for Cohort : {CohortId}", message.CohortId);
-
-            try
-            {
-                var cohort = await _dbContext.Value.GetCohortAggregateSafely(message.CohortId, default);
-
-                if (cohort == null)
-                {
-                    _logger.LogInformation("Cohort {Cohort} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
-                    return;
-                }
-
-                if (cohort.IsApprovedByAllParties)
-                {
-                    _logger.LogInformation("Cohort {Cohort} is fully approved, CohortWithChangeOfPartyUpdatedEvent is not needed", message.CohortId);
-                    return;
-                }
-
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregateSafely(cohort.ChangeOfPartyRequestId.Value, default);
-
-                if (changeOfPartyRequest == null)
-                {
-                    _logger.LogInformation("ChangeOfParty request {ChangeOfPartyRequestId} not found, CohortWithChangeOfPartyUpdatedEvent is not needed", cohort.ChangeOfPartyRequestId);
-                    return;
-                }
-
-                if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-                {
-                    var draftApprenticeship = cohort.DraftApprenticeships.FirstOrDefault();
-
-                    changeOfPartyRequest.UpdateChangeOfPartyRequest(draftApprenticeship, cohort.EmployerAccountId,
-                        cohort.ProviderId, message.UserInfo, cohort.WithParty);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error processing CohortWithChangeOfPartyUpdatedEvent", e);
-                throw;
-            }
+            logger.LogError(e, "Error processing CohortWithChangeOfPartyUpdatedEvent");
+            throw;
         }
     }
 }

@@ -2,25 +2,15 @@
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSubmissionEvents;
+
+public class GetSubmissionEventQueryHandler(IApprovalsOuterApiClient approvalsOuterApiClient) : IRequestHandler<GetSubmissionEventsQuery, PageOfResults<SubmissionEvent>>
 {
-    public class GetSubmissionEventQueryHandler : IRequestHandler<GetSubmissionEventsQuery, PageOfResults<SubmissionEvent>>
+    public async Task<PageOfResults<SubmissionEvent>> Handle(GetSubmissionEventsQuery query, CancellationToken cancellationToken)
     {
-        private readonly IApprovalsOuterApiClient _approvalOuterApiClient;
-
-        public GetSubmissionEventQueryHandler(IApprovalsOuterApiClient approvalsOuterApiClient)
+        return await approvalsOuterApiClient.Get<PageOfResults<SubmissionEvent>>(new GetSubmissionsEventsRequest
         {
-            _approvalOuterApiClient = approvalsOuterApiClient;
-        }
-
-        public async Task<PageOfResults<SubmissionEvent>> Handle(GetSubmissionEventsQuery query, CancellationToken cancellationToken)
-        {
-            var result = await _approvalOuterApiClient.Get<PageOfResults<SubmissionEvent>>(new GetSubmissionsEventsRequest
-            {
-                SinceEventId = query.LastSubmissionEventId ?? 0,
-            });
-
-            return result;
-        }
+            SinceEventId = query.LastSubmissionEventId ?? 0,
+        });
     }
 }

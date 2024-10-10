@@ -8,37 +8,26 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 
-public class ResumeApprenticeshipCommandHandler : IRequestHandler<ResumeApprenticeshipCommand>
+public class ResumeApprenticeshipCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ICurrentDateTime currentDate,
+    IAuthenticationService authenticationService,
+    ILogger<ResumeApprenticeshipCommandHandler> logger)
+    : IRequestHandler<ResumeApprenticeshipCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ICurrentDateTime _currentDate;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly ILogger<ResumeApprenticeshipCommandHandler> _logger;
-
-    public ResumeApprenticeshipCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        ICurrentDateTime currentDate,
-        IAuthenticationService authenticationService,
-        ILogger<ResumeApprenticeshipCommandHandler> logger)
-    {
-        _dbContext = dbContext;
-        _currentDate = currentDate;
-        _authenticationService = authenticationService;
-        _logger = logger;
-    }
-
     public async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
     {
         try
         {
-            var party = _authenticationService.GetUserParty();
+            var party = authenticationService.GetUserParty();
             CheckPartyIsValid(party);
 
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
-            apprenticeship.ResumeApprenticeship(_currentDate, party, command.UserInfo);
+            var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+            apprenticeship.ResumeApprenticeship(currentDate, party, command.UserInfo);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error Resuming Apprenticeship with id {ApprenticeshipId}", command.ApprenticeshipId);
+            logger.LogError(e, "Error Resuming Apprenticeship with id {ApprenticeshipId}", command.ApprenticeshipId);
             throw;
         }
     }

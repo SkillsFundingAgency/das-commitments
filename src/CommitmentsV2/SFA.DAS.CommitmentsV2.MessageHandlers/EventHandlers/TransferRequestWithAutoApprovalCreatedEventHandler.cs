@@ -5,55 +5,56 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
-{
-    public class TransferRequestWithAutoApprovalCreatedEventHandler : IHandleMessages<TransferRequestWithAutoApprovalCreatedEvent>
-    {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IApprovalsOuterApiClient _apiClient;
-        private readonly ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> _logger;
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApprovalsOuterApiClient apiClient)
+public class TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApprovalsOuterApiClient apiClient)
+    : IHandleMessages<TransferRequestWithAutoApprovalCreatedEvent>
+{
+    public async Task Handle(TransferRequestWithAutoApprovalCreatedEvent message, IMessageHandlerContext context)
+    {
+        var db = dbContext.Value;
+
+        logger.LogInformation("Processing auto-approval for Transfer Request {TransferRequestId} Pledge Application {PledgeApplicationId}", message.TransferRequestId, message.PledgeApplicationId);
+
+        var transferRequest = await db.TransferRequests.Include(c => c.Cohort).ThenInclude(c => c.Apprenticeships)
+            .SingleAsync(x => x.Id == message.TransferRequestId);
+
+        if (transferRequest.Cohort.PledgeApplicationId.Value != message.PledgeApplicationId)
         {
-            _dbContext = dbContext;
-            _logger = logger;
-            _apiClient = apiClient;
+            logger.LogError("Cohort PledgeApplicationId {CohortPledgeApplicationId} does not match message {PledgeApplicationId}", transferRequest.Cohort.PledgeApplicationId.Value, message.PledgeApplicationId);
+            return;
         }
 
-        public async Task Handle(TransferRequestWithAutoApprovalCreatedEvent message, IMessageHandlerContext context)
+        if (!transferRequest.AutoApproval)
         {
-            var db = _dbContext.Value;
+            logger.LogError("Transfer Request {TransferRequestId} is not marked for auto-approval", message.TransferRequestId);
+            return;
+        }
 
-            _logger.LogInformation($"Processing auto-approval for Transfer Request {message.TransferRequestId} Pledge Application {message.PledgeApplicationId}");
+        var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
+        var pledgeApplication = await apiClient.Get<PledgeApplication>(apiRequest);
 
-            var transferRequest = await db.TransferRequests.Include(c => c.Cohort).ThenInclude(c => c.Apprenticeships)
-                .SingleAsync(x => x.Id == message.TransferRequestId);
+        if (transferRequest.FundingCap.Value <= pledgeApplication.AmountRemaining)
+        {
+            logger.LogInformation("Transfer Request Auto-Approved {TransferRequestId}, amount £{FundingCapValue}; Pledge Application {PledgeApplicationId} amount remaining £{AmountRemaining}",
+                message.TransferRequestId,
+                transferRequest.FundingCap.Value,
+                message.PledgeApplicationId,
+                pledgeApplication.AmountRemaining
+            );
 
-            if(transferRequest.Cohort.PledgeApplicationId.Value != message.PledgeApplicationId)
-            {
-                _logger.LogError($"Cohort PledgeApplicationId {transferRequest.Cohort.PledgeApplicationId.Value} does not match message {message.PledgeApplicationId}");
-                return;
-            }
-
-            if(!transferRequest.AutoApproval)
-            {
-                _logger.LogError($"Transfer Request {message.TransferRequestId} is not marked for auto-approval");
-                return;
-            }
-
-            var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
-            var pledgeApplication = await _apiClient.Get<PledgeApplication>(apiRequest);
-
-            if (transferRequest.FundingCap.Value <= pledgeApplication.AmountRemaining)
-            {
-                _logger.LogInformation($"Transfer Request Auto-Approved {message.TransferRequestId}, amount £{transferRequest.FundingCap.Value}; Pledge Application {message.PledgeApplicationId} amount remaining £{pledgeApplication.AmountRemaining}");
-                transferRequest.Approve(UserInfo.System, DateTime.UtcNow);
-            }
-            else
-            {
-                _logger.LogInformation($"Transfer Request Auto-Rejected {message.TransferRequestId}, amount £{transferRequest.FundingCap.Value} exceeds Pledge Application {message.PledgeApplicationId} amount remaining £{pledgeApplication.AmountRemaining}");
-                transferRequest.Reject(UserInfo.System, DateTime.UtcNow);
-            }
+            transferRequest.Approve(UserInfo.System, DateTime.UtcNow);
+        }
+        else
+        {
+            logger.LogInformation("Transfer Request Auto-Rejected {TransferRequestId}, amount £{FundingCapValue}; Pledge Application {PledgeApplicationId} amount remaining £{AmountRemaining}",
+                message.TransferRequestId,
+                transferRequest.FundingCap.Value,
+                message.PledgeApplicationId,
+                pledgeApplication.AmountRemaining
+            );
+            
+            transferRequest.Reject(UserInfo.System, DateTime.UtcNow);
         }
     }
 }

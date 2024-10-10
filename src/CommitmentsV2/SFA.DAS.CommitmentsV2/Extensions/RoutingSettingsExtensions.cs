@@ -3,25 +3,35 @@ using SFA.DAS.ApprenticeCommitments.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.Notifications.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.Extensions
-{
-    public static class RoutingSettingsExtensions
-    {
-        private const string CommitmentsV2MessageHandler = "SFA.DAS.CommitmentsV2.MessageHandlers";
-        private const string NotificationsMessageHandler = "SFA.DAS.Notifications.MessageHandlers";
-        private const string ApprenticeCommitmentsJobs = "SFA.DAS.ApprenticeCommitments.Apprenticeship";
+namespace SFA.DAS.CommitmentsV2.Extensions;
 
-        public static void AddRouting(this RoutingSettings routingSettings)
+public static class RoutingSettingsExtensions
+{
+    private const string CommitmentsV2MessageHandler = "SFA.DAS.CommitmentsV2.MessageHandlers";
+    private const string NotificationsMessageHandler = "SFA.DAS.Notifications.MessageHandlers";
+    private const string ApprenticeCommitmentsJobs = "SFA.DAS.ApprenticeCommitments.Apprenticeship";
+
+    public static void AddRouting(this RoutingSettings routingSettings)
+    {
+        routingSettings.RouteToCommitmentsMessageHandlers([
+            typeof(RunHealthCheckCommand),
+            typeof(SendEmailToEmployerCommand),
+            typeof(SendEmailToProviderCommand),
+            typeof(ApproveTransferRequestCommand),
+            typeof(RejectTransferRequestCommand),
+            typeof(ApprenticeshipResendInvitationCommand),
+            typeof(AutomaticallyStopOverlappingTrainingDateRequestCommand)
+        ]);
+
+        routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
+        routingSettings.RouteToEndpoint(typeof(SendApprenticeshipInvitationCommand), ApprenticeCommitmentsJobs);
+    }
+
+    private static void RouteToCommitmentsMessageHandlers(this RoutingSettings routingSettings, IEnumerable<Type> types)
+    {
+        foreach (var type in types)
         {
-            routingSettings.RouteToEndpoint(typeof(RunHealthCheckCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(SendEmailToEmployerCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(SendEmailToProviderCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(ApproveTransferRequestCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(RejectTransferRequestCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(ApprenticeshipResendInvitationCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(AutomaticallyStopOverlappingTrainingDateRequestCommand), CommitmentsV2MessageHandler);
-            routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
-            routingSettings.RouteToEndpoint(typeof(SendApprenticeshipInvitationCommand), ApprenticeCommitmentsJobs);
+            routingSettings.RouteToEndpoint(type, CommitmentsV2MessageHandler);
         }
     }
 }

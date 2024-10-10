@@ -2,15 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 
-public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
+public class ResolveOverlappingTrainingDateRequestCommandHandler(IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    : IRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
 {
-    private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
-
-    public ResolveOverlappingTrainingDateRequestCommandHandler(IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
-    {
-        _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-    }
-
     public async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
     {
         if (request?.ResolutionType == null)
@@ -20,6 +14,6 @@ public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandl
 #pragma warning restore CA2208
         }
 
-        await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, request.ResolutionType.Value);
+        await resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, request.ResolutionType.Value);
     }
 }

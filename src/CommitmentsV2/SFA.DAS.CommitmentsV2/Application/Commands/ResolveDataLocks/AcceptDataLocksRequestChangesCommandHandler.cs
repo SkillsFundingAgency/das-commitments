@@ -9,29 +9,18 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
 
-public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<AcceptDataLocksRequestChangesCommand>
+public class AcceptDataLocksRequestChangesCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> db,
+    ICurrentDateTime currentDateTime,
+    ITrainingProgrammeLookup trainingProgrammeLookup,
+    ILogger<AcceptDataLocksRequestChangesCommandHandler> logger)
+    : IRequestHandler<AcceptDataLocksRequestChangesCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly ICurrentDateTime _currentDateTime;
-    private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
-    private readonly ILogger<AcceptDataLocksRequestChangesCommandHandler> _logger;
-
-    public AcceptDataLocksRequestChangesCommandHandler(Lazy<ProviderCommitmentsDbContext> db,
-        ICurrentDateTime currentDateTime,
-        ITrainingProgrammeLookup trainingProgrammeLookup,
-        ILogger<AcceptDataLocksRequestChangesCommandHandler> logger)
-    {
-        _db = db;
-        _currentDateTime = currentDateTime;
-        _trainingProgrammeLookup = trainingProgrammeLookup;
-        _logger = logger;
-    }
-
     public async Task Handle(AcceptDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Accepting Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+        logger.LogInformation("Accepting Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
 
-        var apprenticeship = await _db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
         IReadOnlyList<PriceHistory> currentPriceHistory = new List<PriceHistory>(apprenticeship.PriceHistory);
         var dataLocksToBeAccepted = apprenticeship.DataLockStatus
@@ -58,24 +47,24 @@ public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<Accep
             var dataLockWithUpdatedTraining = dataLocksToBeAccepted.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.CourseCode);
             if (dataLockWithUpdatedTraining != null)
             {
-                var training = await _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(dataLockWithUpdatedTraining.IlrTrainingCourseCode, apprenticeship.StartDate.GetValueOrDefault());
+                var training = await trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(dataLockWithUpdatedTraining.IlrTrainingCourseCode, apprenticeship.StartDate.GetValueOrDefault());
                 // PA-599 This is a temp fix, which will allow frameworks to be accepted
                 if (training == null)
                 {
-                    training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    training = await trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
                 }
 
                 if (training != null)
                 {
-                    _logger.LogInformation("Updating course for apprenticeship {ApprenticeshipId} from training code {CourseCode} to {IlrTrainingCourseCode}", apprenticeship.Id, apprenticeship.CourseCode, dataLockWithUpdatedTraining.IlrTrainingCourseCode);
-                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, training.Version, _currentDateTime.UtcNow);
+                    logger.LogInformation("Updating course for apprenticeship {ApprenticeshipId} from training code {CourseCode} to {IlrTrainingCourseCode}", apprenticeship.Id, apprenticeship.CourseCode, dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, training.Version, currentDateTime.UtcNow);
                 }
             }
         }
 
-        apprenticeship.AcceptDataLocks(Party.Employer, _currentDateTime.UtcNow, dataLocksToBeAccepted.Select(m => m.DataLockEventId).ToList(), request.UserInfo);
+        apprenticeship.AcceptDataLocks(Party.Employer, currentDateTime.UtcNow, dataLocksToBeAccepted.Select(m => m.DataLockEventId).ToList(), request.UserInfo);
 
-        _logger.LogInformation("Accepted Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+        logger.LogInformation("Accepted Data Locks for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
     }
 
     private void ReplacePriceHistory(Apprenticeship apprenticeship, List<PriceHistory> updatedPriceHistory, UserInfo userInfo, List<PriceHistory> currentPriceHistory)
@@ -85,12 +74,12 @@ public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<Accep
         // entries with the same from date and to date
         foreach (var item in apprenticeship.PriceHistory)
         {
-            _db.Value.PriceHistory.Remove(item);
+            db.Value.PriceHistory.Remove(item);
         }
 
         foreach (var item in updatedPriceHistory)
         {
-            _db.Value.PriceHistory.Add(item);
+            db.Value.PriceHistory.Add(item);
         }
 
         apprenticeship.ReplacePriceHistory(Party.Employer, currentPriceHistory, updatedPriceHistory, userInfo);

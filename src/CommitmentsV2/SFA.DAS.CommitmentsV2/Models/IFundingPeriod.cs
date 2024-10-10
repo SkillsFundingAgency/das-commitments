@@ -1,9 +1,8 @@
-namespace SFA.DAS.CommitmentsV2.Models
+namespace SFA.DAS.CommitmentsV2.Models;
+
+public interface IFundingPeriod
 {
-    public interface IFundingPeriod
-    {
-        DateTime? EffectiveFrom { get; set; }
-        DateTime? EffectiveTo { get; set; }
-        int FundingCap { get; set; }
-    }
+    DateTime? EffectiveFrom { get; set; }
+    DateTime? EffectiveTo { get; set; }
+    int FundingCap { get; set; }
 }

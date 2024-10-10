@@ -5,12 +5,8 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
 
-public class ApprenticeshipSearchService : IApprenticeshipSearchService<ApprenticeshipSearchParameters>
+public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext) : IApprenticeshipSearchService<ApprenticeshipSearchParameters>
 {
-    private readonly IProviderCommitmentsDbContext _dbContext;
-
-    public ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
     {
         var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
@@ -215,7 +211,7 @@ public class ApprenticeshipSearchService : IApprenticeshipSearchService<Apprenti
 
     private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters)
     {
-        return _dbContext
+        return dbContext
             .Apprenticeships
             .WithProviderOrEmployerId(searchParameters)
             .DownloadsFilter(searchParameters.PageNumber == 0);

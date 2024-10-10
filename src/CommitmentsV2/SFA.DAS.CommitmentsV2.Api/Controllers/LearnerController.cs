@@ -2,32 +2,24 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/learners")]
+public class LearnerController(IMediator mediator) : ControllerBase
 {
-    [ApiController]
-    [Authorize]
-    [Route("api/learners")]
-    public class LearnerController : ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetAllLearners(DateTime? sinceTime = null, int batch_number = 1, int batch_size = 1000)
     {
-        private readonly IMediator _mediator;
+        var result = await mediator.Send(new GetAllLearnersQuery(sinceTime, batch_number, batch_size));
 
-        public LearnerController(IMediator mediator)
+        return Ok(new GetAllLearnersResponse
         {
-            _mediator = mediator;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllLearners(DateTime? sinceTime = null, int batch_number = 1, int batch_size = 1000)
-        {
-            var result = await _mediator.Send(new GetAllLearnersQuery(sinceTime, batch_number, batch_size));
-
-            return Ok(new GetAllLearnersResponse()
-            {
-                Learners = result.Learners,
-                BatchNumber = result.BatchNumber,
-                BatchSize = result.BatchSize,
-                TotalNumberOfBatches = result.TotalNumberOfBatches
-            });
-        }
+            Learners = result.Learners,
+            BatchNumber = result.BatchNumber,
+            BatchSize = result.BatchSize,
+            TotalNumberOfBatches = result.TotalNumberOfBatches
+        });
     }
 }

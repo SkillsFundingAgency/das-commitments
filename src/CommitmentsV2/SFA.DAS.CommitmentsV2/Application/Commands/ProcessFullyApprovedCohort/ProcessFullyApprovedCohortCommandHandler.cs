@@ -10,41 +10,28 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 
-public class ProcessFullyApprovedCohortCommandHandler : IRequestHandler<ProcessFullyApprovedCohortCommand>
+public class ProcessFullyApprovedCohortCommandHandler(
+    IAccountApiClient accountApiClient,
+    Lazy<ProviderCommitmentsDbContext> db,
+    IEventPublisher eventPublisher,
+    IEncodingService encodingService,
+    ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
+    : IRequestHandler<ProcessFullyApprovedCohortCommand>
 {
-    private readonly IAccountApiClient _accountApiClient;
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly IEncodingService _encodingService;
-    private readonly ILogger<ProcessFullyApprovedCohortCommandHandler> _logger;
-
-    public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient,
-        Lazy<ProviderCommitmentsDbContext> db,
-        IEventPublisher eventPublisher,
-        IEncodingService encodingService,
-        ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
-    {
-        _accountApiClient = accountApiClient;
-        _db = db;
-        _eventPublisher = eventPublisher;
-        _encodingService = encodingService;
-        _logger = logger;
-    }
-
     public async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Handling ProcessFullyApprovedCohortCommand for Cohort {CohortId}.", request.CohortId);
+        logger.LogInformation("Handling ProcessFullyApprovedCohortCommand for Cohort {CohortId}.", request.CohortId);
 
-        var account = await _accountApiClient.GetAccount(request.AccountId);
+        var account = await accountApiClient.GetAccount(request.AccountId);
         var apprenticeshipEmployerType = account.ApprenticeshipEmployerType.ToEnum<ApprenticeshipEmployerType>();
 
-        _logger.LogInformation("Account {AccountId} is of type {ApprenticeshipEmployerType}.", request.AccountId, apprenticeshipEmployerType);
+        logger.LogInformation("Account {AccountId} is of type {ApprenticeshipEmployerType}.", request.AccountId, apprenticeshipEmployerType);
 
         var creationDate = DateTime.UtcNow;
 
-        await _db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
+        await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
-        var events = await _db.Value.Apprenticeships
+        var events = await db.Value.Apprenticeships
             .Where(a => a.Cohort.Id == request.CohortId)
             .Select(a => new ApprenticeshipCreatedEvent
             {
@@ -83,16 +70,16 @@ public class ProcessFullyApprovedCohortCommandHandler : IRequestHandler<ProcessF
                 IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                 FirstName = a.FirstName,
                 LastName = a.LastName,
-                ApprenticeshipHashedId = _encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
+                ApprenticeshipHashedId = encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
             })
             .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
+        logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
 
         var tasks = events.Select(apprenticeshipCreatedEvent =>
         {
-            _logger.LogInformation("Emitting ApprenticeshipCreatedEvent for Apprenticeship {ApprenticeshipId}", apprenticeshipCreatedEvent.ApprenticeshipId);
-            return _eventPublisher.Publish(apprenticeshipCreatedEvent);
+            logger.LogInformation("Emitting ApprenticeshipCreatedEvent for Apprenticeship {ApprenticeshipId}", apprenticeshipCreatedEvent.ApprenticeshipId);
+            return eventPublisher.Publish(apprenticeshipCreatedEvent);
         });
 
         await Task.WhenAll(tasks);
@@ -106,13 +93,18 @@ public class ProcessFullyApprovedCohortCommandHandler : IRequestHandler<ProcessF
     private IEnumerable<Task> EmitChangeOfPartyEvents(ProcessFullyApprovedCohortCommand request, IEnumerable<ApprenticeshipCreatedEvent> events)
     {
         var changeOfPartyEvents = events.Select(apprenticeshipCreatedEvent =>
-            new ApprenticeshipWithChangeOfPartyCreatedEvent(apprenticeshipCreatedEvent.ApprenticeshipId, request.ChangeOfPartyRequestId.Value, apprenticeshipCreatedEvent.CreatedOn, request.UserInfo, request.LastApprovedBy)
+            new ApprenticeshipWithChangeOfPartyCreatedEvent(
+                apprenticeshipCreatedEvent.ApprenticeshipId,
+                request.ChangeOfPartyRequestId.Value,
+                apprenticeshipCreatedEvent.CreatedOn,
+                request.UserInfo,
+                request.LastApprovedBy)
         );
 
         return changeOfPartyEvents.Select(changeOfPartyCreatedEvent =>
         {
-            _logger.LogInformation("Emitting ApprenticeshipWithChangeOfPartyCreatedEvent for Apprenticeship {ApprenticeshipId}", changeOfPartyCreatedEvent.ApprenticeshipId);
-            return _eventPublisher.Publish(changeOfPartyCreatedEvent);
+            logger.LogInformation("Emitting ApprenticeshipWithChangeOfPartyCreatedEvent for Apprenticeship {ApprenticeshipId}", changeOfPartyCreatedEvent.ApprenticeshipId);
+            return eventPublisher.Publish(changeOfPartyCreatedEvent);
         });
     }
 }

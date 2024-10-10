@@ -2,36 +2,29 @@
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipUpdateCreatedEventHandler(
+    ILegacyTopicMessagePublisher legacyTopicMessagePublisher,
+    ILogger<ApprenticeshipUpdateCreatedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipUpdateCreatedEvent>
 {
-    public class ApprenticeshipUpdateCreatedEventHandler : IHandleMessages<ApprenticeshipUpdateCreatedEvent>
+    public async Task Handle(ApprenticeshipUpdateCreatedEvent message, IMessageHandlerContext context)
     {
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<ApprenticeshipUpdateCreatedEventHandler> _logger;
-
-        public ApprenticeshipUpdateCreatedEventHandler(ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<ApprenticeshipUpdateCreatedEventHandler> logger)
+        logger.LogInformation("Received ApprenticeshipUpdateCreatedEvent for ApprenticeshipId: {ApprenticeshipId}", message.ApprenticeshipId);
+        try
         {
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
-            _logger = logger;
+            await legacyTopicMessagePublisher.PublishAsync(new ApprenticeshipUpdateCreated
+            {
+                AccountId = message.AccountId,
+                ProviderId = message.ProviderId,
+                ApprenticeshipId = message.ApprenticeshipId
+            });
         }
-
-        public async Task Handle(ApprenticeshipUpdateCreatedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation("Received ApprenticeshipUpdateCeatedEvent for ApprenticeshipId : " + message.ApprenticeshipId);
-            try
-            {
-                await _legacyTopicMessagePublisher.PublishAsync(new ApprenticeshipUpdateCreated
-                {
-                    AccountId = message.AccountId,
-                    ProviderId = message.ProviderId,
-                    ApprenticeshipId = message.ApprenticeshipId
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateCreated");
-                throw;
-            }
+            logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateCreated");
+            throw;
         }
     }
 }

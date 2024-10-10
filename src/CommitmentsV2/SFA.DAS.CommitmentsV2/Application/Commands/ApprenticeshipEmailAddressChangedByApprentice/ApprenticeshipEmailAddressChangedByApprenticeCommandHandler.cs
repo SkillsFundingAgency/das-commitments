@@ -9,28 +9,21 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressChangedByApprentice;
 
-public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : IRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
+public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> db,
+    IApprovalsOuterApiClient apimClient,
+    ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
+    : IRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _db;
-    private readonly IApprovalsOuterApiClient _apimClient;
-    private readonly ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> _logger;
-
-    public ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
-    {
-        _db = db;
-        _apimClient = apimClient;
-        _logger = logger;
-    }
-
     public async Task Handle(ApprenticeshipEmailAddressChangedByApprenticeCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            _logger.LogInformation("Getting Apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
-            var apprenticeshipTask = _db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
+            logger.LogInformation("Getting Apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+            var apprenticeshipTask = db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
 
-            _logger.LogInformation("Getting Apprentice details for apprentice {ApprenticeshipId}", request.ApprenticeId);
-            var apprenticeTask = _apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
+            logger.LogInformation("Getting Apprentice details for apprentice {ApprenticeshipId}", request.ApprenticeId);
+            var apprenticeTask = apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
 
             await Task.WhenAll(apprenticeTask, apprenticeshipTask);
 
@@ -46,17 +39,17 @@ public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : IRequ
                     throw new DomainException("Email", $"Email Address cannot be updated for {apprenticeship.Id} as it's not yet been confirmed");
                 }
 
-                _logger.LogInformation("Setting Email Address for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+                logger.LogInformation("Setting Email Address for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
                 apprenticeship.ChangeEmailAddress(apprentice.Email);
             }
             else
             {
-                _logger.LogInformation("ApprenticeshipEmailAddressChangedByApprenticeCommand not recorded as apprenticeshipId {ApprenticeshipId}, has ApprenticeshipStatus of {Description}", request.ApprenticeshipId, status.GetDescription());
+                logger.LogInformation("ApprenticeshipEmailAddressChangedByApprenticeCommand not recorded as apprenticeshipId {ApprenticeshipId}, has ApprenticeshipStatus of {Description}", request.ApprenticeshipId, status.GetDescription());
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error recording ApprenticeshipEmailAddressChangedByApprenticeCommand for apprenticeshipId {ApprenticeshipId}", request.ApprenticeshipId);
+            logger.LogError(e, "Error recording ApprenticeshipEmailAddressChangedByApprenticeCommand for apprenticeshipId {ApprenticeshipId}", request.ApprenticeshipId);
             throw;
         }
     }

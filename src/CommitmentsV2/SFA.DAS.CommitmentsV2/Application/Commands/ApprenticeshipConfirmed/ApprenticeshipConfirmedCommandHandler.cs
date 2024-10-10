@@ -1,30 +1,22 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
+
+public class ApprenticeshipConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db) : IRequestHandler<ApprenticeshipConfirmedCommand>
 {
-    public class ApprenticeshipConfirmedCommandHandler : IRequestHandler<ApprenticeshipConfirmedCommand>
+    public async Task Handle(ApprenticeshipConfirmedCommand request, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        var status = await db.Value.ApprenticeshipConfirmationStatus.SingleOrDefaultAsync(a => a.ApprenticeshipId == request.ApprenticeshipId, cancellationToken);
 
-        public ApprenticeshipConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
+        if (status == null)
         {
-            _db = db;
+            var confirmationStatus = new ApprenticeshipConfirmationStatus(request.ApprenticeshipId, request.CommitmentsApprovedOn, null, request.ConfirmedOn);
+            db.Value.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
         }
-
-        public async Task Handle(ApprenticeshipConfirmedCommand request, CancellationToken cancellationToken)
+        else
         {
-            var status = await _db.Value.ApprenticeshipConfirmationStatus.SingleOrDefaultAsync(a => a.ApprenticeshipId == request.ApprenticeshipId, cancellationToken);
-
-            if (status == null)
-            {
-                var confirmationStatus = new ApprenticeshipConfirmationStatus(request.ApprenticeshipId, request.CommitmentsApprovedOn, null, request.ConfirmedOn);
-                _db.Value.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
-            }
-            else
-            {
-                status.SetStatusToConfirmedIfChangeIsLatest(request.CommitmentsApprovedOn, request.ConfirmedOn);
-            }
+            status.SetStatusToConfirmedIfChangeIsLatest(request.CommitmentsApprovedOn, request.ConfirmedOn);
         }
     }
 }

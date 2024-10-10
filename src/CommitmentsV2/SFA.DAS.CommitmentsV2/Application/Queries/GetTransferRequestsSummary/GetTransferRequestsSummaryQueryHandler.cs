@@ -1,21 +1,11 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
+
+public class GetTransferRequestsSummaryQueryHandler(ITransferRequestDomainService transferRequestDomainService) : IRequestHandler<GetTransferRequestsSummaryQuery, GetTransferRequestsSummaryQueryResult>
 {
-    public class GetTransferRequestsSummaryQueryHandler : IRequestHandler<GetTransferRequestsSummaryQuery, GetTransferRequestsSummaryQueryResult>
+    public async Task<GetTransferRequestsSummaryQueryResult> Handle(GetTransferRequestsSummaryQuery message, CancellationToken cancellationToken)
     {
-        private readonly ITransferRequestDomainService _transferRequestDomainService;
-
-        public GetTransferRequestsSummaryQueryHandler(ITransferRequestDomainService transferRequestDomainService)
-        {
-            if (transferRequestDomainService == null)
-                throw new ArgumentNullException(nameof(transferRequestDomainService));
-            _transferRequestDomainService = transferRequestDomainService;
-        }
-
-        public async Task<GetTransferRequestsSummaryQueryResult> Handle(GetTransferRequestsSummaryQuery message, CancellationToken cancellationToken)
-        {
-            return await _transferRequestDomainService.GetTransferRequestSummary(message.AccountId, message.Originator, cancellationToken);
-        }
+        return await transferRequestDomainService.GetTransferRequestSummary(message.AccountId, message.Originator, cancellationToken);
     }
 }

@@ -8,6 +8,10 @@ public class ApprenticeshipBaseConfiguration : IEntityTypeConfiguration<Apprenti
     public void Configure(EntityTypeBuilder<ApprenticeshipBase> builder)
     {
         SetTablePerHierarchy(builder);
+        
+        // Fix for "Could not save changes because the target table has database triggers" exception.
+        // https://learn.microsoft.com/en-gb/ef/core/what-is-new/ef-core-7.0/breaking-changes?tabs=v7#sqlserver-tables-with-triggers
+        builder.ToTable(x => x.UseSqlOutputClause(false));
 
         builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
         builder.Property(e => e.CreatedOn).HasColumnType("datetime");
@@ -106,7 +110,7 @@ public class ApprenticeshipBaseConfiguration : IEntityTypeConfiguration<Apprenti
          *      add IsApproved as (CASE WHEN PaymentStatus > 0 THEN CAST(1 as bit) ELSE CAST(0 as bit) END) PERSISTED;
 .            * Note that the value is persisted, since we will be selecting on this column.
          * The fact that this is calculated field means that EF does not attempt to set it (which it would normally
-         * - do based on the discriminator for that entity type).
+         * - do, based on the discriminator for that entity type).
          */
 
         builder.ToTable("Apprenticeship")

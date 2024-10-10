@@ -13,190 +13,191 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
 
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/cohorts")]
+public class CohortController(IMediator mediator) : ControllerBase
 {
-    [ApiController]
-    [Authorize]
-    [Route("api/cohorts")]
-    public class CohortController : ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetCohorts([FromQuery] GetCohortsRequest request)
     {
-        private readonly IMediator _mediator;
+        var query = new GetCohortsQuery(request.AccountId, request.ProviderId);
+        var result = await mediator.Send(query);
 
-        public CohortController(IMediator mediator)
+        return Ok(new GetCohortsResponse(result.Cohorts));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateCohortRequest request)
+    {
+        var command = new AddCohortCommand(
+            request.RequestingParty,
+            request.AccountId,
+            request.AccountLegalEntityId,
+            request.ProviderId,
+            request.CourseCode,
+            request.DeliveryModel,
+            request.Cost,
+            request.StartDate,
+            request.ActualStartDate,
+            request.EndDate,
+            request.OriginatorReference,
+            request.ReservationId,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.DateOfBirth,
+            request.Uln,
+            request.TransferSenderId,
+            request.PledgeApplicationId,
+            request.EmploymentPrice,
+            request.EmploymentEndDate,
+            request.UserInfo,
+            request.IgnoreStartDateOverlap,
+            request.IsOnFlexiPaymentPilot,
+            request.TrainingPrice,
+            request.EndPointAssessmentPrice);
+
+        var result = await mediator.Send(command);
+
+        return Ok(new CreateCohortResponse
         {
-            _mediator = mediator;
+            CohortId = result.Id,
+            CohortReference = result.Reference
+        });
+    }
+
+    [HttpPost]
+    [Route("create-with-other-party")]
+    public async Task<IActionResult> Create([FromBody] CreateCohortWithOtherPartyRequest request)
+    {
+        var command = new AddCohortWithOtherPartyCommand(
+            request.AccountId,
+            request.AccountLegalEntityId,
+            request.ProviderId,
+            request.TransferSenderId,
+            request.PledgeApplicationId,
+            request.Message,
+            request.UserInfo
+        );
+
+        var result = await mediator.Send(command);
+
+        return Ok(new CreateCohortResponse
+        {
+            CohortId = result.Id,
+            CohortReference = result.Reference
+        });
+    }
+
+    [HttpPost]
+    [Route("create-empty-cohort")]
+    public async Task<IActionResult> Create([FromBody] CreateEmptyCohortRequest request)
+    {
+        var command = new AddEmptyCohortCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.UserInfo);
+        var result = await mediator.Send(command);
+
+        return Ok(new CreateCohortResponse
+        {
+            CohortId = result.Id,
+            CohortReference = result.Reference
+        });
+    }
+
+    [HttpGet]
+    [Route("{cohortId}")]
+    public async Task<IActionResult> Get(long cohortId)
+    {
+        var query = new GetCohortSummaryQuery(cohortId);
+        var result = await mediator.Send(query);
+
+        if (result == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCohorts([FromQuery] GetCohortsRequest request)
+        return Ok(new GetCohortResponse
         {
-            var query = new GetCohortsQuery(request.AccountId, request.ProviderId);
-            var result = await _mediator.Send(query);
+            CohortId = result.CohortId,
+            AccountId = result.AccountId,
+            AccountLegalEntityId = result.AccountLegalEntityId,
+            LegalEntityName = result.LegalEntityName,
+            ProviderId = result.ProviderId,
+            ProviderName = result.ProviderName,
+            TransferSenderId = result.TransferSenderId,
+            PledgeApplicationId = result.PledgeApplicationId,
+            WithParty = result.WithParty,
+            LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
+            LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
+            IsApprovedByEmployer = result.IsApprovedByEmployer,
+            IsApprovedByProvider = result.IsApprovedByProvider,
+            IsCompleteForEmployer = result.IsCompleteForEmployer,
+            IsCompleteForProvider = result.IsCompleteForProvider,
+            LevyStatus = result.LevyStatus,
+            ChangeOfPartyRequestId = result.ChangeOfPartyRequestId,
+            LastAction = result.LastAction,
+            TransferApprovalStatus = result.TransferApprovalStatus,
+            ApprenticeEmailIsRequired = result.ApprenticeEmailIsRequired
+        });
+    }
 
-            return Ok(new GetCohortsResponse(result.Cohorts));
-        }
+    [HttpGet]
+    [Route("{cohortId:long}/email-overlaps")]
+    public async Task<IActionResult> GetEmailOverlapChecks(long cohortId)
+    {
+        var query = new GetCohortEmailOverlapsQuery(cohortId);
+        var result = await mediator.Send(query);
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateCohortRequest request)
-        {
-            var command = new AddCohortCommand(
-                request.RequestingParty,
-                request.AccountId,
-                request.AccountLegalEntityId,
-                request.ProviderId,
-                request.CourseCode,
-                request.DeliveryModel,
-                request.Cost,
-                request.StartDate,
-                request.ActualStartDate,
-                request.EndDate,
-                request.OriginatorReference,
-                request.ReservationId,
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.DateOfBirth,
-                request.Uln,
-                request.TransferSenderId,
-                request.PledgeApplicationId,
-                request.EmploymentPrice,
-                request.EmploymentEndDate,
-                request.UserInfo,
-                request.IgnoreStartDateOverlap,
-                request.IsOnFlexiPaymentPilot,
-                request.TrainingPrice,
-                request.EndPointAssessmentPrice);
-            
-            var result = await _mediator.Send(command);
+        return Ok(new GetEmailOverlapsResponse { ApprenticeshipEmailOverlaps = result.Overlaps });
+    }
 
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
-        }
+    [HttpGet]
+    [Route("accountIds")]
+    public async Task<IActionResult> GetAllCohortAccountIds()
+    {
+        var result = await mediator.Send(new GetAllCohortAccountIdsQuery());
+        return Ok(new GetAllCohortAccountIdsResponse(result.AccountIds));
+    }
 
-        [HttpPost]
-        [Route("create-with-other-party")]
-        public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
-        {
-            var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.TransferSenderId, request.PledgeApplicationId, request.Message, request.UserInfo);
-            var result = await _mediator.Send(command);
+    [HttpPost]
+    [Route("{cohortId:long}/send")]
+    public async Task<IActionResult> Send(long cohortId, [FromBody] SendCohortRequest request)
+    {
+        var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo, request.RequestingParty);
+        await mediator.Send(command);
 
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
-        }
+        return Ok();
+    }
 
-        [HttpPost]
-        [Route("create-empty-cohort")]
-        public async Task<IActionResult> Create([FromBody]CreateEmptyCohortRequest request)
-        {
-            var command = new AddEmptyCohortCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.UserInfo);
-            var result = await _mediator.Send(command);
+    [HttpPost]
+    [Route("{cohortId:long}/approve")]
+    public async Task<IActionResult> Approve(long cohortId, [FromBody] ApproveCohortRequest request)
+    {
+        var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo, request.RequestingParty);
+        await mediator.Send(command);
 
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
-        }
+        return Ok();
+    }
 
-        [HttpGet]
-        [Route("{cohortId}")]
-        public async Task<IActionResult> Get(long cohortId)
-        {
-            var query = new GetCohortSummaryQuery(cohortId);
-            var result = await _mediator.Send(query);
+    [HttpPost]
+    [Route("{cohortId:long}/delete")]
+    public async Task<IActionResult> Delete(long cohortId, [FromBody] UserInfo userInfo, CancellationToken cancellationToken)
+    {
+        var command = new DeleteCohortCommand { CohortId = cohortId, UserInfo = userInfo };
+        await mediator.Send(command, cancellationToken);
 
-            if (result == null)
-            {
-                return NotFound();
-            }
-            
-            return Ok(new GetCohortResponse
-            {
-                CohortId = result.CohortId,
-                AccountId = result.AccountId,
-                AccountLegalEntityId = result.AccountLegalEntityId,
-                LegalEntityName = result.LegalEntityName,
-                ProviderId = result.ProviderId,
-                ProviderName = result.ProviderName,
-                TransferSenderId = result.TransferSenderId,
-                PledgeApplicationId = result.PledgeApplicationId,
-                WithParty = result.WithParty,
-                LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
-                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
-                IsApprovedByEmployer = result.IsApprovedByEmployer,
-                IsApprovedByProvider = result.IsApprovedByProvider,
-                IsCompleteForEmployer = result.IsCompleteForEmployer,
-                IsCompleteForProvider = result.IsCompleteForProvider,
-                LevyStatus =  result.LevyStatus,
-                ChangeOfPartyRequestId = result.ChangeOfPartyRequestId,
-                LastAction = result.LastAction,
-                TransferApprovalStatus = result.TransferApprovalStatus,
-                ApprenticeEmailIsRequired = result.ApprenticeEmailIsRequired
-            });
-        }
+        return NoContent();
+    }
 
-        [HttpGet]
-        [Route("{cohortId}/email-overlaps")]
-        public async Task<IActionResult> GetEmailOverlapChecks(long cohortId)
-        {
-            var query = new GetCohortEmailOverlapsQuery(cohortId);
-            var result = await _mediator.Send(query);
+    [HttpGet]
+    [Route("{cohortId:long}/prior-learning-errors")]
+    public async Task<IActionResult> GetCohortPriorLearningErrors(long cohortId)
+    {
+        var query = new GetCohortPriorLearningErrorQuery(cohortId);
+        var result = await mediator.Send(query);
 
-            return Ok(new GetEmailOverlapsResponse{ ApprenticeshipEmailOverlaps = result.Overlaps});
-        }
-
-        [HttpGet]
-        [Route("accountIds")]
-        public async Task<IActionResult> GetAllCohortAccountIds()
-        {
-            var result = await _mediator.Send(new GetAllCohortAccountIdsQuery());
-            return Ok(new GetAllCohortAccountIdsResponse(result.AccountIds));
-        }
-        
-        [HttpPost]
-        [Route("{cohortId}/send")]
-        public async Task<IActionResult> Send(long cohortId, [FromBody]SendCohortRequest request)
-        {
-            var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo, request.RequestingParty);
-            await _mediator.Send(command);
-
-            return Ok();
-        }
-
-        [HttpPost]
-        [Route("{cohortId}/approve")]
-        public async Task<IActionResult> Approve(long cohortId, [FromBody]ApproveCohortRequest request)
-        {
-            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo, request.RequestingParty);
-            await _mediator.Send(command);
-
-            return Ok();
-        } 
-        
-        [HttpPost]
-        [Route("{cohortId}/delete")]
-        public async Task<IActionResult> Delete(long cohortId, [FromBody]UserInfo userInfo, CancellationToken cancellationToken)
-        {
-            var command = new DeleteCohortCommand { CohortId = cohortId, UserInfo = userInfo };
-            await _mediator.Send(command, cancellationToken);
-
-            return NoContent();
-        }
-
-        [HttpGet]
-        [Route("{cohortId}/prior-learning-errors")]
-        public async Task<IActionResult> GetCohortPriorLearningErrors(long cohortId)
-        {
-            var query = new GetCohortPriorLearningErrorQuery(cohortId);
-            var result = await _mediator.Send(query);
-
-            return Ok(new GetCohortPriorLearningErrorResponse { DraftApprenticeshipIds = result.DraftApprenticeshipIds });
-        }
+        return Ok(new GetCohortPriorLearningErrorResponse { DraftApprenticeshipIds = result.DraftApprenticeshipIds });
     }
 }

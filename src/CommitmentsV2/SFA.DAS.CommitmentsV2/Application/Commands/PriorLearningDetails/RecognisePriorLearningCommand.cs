@@ -1,15 +1,14 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
+namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
+
+public class PriorLearningDetailsCommand : IRequest
 {
-    public class PriorLearningDetailsCommand : IRequest
-    {
-        public long CohortId { get; set; }
-        public long ApprenticeshipId { get; set; }
-        public int? DurationReducedBy { get; set; }
-        public int? PriceReducedBy { get; set; }
-        public int? DurationReducedByHours { get; set; }
-        public bool Rpl2Mode { get; set; }
-        public UserInfo UserInfo { get; set; }
-    }
+    public long CohortId { get; set; }
+    public long ApprenticeshipId { get; set; }
+    public int? DurationReducedBy { get; set; }
+    public int? PriceReducedBy { get; set; }
+    public int? DurationReducedByHours { get; set; }
+    public bool Rpl2Mode { get; set; }
+    public UserInfo UserInfo { get; set; }
 }

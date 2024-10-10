@@ -4,41 +4,32 @@ using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 
-public class DeleteCohortHandler : IRequestHandler<DeleteCohortCommand>
+public class DeleteCohortHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<DeleteCohortHandler> logger,
+    IAuthenticationService authenticationService)
+    : IRequestHandler<DeleteCohortCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ILogger<DeleteCohortHandler> _logger;
-    private readonly IAuthenticationService _authenticationService;
-
-    public DeleteCohortHandler(
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<DeleteCohortHandler> logger,
-        IAuthenticationService authenticationService)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _authenticationService = authenticationService;
-    }
-
     public async Task Handle(DeleteCohortCommand command, CancellationToken cancellationToken)
     {
         try
         {
-            var db = _dbContext.Value;
+            var db = dbContext.Value;
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships)
                 .Include(c => c.Provider)
                 .Include(c => c.AccountLegalEntity)
                 .Include(c => c.TransferRequests)
                 .SingleOrDefaultAsync(c => c.Id == command.CohortId, cancellationToken);
 
-            cohort.Delete(_authenticationService.GetUserParty(), command.UserInfo);
+            cohort.Delete(authenticationService.GetUserParty(), command.UserInfo);
+
             await db.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Cohort marked as deleted. Cohort-Id:{CohortId}", command.CohortId);
+            logger.LogInformation("Cohort marked as deleted. Cohort-Id:{CohortId}", command.CohortId);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            _logger.LogError(e, "Error Deleting Cohort");
+            logger.LogError(e, "Error Deleting Cohort");
             throw;
         }
     }

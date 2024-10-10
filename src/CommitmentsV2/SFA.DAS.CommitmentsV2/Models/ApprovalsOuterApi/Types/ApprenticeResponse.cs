@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+
+public class ApprenticeResponse
 {
-    public class ApprenticeResponse
-    {
-        public string Email { get; set; }
-    }
+    public string Email { get; set; }
 }

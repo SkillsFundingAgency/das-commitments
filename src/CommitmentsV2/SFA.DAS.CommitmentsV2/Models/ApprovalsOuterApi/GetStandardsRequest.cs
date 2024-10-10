@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+
+public class GetStandardsRequest : IGetApiRequest
 {
-    public class GetStandardsRequest : IGetApiRequest
-    {
-        public string GetUrl => "TrainingCourses/standards";
-    }
+    public string GetUrl => "TrainingCourses/standards";
 }

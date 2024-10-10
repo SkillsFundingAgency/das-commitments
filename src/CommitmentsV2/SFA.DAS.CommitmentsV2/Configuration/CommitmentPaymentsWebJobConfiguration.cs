@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Configuration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration;
+
+public class CommitmentPaymentsWebJobConfiguration
 {
-    public class CommitmentPaymentsWebJobConfiguration
-    {
-        public bool IgnoreDataLockStatusConstraintErrors { get; set; }
-    }
+    public bool IgnoreDataLockStatusConstraintErrors { get; set; }
 }

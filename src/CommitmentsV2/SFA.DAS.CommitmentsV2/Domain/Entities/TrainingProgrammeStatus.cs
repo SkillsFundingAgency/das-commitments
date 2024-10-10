@@ -1,9 +1,8 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities;
+
+public enum TrainingProgrammeStatus
 {
-    public enum TrainingProgrammeStatus
-    {
-        Pending = 0, 
-        Active = 1, 
-        Expired = 2
-    }
+    Pending = 0, 
+    Active = 1, 
+    Expired = 2
 }

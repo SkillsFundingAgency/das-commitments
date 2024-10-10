@@ -38,7 +38,6 @@ public class CohortConfiguration : IEntityTypeConfiguration<Cohort>
         builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
         builder.Ignore(e => e.DraftApprenticeships);
 
-
         builder.HasOne(c => c.TransferSender)
             .WithMany(c => c.TransferFundedCohorts)
             .HasForeignKey(c => c.TransferSenderId);
