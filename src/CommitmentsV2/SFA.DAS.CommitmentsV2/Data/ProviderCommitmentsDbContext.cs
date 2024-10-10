@@ -81,6 +81,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
     {
         modelBuilder.ApplyConfiguration(new AccountConfiguration());
         modelBuilder.ApplyConfiguration(new AccountLegalEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
         modelBuilder.ApplyConfiguration(new ApprenticeshipBaseConfiguration());
         modelBuilder.ApplyConfiguration(new ApprenticeshipUpdateConfiguration());
         modelBuilder.ApplyConfiguration(new ApprenticeshipConfirmationStatusConfiguration());
@@ -88,7 +89,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
         modelBuilder.ApplyConfiguration(new AssessmentOrganisationConfiguration());
         modelBuilder.ApplyConfiguration(new BulkUploadConfiguration());
         modelBuilder.ApplyConfiguration(new CohortConfiguration());
-        modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
+        
         modelBuilder.ApplyConfiguration(new CustomProviderPaymentPriorityConfiguration());
         modelBuilder.ApplyConfiguration(new DataLockStatusConfiguration());
         modelBuilder.ApplyConfiguration(new DataLockUpdaterJobStatusConfiguration());
