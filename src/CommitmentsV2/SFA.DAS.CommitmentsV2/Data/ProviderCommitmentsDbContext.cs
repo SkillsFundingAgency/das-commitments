@@ -48,7 +48,11 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
     {
     }
         
-    public ProviderCommitmentsDbContext(IDbConnection connection, CommitmentsV2Configuration configuration, AzureServiceTokenProvider azureServiceTokenProvider, DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
+    public ProviderCommitmentsDbContext(
+        IDbConnection connection,
+        CommitmentsV2Configuration configuration,
+        AzureServiceTokenProvider azureServiceTokenProvider,
+        DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
     {
         _configuration = configuration;
         _azureServiceTokenProvider = azureServiceTokenProvider;
