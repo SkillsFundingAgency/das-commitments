@@ -494,7 +494,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
+            var startDate = details.GetStartDate();
 
             if (!details.ReservationId.HasValue || !startDate.HasValue || details.TrainingProgramme == null)
                 return;
@@ -509,7 +509,7 @@ namespace SFA.DAS.CommitmentsV2.Services
          
         private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
+            var startDate = details.GetStartDate();
 
             if (string.IsNullOrWhiteSpace(details.Uln) || !startDate.HasValue || !details.EndDate.HasValue) return;
 
@@ -541,7 +541,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateEmailOverlaps(DraftApprenticeshipDetails details, long? cohortId, CancellationToken cancellationToken)
         {
-            var startDate = details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
+            var startDate = details.GetStartDate();
 
             if (string.IsNullOrWhiteSpace(details.Email) || !startDate.HasValue || !details.EndDate.HasValue) return;
 
