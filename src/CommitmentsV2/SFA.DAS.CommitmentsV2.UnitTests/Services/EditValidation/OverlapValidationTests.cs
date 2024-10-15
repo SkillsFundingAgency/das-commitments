@@ -67,10 +67,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             });
         }
 
-        private static async Task<EditApprenticeshipValidationResult>
-        SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap)
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task CorrectDateIsUsedForUlnOverlapValidation(bool isOnFlexiPaymentsPilot)
         {
-            var eaFixture = fixture.SetupMockContextApprenticeship()
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            var result = await SetupAuthenticationContext(Party.Provider, fixture, true, false, isOnFlexiPaymentsPilot);
+
+            var expectedDate = isOnFlexiPaymentsPilot ? fixture.Apprenticeship.ActualStartDate.GetValueOrDefault() : fixture.Apprenticeship.StartDate.GetValueOrDefault();
+
+            fixture.VerifyCheckForOverlapsIsCalledWithExpectedStartDate(expectedDate);
+        }
+
+        private static async Task<EditApprenticeshipValidationResult>
+        SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap, bool isOnFlexiPaymentsPilot = false)
+        {
+            var eaFixture = fixture.SetupMockContextApprenticeship(isOnFlexiPaymentsPilot: isOnFlexiPaymentsPilot)
                 .SetupOverlapService(startDateOverlap, endDateOverlap);
 
             EditApprenticeshipValidationRequest request;
