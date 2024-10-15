@@ -283,8 +283,13 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<DomainError> EmailOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            var existingStartDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? apprenticeshipDetails.ActualStartDate : apprenticeshipDetails.StartDate;
-            bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == existingStartDate && request.EndDate == apprenticeshipDetails.EndDate);
+            var emailMatches = request.Email == apprenticeshipDetails.Email;
+            var startDateMatches = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault()
+                ? request.ActualStartDate == apprenticeshipDetails.ActualStartDate
+                : request.StartDate == apprenticeshipDetails.StartDate;
+            var endDateMatches = request.EndDate == apprenticeshipDetails.EndDate;
+
+            bool NoChangesRequested() => (emailMatches && startDateMatches && endDateMatches);
 
             if (string.IsNullOrWhiteSpace(request.Email))
                 return null;
