@@ -512,6 +512,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var accountLegalEntity =
                     SeedApprenticeships.FirstOrDefault(p => p.Cohort.AccountLegalEntity.Id == accountLegalEntityId)?.Cohort?.AccountLegalEntity
                         ?? new AccountLegalEntity()
+                            .Set(c => c.Address, "High street")
+                            .Set(c => c.PublicHashedId, "XXXX")
+                            .Set(c => c.Name, "Name")
                             .Set(a => a.LegalEntityId, legalEntityId)
                             .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
                             .Set(a => a.AccountId, accountId)
@@ -521,6 +524,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     SeedApprenticeships.FirstOrDefault(p => p.Cohort.Id == cohortId)?.Cohort
                         ?? new Cohort()
                             .Set(c => c.Id, cohortId)
+                            .Set(c => c.Reference, "XXXX")
                             .Set(c => c.EmployerAccountId, accountId)
                             .Set(c => c.AccountLegalEntity, accountLegalEntity)
                             .Set(c => c.AccountLegalEntityId, accountLegalEntity.Id);
@@ -546,6 +550,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Set(c => c.Status, status)
                     .Set(c => c.EventStatus, eventStatus)
                     .Set(c => c.TriageStatus, triageStatus)
+                    .Set(c => c.PriceEpisodeIdentifier, "SomeIdentifier")
                     .Set(c => c.ErrorCode, errorCode);
                
                 SeedDataLocks.Add(dataLock);

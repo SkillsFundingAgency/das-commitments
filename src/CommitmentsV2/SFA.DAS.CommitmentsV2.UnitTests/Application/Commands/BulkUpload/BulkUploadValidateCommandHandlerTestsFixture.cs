@@ -35,7 +35,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     protected Mock<ILinkGenerator> MockLinkGenerator;
     public const long ProviderId = 333;
 
-    public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
+    public BulkUploadValidateCommandHandlerTestsFixture()
     {
         MockLinkGenerator = new Mock<ILinkGenerator>();
 
@@ -47,8 +47,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         Command = new BulkUploadValidateCommand
         {
             CsvRecords = CsvRecords,
-            ProviderId = ProviderId,
-            RplDataExtended = rplDataExtended
+            ProviderId = ProviderId
         };
 
         Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new("123", "123") };
@@ -617,11 +616,5 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     {
         Db?.Dispose();
         GC.SuppressFinalize(this);
-    }
-
-    internal BulkUploadValidateCommandHandlerTestsFixture SetRplDataExtended(bool extended)
-    {
-        Command.RplDataExtended = extended;
-        return this;
     }
 }

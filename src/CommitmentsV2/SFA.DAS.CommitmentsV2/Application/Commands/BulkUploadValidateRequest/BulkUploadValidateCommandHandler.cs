@@ -27,7 +27,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private readonly ILinkGenerator _urlHelper;
 
     public long ProviderId { get; set; }
-    private bool RplDataExtended { get; set; }
 
     public BulkUploadValidateCommandHandler(
         ILogger<BulkUploadValidateCommandHandler> logger,
@@ -56,7 +55,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
     {
         ProviderId = command.ProviderId;
-        RplDataExtended = command.RplDataExtended;
         var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
         _csvRecords = command.CsvRecords.ToList();
 
@@ -188,19 +186,12 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
         domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
-        if (!RplDataExtended)
-        {
-            domainErrors.AddRange(ValidatePriorLearning(csvRecord));
-        }
-        else
-        {
-            domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
-            domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
-            domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, _rplConfig.MaximumTrainingTimeReduction));
-            domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
-            domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, _rplConfig.MinimumPriceReduction));
-        }
-
+        domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
+        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
+        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, _rplConfig.MaximumTrainingTimeReduction));
+        domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
+        domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, _rplConfig.MinimumPriceReduction));
+       
         return domainErrors;
     }
 

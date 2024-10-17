@@ -89,8 +89,6 @@ public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuer
     {
         return apprenticeships.Any(apprenticeship =>
         {
-            if (!apprenticeship.RecognisingPriorLearningStillNeedsToBeConsidered)
-                return false;
             if(!apprenticeship.RecognisingPriorLearningExtendedStillNeedsToBeConsidered)
                 return false;
 
