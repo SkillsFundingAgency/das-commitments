@@ -253,11 +253,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                     .Set(a => a.Name, "OldEmployerName");
                 var oldAccountLegalEntity = new AccountLegalEntity()
                     .Set(oal => oal.Id, 1)
+                    .Set(oal => oal.Address, "High street")
+                    .Set(oal => oal.LegalEntityId, "SOMEID")
+                    .Set(oal => oal.PublicHashedId, "XXXX")
                     .Set(oal => oal.Name, "OldAccountLegalEntity")
                     .Set(oal => oal.Account, account);
 
                 var Cohort = new CommitmentsV2.Models.Cohort()
                    .Set(c => c.Id, 1)
+                   .Set(c => c.Reference, "XXXX")
                    .Set(c => c.Provider, oldProvider)
                    .Set(c => c.AccountLegalEntity, oldAccountLegalEntity);
 

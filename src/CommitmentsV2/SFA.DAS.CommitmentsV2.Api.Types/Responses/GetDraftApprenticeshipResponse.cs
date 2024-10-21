@@ -37,7 +37,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool? RecognisePriorLearning { get; set; }
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
-        public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
         public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public bool? EmployerHasEditedCost { get; set; }

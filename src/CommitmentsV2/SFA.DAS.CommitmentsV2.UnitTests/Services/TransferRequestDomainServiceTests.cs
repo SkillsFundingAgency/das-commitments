@@ -395,6 +395,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var accountLegalEntity = new AccountLegalEntity()
              .Set(a => a.LegalEntityId, Fixture.Create<string>())
+             .Set(a => a.Address, "High street")
+             .Set(a => a.PublicHashedId, "XXXX")
              .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
              .Set(a => a.Id, 444);
 
@@ -447,6 +449,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 SeedTransferRequests.FirstOrDefault(p => p.Cohort.Id == cohortId)?.Cohort
                     ?? new Cohort()
                         .Set(c => c.Id, cohortId)
+                        .Set(c => c.Reference, "XXXX")
                         .Set(c => c.TransferSenderId, transferSenderId)
                         .Set(c => c.Reference, cohortReference)
                         .Set(c => c.EmployerAccountId, accountId)
@@ -455,6 +458,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var transferRequest = new TransferRequest()
                 .Set(s => s.Id, transferRequestId)
+                .Set(s => s.TrainingCourses, "training course values")
                 .Set(s => s.CommitmentId, cohort.Id)
                 .Set(s => s.Cohort, cohort)
                 .Set(s => s.Status, transferApprovalStatus)
