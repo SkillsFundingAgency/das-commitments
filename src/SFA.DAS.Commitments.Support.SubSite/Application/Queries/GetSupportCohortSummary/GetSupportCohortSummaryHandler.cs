@@ -78,7 +78,7 @@ public class GetSupportCohortSummaryHandler : IRequestHandler<GetSupportCohortSu
     private static bool CalculateIsCompleteForProvider(CommitmentsV2.Models.Cohort c, bool apprenticeEmailIsRequired)
     {
         return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
-               && c.Apprenticeships.All(a => a.Uln != null) && !c.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
+               && c.Apprenticeships.All(a => a.Uln != null) && !c.Apprenticeships.Any(a => a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
     }
 
     private static bool CalculateIsCompleteForEmployer(CommitmentsV2.Models.Cohort cohort, bool apprenticeEmailIsRequired)

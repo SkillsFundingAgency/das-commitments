@@ -60,7 +60,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 DurationReducedByHours = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedByHours : null,
                 IsDurationReducedByRpl = draft.PriorLearning != null ? draft.PriorLearning.IsDurationReducedByRpl : null,
                 TrainingTotalHours = draft.PriorLearning != null ? draft.TrainingTotalHours : null,
-                RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = draft.EmailAddressConfirmed,

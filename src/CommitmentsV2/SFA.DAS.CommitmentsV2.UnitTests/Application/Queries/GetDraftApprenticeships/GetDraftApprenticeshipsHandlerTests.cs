@@ -32,27 +32,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Handle_WhenCohortExists_AndRPLEnhancedFeatureIsEnabledThenRecognisingPriorLearningStillNeedsToBeConsiderShouldBeTrue()
-        {
-            _fixture.SeedDataWithRpl2Data();
-            var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeTrue();
-        }
-
-        [Test]
         public async Task Handle_WhenCohortExists_AndRPLFeatureIsEnabledThenRecognisingPriorLearningExtendedStillNeedsToBeConsiderShouldBeFalse()
         {
             _fixture.SeedDataWithRpl2Data();
             var result = await _fixture.Handle();
             result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeFalse();
-        }
-
-        [Test]
-        public async Task Handle_WhenCohortExists_AndRPLEnhancedFeatureIsNotEnabledThenRecognisingPriorLearningStillNeedsToBeConsiderShouldBeFalse()
-        {
-            _fixture.SeedDataWithRpl1Data();
-            var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeFalse();
         }
 
         [Test]
