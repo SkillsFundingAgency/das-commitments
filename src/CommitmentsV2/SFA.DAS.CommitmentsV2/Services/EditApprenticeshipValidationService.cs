@@ -212,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.TrainingPrice == apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow)
                 && request.EndPointAssessmentPrice == apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
-                && request.ActualStartDate == apprenticeship.ActualStartDate
+                && (request.ActualStartDate == apprenticeship.ActualStartDate || !apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault())
                 && request.DeliveryModel == apprenticeship.DeliveryModel
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln
