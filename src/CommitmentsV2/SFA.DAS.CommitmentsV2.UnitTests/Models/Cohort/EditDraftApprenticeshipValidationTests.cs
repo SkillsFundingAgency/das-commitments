@@ -54,9 +54,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(null, true)]
-        [TestCase("2024-09-30", false)]
-        [TestCase("2024-10-01", true)]
-        public void ActualStartDate_CheckNotBeforeOctober2024_Validation(DateTime? startDate, bool passes)
+        [TestCase("2024-10-31", false)]
+        [TestCase("2024-11-01", true)]
+        public void ActualStartDate_CheckNotBeforeNovember2024_Validation(DateTime? startDate, bool passes)
         {
             var utcStartDate = startDate.HasValue
                 ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
