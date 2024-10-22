@@ -473,7 +473,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             private readonly Fixture _autoFixture = new Fixture();
             
             // If you use DateTime.Now, some of the tests will fail if run on the last day of the month.
-            private readonly DateTime _referenceDate = new DateTime(2023,10,10);
+            private readonly DateTime _referenceDate = new DateTime(2024,10,10);
             private UnitOfWorkContext UnitOfWorkContext { get; }
             private UserInfo UserInfo { get; }
             private Party ModifyingParty { get; }

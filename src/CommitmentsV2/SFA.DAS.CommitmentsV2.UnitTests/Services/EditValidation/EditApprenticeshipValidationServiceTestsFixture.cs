@@ -117,6 +117,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
     private void WithStartDateInFuture()
     {
         Apprenticeship.StartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
+        Apprenticeship.ActualStartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
         Apprenticeship.EndDate = _currentDateTime.Object.UtcNow.AddYears(1);
     }
 
@@ -151,11 +152,12 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null)
+        FlexibleEmployment flexibleEmployment = null,
+        bool isOnFlexiPaymentsPilot = false)
             
     {
         CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
-            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment);
+            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, isOnFlexiPaymentsPilot);
 
         WithStartDateInFuture();
 
@@ -237,7 +239,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null
+        FlexibleEmployment flexibleEmployment = null,
+        bool isOnFlexiPaymentsPilot = false
     )
     {
         Apprenticeship = new Apprenticeship
@@ -263,7 +266,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             Uln = uln,
             PaymentStatus = paymentStatus,
             HasHadDataLockSuccess = hasHadDataLockSuccess,
-            FlexibleEmployment = flexibleEmployment
+            FlexibleEmployment = flexibleEmployment,
+            IsOnFlexiPaymentPilot = isOnFlexiPaymentsPilot
         };
 
         return this;
@@ -290,7 +294,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         DeliveryModel deliveryModel = DeliveryModel.Regular,
         int? employmentEndMonth = null,
         int? employmentEndYear = null,
-        int? employmentPrice = null
+        int? employmentPrice = null,
+        DateTime? actualStartDate = null
     )
     {
         var request = new EditApprenticeshipValidationRequest
@@ -329,6 +334,11 @@ public class EditApprenticeshipValidationServiceTestsFixture
         else
         {
             request.StartDate = Apprenticeship.StartDate;
+        }
+
+        if (actualStartDate.HasValue)
+        {
+            request.ActualStartDate = actualStartDate;
         }
 
         if (endYear.HasValue && endMonth.HasValue)
