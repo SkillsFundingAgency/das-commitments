@@ -430,19 +430,21 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildStartDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            if (request.StartDate.HasValue)
+            var requestedStartDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+            var existingStartDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? apprenticeshipDetails.ActualStartDate : apprenticeshipDetails.StartDate;
+            if (requestedStartDate.HasValue)
             {
-                if (request.StartDate.Value != apprenticeshipDetails.StartDate.Value)
+                if (requestedStartDate != existingStartDate)
                 {
-                    if (request.StartDate.Value > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                    if (requestedStartDate.Value > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
                     {
                         yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
                             "The start date must be no later than one year after the end of the current teaching year");
                         yield break;
                     }
 
-                    if (request.StartDate.Value < _academicYearDateProvider.CurrentAcademicYearStartDate &&
-             _currentDateTime.UtcNow > _academicYearDateProvider.LastAcademicYearFundingPeriod)
+                    if (requestedStartDate.Value < _academicYearDateProvider.CurrentAcademicYearStartDate &&
+                        _currentDateTime.UtcNow > _academicYearDateProvider.LastAcademicYearFundingPeriod)
                     {
                         yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
                           $"The earliest start date you can use is { _academicYearDateProvider.CurrentAcademicYearStartDate.ToGdsFormatShortMonthWithoutDay()}");
@@ -461,9 +463,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                                                            (!result.TrainingProgramme.EffectiveFrom.HasValue ||
                                                             result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
-                        var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
+                        var trainingProgrammeStatus = GetStatusOn(requestedStartDate.Value, result);
 
-                        if ((request.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
+                        if ((requestedStartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
                         {
                             yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");
                             yield break;
@@ -482,12 +484,17 @@ namespace SFA.DAS.CommitmentsV2.Services
                         }
 
                         if (trainingProgrammeStatus.HasValue && apprenticeshipDetails.Cohort.TransferSenderId.HasValue
-                            && request.StartDate.Value < Constants.TransferFeatureStartDate)
+                            && requestedStartDate.Value < Constants.TransferFeatureStartDate)
                         {
                             var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
                             yield return new DomainError(nameof(request.StartDate), errorMessage);
                         }
+                    }
+
+                    if (apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && requestedStartDate < Constants.SimplifiedPaymentsStartDate)
+                    {
+                        yield return new DomainError(nameof(request.ActualStartDate), $"The start date must not be earlier than {Constants.SimplifiedPaymentsStartDate:d MMMM yyyy}.");
                     }
                 }
             }
