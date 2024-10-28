@@ -161,13 +161,13 @@ public class Startup
             {
                 var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var logger = context.RequestServices.GetService<ILogger<Startup>>();
-        
-                if (exceptionHandlerPathFeature?.Error is UnauthorizedAccessException )
+
+                if (exceptionHandlerPathFeature?.Error is UnauthorizedAccessException)
                 {
                     logger.LogWarning("Unauthorized Access");
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
-        
+
                 return Task.CompletedTask;
             });
         });
@@ -180,12 +180,7 @@ public class Startup
             .UseUnitOfWork()
             .UseRouting()
             .UseAuthorization()
-            .UseEndpoints(builder =>
-            {
-                builder.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            })
+            .UseEndpoints(builder => builder.MapDefaultControllerRoute())
             .UseSwagger()
             .UseSwaggerUI(c =>
             {
