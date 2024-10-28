@@ -8,7 +8,7 @@ trigger:
   batch: true
   branches:
     include:
-      - "master"
+      - "main"
 
 variables:
 - name: SolutionBaseName
@@ -20,7 +20,7 @@ variables:
 - group: RELEASE Management Resources
 - group: RELEASE das-commitments
 - name: Deploy
-  value: $[or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.Reason'], 'PullRequest'))]
+  value: $[or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.Reason'], 'PullRequest'))]
 
 resources:
   repositories:
