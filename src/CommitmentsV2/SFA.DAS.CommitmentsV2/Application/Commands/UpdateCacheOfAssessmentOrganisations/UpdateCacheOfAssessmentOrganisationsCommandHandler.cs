@@ -21,19 +21,21 @@ public class
         var epaoResponse = await outerApiClient.Get<EpaoResponse>(new GetEpaoOrganisationsRequest());
 
         // .ToList() utilised to prevent possible multiple enumerations ...
-        var allOrganisationSummaries = epaoResponse.Epaos.ToList();
+        var allOrganisationSummaries = epaoResponse.Epaos
+            .OrderBy(x=> x.Id)
+            .ToList();
 
         logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
 
         var latestCachedEPAOrgId = providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId)
-            .OrderByDescending(x => x).FirstOrDefault();
+            .OrderByDescending(x => x)
+            .FirstOrDefault();
 
         logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
 
         var organisationSummariesToAdd = latestCachedEPAOrgId == null
             ? allOrganisationSummaries
             : allOrganisationSummaries
-                .OrderBy(x=> x.Id)
                 .SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
                 .ToList();
 
