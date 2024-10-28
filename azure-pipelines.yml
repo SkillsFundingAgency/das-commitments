@@ -10,6 +10,11 @@ trigger:
     include:
       - "master"
 
+pr:
+  branches:
+    include:
+      - "master"
+
 variables:
 - name: SolutionBaseName
   value: SFA.DAS.Commitments
