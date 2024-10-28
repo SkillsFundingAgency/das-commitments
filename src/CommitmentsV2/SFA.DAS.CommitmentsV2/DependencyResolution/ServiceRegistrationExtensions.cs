@@ -11,9 +11,6 @@ using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -124,7 +121,6 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IDataLockUpdaterService, DataLockUpdaterService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
-        services.AddTransient<IFeatureTogglesService<FeatureToggle>, FeatureTogglesService<FeaturesConfiguration, FeatureToggle>>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
 
         return services;

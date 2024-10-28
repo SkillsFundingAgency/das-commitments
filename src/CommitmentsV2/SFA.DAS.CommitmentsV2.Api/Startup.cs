@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
-using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.Authorization.Mvc.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
@@ -40,6 +39,7 @@ using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
+using ServiceCollectionExtensions = SFA.DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions;
 
 namespace SFA.DAS.CommitmentsV2.Api;
 public class Startup
@@ -99,7 +99,7 @@ public class Startup
 
         services.AddAcademicYearDateProviderServices();
         services.AddApprovalsOuterApiServiceServices();
-        DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions.AddAuthorization(services);
+        ServiceCollectionExtensions.AddAuthorization(services);
 
         services.AddApprenticeshipSearchServices();
         services.AddConfigurationSections(_configuration);
@@ -109,7 +109,6 @@ public class Startup
             .AddEntityFramework(commitmentsConfiguration)
             .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
         services.AddEmployerAccountServices(_configuration);
-        services.AddFeaturesAuthorization();
         services.AddSingleton<IEncodingService, EncodingService>();
         services.AddDatabaseRegistration();
         services.AddCurrentDateTimeService(_configuration);

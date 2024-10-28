@@ -48,7 +48,6 @@ public static class ServiceRegistrationExtensions
         services.AddConfigurationFor<CommitmentsV2Configuration>(configuration, CommitmentsConfigurationKeys.CommitmentsV2);
         services.AddConfigurationFor<EncodingConfig>(configuration, CommitmentsConfigurationKeys.EncodingConfiguration);
         services.AddConfigurationFor<EmailOptionalConfiguration>(configuration, CommitmentsConfigurationKeys.EmailOptionalConfiguration);
-        services.AddConfigurationFor<Authorization.Features.Configuration.FeaturesConfiguration>(configuration, CommitmentsConfigurationKeys.Features);
 
         return services;
     }
