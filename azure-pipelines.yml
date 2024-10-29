@@ -62,6 +62,7 @@ stages:
   - group: DevTest Management Resources
   - group: AT DevTest Shared Resources
   - group: AT das-commitments
+  - group: TEST group
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
