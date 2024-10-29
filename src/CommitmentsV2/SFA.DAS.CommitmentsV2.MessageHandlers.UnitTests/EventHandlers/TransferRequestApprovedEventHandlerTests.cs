@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     public class TransferRequestApprovedEventHandlerTestsFixture
     {
         private readonly Fixture _fixture;
-        public FakeLogger<TransferRequestApprovedEvent> Logger { get; set; }
+        public FakeLogger<TransferRequestApprovedEventHandler> Logger { get; set; }
         public UserInfo TransferSenderUserInfo { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public TransferRequest TransferRequest { get; set; }
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _fixture.Create<decimal>(),
                 _fixture.Create<int?>());
 
-            Logger = new FakeLogger<TransferRequestApprovedEvent>();
+            Logger = new FakeLogger<TransferRequestApprovedEventHandler>();
             Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             TransferRequest = new TransferRequest

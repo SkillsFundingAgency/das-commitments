@@ -6,9 +6,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class TransferRequestRejectedEventHandler : IHandleMessages<TransferRequestRejectedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<TransferRequestRejectedEvent> _logger;
+        private readonly ILogger<TransferRequestRejectedEventHandler> _logger;
 
-        public TransferRequestRejectedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestRejectedEvent> logger)
+        public TransferRequestRejectedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestRejectedEventHandler> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -19,8 +19,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             try
             {
                 _logger.LogInformation($"TransferRequestRejectedEvent received for CohortId : {message.CohortId}, TransferRequestId : {message.TransferRequestId}");
-
-                var db = _dbContext.Value;
 
                 var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
                 cohort.RejectTransferRequest(message.UserInfo);

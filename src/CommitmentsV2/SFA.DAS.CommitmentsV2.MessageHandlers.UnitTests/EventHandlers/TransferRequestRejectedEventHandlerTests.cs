@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     public class TransferRequestRejectedEventHandlerTestsFixture : IDisposable
     {
         private readonly Fixture _fixture;
-        public FakeLogger<TransferRequestRejectedEvent> Logger { get; set; }
+        public FakeLogger<TransferRequestRejectedEventHandler> Logger { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public Cohort Cohort { get; set; }
         public DraftApprenticeship ExistingApprenticeshipDetails;
@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             TransferRequestRejectedEvent = _fixture.Create<TransferRequestRejectedEvent>();
 
-            Logger = new FakeLogger<TransferRequestRejectedEvent>();
+            Logger = new FakeLogger<TransferRequestRejectedEventHandler>();
             Handler = new TransferRequestRejectedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             TransferRequest = new TransferRequest
