@@ -825,8 +825,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         PendingUpdateOriginator = party == Party.Employer ? Originator.Employer : Originator.Provider;
         ApprenticeshipUpdate.Add(apprenitceshipUpdate);
-
-        Publish(() => new ApprenticeshipUpdateCreatedEvent { ApprenticeshipId = Id, ProviderId = Cohort.ProviderId, AccountId = Cohort.EmployerAccountId });
     }
 
     public void UpdateProviderReference(string providerReference, Party party, UserInfo userInfo)

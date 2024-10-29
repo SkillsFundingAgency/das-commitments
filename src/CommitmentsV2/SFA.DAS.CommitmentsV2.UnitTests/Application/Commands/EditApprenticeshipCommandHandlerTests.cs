@@ -4,14 +4,13 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -24,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new EditApprenticeshipCommandHandlerTestsFixture();
         }
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -172,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture.SetParty(party);
             _fixture.Command.EditApprenticeshipRequest.StartDate = DateTime.UtcNow;
-            
+
             await _fixture.Handle();
             _fixture.VerifyApprenticeshipUpdateCreated(_fixture.Command.EditApprenticeshipRequest.StartDate.Value,
                 app => app.ApprenticeshipUpdate.First().StartDate.Value);
@@ -184,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture.SetParty(party);
             _fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
-         
+
             await _fixture.Handle();
             _fixture.VerifyApprenticeshipUpdateCreated(_fixture.Command.EditApprenticeshipRequest.EndDate.Value,
                 app => app.ApprenticeshipUpdate.First().EndDate.Value);
@@ -215,7 +214,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyApprenticeshipUpdateCreated("CourseName",
               app => app.ApprenticeshipUpdate.First().TrainingName);
             _fixture.VerifyApprenticeshipUpdateCreated((int)ProgrammeType.Standard,
-            app => (int) app.ApprenticeshipUpdate.First().TrainingType);
+            app => (int)app.ApprenticeshipUpdate.First().TrainingType);
         }
 
         [TestCase(Party.Provider)]
@@ -266,7 +265,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await _fixture.Handle();
-            _fixture.VerifyApprenticeshipUpdateCreated( party == Party.Employer ? (int)Originator.Employer : (int)Originator.Provider,
+            _fixture.VerifyApprenticeshipUpdateCreated(party == Party.Employer ? (int)Originator.Employer : (int)Originator.Provider,
                 app => (int)app.ApprenticeshipUpdate.First().Originator);
         }
 
@@ -336,17 +335,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyApprenticeshipUpdateCreated(dateTimeNow,
                 app => app.ApprenticeshipUpdate.First().CreatedOn);
         }
-
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public async Task Published_ApprenticeshipUpdateCreatedEvent(Party party)
-        {
-            _fixture.SetParty(party);
-            _fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
-
-            await _fixture.Handle();
-            _fixture.VerifyApprenticeshipUpdateCreatedEvent();
-        }
     }
 
     public class EditApprenticeshipCommandHandlerTestsFixture : IDisposable
@@ -409,10 +397,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
                 {
-                   ApprenticeshipId = ApprenticeshipId,
-                   AccountId = 222,
-                   UserInfo = new UserInfo { UserId = 122.ToString()},
-                   Option = apprenticeship.TrainingCourseOption
+                    ApprenticeshipId = ApprenticeshipId,
+                    AccountId = 222,
+                    UserInfo = new UserInfo { UserId = 122.ToString() },
+                    Option = apprenticeship.TrainingCourseOption
                 }
             };
 
@@ -421,8 +409,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             mediator = new Mock<IMediator>();
 
             mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(new GetTrainingProgrammeQueryResult {
-                    TrainingProgramme = new Types.TrainingProgramme { Name = "CourseName" , ProgrammeType = Types.ProgrammeType.Standard }
+                .Returns(() => Task.FromResult(new GetTrainingProgrammeQueryResult
+                {
+                    TrainingProgramme = new Types.TrainingProgramme { Name = "CourseName", ProgrammeType = Types.ProgrammeType.Standard }
                 }));
 
             mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeVersionQuery>(), It.IsAny<CancellationToken>()))
@@ -438,7 +427,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 mediator.Object,
                 Mock.Of<ILogger<EditApprenticeshipCommandHandler>>());
         }
-        
+
         public EditApprenticeshipCommandHandlerTestsFixture SetEmailAddressConfirmedByApprentice()
         {
             var first = Db.Apprenticeships.First();
@@ -538,19 +527,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate, Is.Null);
                 Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice, Is.Null);
-            });
-        }
-
-        internal void VerifyApprenticeshipUpdateCreatedEvent()
-        {
-            var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
-            var emittedEvent = (ApprenticeshipUpdateCreatedEvent)UnitOfWorkContext.GetEvents().Single(x => x is ApprenticeshipUpdateCreatedEvent);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(emittedEvent.ApprenticeshipId, Is.EqualTo(ApprenticeshipId));
-                Assert.That(emittedEvent.AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
-                Assert.That(emittedEvent.ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
             });
         }
 
