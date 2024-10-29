@@ -379,11 +379,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(EditStatus));
             }
 
-            if (Approvals.HasFlag(Party.Provider))
-            {
-                Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
-            }
-
             if (ChangeOfPartyRequestId.HasValue)
             {
                 Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
