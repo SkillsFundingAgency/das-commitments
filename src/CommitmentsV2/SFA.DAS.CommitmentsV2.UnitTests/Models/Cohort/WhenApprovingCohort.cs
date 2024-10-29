@@ -20,7 +20,7 @@ public class WhenApprovingCohort
     {
         _fixture = new WhenApprovingCohortFixture();
     }
-        
+
     [TestCase(Party.Employer, Party.Provider)]
     [TestCase(Party.Provider, Party.Employer)]
     public void AndPartyIsEmployerOrProviderThenShouldUpdateStatus(Party modifyingParty, Party expectedWithParty)
@@ -34,7 +34,7 @@ public class WhenApprovingCohort
         _fixture.Cohort.LastAction.Should().Be(LastAction.Approve);
         _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
     }
-        
+
     [TestCase(Party.Employer, EditStatus.Both)]
     [TestCase(Party.Provider, EditStatus.Both)]
     public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldUpdateStatus(Party modifyingParty, EditStatus expectedEditStatus)
@@ -44,7 +44,7 @@ public class WhenApprovingCohort
             .SetApprovals(modifyingParty.GetOtherParty())
             .AddDraftApprenticeship()
             .Approve();
-            
+
         _fixture.Cohort.EditStatus.Should().Be(expectedEditStatus);
         _fixture.Cohort.LastAction.Should().Be(LastAction.Approve);
         _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
@@ -61,14 +61,14 @@ public class WhenApprovingCohort
             .AddDraftApprenticeship()
             .SetMessage(message)
             .Approve();
-            
+
         _fixture.Cohort.Messages.Should().HaveCount(1)
             .And.ContainSingle(m =>
                 m.CreatedBy == expectedCreatedBy &&
                 m.Text == expectedMessage &&
                 m.Author == _fixture.UserInfo.UserDisplayName);
     }
-        
+
     [TestCase(Party.Employer, "Employer", "foo@foo.com", "Employer", "foo@foo.com", null, null)]
     [TestCase(Party.Provider, "Provider", "bar@bar.com", null, null, "Provider", "bar@bar.com")]
     public void AndPartyIsEmployerOrProviderThenShouldSetLastUpdatedBy(Party modifyingParty, string userDisplayName, string userEmail, string expectedLastUpdatedByEmployerName, string expectedLastUpdatedByEmployerEmail, string expectedLastUpdatedByProviderName, string expectedLastUpdatedByProviderEmail)
@@ -78,7 +78,7 @@ public class WhenApprovingCohort
             .AddDraftApprenticeship()
             .SetUserInfo(userDisplayName, userEmail)
             .Approve();
-            
+
         _fixture.Cohort.LastUpdatedByEmployerName.Should().Be(expectedLastUpdatedByEmployerName);
         _fixture.Cohort.LastUpdatedByEmployerEmail.Should().Be(expectedLastUpdatedByEmployerEmail);
         _fixture.Cohort.LastUpdatedByProviderName.Should().Be(expectedLastUpdatedByProviderName);
@@ -119,7 +119,7 @@ public class WhenApprovingCohort
     {
         _fixture.SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
-            .AddDraftApprenticeship(isMissingApprenticeEmail:true)
+            .AddDraftApprenticeship(isMissingApprenticeEmail: true)
             .SetUserInfo("User name", "email@email.com")
             .SetIsDraft(true);
         try
@@ -139,7 +139,7 @@ public class WhenApprovingCohort
     {
         _fixture.SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
-            .AddDraftApprenticeship(isMissingApprenticeEmail:true)
+            .AddDraftApprenticeship(isMissingApprenticeEmail: true)
             .SetUserInfo("User name", "email@email.com")
             .SetIsDraft(true)
             .Approve(false);
@@ -163,7 +163,7 @@ public class WhenApprovingCohort
                 UpdatedOn = _fixture.Now
             });
     }
-        
+
     [TestCase(Party.Employer)]
     [TestCase(Party.Provider)]
     public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldPublishFullyApprovedEvent(Party modifyingParty)
@@ -183,23 +183,6 @@ public class WhenApprovingCohort
     }
 
     [Test]
-    public void AndPartyIsEmployerAndProviderHasApprovedThenShouldPublishEmployerApprovedEvent()
-    {
-        _fixture.SetModifyingParty(Party.Employer)
-            .SetWithParty(Party.Employer)
-            .SetApprovals(Party.Provider)
-            .AddDraftApprenticeship()
-            .Approve();
-
-        _fixture.UnitOfWorkContext.GetEvents()
-            .OfType<CohortApprovedByEmployerEvent>()
-            .Single()
-            .Should()
-            .Match<CohortApprovedByEmployerEvent>(e => e.CohortId == _fixture.Cohort.Id &&
-                                                       e.UpdatedOn == _fixture.Now);
-    }
-
-    [Test]
     public void AndPartyIsProviderAndEmployerHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent()
     {
         Party modifyingParty = Party.Provider;
@@ -210,7 +193,7 @@ public class WhenApprovingCohort
             .SetApprovals(modifyingParty.GetOtherParty())
             .AddDraftApprenticeship()
             .Approve();
-            
+
         _fixture.UnitOfWorkContext.GetEvents()
             .OfType<CohortTransferApprovalRequestedEvent>()
             .Single()
@@ -238,13 +221,6 @@ public class WhenApprovingCohort
                 e.UpdatedOn == _fixture.Now &&
                 e.LastApprovedByParty == Party.Employer
             );
-           
-        _fixture.UnitOfWorkContext.GetEvents()
-            .First(x => x is CohortApprovedByEmployerEvent).Should()
-            .Match<CohortApprovedByEmployerEvent>(e =>
-                e.CohortId == _fixture.Cohort.Id &&
-                e.UpdatedOn == _fixture.Now 
-            );
     }
 
     [Test]
@@ -253,7 +229,7 @@ public class WhenApprovingCohort
         _fixture.SetModifyingParty(Party.None);
         _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
     }
-        
+
     [TestCase(Party.Employer, Party.Provider, LastAction.Amend)]
     [TestCase(Party.Provider, Party.Employer, LastAction.None)]
     public void AndPartyIsEmployerOrProviderAndIsNotWithModifyingPartyThenShouldThrowException(Party modifyingParty, Party withParty, LastAction lastAction)
@@ -264,7 +240,7 @@ public class WhenApprovingCohort
 
         _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
     }
-        
+
     [TestCase(Party.Employer)]
     [TestCase(Party.Provider)]
     public void AndPartyIsEmployerOrProviderAndHasNoDraftApprenticeshipsThenShouldThrowException(Party party)
@@ -274,7 +250,7 @@ public class WhenApprovingCohort
 
         _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
     }
-        
+
     [TestCase(Party.Employer)]
     [TestCase(Party.Provider)]
     public void AndPartyIsEmployerOrProviderAndDraftApprenticeshipsAreNotCompleteThenShouldThrowException(Party party)
@@ -285,7 +261,7 @@ public class WhenApprovingCohort
 
         _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
     }
-        
+
     [Test]
     public void AndPartyIsTransferSenderAndEmployerAndProviderHaveApprovedAndCohortIsFundedByTransferThenShouldUpdateStatus()
     {
@@ -294,7 +270,7 @@ public class WhenApprovingCohort
             .SetTransferSender()
             .AddDraftApprenticeship()
             .Approve();
-            
+
         _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
         _fixture.Cohort.TransferApprovalActionedOn.Should().Be(_fixture.Now);
     }
@@ -313,7 +289,7 @@ public class WhenApprovingCohort
         _fixture.Cohort.Approvals.HasFlag(Party.Employer).Should().BeTrue();
         _fixture.Cohort.Approvals.HasFlag(Party.Provider).Should().BeTrue();
     }
-        
+
     [TestCase(Party.Employer)]
     [TestCase(Party.Provider)]
     public void AndPartyIsTransferSenderAndIsNotWithModifyingPartyAndCohortIsFundedByTransferThenShouldThrowException(Party withParty)
@@ -324,7 +300,7 @@ public class WhenApprovingCohort
 
         _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
     }
-        
+
     [Test]
     public void AndPartyIsTransferSenderAndHasNoDraftApprenticeshipsAndCohortIsFundedByTransferThenShouldThrowException()
     {
@@ -346,7 +322,7 @@ public class WhenApprovingCohort
 
         _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
     }
-        
+
     [Test]
     public void AndChangeOfProviderRequestedAndCohortSetWithTransferSenderIdThenShouldSetTransferApprovalStatus()
     {
@@ -360,7 +336,7 @@ public class WhenApprovingCohort
             .SetApprovals(modifyingParty.GetOtherParty())
             .AddDraftApprenticeship()
             .Approve();
-            
+
         _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
         _fixture.Cohort.WithParty.Should().Be(Party.None);
     }
@@ -371,7 +347,7 @@ public class WhenApprovingCohort
         const Party modifyingParty = Party.Employer;
 
         _fixture
-            .SetChangeOfPartyRequestId()                
+            .SetChangeOfPartyRequestId()
             .SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
             .SetApprovals(modifyingParty.GetOtherParty())
@@ -402,7 +378,7 @@ public class WhenApprovingCohort
     {
         _fixture.SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
-            .SetApprovals(otherPartyHasApproved ? modifyingParty.GetOtherParty(): Party.None)
+            .SetApprovals(otherPartyHasApproved ? modifyingParty.GetOtherParty() : Party.None)
             .AddDraftApprenticeship()
             .Approve();
 
@@ -415,17 +391,17 @@ public class WhenApprovingCohort
     public void ThenIfTheCohortIsLinkedToAChangeOfPartyRequestThenAnEventIsEmitted(Party modifyingParty)
     {
         _fixture
-            .SetChangeOfPartyRequestId()    
+            .SetChangeOfPartyRequestId()
             .SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
-            .SetApprovals(modifyingParty == Party.TransferSender? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
+            .SetApprovals(modifyingParty == Party.TransferSender ? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
             .AddDraftApprenticeship()
             .Approve();
 
         _fixture.VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(modifyingParty);
     }
 
-    [TestCase(Party.Employer, true, null,  false)]
+    [TestCase(Party.Employer, true, null, false)]
     [TestCase(Party.Employer, false, null, true)]
     [TestCase(Party.Employer, false, 1011, true)]
     [TestCase(Party.Employer, true, 1011, true)]
@@ -440,7 +416,7 @@ public class WhenApprovingCohort
             .SetModifyingParty(modifyingParty)
             .SetWithParty(modifyingParty)
             .SetApprovals(modifyingParty == Party.TransferSender ? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
-            .AddDraftApprenticeship(isMissingApprenticeEmail:isMissingEmail, continuationId: continuationOfId);
+            .AddDraftApprenticeship(isMissingApprenticeEmail: isMissingEmail, continuationId: continuationOfId);
 
         bool? wasApproved = null;
         try
@@ -492,7 +468,7 @@ public class WhenApprovingCohortFixture
         Message = AutoFixture.Create<string>();
         UserInfo = AutoFixture.Create<UserInfo>();
         UnitOfWorkContext = new UnitOfWorkContext();
-            
+
         Cohort = new CommitmentsV2.Models.Cohort()
             .Set(c => c.Id, 111)
             .Set(c => c.EmployerAccountId, 222)
@@ -507,12 +483,12 @@ public class WhenApprovingCohortFixture
     public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false, bool isMissingApprenticeEmail = false, long? continuationId = null)
     {
         var draftApprenticeshipDetailsComposer = AutoFixture.Build<DraftApprenticeshipDetails>().WithAutoProperties();
-            
+
         if (isIncompleteForEmployer)
         {
             draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.FirstName);
         }
-            
+
         if (isIncompleteForProvider)
         {
             draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.Uln);
@@ -543,28 +519,28 @@ public class WhenApprovingCohortFixture
     public WhenApprovingCohortFixture SetLastAction(LastAction lastAction)
     {
         Cohort.Set(c => c.LastAction, lastAction);
-            
+
         return this;
     }
 
     public WhenApprovingCohortFixture SetModifyingParty(Party modifyingParty)
     {
         Party = modifyingParty;
-            
+
         return this;
     }
 
     public WhenApprovingCohortFixture SetMessage(string message)
     {
         Message = message;
-            
+
         return this;
     }
 
     public WhenApprovingCohortFixture SetTransferSender()
     {
         Cohort.Set(c => c.TransferSenderId, 444).Set(c => c.TransferApprovalStatus, TransferApprovalStatus.Pending);
-            
+
         return this;
     }
 
@@ -584,7 +560,7 @@ public class WhenApprovingCohortFixture
     {
         UserInfo.UserDisplayName = userDisplayName;
         UserInfo.UserEmail = userEmail;
-            
+
         return this;
     }
 
@@ -611,7 +587,7 @@ public class WhenApprovingCohortFixture
 
     public void VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(Party modifyingParty)
     {
-        var emittedEvent = (CohortWithChangeOfPartyFullyApprovedEvent) UnitOfWorkContext.GetEvents()
+        var emittedEvent = (CohortWithChangeOfPartyFullyApprovedEvent)UnitOfWorkContext.GetEvents()
             .Single(x => x is CohortWithChangeOfPartyFullyApprovedEvent);
 
         Assert.Multiple(() =>
