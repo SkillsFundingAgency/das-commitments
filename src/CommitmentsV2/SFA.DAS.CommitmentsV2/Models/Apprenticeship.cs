@@ -326,14 +326,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         update.ResetDataLocks();
 
         ChangeTrackingSession.CompleteTrackingSession();
-
-        Publish(() =>
-            new ApprenticeshipUpdateCancelledEvent
-            {
-                ApprenticeshipId = Id,
-                AccountId = Cohort.EmployerAccountId,
-                ProviderId = Cohort.ProviderId
-            });
     }
 
     public List<PriceHistory> CreatePriceHistory(
