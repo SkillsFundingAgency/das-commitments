@@ -1,7 +1,5 @@
-﻿using SFA.DAS.Commitments.Events;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -29,30 +27,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsFalse_ThenShouldSendLegacyEventCohortApprovedByTransferSender()
-        {
-            var fixture = new TransferRequestApprovedEventHandlerTestsFixture()
-                .AddCohortToMemoryDb()
-                .AddTransferRequest(false);
-
-            await fixture.Handle();
-
-            fixture.VerifyLegacyEventCohortApprovedByTransferSenderIsPublished();
-        }
-
-        [Test]
-        public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsTrue_ThenShouldNotSendLegacyEventCohortApprovedByTransferSender()
-        {
-            var fixture = new TransferRequestApprovedEventHandlerTestsFixture()
-                .AddCohortToMemoryDb()
-                .AddTransferRequest(true);
-
-            await fixture.Handle();
-
-            fixture.VerifyMessageNotRelayed();
-        }
-
-        [Test]
         public void Handle_WhenHandlingTransferRequestApprovedEventAndItThrowsException_ThenWelogErrorAndRethrowError()
         {
             var fixture = new TransferRequestApprovedEventHandlerTestsFixture();
@@ -67,15 +41,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     {
         private readonly Fixture _fixture;
         public FakeLogger<TransferRequestApprovedEvent> Logger { get; set; }
-        public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher { get; set; }
         public UserInfo TransferSenderUserInfo { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public TransferRequest TransferRequest { get; set; }
         public Cohort Cohort { get; set; }
         public DraftApprenticeship ExistingApprenticeshipDetails;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-        public TransferRequestApprovedEvent TransferRequestApprovedEvent { get; set; } 
-        public TransferRequestApprovedEventHandler Handler { get; set; } 
+        public TransferRequestApprovedEvent TransferRequestApprovedEvent { get; set; }
+        public TransferRequestApprovedEventHandler Handler { get; set; }
 
         public TransferRequestApprovedEventHandlerTestsFixture()
         {
@@ -95,11 +68,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _fixture.Create<int?>());
 
             Logger = new FakeLogger<TransferRequestApprovedEvent>();
-            LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
-            Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), LegacyTopicMessagePublisher.Object, Logger);
+            Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             TransferRequest = new TransferRequest
-                { Id = TransferRequestApprovedEvent.TransferRequestId, Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
+            { Id = TransferRequestApprovedEvent.TransferRequestId, Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
 
             Cohort = new Cohort(
                     _fixture.Create<long>(),
@@ -110,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     Party.Employer,
                     "",
                     new UserInfo())
-                { Id = TransferRequestApprovedEvent.CohortId, EmployerAccountId = 100, TransferSenderId = 99 };
+            { Id = TransferRequestApprovedEvent.CohortId, EmployerAccountId = 100, TransferSenderId = 99 };
 
             ExistingApprenticeshipDetails = new DraftApprenticeship(_fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
             Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
@@ -148,23 +120,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.That(Cohort.TransferApprovalStatus, Is.EqualTo(TransferApprovalStatus.Approved));
                 Assert.That(TransferRequestApprovedEvent.ApprovedOn, Is.EqualTo(Cohort.TransferApprovalActionedOn));
             });
-        }
-
-        public void VerifyLegacyEventCohortApprovedByTransferSenderIsPublished()
-        {
-            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
-                p.TransferRequestId == TransferRequestApprovedEvent.TransferRequestId &&
-                p.ReceivingEmployerAccountId == Cohort.EmployerAccountId &&
-                p.CommitmentId == Cohort.Id &&
-                p.SendingEmployerAccountId == Cohort.TransferSenderId &&
-                p.UserEmail == TransferSenderUserInfo.UserEmail &&
-                p.UserName == TransferSenderUserInfo.UserDisplayName)));
-        }
-
-        public void VerifyMessageNotRelayed()
-        {
-            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovedByTransferSender>()),
-                Times.Never);
         }
     }
 }
