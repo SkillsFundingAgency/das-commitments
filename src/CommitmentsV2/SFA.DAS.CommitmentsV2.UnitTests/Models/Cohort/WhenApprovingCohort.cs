@@ -183,6 +183,23 @@ public class WhenApprovingCohort
     }
 
     [Test]
+    public void AndPartyIsEmployerAndProviderHasApprovedThenShouldPublishEmployerApprovedEvent()
+    {
+        _fixture.SetModifyingParty(Party.Employer)
+            .SetWithParty(Party.Employer)
+            .SetApprovals(Party.Provider)
+            .AddDraftApprenticeship()
+            .Approve();
+
+        _fixture.UnitOfWorkContext.GetEvents()
+            .OfType<CohortApprovedByEmployerEvent>()
+            .Single()
+            .Should()
+            .Match<CohortApprovedByEmployerEvent>(e => e.CohortId == _fixture.Cohort.Id &&
+                                                       e.UpdatedOn == _fixture.Now);
+    }
+
+    [Test]
     public void AndPartyIsProviderAndEmployerHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent()
     {
         Party modifyingParty = Party.Provider;
@@ -220,6 +237,13 @@ public class WhenApprovingCohort
                 e.CohortId == _fixture.Cohort.Id &&
                 e.UpdatedOn == _fixture.Now &&
                 e.LastApprovedByParty == Party.Employer
+            );
+
+        _fixture.UnitOfWorkContext.GetEvents()
+            .First(x => x is CohortApprovedByEmployerEvent).Should()
+            .Match<CohortApprovedByEmployerEvent>(e =>
+                e.CohortId == _fixture.Cohort.Id &&
+                e.UpdatedOn == _fixture.Now
             );
     }
 

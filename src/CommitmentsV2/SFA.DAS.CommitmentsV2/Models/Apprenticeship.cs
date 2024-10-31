@@ -1,12 +1,12 @@
 ﻿
-using System.ComponentModel.DataAnnotations.Schema;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models;
@@ -286,14 +286,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
-
-        Publish(() =>
-            new ApprenticeshipUpdateRejectedEvent
-            {
-                ApprenticeshipId = Id,
-                AccountId = Cohort.EmployerAccountId,
-                ProviderId = Cohort.ProviderId
-            });
     }
 
     public void RejectApprenticeshipUpdate(Party party, UserInfo userInfo)
@@ -310,6 +302,14 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         update.ResetDataLocks();
 
         ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() =>
+            new ApprenticeshipUpdateRejectedEvent
+            {
+                ApprenticeshipId = Id,
+                AccountId = Cohort.EmployerAccountId,
+                ProviderId = Cohort.ProviderId
+            });
     }
 
     public void UndoApprenticeshipUpdate(Party party, UserInfo userInfo)
@@ -328,12 +328,12 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         ChangeTrackingSession.CompleteTrackingSession();
 
         Publish(() =>
-           new ApprenticeshipUpdateCancelledEvent
-           {
-               ApprenticeshipId = Id,
-               AccountId = Cohort.EmployerAccountId,
-               ProviderId = Cohort.ProviderId
-           });
+            new ApprenticeshipUpdateCancelledEvent
+            {
+                ApprenticeshipId = Id,
+                AccountId = Cohort.EmployerAccountId,
+                ProviderId = Cohort.ProviderId
+            });
     }
 
     public List<PriceHistory> CreatePriceHistory(

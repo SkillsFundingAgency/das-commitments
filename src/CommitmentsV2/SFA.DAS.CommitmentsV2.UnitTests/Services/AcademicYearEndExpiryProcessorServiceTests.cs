@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<ILogger<AcademicYearEndExpiryProcessorService>> _logger;
         private IAcademicYearDateProvider _academicYearProvider;
         private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IEventPublisher> _mockMessageBuilder;
         private Mock<ProviderCommitmentsDbContext> _dbContextMock;
         private IFixture _fixture;
 
@@ -30,9 +31,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             // ARRANGE
             _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             _logger = new Mock<ILogger<AcademicYearEndExpiryProcessorService>>();
-            
+
             _currentDateTime = new Mock<ICurrentDateTime>();
             _academicYearProvider = new AcademicYearDateProvider(_currentDateTime.Object);
+            _mockMessageBuilder = new Mock<IEventPublisher>();
 
             _currentDateTime.Setup(m => m.UtcNow).Returns(new DateTime(DateTime.Now.Year, 11, 1));
 
@@ -40,8 +42,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _logger.Object,
                 _academicYearProvider,
                 _dbContextMock.Object,
-                _currentDateTime.Object
-                );
+                _currentDateTime.Object,
+                _mockMessageBuilder.Object);
 
             _fixture = new Fixture();
 
@@ -81,7 +83,18 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 
             await _sut.ExpireApprenticeshipUpdates("jobId");
 
-            _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(recordCount));          
+            _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(recordCount));
+
+            testData.apprenticeshipUpdates.ForEach(update =>
+            {
+                var apprenticeship = testData.apprenticeships.Single(a => a.Id == update.ApprenticeshipId);
+                _mockMessageBuilder.Verify(m =>
+                    m.Publish(It.Is<ApprenticeshipUpdateCancelledEvent>(cancelled =>
+                        cancelled.ApprenticeshipId == apprenticeship.Id &&
+                        cancelled.AccountId == apprenticeship.Cohort.EmployerAccountId &&
+                        cancelled.ProviderId == apprenticeship.Cohort.ProviderId)),
+                    "Should be called once for each update record, with correct params");
+            });
         }
 
         [Test]
@@ -90,8 +103,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             int validRecordCount = 4;
             var validTestData = CreateApprenticeshipsUpdateExpiryTestData(validRecordCount);
             var testDataWithMissingCostOrTraining = CreateApprenticeshipsUpdateExpiryTestData(3, false);
-            
-            
+
+
 
             _dbContextMock
                    .Setup(context => context.ApprenticeshipUpdates)
@@ -170,7 +183,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                     .First();
         }
 
-        private (List<ApprenticeshipUpdate> apprenticeshipUpdates, List<Apprenticeship> apprenticeships) CreateApprenticeshipsUpdateExpiryTestData(int recordCount, bool withCostAndTraining  = true)
+        private (List<ApprenticeshipUpdate> apprenticeshipUpdates, List<Apprenticeship> apprenticeships) CreateApprenticeshipsUpdateExpiryTestData(int recordCount, bool withCostAndTraining = true)
         {
             var apprenticeships = new List<Apprenticeship>();
 
@@ -191,7 +204,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                     .With(au => au.StartDate, GetPreviousAcademicYearDateTestValue(_fixture));
             }
 
-            var apprenticeshipUpdates = 
+            var apprenticeshipUpdates =
                 apprenticeshipUpdateComposer
                 .CreateMany(recordCount)
                 .ToList();
@@ -216,7 +229,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 .Build<DataLockStatus>()
                 .With(dl => dl.IsExpired, false)
                 .With(dl => dl.Expired, (DateTime?)null)
-                .With(dl => dl.IlrEffectiveFromDate, afterAcademicYear ? GetCurrentAcademicYearDateTestValue(_fixture) :  GetPreviousAcademicYearDateTestValue(_fixture))
+                .With(dl => dl.IlrEffectiveFromDate, afterAcademicYear ? GetCurrentAcademicYearDateTestValue(_fixture) : GetPreviousAcademicYearDateTestValue(_fixture))
                 .CreateMany(recordCount)
                 .ToList();
 

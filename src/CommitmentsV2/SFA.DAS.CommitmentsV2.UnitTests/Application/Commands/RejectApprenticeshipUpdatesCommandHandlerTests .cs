@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -49,6 +50,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateRejectedEvent_IsEmitted()
+        {
+            using var fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.Cost = 195;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdateRejectedEvent>().ToList();
+
+            var apprenticeship = fixture.ApprenticeshipFromDb;
+            var priceEpisode = apprenticeship.PriceHistory.Select(x => new PriceEpisode
+            {
+                FromDate = x.FromDate,
+                ToDate = x.ToDate,
+                Cost = x.Cost
+            }).ToArray();
+
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            });
         }
     }
 

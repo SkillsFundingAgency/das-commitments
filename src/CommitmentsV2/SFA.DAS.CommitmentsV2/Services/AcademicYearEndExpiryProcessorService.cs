@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -11,16 +13,19 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly IAcademicYearDateProvider _academicYearProvider;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IEventPublisher _eventPublisher;
         private readonly ILogger<AcademicYearEndExpiryProcessorService> _logger;
         private readonly ProviderCommitmentsDbContext _dbContext;
 
         public AcademicYearEndExpiryProcessorService(ILogger<AcademicYearEndExpiryProcessorService> logger,
             IAcademicYearDateProvider academicYearProvider,
             ProviderCommitmentsDbContext dbContext,
-            ICurrentDateTime currentDateTime)
+            ICurrentDateTime currentDateTime,
+            IEventPublisher eventPublisher)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;
+            _eventPublisher = eventPublisher;
             _academicYearProvider = academicYearProvider;
             _dbContext = dbContext;
         }
@@ -66,6 +71,13 @@ namespace SFA.DAS.CommitmentsV2.Services
                 apprenticeship.PendingUpdateOriginator = null;
 
                 await _dbContext.SaveChangesAsync();
+
+                await _eventPublisher.Publish(new ApprenticeshipUpdateCancelledEvent
+                {
+                    AccountId = apprenticeship.Cohort.EmployerAccountId,
+                    ProviderId = apprenticeship.Cohort.ProviderId,
+                    ApprenticeshipId = apprenticeship.Id
+                });
             }
 
             // re-enumerate same query variable

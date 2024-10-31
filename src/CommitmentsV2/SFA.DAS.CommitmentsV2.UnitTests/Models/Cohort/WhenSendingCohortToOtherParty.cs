@@ -116,6 +116,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
+        public void AndIsApprovedByProviderThenShouldPublishEvent()
+        {
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetWithParty(Party.Employer)
+                .AddDraftApprenticeship()
+                .SetApprovals(Party.Provider)
+                .SendToOtherParty();
+
+            _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>().Should().HaveCount(1)
+                .And.Subject.Should().ContainSingle(e => e.CohortId == _fixture.Cohort.Id && e.UpdatedOn == _fixture.Now);
+        }
+
+        [Test]
         public void ThenShouldResetApprovals()
         {
             _fixture.SetModifyingParty(Party.Provider)
