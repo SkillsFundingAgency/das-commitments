@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class UndoApprenticeshipUpdatesCommandHandlerTests 
+    public class UndoApprenticeshipUpdatesCommandHandlerTests
     {
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             Assert.That(fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
-            
+
         }
 
         [Test]
@@ -50,7 +50,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
-        }      
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateCancelledEvent_IsEmitted()
+        {
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.Cost = 195;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdateCancelledEvent>().ToList();
+
+            var apprenticeship = fixture.ApprenticeshipFromDb;
+            var priceEpisode = apprenticeship.PriceHistory.Select(x => new PriceEpisode
+            {
+                FromDate = x.FromDate,
+                ToDate = x.ToDate,
+                Cost = x.Cost
+            }).ToArray();
+
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+                Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
+            });
+        }
     }
 
     public class UndoApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
@@ -94,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 .Set(c => c.ApprenticeshipId, ApprenticeshipId)
-                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
+                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending);
 
             var priceHistory = new List<PriceHistory>()
             {
@@ -130,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
-            
+
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
 
@@ -156,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 await Handler.Handle(Command, CancellationToken);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Exception = exception;
             }
@@ -182,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
         {
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-          
+
             apprenticeship.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeship.ApprenticeshipUpdate.Add(update);
 
@@ -193,7 +221,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()

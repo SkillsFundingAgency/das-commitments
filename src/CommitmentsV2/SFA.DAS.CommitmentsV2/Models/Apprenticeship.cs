@@ -286,6 +286,14 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() =>
+            new ApprenticeshipUpdateRejectedEvent
+            {
+                ApprenticeshipId = Id,
+                AccountId = Cohort.EmployerAccountId,
+                ProviderId = Cohort.ProviderId
+            });
     }
 
     public void RejectApprenticeshipUpdate(Party party, UserInfo userInfo)
@@ -318,6 +326,14 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         update.ResetDataLocks();
 
         ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() =>
+           new ApprenticeshipUpdateCancelledEvent
+           {
+               ApprenticeshipId = Id,
+               AccountId = Cohort.EmployerAccountId,
+               ProviderId = Cohort.ProviderId
+           });
     }
 
     public List<PriceHistory> CreatePriceHistory(
@@ -817,6 +833,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         PendingUpdateOriginator = party == Party.Employer ? Originator.Employer : Originator.Provider;
         ApprenticeshipUpdate.Add(apprenitceshipUpdate);
+
+        Publish(() => new ApprenticeshipUpdateCreatedEvent { ApprenticeshipId = Id, ProviderId = Cohort.ProviderId, AccountId = Cohort.EmployerAccountId });
     }
 
     public void UpdateProviderReference(string providerReference, Party party, UserInfo userInfo)

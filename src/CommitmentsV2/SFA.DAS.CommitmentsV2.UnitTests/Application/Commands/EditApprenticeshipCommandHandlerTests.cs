@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -335,6 +336,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyApprenticeshipUpdateCreated(dateTimeNow,
                 app => app.ApprenticeshipUpdate.First().CreatedOn);
         }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task Published_ApprenticeshipUpdateCreatedEvent(Party party)
+        {
+            _fixture.SetParty(party);
+            _fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
+
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeshipUpdateCreatedEvent();
+        }
     }
 
     public class EditApprenticeshipCommandHandlerTestsFixture : IDisposable
@@ -527,6 +539,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate, Is.Null);
                 Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice, Is.Null);
+            });
+        }
+
+        internal void VerifyApprenticeshipUpdateCreatedEvent()
+        {
+            var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
+            var emittedEvent = (ApprenticeshipUpdateCreatedEvent)UnitOfWorkContext.GetEvents().Single(x => x is ApprenticeshipUpdateCreatedEvent);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(emittedEvent.ApprenticeshipId, Is.EqualTo(ApprenticeshipId));
+                Assert.That(emittedEvent.AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+                Assert.That(emittedEvent.ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
             });
         }
 
