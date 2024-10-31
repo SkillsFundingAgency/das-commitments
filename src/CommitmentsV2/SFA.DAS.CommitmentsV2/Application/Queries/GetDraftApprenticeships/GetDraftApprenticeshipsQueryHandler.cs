@@ -47,7 +47,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     RecognisePriorLearning = a.RecognisePriorLearning,
                     DurationReducedBy = a.PriorLearning?.DurationReducedBy,
                     PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                    RecognisingPriorLearningStillNeedsToBeConsidered = a.RecognisingPriorLearningStillNeedsToBeConsidered,
                     RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                     EmployerHasEditedCost = a.EmployerHasEditedCost,
