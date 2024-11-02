@@ -5,7 +5,7 @@
         [Test]
         public async Task Prior_Learning_IsDurationReducedBy_when_IsDurationReducedBy_true_and_RecognisePriorLearning_false()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("false");
             fixture.SetIsDurationReducedByRpl("true");
 
@@ -16,7 +16,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_greater_260()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("261");
@@ -28,7 +28,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_less__than_1()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("0");
@@ -40,7 +40,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_negative()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("-10");
@@ -52,7 +52,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_data_lenght_greater_three()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("1000");
@@ -64,7 +64,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_has_spaces()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("268 289");
@@ -76,7 +76,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_alphanumeric()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("567SGHAJ");
@@ -88,7 +88,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_special_char()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("#123");
@@ -100,7 +100,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_false_and_DurationReducedBy_has_value()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("false");
             fixture.SetDurationReducedBy("123");
@@ -112,7 +112,7 @@
         [Test]
         public async Task Prior_Learning_DurationReducedBy_When_Correct_Values_Set_All_Is_Valid()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("123");
