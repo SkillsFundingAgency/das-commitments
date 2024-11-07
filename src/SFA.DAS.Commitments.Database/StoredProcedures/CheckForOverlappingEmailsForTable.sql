@@ -10,6 +10,7 @@ BEGIN
 		A.LastName,
 		A.DateOfBirth,
 		A.CommitmentId AS CohortId,
+		A.StartDate,
 		A.EndDate,
 		A.IsApproved,
 		A.Email,
