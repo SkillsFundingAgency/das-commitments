@@ -149,8 +149,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         Task RecognisePriorLearning(long cohortId, long apprenticeshipId, RecognisePriorLearningRequest request, CancellationToken cancellationToken = default);
 
-        Task PriorLearningDetails(long cohortId, long apprenticeshipId, PriorLearningDetailsRequest request, CancellationToken cancellationToken = default);
-
         Task<GetOverlappingTrainingDateRequestResponce> GetOverlappingTrainingDateRequest(long apprenticeshipId, CancellationToken cancellationToken = default);
 
         Task ResolveOverlappingTrainingDateRequest(ResolveApprenticeshipOverlappingTrainingDateRequest request, CancellationToken cancellationToken = default);

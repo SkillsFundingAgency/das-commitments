@@ -558,7 +558,7 @@ public class CohortDomainServiceTests
         _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
             .WithDecodeOfPublicHashedAccountLegalEntity()
             .WithExistingDraftApprenticeship()
-            .WithPriorLearning();
+            .WithPriorLearningData();
 
         await _fixture.WithParty(Party.Provider).ApproveCohort();
 
@@ -572,7 +572,7 @@ public class CohortDomainServiceTests
         _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
             .WithDecodeOfPublicHashedAccountLegalEntity()
             .WithExistingDraftApprenticeship()
-            .WithPriorLearning()
+            .WithPriorLearningData()
             .WithRplPriceReductionError();
 
         await _fixture.WithParty(Party.Provider).ApproveCohort();
@@ -1004,13 +1004,6 @@ public class CohortDomainServiceTests
                 RplFundingCalculationService.Object);
 
             Db.SaveChanges();
-        }
-
-        public CohortDomainServiceTestFixture WithPriorLearning()
-        {
-            ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-            ExistingDraftApprenticeship.SetPriorLearningDetails(10, 100);
-            return this;
         }
 
         public CohortDomainServiceTestFixture WithExtendedPriorLearning()

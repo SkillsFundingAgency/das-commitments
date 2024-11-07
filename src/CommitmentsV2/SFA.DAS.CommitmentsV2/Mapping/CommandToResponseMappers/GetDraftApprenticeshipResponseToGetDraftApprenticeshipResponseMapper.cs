@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 RecognisePriorLearning = source.RecognisePriorLearning,
                 DurationReducedBy = source.DurationReducedBy,
                 PriceReducedBy = source.PriceReducedBy,
-                RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = source.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = source.EmailAddressConfirmed,
