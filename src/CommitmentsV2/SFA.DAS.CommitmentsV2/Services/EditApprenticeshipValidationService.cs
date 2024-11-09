@@ -285,7 +285,13 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<DomainError> EmailOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
+            var emailMatches = request.Email == apprenticeshipDetails.Email;
+            var startDateMatches = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault()
+                ? request.ActualStartDate == apprenticeshipDetails.ActualStartDate
+                : request.StartDate == apprenticeshipDetails.StartDate;
+            var endDateMatches = request.EndDate == apprenticeshipDetails.EndDate;
+
+            bool NoChangesRequested() => (emailMatches && startDateMatches && endDateMatches);
 
             if (string.IsNullOrWhiteSpace(request.Email))
                 return null;
@@ -293,7 +299,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (NoChangesRequested())
                 return null;
 
-            var startDate = request.StartDate.Value;
+            var startDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault( )? request.ActualStartDate.Value : request.StartDate.Value;
             var endDate = request.EndDate.Value;
 
             var range = startDate.To(endDate);
@@ -311,9 +317,12 @@ namespace SFA.DAS.CommitmentsV2.Services
         private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
             List<DomainError> errors = new List<DomainError>();
-            if (apprenticeship.ReservationId.HasValue && request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
+
+            var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+
+            if (apprenticeship.ReservationId.HasValue && requestedStartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
             {
-                var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.CourseCode);
+                var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, requestedStartDate.Value, request.CourseCode);
                 var validationResult = await _reservationValidationService.Validate(validationRequest, CancellationToken.None);
 
                 errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
@@ -324,10 +333,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
         {
-            if (request.StartDate.HasValue && request.EndDate.HasValue)
+            var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+            if (requestedStartDate.HasValue && request.EndDate.HasValue)
             {
                 var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
-                var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
+                var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, requestedStartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
                 if (overlapResult.HasOverlappingStartDate)
                 {
