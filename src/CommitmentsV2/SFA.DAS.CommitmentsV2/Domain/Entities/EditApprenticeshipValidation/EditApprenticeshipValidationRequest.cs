@@ -10,6 +10,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public decimal? Cost { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? EndPointAssessmentPrice { get; set; }
         public string EmployerReference { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? StartDate { get; set; }

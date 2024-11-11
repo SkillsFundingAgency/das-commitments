@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
+using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation;
@@ -116,7 +117,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
 
     private void WithStartDateInFuture()
     {
-        Apprenticeship.StartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
+        Apprenticeship.ActualStartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
+        Apprenticeship.StartDate = new DateTime(Apprenticeship.ActualStartDate.Value.Year, Apprenticeship.ActualStartDate.Value.Month, 1);
         Apprenticeship.EndDate = _currentDateTime.Object.UtcNow.AddYears(1);
     }
 
@@ -151,11 +153,12 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null)
+        FlexibleEmployment flexibleEmployment = null,
+        bool isOnFlexiPaymentsPilot = false)
             
     {
         CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
-            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment);
+            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, isOnFlexiPaymentsPilot);
 
         WithStartDateInFuture();
 
@@ -194,6 +197,24 @@ public class EditApprenticeshipValidationServiceTestsFixture
         _overlapCheckService.Verify(x =>
             x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
                 It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    public void VerifyCheckForEmailOverlapsIsCalledWithExpectedStartDate(DateTime startDate)
+    {
+        _overlapCheckService.Verify(x =>
+            x.CheckForEmailOverlaps(It.IsAny<string>(), It.Is<DateRange>(dr => dr.From == startDate), It.IsAny<long?>(),
+                It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    public void VerifyCheckForOverlapsIsCalledWithExpectedStartDate(DateTime startDate)
+    {
+        _overlapCheckService.Verify(x =>
+            x.CheckForOverlaps(It.IsAny<string>(), It.Is<DateRange>(dr => dr.From == startDate), It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    public void VerifyReservationValidationServiceIsCalledWithExpectedStartDate(DateTime startDate)
+    {
+        _reservationValidationService.Verify(x => x.Validate(It.Is<ReservationValidationRequest>(x => x.StartDate == startDate), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private void WithPriceHistoryWithStartDate(decimal cost)
@@ -237,7 +258,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null
+        FlexibleEmployment flexibleEmployment = null,
+        bool isOnFlexiPaymentsPilot = false
     )
     {
         Apprenticeship = new Apprenticeship
@@ -263,7 +285,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             Uln = uln,
             PaymentStatus = paymentStatus,
             HasHadDataLockSuccess = hasHadDataLockSuccess,
-            FlexibleEmployment = flexibleEmployment
+            FlexibleEmployment = flexibleEmployment,
+            IsOnFlexiPaymentPilot = isOnFlexiPaymentsPilot
         };
 
         return this;
@@ -290,7 +313,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         DeliveryModel deliveryModel = DeliveryModel.Regular,
         int? employmentEndMonth = null,
         int? employmentEndYear = null,
-        int? employmentPrice = null
+        int? employmentPrice = null,
+        DateTime? actualStartDate = null
     )
     {
         var request = new EditApprenticeshipValidationRequest
@@ -330,6 +354,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         {
             request.StartDate = Apprenticeship.StartDate;
         }
+
+        request.ActualStartDate = actualStartDate ?? Apprenticeship.ActualStartDate;
 
         if (endYear.HasValue && endMonth.HasValue)
         {

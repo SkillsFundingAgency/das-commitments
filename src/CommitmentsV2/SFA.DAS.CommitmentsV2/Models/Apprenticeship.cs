@@ -486,7 +486,19 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
             Cost = update.Cost.Value;
-            PriceHistory.First().Cost = update.Cost.Value;
+            var priceHistoryEpisode = PriceHistory.First();
+            priceHistoryEpisode.Cost = update.Cost.Value;
+            if(update.TrainingPrice.HasValue && update.EndPointAssessmentPrice.HasValue)
+            {
+                priceHistoryEpisode.TrainingPrice = update.TrainingPrice.Value;
+                priceHistoryEpisode.AssessmentPrice = update.EndPointAssessmentPrice.Value;
+
+                if (IsOnFlexiPaymentPilot == true)
+                {
+                    TrainingPrice = (int)update.TrainingPrice.Value;
+                    EndPointAssessmentPrice = (int)update.EndPointAssessmentPrice.Value;
+                }
+            }
         }
 
         if (!update.StartDate.HasValue)
