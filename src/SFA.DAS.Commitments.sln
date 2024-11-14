@@ -5,11 +5,6 @@ VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.Commitments.Database", "SFA.DAS.Commitments.Database\SFA.DAS.Commitments.Database.sqlproj", "{0DF27E29-35FD-4CE1-90CA-01C2A55361CD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{7B1AC6BD-B43A-4BE0-9BA9-14E234C46593}"
-	ProjectSection(SolutionItems) = preProject
-		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Commitments.Support.SubSite", "SFA.DAS.Commitments.Support.SubSite\SFA.DAS.Commitments.Support.SubSite.csproj", "{9173AFD2-EE6B-40A8-825F-35FD6735A61A}"
@@ -89,7 +84,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Apprenticeships.Types", "SFA.DAS.Apprenticeships.Types\SFA.DAS.Apprenticeships.Types.csproj", "{8C8321A0-A6F1-4513-9282-C0AECB97728E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderRelationships.Api.Client", "CommitmentsV2\SFA.DAS.ProviderRelationships.Api.Client\SFA.DAS.ProviderRelationships.Api.Client.csproj", "{3503477E-9C68-4A5F-BDAC-6FD6571DE3FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ProviderRelationships.Api.Client", "CommitmentsV2\SFA.DAS.ProviderRelationships.Api.Client\SFA.DAS.ProviderRelationships.Api.Client.csproj", "{3503477E-9C68-4A5F-BDAC-6FD6571DE3FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

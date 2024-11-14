@@ -68,7 +68,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             return;
         }
-            
+
         oltdRequest.ResolutionType = resolutionType;
         oltdRequest.Status = resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive ||
                              resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect ||
@@ -162,7 +162,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             {
                 continue;
             }
-                
+
             ChangeTrackingSession.TrackUpdate(dataLockStatus);
             dataLockStatus.IsResolved = true;
         }
@@ -171,18 +171,18 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         Publish(() => new
             DataLockTriageApprovedEvent
+        {
+            ApprenticeshipId = Id,
+            ApprovedOn = acceptedOn,
+            PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
             {
-                ApprenticeshipId = Id,
-                ApprovedOn = acceptedOn,
-                PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
-                {
-                    FromDate = x.FromDate,
-                    ToDate = x.ToDate,
-                    Cost = x.Cost
-                }).ToArray(),
-                TrainingCode = CourseCode,
-                TrainingType = ProgrammeType.Value
-            });
+                FromDate = x.FromDate,
+                ToDate = x.ToDate,
+                Cost = x.Cost
+            }).ToArray(),
+            TrainingCode = CourseCode,
+            TrainingType = ProgrammeType.Value
+        });
     }
 
     public void RejectDataLocks(Party party, List<long> dataLockEventIds, UserInfo userInfo)
@@ -195,7 +195,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             {
                 continue;
             }
-                
+
             ChangeTrackingSession.TrackUpdate(dataLockStatus);
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
         }
@@ -213,7 +213,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             {
                 continue;
             }
-                
+
             ChangeTrackingSession.TrackUpdate(dataLockStatus);
             dataLockStatus.TriageStatus = triageStatus;
         }
@@ -224,7 +224,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
     {
         StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
-        
+
         foreach (var priceHistory in currentPriceHistory.Where(priceHistory => updatedPriceHistory.TrueForAll(x => x.Cost != priceHistory.Cost)))
         {
             ChangeTrackingSession.TrackDelete(priceHistory);
@@ -256,18 +256,18 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         PriceHistory = updatedPriceHistory;
     }
 
-        public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
-        {
-            StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
-            ChangeTrackingSession.TrackUpdate(this);
+    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
+    {
+        StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+        ChangeTrackingSession.TrackUpdate(this);
 
-            CourseCode = courseCode;
-            CourseName = courseName;
-            ProgrammeType = programmeType;
-            StandardUId = standardUId;
-            TrainingCourseVersion = version;
-            TrainingCourseVersionConfirmed = version != null;
-            TrainingCourseOption = null;
+        CourseCode = courseCode;
+        CourseName = courseName;
+        ProgrammeType = programmeType;
+        StandardUId = standardUId;
+        TrainingCourseVersion = version;
+        TrainingCourseVersionConfirmed = version != null;
+        TrainingCourseOption = null;
 
         Publish(() =>
             new ApprenticeshipUpdatedApprovedEvent
@@ -465,10 +465,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             StartDate = update.StartDate;
         }
 
-            if (update.ActualStartDate.HasValue)
-            {
-	            ActualStartDate = update.ActualStartDate;
-            }
+        if (update.ActualStartDate.HasValue)
+        {
+            ActualStartDate = update.ActualStartDate;
+        }
 
         if (update.EndDate.HasValue)
         {
@@ -505,7 +505,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             return;
         }
-            
+
         var pH = PriceHistory.First();
         if (PriceHistory.Count != 1)
             throw new InvalidOperationException("Multiple Prices History Items not expected.");
