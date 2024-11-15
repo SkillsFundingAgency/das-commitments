@@ -13,5 +13,7 @@
 
         private string _nServiceBusLicense;
         private string _decodedNServiceBusLicense;
+
+        public string LearningTransportFolderPath { get; set; }
     }
 }

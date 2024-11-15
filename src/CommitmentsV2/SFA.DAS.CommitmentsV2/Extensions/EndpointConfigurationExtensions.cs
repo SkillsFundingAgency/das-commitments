@@ -8,11 +8,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 [ExcludeFromCodeCoverage]
 public static class EndpointConfigurationExtensions
 {
-    public static EndpointConfiguration ConfigureServiceBusTransport(this EndpointConfiguration config, Func<string> connectionStringBuilder, bool isLocal)
+    public static EndpointConfiguration ConfigureServiceBusTransport(this EndpointConfiguration config, Func<string> connectionStringBuilder, bool isLocal, string learningTransportFolderPath = null)
     {
         if (isLocal)
         {
-            config.UseLearningTransport();
+            config.UseLearningTransport(learningTransportFolderPath: learningTransportFolderPath);
         }
         else
         {
