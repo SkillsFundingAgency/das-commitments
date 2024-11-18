@@ -24,6 +24,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string TrainingCourseOption { get; set; }
         public string StandardUId { get; set; }
         public decimal? Cost { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? EndPointAssessmentPrice { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }

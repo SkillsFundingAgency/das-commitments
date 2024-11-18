@@ -8,47 +8,40 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateCacheOfAssessmentOrganisations;
 
 public class
-    UpdateCacheOfAssessmentOrganisationsCommandHandler : IRequestHandler<
-    UpdateCacheOfAssessmentOrganisationsCommand>
-{
-    private readonly IApprovalsOuterApiClient _outerApiClient;
-    private readonly Lazy<ProviderCommitmentsDbContext> _providerDbContext;
-    private readonly ILogger<UpdateCacheOfAssessmentOrganisationsCommandHandler> _logger;
-
-    public UpdateCacheOfAssessmentOrganisationsCommandHandler(IApprovalsOuterApiClient outerApiClient,
+    UpdateCacheOfAssessmentOrganisationsCommandHandler(
+        IApprovalsOuterApiClient outerApiClient,
         Lazy<ProviderCommitmentsDbContext> providerDbContext,
         ILogger<UpdateCacheOfAssessmentOrganisationsCommandHandler> logger)
-    {
-        _outerApiClient = outerApiClient;
-        _providerDbContext = providerDbContext;
-        _logger = logger;
-    }
-
+    : IRequestHandler<UpdateCacheOfAssessmentOrganisationsCommand>
+{
     public async Task Handle(UpdateCacheOfAssessmentOrganisationsCommand request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Fetching all assessment orgs");
+        
+        var epaoResponse = await outerApiClient.Get<EpaoResponse>(new GetEpaoOrganisationsRequest());
+
         // .ToList() utilised to prevent possible multiple enumerations ...
-            
-        _logger.LogInformation("Fetching all assessment orgs");
-        var epaoResponse = await _outerApiClient.Get<EpaoResponse>(new GetEpaoOrganisationsRequest());
+        var allOrganisationSummaries = epaoResponse.Epaos
+            .OrderBy(x=> x.Id)
+            .ToList();
 
-        var allOrganisationSummaries = epaoResponse.Epaos.ToList();
+        logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
 
-        _logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
+        var latestCachedEPAOrgId = providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId)
+            .OrderByDescending(x => x)
+            .FirstOrDefault();
 
-        var latestCachedEPAOrgId = _providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId)
-            .OrderByDescending(x => x).FirstOrDefault();
+        logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
 
-        _logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
-
-        // assumes summaries are returned ordered asc by Id
         var organisationSummariesToAdd = latestCachedEPAOrgId == null
             ? allOrganisationSummaries
-            : allOrganisationSummaries.SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
+            : allOrganisationSummaries
+                .SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
                 .ToList();
 
         if (!organisationSummariesToAdd.Any())
         {
-            _logger.LogInformation("Organisation org cache is already up-to-date.");
+            logger.LogInformation("Organisation org cache is already up-to-date.");
             return;
         }
 
@@ -56,10 +49,10 @@ public class
             .Select(os => new AssessmentOrganisation { EpaOrgId = os.Id, Name = os.Name })
             .ToList();
 
-        _logger.LogInformation("Adding {Count} assessment orgs into cache", assessmentOrganisationsToAdd.Count);
+        logger.LogInformation("Adding {Count} assessment orgs into cache", assessmentOrganisationsToAdd.Count);
             
-        await _providerDbContext.Value.AssessmentOrganisations.AddRangeAsync(assessmentOrganisationsToAdd, cancellationToken);
+        await providerDbContext.Value.AssessmentOrganisations.AddRangeAsync(assessmentOrganisationsToAdd, cancellationToken);
 
-        await _providerDbContext.Value.SaveChangesAsync(cancellationToken);
+        await providerDbContext.Value.SaveChangesAsync(cancellationToken);
     }
 }

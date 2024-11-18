@@ -304,13 +304,15 @@ public class CohortDomainServiceTests
         _fixture.VerifyUlnException(passes);
     }
 
-    [TestCase(true, false)]
-    [TestCase(false, true)]
-    public async Task Reservation_Validation(bool hasValidationError, bool passes)
+    [TestCase(true, false, false)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, true)]
+    [TestCase(false, true, true)]
+    public async Task Reservation_Validation(bool hasValidationError, bool passes, bool usingActualStartDate)
     {
         await _fixture
             .WithParty(Party.Provider)
-            .WithReservationValidationResult(hasValidationError)
+            .WithReservationValidationResult(hasValidationError, usingActualStartDate)
             .CreateCohort();
 
         _fixture.VerifyReservationException(passes);
@@ -329,6 +331,14 @@ public class CohortDomainServiceTests
     {
         await _fixture.WithParty(party).WithUlnOverlapOnStartDate().CreateCohort();
         _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
+    }
+
+    [TestCase(Party.Provider, "employer")]
+    [TestCase(Party.Employer, "provider")]
+    public async Task CreateCohort_OverlapOnActualStartDate_Validation(Party party, string otherPartyInMessage)
+    {
+        await _fixture.WithParty(party).WithUlnOverlapOnActualStartDate().CreateCohort();
+        _fixture.VerifyOverlapExceptionOnActualStartDate(otherPartyInMessage);
     }
 
     [TestCase(Party.Provider)]
@@ -389,12 +399,31 @@ public class CohortDomainServiceTests
         await _fixture.WithParty(party).WithEmailOverlapWithApprenticeship(isApproved).CreateCohort();
         _fixture.VerifyEmailOverlapExceptionOnApprenticeship(isApproved);
     }
+
     [TestCase(Party.Provider)]
     [TestCase(Party.Employer)]
     public async Task EmailOverlapOnApprenticeship_Validation_FindsNoOverlaps(Party party)
     {
         await _fixture.WithParty(party).WithNoEmailOverlaps().CreateCohort();
         _fixture.VerifyCheckForEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship();
+    }
+
+    [TestCase(Party.Provider, true)]
+    [TestCase(Party.Provider, false)]
+    [TestCase(Party.Employer, true)]
+    [TestCase(Party.Employer, false)]
+    public async Task ActualStartDateEmailOverlapOnApprenticeship_Validation(Party party, bool isApproved)
+    {
+        await _fixture.WithParty(party).WithActualStartDateEmailOverlapWithApprenticeship(isApproved).CreateCohort();
+        _fixture.VerifyEmailOverlapExceptionOnApprenticeship(isApproved);
+    }
+
+    [TestCase(Party.Provider)]
+    [TestCase(Party.Employer)]
+    public async Task ActualStartDateEmailOverlapOnApprenticeship_Validation_FindsNoOverlaps(Party party)
+    {
+        await _fixture.WithParty(party).WithNoActualStartDateEmailOverlaps().CreateCohort();
+        _fixture.VerifyCheckForActualStartDateEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship();
     }
 
     [TestCase(Party.Provider)]
@@ -1052,11 +1081,19 @@ public class CohortDomainServiceTests
             return this;
         }
 
-        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
+        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError, bool usingActualStartDate = false)
         {
             DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
-            DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
-            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+            if (usingActualStartDate)
+            {
+                DraftApprenticeshipDetails.ActualStartDate = new DateTime(2019, 01, 01);
+                DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+            }
+            else
+            {
+                DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
+            }
+            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
                 "TEST",
                 ProgrammeType.Standard,
                 new DateTime(2016, 1, 1),
@@ -1079,6 +1116,19 @@ public class CohortDomainServiceTests
         {
             DraftApprenticeshipDetails.Uln = "X";
             DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+            DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new OverlapCheckResult(true, false));
+
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithUlnOverlapOnActualStartDate()
+        {
+            DraftApprenticeshipDetails.Uln = "X";
+            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+            DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
@@ -1132,11 +1182,42 @@ public class CohortDomainServiceTests
             return this;
         }
 
+        public CohortDomainServiceTestFixture WithActualStartDateEmailOverlapWithApprenticeship(bool isApproved)
+        {
+            DraftApprenticeshipDetails.Email = "test@test.com";
+            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+            DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
+            DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.OverlappingEndDate, isApproved));
+
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithNoActualStartDateEmailOverlaps()
+        {
+            DraftApprenticeshipDetails.Email = "test@test.com";
+            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+            DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
+            DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+            return this;
+        }
+
         public void VerifyCheckForEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship()
         {
             OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(DraftApprenticeshipDetails.Email,
                 It.Is<DateRange>(p =>
                     p.From == DraftApprenticeshipDetails.StartDate && p.To == DraftApprenticeshipDetails.EndDate),
+                0, null, It.IsAny<CancellationToken>()));
+        }
+
+        public void VerifyCheckForActualStartDateEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship()
+        {
+            OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(DraftApprenticeshipDetails.Email,
+                It.Is<DateRange>(p =>
+                    p.From == DraftApprenticeshipDetails.ActualStartDate && p.To == DraftApprenticeshipDetails.EndDate),
                 0, null, It.IsAny<CancellationToken>()));
         }
 
@@ -1828,6 +1909,11 @@ public class CohortDomainServiceTests
         public void VerifyOverlapExceptionOnStartDate(string otherParty)
         {
             Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")), Is.True);
+        }
+
+        public void VerifyOverlapExceptionOnActualStartDate(string otherParty)
+        {
+            Assert.That(DomainErrors.Any(x => x.PropertyName == "ActualStartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")), Is.True);
         }
 
         public void VerifyOverlapExceptionOnEndDate(string otherParty)

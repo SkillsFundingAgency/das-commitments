@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
 using SFA.DAS.CommitmentsV2.Authentication;
@@ -9,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System.Collections;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Unknown, EventStatus.Removed, false, Status.Fail, DataLockErrorCode.Dlock03)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07)
                 .WithDataLock(
-                    TestsFixture.ApprenticeshipId,     40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
+                    TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
                     TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
 
             // Act
@@ -202,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks,()=> Times.Exactly(2));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, () => Times.Exactly(2));
         }
 
         [Test]
@@ -379,7 +379,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, ()=> Times.Exactly(3));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, () => Times.Exactly(3));
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
         }
 
@@ -399,7 +399,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, () => Times.Exactly(3));
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
         }
-        
+
         [Test]
         public async Task ShouldPublishDataLockTriage_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentCourse()
         {
@@ -749,10 +749,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
 
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode100, It.IsAny<DateTime>()))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, TrainingCourseVersion100, TrainingCourseStandardUId100, 
+                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, TrainingCourseVersion100, TrainingCourseStandardUId100,
                     ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode200, It.IsAny<DateTime>()))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, TrainingCourseVersion200, TrainingCourseStandardUId200, 
+                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, TrainingCourseVersion200, TrainingCourseStandardUId200,
                     ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode300, It.IsAny<DateTime>()))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode300, TrainingCourseName300, TrainingCourseVersion300, TrainingCourseStandardUId300,
@@ -791,7 +791,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.Cohorts.Add(cohortDetails);
 
-          
+
 
             var apprenticeshipDetails = AutoFixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
@@ -832,7 +832,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
                 Db.PriceHistory.AddRange(priceHistoryDetails);
             }
-            
+
             Db.SaveChanges();
 
             return this;
@@ -877,7 +877,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.PriceHistory
                 .Where(ph => ph.ApprenticeshipId == apprenticeshipId)
-                .GroupBy(ph => new {ph.Cost, ph.FromDate})
+                .GroupBy(ph => new { ph.Cost, ph.FromDate })
                 .Select(grp => grp.Count())
                 .Any(grp => grp > 1)
                 .Should()

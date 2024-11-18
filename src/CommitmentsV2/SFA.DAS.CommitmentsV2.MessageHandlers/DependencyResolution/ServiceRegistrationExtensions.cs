@@ -66,13 +66,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
         services.AddTransient<IFundingCapService, FundingCapService>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
-        services.AddTransient<ITopicClientFactory, TopicClientFactory>();
-        services.AddTransient<ILegacyTopicMessagePublisher>(s =>
-        {
-            var config = s.GetService<CommitmentsV2Configuration>();
-            return new LegacyTopicMessagePublisher(s.GetService<ITopicClientFactory>(),
-                s.GetService<ILogger<LegacyTopicMessagePublisher>>(), config.MessageServiceBusConnectionString);
-        });
+       
         services.AddTransient<IEmailOptionalService, EmailOptionalService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
 

@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
                 .SendToOtherParty();
-            
+
             _fixture.Cohort.EditStatus.Should().Be(expectedEditStatus);
             _fixture.Cohort.LastAction.Should().Be(LastAction.Amend);
             _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
@@ -43,14 +43,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetWithParty(modifyingParty)
                 .SetMessage(message)
                 .SendToOtherParty();
-            
+
             _fixture.Cohort.Messages.Should().HaveCount(1)
                 .And.ContainSingle(m =>
                     m.CreatedBy == expectedCreatedBy &&
                     m.Text == expectedMessage &&
                     m.Author == _fixture.UserInfo.UserDisplayName);
         }
-        
+
         [TestCase(Party.Employer, "Employer", "foo@foo.com", "Employer", "foo@foo.com", null, null)]
         [TestCase(Party.Provider, "Provider", "bar@bar.com", null, null, "Provider", "bar@bar.com")]
         public void ThenShouldSetLastUpdatedBy(Party modifyingParty, string userDisplayName, string userEmail, string expectedLastUpdatedByEmployerName, string expectedLastUpdatedByEmployerEmail, string expectedLastUpdatedByProviderName, string expectedLastUpdatedByProviderEmail)
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetWithParty(modifyingParty)
                 .SetUserInfo(userDisplayName, userEmail)
                 .SendToOtherParty();
-            
+
             _fixture.Cohort.LastUpdatedByEmployerName.Should().Be(expectedLastUpdatedByEmployerName);
             _fixture.Cohort.LastUpdatedByEmployerEmail.Should().Be(expectedLastUpdatedByEmployerEmail);
             _fixture.Cohort.LastUpdatedByProviderName.Should().Be(expectedLastUpdatedByProviderName);
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     UpdatedOn = _fixture.Now
                 });
         }
-        
+
         [TestCase(Party.None)]
         [TestCase(Party.TransferSender)]
         public void AndModifyingPartyIsNotEmployerOrProviderThenShouldThrowException(Party modifyingParty)
@@ -103,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.SetModifyingParty(modifyingParty);
             _fixture.Invoking(f => f.SendToOtherParty()).Should().Throw<DomainException>();
         }
-        
+
         [TestCase(Party.Employer, Party.Provider, LastAction.Amend)]
         [TestCase(Party.Provider, Party.Employer, LastAction.None)]
         public void AndIsNotWithModifyingPartyThenShouldThrowException(Party modifyingParty, Party withParty, LastAction lastAction)
@@ -123,11 +123,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship()
                 .SetApprovals(Party.Provider)
                 .SendToOtherParty();
-            
+
             _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>().Should().HaveCount(1)
                 .And.Subject.Should().ContainSingle(e => e.CohortId == _fixture.Cohort.Id && e.UpdatedOn == _fixture.Now);
         }
-        
+
         [Test]
         public void ThenShouldResetApprovals()
         {
@@ -192,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Message = AutoFixture.Create<string>();
             UserInfo = AutoFixture.Create<UserInfo>();
             UnitOfWorkContext = new UnitOfWorkContext();
-            Cohort = new CommitmentsV2.Models.Cohort().Set(c => c.Id, 111).Set(x=> x.ProviderId, 1);
+            Cohort = new CommitmentsV2.Models.Cohort().Set(c => c.Id, 111).Set(x => x.ProviderId, 1);
         }
 
         public void SendToOtherParty()
@@ -222,7 +222,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public WhenSendingCohortToOtherPartyTestsFixture SetLastAction(LastAction lastAction)
         {
             Cohort.Set(c => c.LastAction, lastAction);
-            
+
             return this;
         }
 
@@ -241,14 +241,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public WhenSendingCohortToOtherPartyTestsFixture SetModifyingParty(Party modifyingParty)
         {
             Party = modifyingParty;
-            
+
             return this;
         }
 
         public WhenSendingCohortToOtherPartyTestsFixture SetMessage(string message)
         {
             Message = message;
-            
+
             return this;
         }
 
@@ -256,7 +256,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             UserInfo.UserDisplayName = userDisplayName;
             UserInfo.UserEmail = userEmail;
-            
+
             return this;
         }
 
