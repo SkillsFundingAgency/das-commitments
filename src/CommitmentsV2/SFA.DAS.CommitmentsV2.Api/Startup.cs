@@ -1,15 +1,16 @@
 ﻿using System.IO;
+using System.Net;
 using System.Reflection;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
-using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
-using SFA.DAS.Authorization.Mvc.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
@@ -42,6 +43,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
 namespace SFA.DAS.CommitmentsV2.Api;
+
 public class Startup
 {
     private readonly IWebHostEnvironment _env;
@@ -67,11 +69,7 @@ public class Startup
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())
             .AddApiAuthorization(_env)
-            .AddMvc(o =>
-            {
-                o.AddAuthorization();
-                o.Filters.Add<StopwatchFilterAttribute>();
-            });
+            .AddMvc(o => { o.Filters.Add<StopwatchFilterAttribute>(); });
 
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssembly(typeof(AddCohortValidator).Assembly);
@@ -99,7 +97,6 @@ public class Startup
 
         services.AddAcademicYearDateProviderServices();
         services.AddApprovalsOuterApiServiceServices();
-        DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions.AddAuthorization(services);
 
         services.AddApprenticeshipSearchServices();
         services.AddConfigurationSections(_configuration);
@@ -109,7 +106,6 @@ public class Startup
             .AddEntityFramework(commitmentsConfiguration)
             .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
         services.AddEmployerAccountServices(_configuration);
-        services.AddFeaturesAuthorization();
         services.AddSingleton<IEncodingService, EncodingService>();
         services.AddDatabaseRegistration();
         services.AddCurrentDateTimeService(_configuration);
@@ -159,21 +155,32 @@ public class Startup
             await next();
         });
 
+        app.UseExceptionHandler(builder =>
+        {
+            builder.Run(context =>
+            {
+                var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                var logger = context.RequestServices.GetService<ILogger<Startup>>();
+
+                if (exceptionHandlerPathFeature?.Error is UnauthorizedAccessException)
+                {
+                    logger.LogWarning("Unauthorized Access");
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+
+                return Task.CompletedTask;
+            });
+        });
+
         app.UseHttpsRedirection()
             .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
-            .UseUnauthorizedAccessExceptionHandler()
             .UseStaticFiles()
             .UseDasHealthChecks()
             .UseAuthentication()
             .UseUnitOfWork()
             .UseRouting()
             .UseAuthorization()
-            .UseEndpoints(builder =>
-            {
-                builder.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            })
+            .UseEndpoints(builder => builder.MapDefaultControllerRoute())
             .UseSwagger()
             .UseSwaggerUI(c =>
             {

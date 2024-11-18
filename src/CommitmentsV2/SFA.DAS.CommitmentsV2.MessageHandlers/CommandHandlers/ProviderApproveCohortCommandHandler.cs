@@ -1,55 +1,40 @@
-﻿using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+
+public class ProviderApproveCohortCommandHandler(
+    ILogger<ProviderApproveCohortCommandHandler> logger,
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IEmailOptionalService emailService)
+    : IHandleMessages<ProviderApproveCohortCommand>
 {
-    public class ProviderApproveCohortCommandHandler : IHandleMessages<ProviderApproveCohortCommand>
+    public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)
     {
-        private readonly ILogger<ProviderApproveCohortCommandHandler> _logger;
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IEmailOptionalService _emailService;
-
-        public ProviderApproveCohortCommandHandler(
-            ILogger<ProviderApproveCohortCommandHandler> logger,
-            Lazy<ProviderCommitmentsDbContext> dbContext,
-            IEmailOptionalService emailService
-            )
+        try
         {
-            _logger = logger;
-            _dbContext = dbContext;
-            _emailService = emailService;
+            logger.LogInformation("Handling {TypeName} with MessageId '{MessageId}'", nameof(ProviderApproveCohortCommand), context.MessageId);
+
+            var cohort = await dbContext.Value.GetCohortAggregate(message.CohortId, default);
+            var apprenticeEmailIsRequired = emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
+
+            if (cohort.Approvals.HasFlag(Party.Provider))
+            {
+                logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
+                return;
+            }
+
+            cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired);
+
+            await dbContext.Value.SaveChangesAsync();
         }
-
-        public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            try
-            {
-                _logger.LogInformation($"Handling {nameof(ProviderApproveCohortCommand)} with MessageId '{context.MessageId}'");
-
-                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
-                var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
-
-                if (cohort.Approvals.HasFlag(Party.Provider))
-                {
-                    _logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
-                    return;
-                }
-
-                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired);
-
-                await _dbContext.Value.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error processing {nameof(ProviderApproveCohortCommand)}", e);
-                throw;
-            }
+            logger.LogError(e, "Error processing {TypeName}", nameof(ProviderApproveCohortCommand));
+            throw;
         }
     }
 }
