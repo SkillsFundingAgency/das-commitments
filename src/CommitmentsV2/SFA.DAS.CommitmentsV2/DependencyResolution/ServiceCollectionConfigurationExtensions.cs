@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
@@ -21,7 +20,6 @@ public static class ServiceCollectionConfigurationExtensions
         services.AddConfigurationFor<ApprovalsOuterApiConfiguration>(configuration, CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
         services.AddConfigurationFor<EmailOptionalConfiguration>(configuration, CommitmentsConfigurationKeys.EmailOptionalConfiguration);
         services.AddConfigurationFor<LevyTransferMatchingApiConfiguration>(configuration, CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
-        services.AddConfigurationFor<FeaturesConfiguration>(configuration, CommitmentsConfigurationKeys.Features);
         services.AddConfigurationFor<ReservationsClientApiConfiguration>(configuration, CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         services.AddConfigurationFor<RplSettingsConfiguration>(configuration, CommitmentsConfigurationKeys.RplSettingsConfiguration);
         services.AddConfigurationFor<ProviderUrlConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderUrlConfiguration);

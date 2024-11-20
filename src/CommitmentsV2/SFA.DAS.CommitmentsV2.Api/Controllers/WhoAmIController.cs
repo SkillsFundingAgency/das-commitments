@@ -1,11 +1,11 @@
-using SFA.DAS.Authorization.Mvc.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
 [ApiController]
-[DasAuthorize]
+[Authorize]
 [Route("api/whoami")]
 public class WhoAmIController(IAuthenticationService authenticationService) : ControllerBase
 {

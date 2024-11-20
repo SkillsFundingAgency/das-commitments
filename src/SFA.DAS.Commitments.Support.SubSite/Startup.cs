@@ -16,7 +16,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
-using ServiceCollectionExtensions = SFA.DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions;
 
 namespace SFA.DAS.Commitments.Support.SubSite;
 
@@ -52,7 +51,6 @@ public class Startup
         services.AddMemoryCache();
         services.AddHealthChecks();
 
-        ServiceCollectionExtensions.AddAuthorization(services);
         services.AddSupportConfigurationSections(_configuration);
         services.AddDatabaseRegistration();
 

@@ -30,11 +30,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-
-    <PackageReference Include="SFA.DAS.Authorization.Features" Version="6.0.97">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
-    <PackageReference Include="SFA.DAS.Authorization.Mvc" Version="6.0.97" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.15.0" />
     <PackageReference Include="SFA.DAS.Telemetry" Version="17.1.95" />
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
