@@ -4,10 +4,8 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
-using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -113,25 +111,6 @@ public class DraftApprenticeshipController(
         
         return Ok();
     }
-
-    [HttpPost]
-    [Route("{apprenticeshipId:long}/prior-learning")]
-    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDetailsRequest request)
-    {
-        await mediator.Send(new PriorLearningDetailsCommand
-        {
-            ApprenticeshipId = apprenticeshipId,
-            CohortId = cohortId,
-            DurationReducedBy = request.DurationReducedBy,
-            PriceReducedBy = request.PriceReducedBy,
-            DurationReducedByHours = request.DurationReducedByHours,
-            Rpl2Mode = request.Rpl2Mode,
-            UserInfo = request.UserInfo
-        });
-        
-        return Ok();
-    }
-
 
     [HttpPost]
     [Route("{apprenticeshipId:long}/prior-learning-data")]

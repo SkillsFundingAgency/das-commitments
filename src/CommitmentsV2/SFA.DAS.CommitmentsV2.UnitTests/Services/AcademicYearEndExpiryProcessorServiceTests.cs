@@ -31,7 +31,7 @@ public class AcademicYearEndExpiryProcessorServiceTests
         // ARRANGE
         _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
         _logger = new Mock<ILogger<AcademicYearEndExpiryProcessorService>>();
-            
+
         _currentDateTime = new Mock<ICurrentDateTime>();
         _academicYearProvider = new AcademicYearDateProvider(_currentDateTime.Object);
         _mockMessageBuilder = new Mock<IEventPublisher>();
@@ -100,13 +100,15 @@ public class AcademicYearEndExpiryProcessorServiceTests
     [Test]
     public async Task WhenExpiring_ApprenticeshipUpdated_ShouldOnlyUpdateRecordsWithCostOrTrainingChanges()
     {
-        const int validRecordCount = 4;
+        int validRecordCount = 4;
         var validTestData = CreateApprenticeshipsUpdateExpiryTestData(validRecordCount);
         var testDataWithMissingCostOrTraining = CreateApprenticeshipsUpdateExpiryTestData(3, false);
-        
+
+
+
         _dbContextMock
-            .Setup(context => context.ApprenticeshipUpdates)
-            .ReturnsDbSet(validTestData.apprenticeshipUpdates.Concat(testDataWithMissingCostOrTraining.apprenticeshipUpdates).ToList());
+               .Setup(context => context.ApprenticeshipUpdates)
+               .ReturnsDbSet(validTestData.apprenticeshipUpdates.Concat(testDataWithMissingCostOrTraining.apprenticeshipUpdates).ToList());
 
         _dbContextMock
             .Setup(context => context.Apprenticeships)
@@ -179,7 +181,7 @@ public class AcademicYearEndExpiryProcessorServiceTests
             .First(s => s > _academicYearProvider.CurrentAcademicYearStartDate && s < _academicYearProvider.CurrentAcademicYearEndDate);
     }
 
-    private (List<ApprenticeshipUpdate> apprenticeshipUpdates, List<Apprenticeship> apprenticeships) CreateApprenticeshipsUpdateExpiryTestData(int recordCount, bool withCostAndTraining  = true)
+    private (List<ApprenticeshipUpdate> apprenticeshipUpdates, List<Apprenticeship> apprenticeships) CreateApprenticeshipsUpdateExpiryTestData(int recordCount, bool withCostAndTraining = true)
     {
         var apprenticeships = new List<Apprenticeship>();
 
@@ -200,10 +202,10 @@ public class AcademicYearEndExpiryProcessorServiceTests
                 .With(au => au.StartDate, GetPreviousAcademicYearDateTestValue(_fixture));
         }
 
-        var apprenticeshipUpdates = 
+        var apprenticeshipUpdates =
             apprenticeshipUpdateComposer
-                .CreateMany(recordCount)
-                .ToList();
+            .CreateMany(recordCount)
+            .ToList();
 
         apprenticeshipUpdates.ForEach(update =>
         {
@@ -225,7 +227,7 @@ public class AcademicYearEndExpiryProcessorServiceTests
             .Build<DataLockStatus>()
             .With(dl => dl.IsExpired, false)
             .With(dl => dl.Expired, (DateTime?)null)
-            .With(dl => dl.IlrEffectiveFromDate, afterAcademicYear ? GetCurrentAcademicYearDateTestValue(_fixture) :  GetPreviousAcademicYearDateTestValue(_fixture))
+            .With(dl => dl.IlrEffectiveFromDate, afterAcademicYear ? GetCurrentAcademicYearDateTestValue(_fixture) : GetPreviousAcademicYearDateTestValue(_fixture))
             .CreateMany(recordCount)
             .ToList();
 

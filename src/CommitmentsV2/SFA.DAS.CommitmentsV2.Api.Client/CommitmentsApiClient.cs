@@ -530,15 +530,10 @@ public class CommitmentsApiClient(IRestHttpClient client) : ICommitmentsApiClien
         return client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/recognise-prior-learning", request, cancellationToken);
     }
 
-    public Task PriorLearningDetails(long cohortId, long apprenticeshipId, PriorLearningDetailsRequest request, CancellationToken cancellationToken = default)
-    {
-        return client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning", request, cancellationToken);
-    }
-
-    public Task<GetOverlappingTrainingDateRequestResponce> GetOverlappingTrainingDateRequest(long apprenticeshipId, CancellationToken cancellationToken = default)
-    {
-        return client.Get<GetOverlappingTrainingDateRequestResponce>($"api/overlapping-training-date-request/{apprenticeshipId}", cancellationToken, cancellationToken);
-    }
+        public Task<GetOverlappingTrainingDateRequestResponce> GetOverlappingTrainingDateRequest(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return client.Get<GetOverlappingTrainingDateRequestResponce>($"api/overlapping-training-date-request/{apprenticeshipId}", cancellationToken);
+        }
 
     public Task ResolveOverlappingTrainingDateRequest(ResolveApprenticeshipOverlappingTrainingDateRequest request, CancellationToken cancellationToken = default)
     {

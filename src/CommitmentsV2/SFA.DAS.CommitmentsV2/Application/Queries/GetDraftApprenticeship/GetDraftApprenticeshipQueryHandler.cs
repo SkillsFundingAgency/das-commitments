@@ -17,7 +17,7 @@ public class GetDraftApprenticeshipQueryHandler(
             .Include(x => x.PriorLearning)
             .Where(x => x.Id == request.DraftApprenticeshipId && x.CommitmentId == request.CohortId);
 
-        return await query.Select(draft => new GetDraftApprenticeshipQueryResult
+        var result = await query.Select(draft => new GetDraftApprenticeshipQueryResult
         {
             CourseCode = draft.CourseCode,
             TrainingCourseVersion = draft.TrainingCourseVersion,
@@ -29,7 +29,7 @@ public class GetDraftApprenticeshipQueryHandler(
             StartDate = draft.StartDate,
             ActualStartDate = draft.ActualStartDate,
             Id = draft.Id,
-            Cost = (int?) draft.Cost,
+            Cost = (int?)draft.Cost,
             TrainingPrice = draft.TrainingPrice,
             EndPointAssessmentPrice = draft.EndPointAssessmentPrice,
             DateOfBirth = draft.DateOfBirth,
@@ -54,11 +54,12 @@ public class GetDraftApprenticeshipQueryHandler(
             DurationReducedByHours = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedByHours : null,
             IsDurationReducedByRpl = draft.PriorLearning != null ? draft.PriorLearning.IsDurationReducedByRpl : null,
             TrainingTotalHours = draft.PriorLearning != null ? draft.TrainingTotalHours : null,
-            RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
             RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
             IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
             EmailAddressConfirmed = draft.EmailAddressConfirmed,
             EmployerHasEditedCost = draft.EmployerHasEditedCost
         }).SingleOrDefaultAsync(cancellationToken);
+
+        return result;
     }
 }

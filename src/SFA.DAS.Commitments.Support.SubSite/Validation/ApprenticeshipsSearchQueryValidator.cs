@@ -31,7 +31,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Validation
             When(a => a.SearchType == ApprenticeshipSearchType.SearchByCohort, () =>
             {
                 RuleFor(x => x)
-                               .Must((x) => x.SearchTerm.Length == 6).WithMessage("Please enter a 6-digit Cohort number");
+                    .Must(x => x.SearchTerm.Length is 6 or 7)
+                    .WithMessage("Please enter a 6 or 7-digit Cohort number");
             });
         }
 

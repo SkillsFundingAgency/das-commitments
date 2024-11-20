@@ -95,13 +95,13 @@ public class CohortDomainService(
                 if (newCohorts.ContainsKey(csvApprenticeship.LegalEntityId.Value))
                 {
                     logger.LogInformation("Bulk upload - Adding to already created cohort - uln {Uln}", apprenticeship.Uln);
-                    
+
                     cohort = newCohorts.GetValueOrDefault(csvApprenticeship.LegalEntityId.Value);
                 }
                 else
                 {
                     logger.LogInformation("Bulk upload - Creating a new cohort for - uln {Uln}", apprenticeship.Uln);
-                    
+
                     var accountLegalEntity = db.AccountLegalEntities
                         .Include(x => x.Account)
                         .First(x => x.Id == csvApprenticeship.LegalEntityId);
@@ -137,17 +137,17 @@ public class CohortDomainService(
         //await CheckRplReductionErrors(cohort);
         cohort.Approve(party, message, userInfo, currentDateTime.UtcNow, apprenticeEmailIsRequired);
     }
-    
+
     private async Task ValidateUlnOverlap(Cohort cohort)
     {
-        foreach (var draftApprenticeship  in cohort.DraftApprenticeships)
+        foreach (var draftApprenticeship in cohort.DraftApprenticeships)
         {
             if (string.IsNullOrEmpty(draftApprenticeship.Uln) || !draftApprenticeship.StartDate.HasValue || !draftApprenticeship.EndDate.HasValue)
             {
                 continue;
             }
 
-            var result = await  overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
+            var result = await overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
             if (result.HasOverlaps)
             {
                 throw new DomainException(draftApprenticeship.Uln, "The draft apprenticeship has overlap");
@@ -215,7 +215,7 @@ public class CohortDomainService(
     public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
     {
         var cohort = await dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
-            
+
         AssertHasProvider(cohortId, cohort.ProviderId);
         AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
@@ -236,12 +236,12 @@ public class CohortDomainService(
         var cohort = await dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
         AssertHasApprenticeshipId(cohortId, apprenticeshipId);
-        
+
         cohort.DeleteDraftApprenticeship(apprenticeshipId, authenticationService.GetUserParty(), userInfo);
 
         return cohort;
     }
-    
+
     private static ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
     {
         switch (originatingParty)
@@ -311,7 +311,7 @@ public class CohortDomainService(
         {
             await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
         }
-            
+
         return await GetAccount(transferSenderId, db, cancellationToken);
     }
 
@@ -364,7 +364,7 @@ public class CohortDomainService(
     }
 
     private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
-    {         
+    {
         if (!draftApprenticeshipDetails.StartDate.HasValue)
         {
             return;
@@ -454,27 +454,26 @@ public class CohortDomainService(
 
     private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
     {
-        if (!details.ReservationId.HasValue || !details.StartDate.HasValue || details.TrainingProgramme == null)
-        {
-            return;
-        }
+        var startDate = details.GetStartDate();
 
-        var validationRequest = new ReservationValidationRequest(details.ReservationId.Value, details.StartDate.Value, details.TrainingProgramme.CourseCode);
+        if (!details.ReservationId.HasValue || !startDate.HasValue || details.TrainingProgramme == null)
+            return;
+
+        var validationRequest = new ReservationValidationRequest(details.ReservationId.Value, startDate.Value, details.TrainingProgramme.CourseCode);
 
         var validationResult = await reservationValidationService.Validate(validationRequest, cancellationToken);
 
         var errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
         errors.ThrowIfAny();
     }
-         
+
     private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue)
-        {
-            return;
-        }
+        var startDate = details.GetStartDate();
 
-        var overlapResult = await overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value.To(details.EndDate.Value), default, cancellationToken);
+        if (string.IsNullOrWhiteSpace(details.Uln) || !startDate.HasValue || !details.EndDate.HasValue) return;
+
+        var overlapResult = await overlapCheckService.CheckForOverlaps(details.Uln, startDate.Value.To(details.EndDate.Value), default, cancellationToken);
 
         if (!overlapResult.HasOverlaps)
         {
@@ -489,7 +488,7 @@ public class CohortDomainService(
 
         if ((!details.IgnoreStartDateOverlap || overlapResult.HasOverlappingEndDate) && overlapResult.HasOverlappingStartDate)
         {
-            errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
+            errors.Add(new DomainError(details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? nameof(details.ActualStartDate) : nameof(details.StartDate), errorMessage));
         }
 
         if (overlapResult.HasOverlappingEndDate)
@@ -505,12 +504,11 @@ public class CohortDomainService(
 
     private async Task ValidateEmailOverlaps(DraftApprenticeshipDetails details, long? cohortId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(details.Email) || !details.StartDate.HasValue || !details.EndDate.HasValue)
-        {
-            return;
-        }
+        var startDate = details.GetStartDate();
 
-        var overlapCheck = await overlapCheckService.CheckForEmailOverlaps(details.Email, details.StartDate.Value.To(details.EndDate.Value), details.Id, cohortId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(details.Email) || !startDate.HasValue || !details.EndDate.HasValue) return;
+
+        var overlapCheck = await overlapCheckService.CheckForEmailOverlaps(details.Email, startDate.Value.To(details.EndDate.Value), details.Id, cohortId, cancellationToken);
 
         if (overlapCheck == null)
         {
@@ -519,8 +517,7 @@ public class CohortDomainService(
 
         var errorMessage = overlapCheck.BuildErrorMessage();
 
-        var errors = new List<DomainError>();
-        errors.Add(new DomainError(nameof(details.Email), errorMessage));
+        var errors = new List<DomainError> { new(nameof(details.Email), errorMessage) };
 
         throw new DomainException(errors);
     }

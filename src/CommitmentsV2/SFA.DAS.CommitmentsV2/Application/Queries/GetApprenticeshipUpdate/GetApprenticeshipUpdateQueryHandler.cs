@@ -33,6 +33,7 @@ public class GetApprenticeshipUpdateQueryHandler(Lazy<ProviderCommitmentsDbConte
                     TrainingCourseVersion = update.TrainingCourseVersion,
                     TrainingCourseOption = update.TrainingCourseOption,
                     Cost = update.Cost,
+                    TrainingPrice = update.TrainingPrice,
                     StartDate = update.StartDate,
                     ActualStartDate = update.ActualStartDate,
                     EndDate = update.EndDate,
@@ -42,3 +43,5 @@ public class GetApprenticeshipUpdateQueryHandler(Lazy<ProviderCommitmentsDbConte
         };
     }
 }
+
+

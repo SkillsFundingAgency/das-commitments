@@ -15,7 +15,6 @@ public class AddEpaToApprenticeshipsService(IMediator mediator, ILogger<AddEpaTo
     public async Task Update()
     {
         var lastId = await mediator.Send(new GetLastSubmissionEventIdQuery());
-        
         await mediator.Send(new UpdateCacheOfAssessmentOrganisationsCommand());
 
         PageOfResults<SubmissionEvent> page;
@@ -23,22 +22,22 @@ public class AddEpaToApprenticeshipsService(IMediator mediator, ILogger<AddEpaTo
         
         do
         {
-            page = await mediator.Send(new GetSubmissionEventsQuery(lastId));
+            page =  await mediator.Send(new GetSubmissionEventsQuery(lastId));
             
-            if (page == null || page.Items == null || page.Items.Length == 0)
+            if (page == null || page.Items == null || !page.Items.Any())
             {
                 logger.LogInformation("No SubmissionEvents to process");
                 return;
             }
-
-            logger.LogInformation("Retrieved {ItemsLength} SubmissionEvents", page.Items.Length);
+            
+            logger.LogInformation("Retrieved {Length} SubmissionEvents", page.Items.Length);
 
             pageLastId = await mediator.Send(new UpdateApprenticeshipsWithEpaOrgIdCommand(page.Items));
-
+            
             if (pageLastId != null)
             {
-                logger.LogInformation("Storing latest SubmissionEventId as {PageLastId}", pageLastId.Value);
-                
+                logger.LogInformation("Storing latest SubmissionEventId as {LastId}", pageLastId.Value);
+            
                 await mediator.Send(new AddLastSubmissionEventIdCommand(pageLastId.Value));
                 
                 lastId = pageLastId.Value;

@@ -57,56 +57,27 @@ public abstract class ApprenticeshipBase : Aggregate
     public bool IsContinuation => ContinuationOfId.HasValue;
     public virtual Apprenticeship PreviousApprenticeship { get; set; }
 
-    public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
-    public FlexibleEmployment FlexibleEmployment { get; set; }
-    public bool? RecognisePriorLearning { get; set; }
-    public ApprenticeshipPriorLearning PriorLearning { get; set; }
-    public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
-    public int? TrainingTotalHours { get; set; }
-    public bool? EmployerHasEditedCost { get; set; }
-
-    public bool RecognisingPriorLearningStillNeedsToBeConsidered
-    {
-        get
+        public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
+        public FlexibleEmployment FlexibleEmployment { get; set; }
+        public bool? RecognisePriorLearning { get; set; }
+        public ApprenticeshipPriorLearning PriorLearning { get; set; }
+        public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
+        public int? TrainingTotalHours { get; set; }
+        public bool? EmployerHasEditedCost { get; set; }
+        public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered
         {
-            if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
+            get
             {
-                switch (RecognisePriorLearning)
+                if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
                 {
-                    case null:
-                        return true;
-                    case false:
-                        return false;
-                }
-
-                if (PriorLearning?.DurationReducedBy == null || PriorLearning?.PriceReducedBy == null)
-                {
-                    return true;
-                }
-
-                if (PriorLearning is {DurationReducedBy: { }, IsDurationReducedByRpl: true})
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered
-    {
-        get
-        {
-            if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
-            {
-                switch (RecognisePriorLearning)
-                {
-                    case null:
-                        return true;
-                    case false:
-                        return false;
-                }
+                    switch (RecognisePriorLearning)
+                    {
+                        case null:
+                            return true;
+                        case false:
+                            return false;
+                    }
 
                 if (TrainingTotalHours == null || PriorLearning?.DurationReducedByHours == null 
                                                || PriorLearning?.IsDurationReducedByRpl == null || PriorLearning?.PriceReducedBy == null)

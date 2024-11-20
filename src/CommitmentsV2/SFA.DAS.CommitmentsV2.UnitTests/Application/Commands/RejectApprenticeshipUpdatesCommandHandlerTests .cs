@@ -15,19 +15,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class RejectApprenticeshipUpdatesCommandHandlerTests 
+    public class RejectApprenticeshipUpdatesCommandHandlerTests
     {
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            using var  fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
 
             Assert.That(fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
-            
+
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ApprenticeshipUpdate ApprenticeshipUpdate;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public Apprenticeship ApprenticeshipFromDb => 
+        public Apprenticeship ApprenticeshipFromDb =>
             Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
         public PriceHistory PriceHistoryFromDb =>
           Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 .Set(c => c.ApprenticeshipId, ApprenticeshipId)
-                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
+                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending);
 
             var priceHistory = new List<PriceHistory>()
             {
@@ -163,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
-            
+
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
 
@@ -189,7 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 await Handler.Handle(Command, CancellationToken);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Exception = exception;
             }
@@ -206,7 +206,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
         {
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-          
+
             apprenticeship.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeship.ApprenticeshipUpdate.Add(update);
 

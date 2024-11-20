@@ -6,7 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 public class BulkUploadValidateCommand : IRequest<BulkUploadValidateApiResponse>
 {
     public long ProviderId { get; set; }
-    public bool RplDataExtended { get; set; }
     public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; } = new List<BulkUploadAddDraftApprenticeshipRequest>();
     public BulkReservationValidationResults ReservationValidationResults { get; set; } = new();
     public ProviderStandardResults ProviderStandardResults { get; set; } = new();

@@ -4,18 +4,19 @@ using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 
-public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
+public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+    : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
 {
-    public async Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
+    public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
     {
-        var cohort = await dbContext.Value.Cohorts
+        var cohort = dbContext.Value.Cohorts
             .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
             .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
             .Where(x => x.Id == query.CohortId)
             .Select(x => new { DraftApprenticeships = x.Apprenticeships })
-            .SingleOrDefaultAsync(cancellationToken);
+            .SingleOrDefault();
 
-        return new GetDraftApprenticeshipsQueryResult
+        return Task.FromResult(new GetDraftApprenticeshipsQueryResult
         {
             DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
             {
@@ -40,13 +41,12 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 RecognisePriorLearning = a.RecognisePriorLearning,
                 DurationReducedBy = a.PriorLearning?.DurationReducedBy,
                 PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                RecognisingPriorLearningStillNeedsToBeConsidered = a.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                 EmployerHasEditedCost = a.EmployerHasEditedCost,
                 EmailAddressConfirmed = a.EmailAddressConfirmed,
                 DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
             }).ToList()
-        };
+        });
     }
 }

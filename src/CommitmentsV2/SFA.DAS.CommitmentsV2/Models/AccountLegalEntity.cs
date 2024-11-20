@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿#nullable enable
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models;
@@ -13,7 +14,7 @@ public class AccountLegalEntity : ICohortOriginator
     public long AccountId { get; private set; }
     public string Name { get; private set; }
     public OrganisationType OrganisationType { get; private set; }
-    public string Address { get; private set; }
+    public string? Address { get; private set; }
     public DateTime Created { get; private set; }
     public DateTime? Updated { get; private set; }
     public DateTime? Deleted { get; private set; }
@@ -21,7 +22,7 @@ public class AccountLegalEntity : ICohortOriginator
     public virtual ICollection<Cohort> Cohorts { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
 
-    public AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
+    public AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId,
         string name, OrganisationType organisationType, string address, DateTime created)
     {
         Id = id;
@@ -79,7 +80,7 @@ public class AccountLegalEntity : ICohortOriginator
     public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo)
     {
-        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer,userInfo);
+        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer, userInfo);
     }
 
     public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

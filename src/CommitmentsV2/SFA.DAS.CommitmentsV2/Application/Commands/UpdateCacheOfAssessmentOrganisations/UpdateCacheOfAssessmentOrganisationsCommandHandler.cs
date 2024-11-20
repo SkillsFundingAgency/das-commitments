@@ -12,18 +12,18 @@ public class
         IApprovalsOuterApiClient outerApiClient,
         Lazy<ProviderCommitmentsDbContext> providerDbContext,
         ILogger<UpdateCacheOfAssessmentOrganisationsCommandHandler> logger)
-    : IRequestHandler<
-        UpdateCacheOfAssessmentOrganisationsCommand>
+    : IRequestHandler<UpdateCacheOfAssessmentOrganisationsCommand>
 {
     public async Task Handle(UpdateCacheOfAssessmentOrganisationsCommand request, CancellationToken cancellationToken)
     {
-        // .ToList() utilised to prevent possible multiple enumerations ...
-            
         logger.LogInformation("Fetching all assessment orgs");
         
         var epaoResponse = await outerApiClient.Get<EpaoResponse>(new GetEpaoOrganisationsRequest());
 
-        var allOrganisationSummaries = epaoResponse.Epaos.ToList();
+        // .ToList() utilised to prevent possible multiple enumerations ...
+        var allOrganisationSummaries = epaoResponse.Epaos
+            .OrderBy(x=> x.Id)
+            .ToList();
 
         logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
 
@@ -34,10 +34,10 @@ public class
 
         logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
 
-        // assumes summaries are returned ordered asc by Id
         var organisationSummariesToAdd = latestCachedEPAOrgId == null
             ? allOrganisationSummaries
-            : allOrganisationSummaries.SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
+            : allOrganisationSummaries
+                .SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
                 .ToList();
 
         if (organisationSummariesToAdd.Count == 0)

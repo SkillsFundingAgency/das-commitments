@@ -1,48 +1,33 @@
-﻿using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.Commitments.Events;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
-
-public class TransferRequestRejectedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<TransferRequestRejectedEvent> logger)
-    : IHandleMessages<TransferRequestRejectedEvent>
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
-    public async Task Handle(TransferRequestRejectedEvent message, IMessageHandlerContext context)
+    public class TransferRequestRejectedEventHandler : IHandleMessages<TransferRequestRejectedEvent>
     {
-        try
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly ILogger<TransferRequestRejectedEventHandler> _logger;
+
+        public TransferRequestRejectedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestRejectedEventHandler> logger)
         {
-            logger.LogInformation("TransferRequestRejectedEvent received for CohortId : {CohortId}, TransferRequestId : {TransferRequestId}", message.CohortId, message.TransferRequestId);
-
-            var db = dbContext.Value;
-
-            var cohort = await dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
-            cohort.RejectTransferRequest(message.UserInfo);
-
-            var transferRequest = await db.TransferRequests.SingleAsync(x => x.Id == message.TransferRequestId);
-
-            if (transferRequest.AutoApproval)
-            {
-                logger.LogInformation("AutoApproval set to true - not publishing CohortRejectedByTransferSender");
-
-                return;
-            }
-
-            // Publish legacy event so Tasks can decrement it's counter
-            await legacyTopicMessagePublisher.PublishAsync(new CohortRejectedByTransferSender(
-                message.TransferRequestId,
-                cohort.EmployerAccountId,
-                cohort.Id,
-                cohort.TransferSenderId.Value,
-                message.UserInfo.UserDisplayName,
-                message.UserInfo.UserEmail));
-
-            logger.LogInformation("Cohort {CohortId} returned to Employer, after TransferRequest {TransferRequestId} was rejected", message.CohortId, message.TransferRequestId);
+            _dbContext = dbContext;
+            _logger = logger;
         }
-        catch (Exception e)
+
+        public async Task Handle(TransferRequestRejectedEvent message, IMessageHandlerContext context)
         {
-            logger.LogError(e, "Error when trying to reject Cohort {CohortId} for TransferRequest {TransferRequestId}", message.CohortId, message.TransferRequestId);
-            throw;
+            try
+            {
+                _logger.LogInformation($"TransferRequestRejectedEvent received for CohortId : {message.CohortId}, TransferRequestId : {message.TransferRequestId}");
+
+                var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
+                cohort.RejectTransferRequest(message.UserInfo);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error when trying to reject Cohort {message.CohortId} for TransferRequest {message.TransferRequestId}");
+                throw;
+            }
         }
     }
 }

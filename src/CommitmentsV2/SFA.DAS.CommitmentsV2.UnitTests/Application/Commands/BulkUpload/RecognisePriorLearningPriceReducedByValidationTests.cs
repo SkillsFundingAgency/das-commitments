@@ -12,7 +12,6 @@
         public async Task When_PriceReducedBy_AreInvalid(string priceReducedBy, string error)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: true, durationReducedByAsString: "100", 
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
                 trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");
@@ -29,13 +28,9 @@
         [TestCase("10000")]
         [TestCase("100")]
         [TestCase("101")]
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase(" ")]
         public async Task When_PriceReducedBy_AreValid(string priceReducedBy)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: true, durationReducedByAsString: "100",
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
                 trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");
@@ -51,7 +46,6 @@
         public async Task When_PriceReducedBy_ArePresent_But_RPL_Is_False(string priceReducedBy, string error)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: false, durationReducedByAsString: "100",
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
                 trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");

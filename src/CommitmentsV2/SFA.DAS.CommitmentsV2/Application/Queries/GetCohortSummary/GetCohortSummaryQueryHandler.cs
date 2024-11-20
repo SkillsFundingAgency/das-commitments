@@ -81,11 +81,6 @@ public class GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db,
     {
         return apprenticeships.Any(apprenticeship =>
         {
-            if (!apprenticeship.RecognisingPriorLearningStillNeedsToBeConsidered)
-            {
-                return false;
-            }
-
             if(!apprenticeship.RecognisingPriorLearningExtendedStillNeedsToBeConsidered)
             {
                 return false;

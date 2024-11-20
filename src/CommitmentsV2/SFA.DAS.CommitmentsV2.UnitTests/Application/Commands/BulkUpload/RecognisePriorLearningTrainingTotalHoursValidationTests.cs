@@ -9,7 +9,6 @@
         public async Task Prior_Learning_Training_When_TrainingTotalHours_AreInvalid(int trainingTotalHours, string error)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetRplDataExtended(true);
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: 10, trainingTotalHours: trainingTotalHours, trainingHoursReduction: 10, isDurationReducedByRpl: true);
 
             var errors = await fixture.Handle();
@@ -24,7 +23,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Greater_Than_9999()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("10001");
 
@@ -35,7 +34,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Negative_Number()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("-10");
 
@@ -46,7 +45,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Less_Than_278()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("34");
 
@@ -57,7 +56,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Not_Single_Value()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("“1000 2000");
 
@@ -68,7 +67,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_AlphaNumeric()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("6282ABC");
 
@@ -79,7 +78,7 @@
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_HasSpecialChar()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("#22738");
 

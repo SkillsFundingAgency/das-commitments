@@ -1,6 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -19,26 +17,43 @@ using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
-public class EditApprenticeshipValidationService(
-    IProviderCommitmentsDbContext context,
-    IMediator mediator,
-    IOverlapCheckService overlapCheckService,
-    IReservationValidationService reservationValidationService,
-    IAcademicYearDateProvider academicYearDateProvider,
-    ICurrentDateTime currentDateTime,
-    IAuthenticationService authenticationService)
-    : IEditApprenticeshipValidationService
+public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
 {
+    private readonly IProviderCommitmentsDbContext _context;
+    private readonly IOverlapCheckService _overlapCheckService;
+    private readonly IReservationValidationService _reservationValidationService;
+    private readonly IAcademicYearDateProvider _academicYearDateProvider;
+    private readonly IMediator _mediator;
+    private readonly ICurrentDateTime _currentDateTime;
+    private readonly IAuthenticationService _authenticationService;
+
+    public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
+        IMediator mediator,
+        IOverlapCheckService overlapCheckService,
+        IReservationValidationService reservationValidationService,
+        IAcademicYearDateProvider academicYearDateProvider,
+        ICurrentDateTime currentDateTime,
+        IAuthenticationService authenticationService)
+    {
+        _context = context;
+        _overlapCheckService = overlapCheckService;
+        _reservationValidationService = reservationValidationService;
+        _academicYearDateProvider = academicYearDateProvider;
+        _mediator = mediator;
+        _currentDateTime = currentDateTime;
+        _authenticationService = authenticationService;
+    }
+
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
     {
         var trustedParty = GetParty(party);
 
         var errors = new List<DomainError>();
-        var apprenticeship = await context.Apprenticeships
+        var apprenticeship = _context.Apprenticeships
             .Include(y => y.Cohort)
             .Include(y => y.PriceHistory)
             .Include(y => y.FlexibleEmployment)
-            .FirstOrDefaultAsync(x => x.Id == request.ApprenticeshipId, cancellationToken);
+            .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
         if (apprenticeship == null)
         {
@@ -46,7 +61,6 @@ public class EditApprenticeshipValidationService(
         }
 
         errors.AddRange(NoChangeValidationFailures(request, apprenticeship, trustedParty));
-        
         if (errors.Count == 0)
         {
             CheckForInvalidOperations(request, apprenticeship);
@@ -87,7 +101,12 @@ public class EditApprenticeshipValidationService(
     /// </summary>
     private Party GetParty(Party party)
     {
-        return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler ? party : authenticationService.GetUserParty();
+        if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+        {
+            return party;
+        }
+
+        return _authenticationService.GetUserParty();
     }
 
     private void CheckForInvalidOperations(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
@@ -107,7 +126,7 @@ public class EditApprenticeshipValidationService(
 
         if (apprenticeship.IsContinuation && request.DeliveryModel != (apprenticeship.DeliveryModel ?? DeliveryModel.Regular))
         {
-            if(apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob || request.DeliveryModel == DeliveryModel.PortableFlexiJob)
+            if (apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob || request.DeliveryModel == DeliveryModel.PortableFlexiJob)
             {
                 throw new InvalidOperationException("Invalid operation - delivery model can't change for the current state of the object.");
             }
@@ -135,7 +154,7 @@ public class EditApprenticeshipValidationService(
 
         if (IsLockedForUpdate(apprenticeship))
         {
-            if (request.Cost != apprenticeship.PriceHistory.GetPrice(currentDateTime.UtcNow))
+            if (request.Cost != apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow))
             {
                 throw new InvalidOperationException("Invalid operation - Cost can't change for the current state of the object.");
             }
@@ -158,7 +177,7 @@ public class EditApprenticeshipValidationService(
         {
             if (request.CourseCode != apprenticeshipDetails.CourseCode)
             {
-                var result = mediator.Send(new GetTrainingProgrammeQuery
+                var result = _mediator.Send(new GetTrainingProgrammeQuery
                 {
                     Id = request.CourseCode
                 }).Result;
@@ -181,13 +200,15 @@ public class EditApprenticeshipValidationService(
         var referenceNotUpdated = party == Party.Employer
             ? request.EmployerReference == apprenticeship.EmployerRef
             : request.ProviderReference == apprenticeship.ProviderRef;
-            
+
         if (request.FirstName == apprenticeship.FirstName
             && request.LastName == apprenticeship.LastName
             && request.DateOfBirth == apprenticeship.DateOfBirth
             && request.Email == apprenticeship.Email
             && request.EndDate == apprenticeship.EndDate
-            && request.Cost == apprenticeship.PriceHistory.GetPrice(currentDateTime.UtcNow)
+            && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
+            && request.TrainingPrice == apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow)
+            && request.EndPointAssessmentPrice == apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow)
             && request.StartDate == apprenticeship.StartDate
             && request.ActualStartDate == apprenticeship.ActualStartDate
             && request.DeliveryModel == apprenticeship.DeliveryModel
@@ -203,7 +224,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildFirstNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildFirstNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (!string.IsNullOrWhiteSpace(request.FirstName))
         {
@@ -221,7 +242,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildLastNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildLastNameValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (!string.IsNullOrWhiteSpace(request.LastName))
         {
@@ -239,14 +260,14 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (apprenticeshipDetails.Email != null && string.IsNullOrWhiteSpace(request.Email))
         {
             yield return new DomainError(nameof(request.Email), "Email address cannot be blank");
         }
 
-        if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021,09,10))
+        if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021, 09, 10))
         {
             yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
         }
@@ -262,22 +283,26 @@ public class EditApprenticeshipValidationService(
 
     private async Task<DomainError> EmailOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
+        var emailMatches = request.Email == apprenticeshipDetails.Email;
+        var startDateMatches = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault()
+            ? request.ActualStartDate == apprenticeshipDetails.ActualStartDate
+            : request.StartDate == apprenticeshipDetails.StartDate;
+        var endDateMatches = request.EndDate == apprenticeshipDetails.EndDate;
+
+        bool NoChangesRequested() => (emailMatches && startDateMatches && endDateMatches);
+
         if (string.IsNullOrWhiteSpace(request.Email))
-        {
             return null;
-        }
 
         if (NoChangesRequested())
-        {
             return null;
-        }
 
-        var startDate = request.StartDate.Value;
+        var startDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate.Value : request.StartDate.Value;
         var endDate = request.EndDate.Value;
 
         var range = startDate.To(endDate);
 
-        var overlap = await overlapCheckService.CheckForEmailOverlaps(request.Email, range, request.ApprenticeshipId, null, CancellationToken.None);
+        var overlap = await _overlapCheckService.CheckForEmailOverlaps(request.Email, range, request.ApprenticeshipId, null, CancellationToken.None);
 
         if (overlap != null)
         {
@@ -285,18 +310,18 @@ public class EditApprenticeshipValidationService(
         }
 
         return null;
-
-        bool NoChangesRequested() => request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate;
     }
 
     private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
     {
-        List<DomainError> errors = [];
-        
-        if (apprenticeship.ReservationId.HasValue && request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
+        List<DomainError> errors = new List<DomainError>();
+
+        var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+
+        if (apprenticeship.ReservationId.HasValue && requestedStartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
         {
-            var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.CourseCode);
-            var validationResult = await reservationValidationService.Validate(validationRequest, CancellationToken.None);
+            var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, requestedStartDate.Value, request.CourseCode);
+            var validationResult = await _reservationValidationService.Validate(validationRequest, CancellationToken.None);
 
             errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
         }
@@ -306,22 +331,21 @@ public class EditApprenticeshipValidationService(
 
     private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
     {
-        if (!request.StartDate.HasValue || !request.EndDate.HasValue)
+        var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+        if (requestedStartDate.HasValue && request.EndDate.HasValue)
         {
-            yield break;
-        }
+            var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
+            var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, requestedStartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
-        var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
-        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
+            if (overlapResult.HasOverlappingStartDate)
+            {
+                yield return new DomainError(nameof(request.StartDate), errorMessage);
+            }
 
-        if (overlapResult.HasOverlappingStartDate)
-        {
-            yield return new DomainError(nameof(request.StartDate), errorMessage);
-        }
-
-        if (overlapResult.HasOverlappingEndDate)
-        {
-            yield return new DomainError(nameof(request.EndDate), errorMessage);
+            if (overlapResult.HasOverlappingEndDate)
+            {
+                yield return new DomainError(nameof(request.EndDate), errorMessage);
+            }
         }
     }
 
@@ -329,25 +353,24 @@ public class EditApprenticeshipValidationService(
     {
         if (request.Cost.HasValue)
         {
-            if (request.Cost == apprenticeshipDetails.PriceHistory.GetPrice(currentDateTime.UtcNow))
+            if (request.Cost != apprenticeshipDetails.PriceHistory.GetPrice(_currentDateTime.UtcNow))
             {
-                yield break;
-            }
+                if (request.Cost <= 0)
+                {
+                    yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
+                    yield break;
+                }
 
-            if (request.Cost <= 0)
-            {
-                yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
-                yield break;
-            }
+                if (request.Cost > Constants.MaximumApprenticeshipCost)
+                {
+                    yield return new DomainError(nameof(request.Cost), "The total cost must be £100,000 or less");
+                }
 
-            if (request.Cost > Constants.MaximumApprenticeshipCost)
-            {
-                yield return new DomainError(nameof(request.Cost), "The total cost must be £100,000 or less");
-            }
-
-            if (request.Cost.Value - Math.Truncate(request.Cost.Value) > 0)
-            {
-                yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
+                if (request.Cost.Value - Math.Truncate(request.Cost.Value) > 0)
+                {
+                    yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
+                    yield break;
+                }
             }
         }
         else
@@ -356,63 +379,55 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildEmployerRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
+    private IEnumerable<DomainError> BuildEmployerRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
     {
-        if (party != Party.Employer || request.EmployerReference == apprenticeshipDetails.EmployerRef)
+        if (party == Party.Employer && request.EmployerReference != apprenticeshipDetails.EmployerRef)
         {
-            yield break;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.EmployerReference) && request.EmployerReference.Length > 20)
-        {
-            yield return new DomainError(nameof(request.EmployerReference), "The Reference must be 20 characters or fewer");
+            if (!string.IsNullOrWhiteSpace(request.EmployerReference) && request.EmployerReference.Length > 20)
+            {
+                yield return new DomainError(nameof(request.EmployerReference), "The Reference must be 20 characters or fewer");
+            }
         }
     }
 
-    private static IEnumerable<DomainError> BuildProviderRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
+    private IEnumerable<DomainError> BuildProviderRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails, Party party)
     {
-        if (party != Party.Provider || request.ProviderReference == apprenticeshipDetails.ProviderRef)
+        if (party == Party.Provider && request.ProviderReference != apprenticeshipDetails.ProviderRef)
         {
-            yield break;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.ProviderReference) && request.ProviderReference.Length > 20)
-        {
-            yield return new DomainError(nameof(request.ProviderReference), "The Reference must be 20 characters or fewer");
+            if (!string.IsNullOrWhiteSpace(request.ProviderReference) && request.ProviderReference.Length > 20)
+            {
+                yield return new DomainError(nameof(request.ProviderReference), "The Reference must be 20 characters or fewer");
+            }
         }
     }
 
-    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (request.DateOfBirth.HasValue)
         {
-            if (request.DateOfBirth.Value == apprenticeshipDetails.DateOfBirth.Value)
+            if (request.DateOfBirth.Value != apprenticeshipDetails.DateOfBirth.Value)
             {
-                yield break;
-            }
+                if (request.DateOfBirth < Constants.MinimumDateOfBirth)
+                {
+                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
+                    yield break;
+                }
 
-            if (request.DateOfBirth < Constants.MinimumDateOfBirth)
-            {
-                yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
-                yield break;
-            }
+                if (request.StartDate.HasValue)
+                {
+                    var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
+                    if (ageOnStartDate.HasValue && ageOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
+                    {
+                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
+                        yield break;
+                    }
 
-            if (!request.StartDate.HasValue)
-            {
-                yield break;
-            }
-
-            var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
-            
-            if (ageOnStartDate.HasValue && ageOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
-            {
-                yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
-                yield break;
-            }
-
-            if (ageOnStartDate.HasValue && ageOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
-            {
-                yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+                    if (ageOnStartDate.HasValue && ageOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
+                    {
+                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+                        yield break;
+                    }
+                }
             }
         }
         else
@@ -425,67 +440,63 @@ public class EditApprenticeshipValidationService(
     {
         if (request.StartDate.HasValue)
         {
-            if (request.StartDate.Value == apprenticeshipDetails.StartDate.Value)
+            if (request.StartDate.Value != apprenticeshipDetails.StartDate.Value)
             {
-                yield break;
-            }
+                if (request.StartDate.Value > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                {
+                    yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
+                        "The start date must be no later than one year after the end of the current teaching year");
+                    yield break;
+                }
 
-            if (request.StartDate.Value > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
-            {
-                yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
-                    "The start date must be no later than one year after the end of the current teaching year");
-                yield break;
-            }
+                if (request.StartDate.Value < _academicYearDateProvider.CurrentAcademicYearStartDate &&
+                    _currentDateTime.UtcNow > _academicYearDateProvider.LastAcademicYearFundingPeriod)
+                {
+                    yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
+                        $"The earliest start date you can use is {_academicYearDateProvider.CurrentAcademicYearStartDate.ToGdsFormatShortMonthWithoutDay()}");
+                    yield break;
+                }
 
-            if (request.StartDate.Value < academicYearDateProvider.CurrentAcademicYearStartDate &&
-                currentDateTime.UtcNow > academicYearDateProvider.LastAcademicYearFundingPeriod)
-            {
-                yield return new DomainError(nameof(apprenticeshipDetails.StartDate),
-                    $"The earliest start date you can use is { academicYearDateProvider.CurrentAcademicYearStartDate.ToGdsFormatShortMonthWithoutDay()}");
-                yield break;
-            }
+                if (!string.IsNullOrWhiteSpace(request.CourseCode))
+                {
+                    // Get Earliest Start Date and Latest End Date for a Standard across Versions
+                    var result = _mediator.Send(new GetTrainingProgrammeQuery
+                    {
+                        Id = request.CourseCode
+                    }).Result;
 
-            if (string.IsNullOrWhiteSpace(request.CourseCode))
-            {
-                yield break;
-            }
+                    var courseStartedBeforeDas = result.TrainingProgramme != null &&
+                                                 (!result.TrainingProgramme.EffectiveFrom.HasValue ||
+                                                  result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
-            // Get Earliest Start Date and Latest End Date for a Standard across Versions
-            var result = mediator.Send(new GetTrainingProgrammeQuery
-            {
-                Id = request.CourseCode
-            }).Result;
+                    var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
 
-            var courseStartedBeforeDas = result.TrainingProgramme != null &&
-                                         (!result.TrainingProgramme.EffectiveFrom.HasValue ||
-                                          result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
+                    if ((request.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
+                    {
+                        yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");
+                        yield break;
+                    }
 
-            var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
+                    if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
+                    {
+                        var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
+                            ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                            : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
-            if (request.StartDate.Value < Constants.DasStartDate && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
-            {
-                yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");
-                yield break;
-            }
+                        var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
-            if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
-            {
-                var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
-                    ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                    : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                        yield return new DomainError(nameof(request.StartDate), errorMessage);
+                        yield break;
+                    }
 
-                var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
+                    if (trainingProgrammeStatus.HasValue && apprenticeshipDetails.Cohort.TransferSenderId.HasValue
+                                                         && request.StartDate.Value < Constants.TransferFeatureStartDate)
+                    {
+                        var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
-                yield return new DomainError(nameof(request.StartDate), errorMessage);
-                yield break;
-            }
-
-            if (trainingProgrammeStatus.HasValue && apprenticeshipDetails.Cohort.TransferSenderId.HasValue
-                                                 && request.StartDate.Value < Constants.TransferFeatureStartDate)
-            {
-                var errorMessage = "Apprentices funded through a transfer can't start earlier than May 2018";
-
-                yield return new DomainError(nameof(request.StartDate), errorMessage);
+                        yield return new DomainError(nameof(request.StartDate), errorMessage);
+                    }
+                }
             }
         }
         else
@@ -494,7 +505,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildEndDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildEndDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (request.EndDate.HasValue)
         {
@@ -521,25 +532,23 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
     {
-        if (apprenticeshipRequest.DeliveryModel != DeliveryModel.PortableFlexiJob)
+        if (apprenticeshipRequest.DeliveryModel == DeliveryModel.PortableFlexiJob)
         {
-            yield break;
-        }
+            foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(apprenticeshipRequest))
+            {
+                yield return failure;
+            }
 
-        foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(apprenticeshipRequest))
-        {
-            yield return failure;
-        }
-
-        foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(apprenticeshipRequest))
-        {
-            yield return failure;
+            foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(apprenticeshipRequest))
+            {
+                yield return failure;
+            }
         }
     }
 
-    private static IEnumerable<DomainError> BuildFlexibleEmploymentDateValidationFailures(EditApprenticeshipValidationRequest request)
+    private IEnumerable<DomainError> BuildFlexibleEmploymentDateValidationFailures(EditApprenticeshipValidationRequest request)
     {
         if (request.EmploymentEndDate == null)
         {
@@ -555,7 +564,7 @@ public class EditApprenticeshipValidationService(
         }
     }
 
-    private static IEnumerable<DomainError> BuildFlexibleEmploymentPriceValidationFailures(EditApprenticeshipValidationRequest request)
+    private IEnumerable<DomainError> BuildFlexibleEmploymentPriceValidationFailures(EditApprenticeshipValidationRequest request)
     {
         if (request.EmploymentPrice == null || request.EmploymentPrice <= 0)
         {
@@ -583,19 +592,15 @@ public class EditApprenticeshipValidationService(
         var dateOnly = startDate;
 
         if (result.TrainingProgramme.EffectiveFrom.HasValue && result.TrainingProgramme.EffectiveFrom.Value.FirstOfMonth() > dateOnly)
-        {
             return TrainingProgrammeStatus.Pending;
-        }
 
         if (!result.TrainingProgramme.EffectiveTo.HasValue || result.TrainingProgramme.EffectiveTo.Value >= dateOnly)
-        {
             return TrainingProgrammeStatus.Active;
-        }
 
         return TrainingProgrammeStatus.Expired;
     }
 
-    private static int? AgeOnStartDate(DateTime? dateOfBirth, DateTime? newStartDate)
+    public int? AgeOnStartDate(DateTime? dateOfBirth, DateTime? newStartDate)
     {
         var startDate = newStartDate.Value;
         var age = startDate.Year - dateOfBirth.Value.Year;
@@ -603,9 +608,7 @@ public class EditApprenticeshipValidationService(
         if ((dateOfBirth.Value.Month > startDate.Month) ||
             (dateOfBirth.Value.Month == startDate.Month &&
              dateOfBirth.Value.Day > startDate.Day))
-        {
             age--;
-        }
 
         return age;
     }
@@ -613,7 +616,7 @@ public class EditApprenticeshipValidationService(
     private bool IsLockedForUpdate(Apprenticeship apprenticeship)
     {
         return (MapApprenticeshipStatus(apprenticeship) == ApprenticeshipStatus.Live &&
-                (apprenticeship.HasHadDataLockSuccess || currentDateTime.UtcNow > academicYearDateProvider.LastAcademicYearFundingPeriod &&
+                (apprenticeship.HasHadDataLockSuccess || _currentDateTime.UtcNow > _academicYearDateProvider.LastAcademicYearFundingPeriod &&
                     !IsWithInFundingPeriod(apprenticeship.StartDate.Value)))
                ||
                (apprenticeship.Cohort.TransferSenderId.HasValue
@@ -631,15 +634,15 @@ public class EditApprenticeshipValidationService(
         return result;
     }
 
-    private static bool IsUpdateLockedForStartDateAndCourse(Apprenticeship apprenticeship)
+    private bool IsUpdateLockedForStartDateAndCourse(Apprenticeship apprenticeship)
     {
         return apprenticeship.Cohort.TransferSenderId.HasValue && !apprenticeship.HasHadDataLockSuccess;
     }
 
     private bool IsWithInFundingPeriod(DateTime trainingStartDate)
     {
-        if (trainingStartDate < academicYearDateProvider.CurrentAcademicYearStartDate &&
-            currentDateTime.UtcNow > academicYearDateProvider.LastAcademicYearFundingPeriod)
+        if (trainingStartDate < _academicYearDateProvider.CurrentAcademicYearStartDate &&
+            _currentDateTime.UtcNow > _academicYearDateProvider.LastAcademicYearFundingPeriod)
         {
             return false;
         }
@@ -649,7 +652,7 @@ public class EditApprenticeshipValidationService(
 
     private ApprenticeshipStatus MapApprenticeshipStatus(Apprenticeship source)
     {
-        var now = new DateTime(currentDateTime.UtcNow.Year, currentDateTime.UtcNow.Month, 1);
+        var now = new DateTime(_currentDateTime.UtcNow.Year, _currentDateTime.UtcNow.Month, 1);
         var waitingToStart = source.StartDate.HasValue && source.StartDate.Value > now;
 
         switch (source.PaymentStatus)
