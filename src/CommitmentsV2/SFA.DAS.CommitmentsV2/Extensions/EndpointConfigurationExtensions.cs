@@ -23,4 +23,17 @@ public static class EndpointConfigurationExtensions
 
         return config;
     }
+
+    public static EndpointConfiguration UseLearningTransport(this EndpointConfiguration config, Action<RoutingSettings> routing = null, string learningTransportFolderPath = null)
+    {
+        TransportExtensions<LearningTransport> transportExtensions = config.UseTransport<LearningTransport>();
+        if (!string.IsNullOrWhiteSpace(learningTransportFolderPath))
+        {
+            transportExtensions.StorageDirectory(learningTransportFolderPath);
+        }
+
+        transportExtensions.Transactions(TransportTransactionMode.ReceiveOnly);
+        routing?.Invoke(transportExtensions.Routing());
+        return config;
+    }
 }
