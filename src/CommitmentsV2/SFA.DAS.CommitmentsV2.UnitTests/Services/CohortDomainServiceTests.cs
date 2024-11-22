@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -20,6 +18,7 @@ using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -193,8 +192,6 @@ public class CohortDomainServiceTests
         _fixture.VerifyException<BadRequestException>();
     }
 
-
-
     [Test]
     public async Task CreateCohortWithOtherParty_ThrowsBadRequest_WhenPledgeApplicationNotFound()
     {
@@ -204,7 +201,6 @@ public class CohortDomainServiceTests
 
         _fixture.VerifyException<BadRequestException>();
     }
-
 
     [Test]
     public async Task CreateCohort_ThrowsBadRequest_WhenAccountIdDoesNotMatchAccountIdOnLegalEntity()
@@ -824,7 +820,6 @@ public class CohortDomainServiceTests
         public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
         public Mock<IAccountApiClient> AccountApiClient { get; set; }
         public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
-        public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
         public PledgeApplication PledgeApplication { get; set; }
         public List<TransferConnectionViewModel> TransferConnections { get; }
 
@@ -901,8 +896,7 @@ public class CohortDomainServiceTests
             LevyTransferMatchingApiClient.Setup(x => x.GetPledgeApplication(PledgeApplicationId.Value))
                 .ReturnsAsync(PledgeApplication);
 
-            TransferConnections = new List<TransferConnectionViewModel>
-                {new TransferConnectionViewModel {FundingEmployerAccountId = TransferSenderId}};
+            TransferConnections = [new TransferConnectionViewModel { FundingEmployerAccountId = TransferSenderId }];
 
 
             DraftApprenticeshipId = fixture.Create<long>();
@@ -945,9 +939,9 @@ public class CohortDomainServiceTests
 
             Db.ChangeOfPartyRequests.Add(ChangeOfPartyRequest.Object);
 
-            var academiceYear = ExistingDraftApprenticeship.StartDate.Value.Month > 7 ? ExistingDraftApprenticeship.StartDate.Value.Year : ExistingDraftApprenticeship.StartDate.Value.Year - 1;
+            var academicYear = ExistingDraftApprenticeship.StartDate.Value.Month > 7 ? ExistingDraftApprenticeship.StartDate.Value.Year : ExistingDraftApprenticeship.StartDate.Value.Year - 1;
             AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(academiceYear, 7, 31));
+            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(academicYear, 7, 31));
 
             UlnValidator = new Mock<IUlnValidator>();
             UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
@@ -961,7 +955,7 @@ public class CohortDomainServiceTests
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OverlapCheckResult(false, false));
             OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<EmailOverlapCheckResult>());
+                .ReturnsAsync([]);
 
             EmployerAgreementService = new Mock<IEmployerAgreementService>();
             EncodingService = new Mock<IEncodingService>();
@@ -979,13 +973,11 @@ public class CohortDomainServiceTests
 
             PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
-            FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-
             RplFundingCalculationService = new Mock<IRplFundingCalculationService>();
             WithNoRplPriceReductionError();
 
             Exception = null;
-            DomainErrors = new List<DomainError>();
+            DomainErrors = [];
             UserInfo = fixture.Create<UserInfo>();
 
             CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -1070,7 +1062,7 @@ public class CohortDomainServiceTests
 
         public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard)
         {
-            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                 "TEST",
                 programmeType,
                 new DateTime(2016, 1, 1),
@@ -1344,7 +1336,7 @@ public class CohortDomainServiceTests
         }
         public CohortDomainServiceTestFixture WithExistingCohortApprovedByAllParties(Party creatingParty)
         {
-            WithCohortMappedToProviderAndAccountLegalEntity(creatingParty, Party.None);
+            WithCohortMappedToProviderAndAccountLegalEntity(creatingParty);
             return this;
         }
 
@@ -1421,7 +1413,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.DateOfBirth = ExistingDraftApprenticeship.DateOfBirth;
             DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
             DraftApprenticeshipDetails.StartDate = ExistingDraftApprenticeship.StartDate;
-            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, ReferenceDate, ReferenceDate);
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, ReferenceDate, ReferenceDate);
 
             if (overlap)
             {

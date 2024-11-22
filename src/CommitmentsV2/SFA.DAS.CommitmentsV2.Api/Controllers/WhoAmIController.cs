@@ -1,30 +1,22 @@
-using SFA.DAS.Authorization.Mvc.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Authentication;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/whoami")]
+public class WhoAmIController(IAuthenticationService authenticationService) : ControllerBase
 {
-    [ApiController]
-    [DasAuthorize]
-    [Route("api/whoami")]
-    public class WhoAmIController : ControllerBase
+    [HttpGet]
+    public IActionResult WhoAmI()
     {
-        private readonly IAuthenticationService _authenticationService;
-
-        public WhoAmIController(IAuthenticationService authenticationService)
-        {
-            _authenticationService = authenticationService;
-        }
-
-        [HttpGet]
-        public IActionResult WhoAmI()
-        {
-            var roles = _authenticationService.GetAllUserRoles().ToList();
+        var roles = authenticationService.GetAllUserRoles().ToList();
             
-            return Ok(new WhoAmIResponse
-            {
-                Roles = roles
-            });
-        }
+        return Ok(new WhoAmIResponse
+        {
+            Roles = roles
+        });
     }
 }
