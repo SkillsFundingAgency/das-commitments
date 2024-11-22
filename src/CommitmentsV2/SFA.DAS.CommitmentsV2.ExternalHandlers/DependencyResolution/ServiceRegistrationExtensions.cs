@@ -54,7 +54,13 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddDefaultExternalHandlerServices(this IServiceCollection services)
     {
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
+
+#if DEBUG
+        services.AddTransient<ITopicClientFactory, LearningTransportTopicClientFactory>();
+#else
         services.AddTransient<ITopicClientFactory, TopicClientFactory>();
+#endif
+
         services.AddTransient<ILegacyTopicMessagePublisher>(s =>
         {
             var config = s.GetService<CommitmentsV2Configuration>();
