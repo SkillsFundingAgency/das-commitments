@@ -57,12 +57,15 @@ A .Net client for the Api can be found on [NuGet](https://www.nuget.org/packages
 
 
 ## Configuration for running locally ##
+
 Get configuration from das-employer-config repo das-commitments/SFA.DAS.CommitmentsV2.json
-change following values
-    DatabaseConnectionString: <Your Database>
-    ReadOnlyDatabaseConnectionString: <Your Database>
-	NServiceBusConfiguration.LearningTransportFolderPath: <Set this to the path you want events to publish to locally or leave blank to publish in solution folder>
-    ReservationsClientApi.UseStub: <true>
-	RedisConnectionString: <localhost>
-	AccountApi.ApiBaseUrl: <If running stubs project use -> http://localhost:3999/accounts-api/>
-    LevyTransferMatchingInnerApiConfiguration.BaseUrl: <If running stubs project use -> http://localhost:3999/levy-transfer-matching-api/>
+```
+    change following values
+        DatabaseConnectionString: <Your Database>
+        ReadOnlyDatabaseConnectionString: <Your Database>
+        NServiceBusConfiguration.LearningTransportFolderPath: <Set this to the path you want events to publish to locally or leave blank to publish in solution folder>
+        ReservationsClientApi.UseStub: <true>
+        RedisConnectionString: <localhost>
+        AccountApi.ApiBaseUrl: <If running stubs project use -> http://localhost:3999/accounts-api/>
+        LevyTransferMatchingInnerApiConfiguration.BaseUrl: <If running stubs project use -> http://localhost:3999/levy-transfer-matching-api/>
+```
