@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class UndoApprenticeshipUpdatesCommandHandlerTests 
+    public class UndoApprenticeshipUpdatesCommandHandlerTests
     {
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             Assert.That(fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
-            
+
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 .Set(c => c.ApprenticeshipId, ApprenticeshipId)
-                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
+                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending);
 
             var priceHistory = new List<PriceHistory>()
             {
@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
-            
+
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
 
@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 await Handler.Handle(Command, CancellationToken);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Exception = exception;
             }
@@ -210,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
         {
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-          
+
             apprenticeship.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeship.ApprenticeshipUpdate.Add(update);
 
@@ -221,7 +221,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()

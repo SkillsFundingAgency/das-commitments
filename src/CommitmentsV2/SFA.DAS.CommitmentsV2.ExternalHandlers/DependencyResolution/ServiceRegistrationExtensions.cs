@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -54,19 +53,6 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddDefaultExternalHandlerServices(this IServiceCollection services)
     {
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
-
-#if DEBUG
-        services.AddTransient<ITopicClientFactory, LearningTransportTopicClientFactory>();
-#else
-        services.AddTransient<ITopicClientFactory, TopicClientFactory>();
-#endif
-
-        services.AddTransient<ILegacyTopicMessagePublisher>(s =>
-        {
-            var config = s.GetService<CommitmentsV2Configuration>();
-            return new LegacyTopicMessagePublisher(s.GetService<ITopicClientFactory>(),
-                s.GetService<ILogger<LegacyTopicMessagePublisher>>(), config.MessageServiceBusConnectionString);
-        });
 
         services.AddTransient<IResolveOverlappingTrainingDateRequestService, ResolveOverlappingTrainingDateRequestService>();
         services.AddTransient<IUlnUtilisationService, UlnUtilisationService>();

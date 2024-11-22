@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NServiceBus;
 using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Authentication;
@@ -19,7 +18,6 @@ using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 
@@ -44,6 +42,7 @@ public static class ServiceRegistrationExtensions
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddNServiceBusUnitOfWork();
             services.AddDomainServices();
+            services.AddEmployerAccountServices(context.Configuration);
             services.AddFeaturesAuthorization();
             services.AddSingleton<IEncodingService, EncodingService>();
             services.AddCurrentDateTimeService(context.Configuration);
@@ -69,18 +68,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
         services.AddTransient<IFundingCapService, FundingCapService>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
-
-#if DEBUG
-        services.AddTransient<ITopicClientFactory, LearningTransportTopicClientFactory>();
-#else
-        services.AddTransient<ITopicClientFactory, TopicClientFactory>();
-#endif
-        services.AddTransient<ILegacyTopicMessagePublisher>(s =>
-        {
-            var config = s.GetService<CommitmentsV2Configuration>();
-            return new LegacyTopicMessagePublisher(s.GetService<ITopicClientFactory>(),
-                s.GetService<ILogger<LegacyTopicMessagePublisher>>(), config.MessageServiceBusConnectionString);
-        });
+       
         services.AddTransient<IEmailOptionalService, EmailOptionalService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
 
