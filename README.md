@@ -56,7 +56,7 @@ For Commitments V2, see: https://github.com/SkillsFundingAgency/das-commitments/
 A .Net client for the Api can be found on [NuGet](https://www.nuget.org/packages/SFA.DAS.Tasks.Api.Client/).
 
 
-## Configuration for running locally
+## Configuration for running locally ##
 Get configuration from das-employer-config repo das-commitments/SFA.DAS.CommitmentsV2.json
 change following values
     DatabaseConnectionString: <Your Database>
