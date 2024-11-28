@@ -1,9 +1,8 @@
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
+
+public class GetAllTrainingProgrammeStandardsQueryResult
 {
-    public class GetAllTrainingProgrammeStandardsQueryResult
-    {
-        public IEnumerable<TrainingProgramme> TrainingProgrammes { get ; set ; }
-    }
+    public IEnumerable<TrainingProgramme> TrainingProgrammes { get ; set ; }
 }

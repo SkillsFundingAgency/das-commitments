@@ -5,23 +5,16 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers.OverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers.OverlappingTrainingDateRequest;
+
+public class ApprenticeshipCompletedEventHandler(
+    ILogger<ApprenticeshipCompletedEventHandler> logger,
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    : IHandleMessages<ApprenticeshipCompletedEvent>
 {
-    public class ApprenticeshipCompletedEventHandler : IHandleMessages<ApprenticeshipCompletedEvent>
+    public async Task Handle(ApprenticeshipCompletedEvent message, IMessageHandlerContext context)
     {
-        private readonly ILogger<ApprenticeshipCompletedEventHandler> _logger;
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
-        public ApprenticeshipCompletedEventHandler(ILogger<ApprenticeshipCompletedEventHandler> logger, IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
-        {
-
-            _logger = logger;
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-        }
-
-        public async Task Handle(ApprenticeshipCompletedEvent message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation($"Recieved Apprenticeship completion event {message.ApprenticeshipId}");
-            await _resolveOverlappingTrainingDateRequestService.Resolve(message.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.CompletionDateEvent);
-        }
+        logger.LogInformation("Received Apprenticeship completion event {ApprenticeshipId}", message.ApprenticeshipId);
+        await resolveOverlappingTrainingDateRequestService.Resolve(message.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.CompletionDateEvent);
     }
 }

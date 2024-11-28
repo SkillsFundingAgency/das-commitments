@@ -23,7 +23,7 @@ public class ProviderApproveCohortCommandHandler(
 
             if (cohort.Approvals.HasFlag(Party.Provider))
             {
-                logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
+                logger.LogWarning("Cohort {CohortId} has already been approved by the Provider", message.CohortId);
                 return;
             }
 

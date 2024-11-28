@@ -6,7 +6,7 @@ public class AddEpaToApprenticeshipsJob(IAddEpaToApprenticeshipService addEpaToA
 {
     public async Task Notify([TimerTrigger("0 */20 * * * *", RunOnStartup = false)] TimerInfo timer)
     {
-        logger.LogInformation($"AddEpaToApprenticeshipsJob - Started{(timer?.IsPastDue ?? false ? " later than expected" : string.Empty)}");
+        logger.LogInformation("AddEpaToApprenticeshipsJob - Started {Time}", timer?.IsPastDue ?? false ? " later than expected" : string.Empty);
 
         await addEpaToApprenticeshipService.Update();
 

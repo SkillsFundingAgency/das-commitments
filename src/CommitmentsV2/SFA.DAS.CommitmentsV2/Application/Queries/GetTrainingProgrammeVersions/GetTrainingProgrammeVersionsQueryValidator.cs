@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
+
+public class GetTrainingProgrammeVersionsQueryValidator : AbstractValidator<GetTrainingProgrammeVersionsQuery>
 {
-    public class GetTrainingProgrammeVersionsQueryValidator : AbstractValidator<GetTrainingProgrammeVersionsQuery>
+    public GetTrainingProgrammeVersionsQueryValidator()
     {
-        public GetTrainingProgrammeVersionsQueryValidator()
-        {
-            RuleFor(q => q.Id).NotEmpty();
-        }
+        RuleFor(q => q.Id).NotEmpty();
     }
 }

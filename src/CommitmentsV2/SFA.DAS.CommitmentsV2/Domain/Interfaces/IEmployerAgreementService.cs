@@ -1,10 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IEmployerAgreementService
 {
-    public interface IEmployerAgreementService
-    {
-        Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId, params AgreementFeature[] requiredFeatures);
-        Task<long?> GetLatestAgreementId(long accountId, long maLegalEntityId);
-    }
+    Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId, params AgreementFeature[] requiredFeatures);
+    Task<long?> GetLatestAgreementId(long accountId, long maLegalEntityId);
 }

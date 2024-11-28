@@ -6,23 +6,12 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 
-public class ImportFrameworksJob
+public class ImportFrameworksJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
 {
-    private readonly ILogger<ImportStandardsJob> _logger;
-    private readonly IApprovalsOuterApiClient _apiClient;
-    private readonly IProviderCommitmentsDbContext _providerContext;
-
-    public ImportFrameworksJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
-    {
-        _logger = logger;
-        _apiClient = apiClient;
-        _providerContext = providerContext;
-    }
-
     public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
     {
-        _logger.LogInformation("ImportFrameworksJob - Started");
-        var response = await _apiClient.Get<FrameworkResponse>(new GetFrameworksRequest());
+        logger.LogInformation("ImportFrameworksJob - Started");
+        var response = await apiClient.Get<FrameworkResponse>(new GetFrameworksRequest());
         var batches = response.Frameworks.Batch(1000).Select(b => b.ToDataTable(
             p => p.Id,
             p => p.FrameworkCode,
@@ -40,9 +29,8 @@ public class ImportFrameworksJob
 
         foreach (var batch in batches)
         {
-            await ImportFrameworks(_providerContext, batch);
+            await ImportFrameworks(providerContext, batch);
         }
-
 
         var fundingPeriodItems = new List<FundingPeriodItem>();
 
@@ -67,9 +55,9 @@ public class ImportFrameworksJob
             ));
         foreach (var batch in fundingBatches)
         {
-            await ImportFrameworksFunding(_providerContext, batch);
+            await ImportFrameworksFunding(providerContext, batch);
         }
-        _logger.LogInformation("ImportFrameworksJob - Finished");
+        logger.LogInformation("ImportFrameworksJob - Finished");
     }
 
     private static Task ImportFrameworks(IProviderCommitmentsDbContext db, DataTable frameworksDataTable)

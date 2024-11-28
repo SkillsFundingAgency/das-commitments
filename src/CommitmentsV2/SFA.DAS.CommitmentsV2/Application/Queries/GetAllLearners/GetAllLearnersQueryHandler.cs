@@ -4,12 +4,8 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 
-public class GetAllLearnersQueryHandler : IRequestHandler<GetAllLearnersQuery, GetAllLearnersQueryResult>
+public class GetAllLearnersQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) : IRequestHandler<GetAllLearnersQuery, GetAllLearnersQueryResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public GetAllLearnersQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) => _dbContext = dbContext;
-
     public Task<GetAllLearnersQueryResult> Handle(GetAllLearnersQuery request, CancellationToken cancellationToken)
     {
         var sinceTimeParam = new SqlParameter("sinceTime", request.SinceTime);
@@ -23,7 +19,7 @@ public class GetAllLearnersQueryHandler : IRequestHandler<GetAllLearnersQuery, G
         var batchSizeParam = new SqlParameter("batchSize", request.BatchSize) { Direction = System.Data.ParameterDirection.InputOutput };
         var totalNumberOfBatchesParam = new SqlParameter("totalNumberOfBatches", System.Data.SqlDbType.Int) { Direction = System.Data.ParameterDirection.Output };
 
-        var learnersBatch = _dbContext.Value.Learners
+        var learnersBatch = dbContext.Value.Learners
             .FromSqlRaw("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
             .ToList();
 

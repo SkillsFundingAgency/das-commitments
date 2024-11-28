@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+
+public class EditApprenticeshipResponse
 {
-    public class EditApprenticeshipResponse
-    {
-        public long ApprenticeshipId { get; set; }
-        public bool NeedReapproval { get; set; }
-    }
+    public long ApprenticeshipId { get; set; }
+    public bool NeedReapproval { get; set; }
 }

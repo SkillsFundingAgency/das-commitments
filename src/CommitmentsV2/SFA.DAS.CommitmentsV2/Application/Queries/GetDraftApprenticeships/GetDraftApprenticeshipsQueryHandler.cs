@@ -2,58 +2,51 @@
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
+
+public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+    : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
 {
-    public class GetDraftApprenticeshipsQueryHandler : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
+    public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        var cohort = dbContext.Value.Cohorts
+            .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+            .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
+            .Where(x => x.Id == query.CohortId)
+            .Select(x => new { DraftApprenticeships = x.Apprenticeships })
+            .SingleOrDefault();
 
-        public GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        return Task.FromResult(new GetDraftApprenticeshipsQueryResult
         {
-            _dbContext = dbContext;
-        }
-
-        public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
-        {
-            var cohort = _dbContext.Value.Cohorts
-                .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
-                .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
-                .Where(x => x.Id == query.CohortId)
-                .Select(x => new { DraftApprenticeships = x.Apprenticeships})
-                .SingleOrDefault();
-
-            return Task.FromResult(new GetDraftApprenticeshipsQueryResult
+            DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
             {
-                DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
-                {
-                    Id = a.Id,
-                    FirstName = a.FirstName,
-                    LastName = a.LastName,
-                    Email = a.Email,
-                    Cost = (int?) a.Cost,
-                    TrainingPrice = a.TrainingPrice,
-                    EndPointAssessmentPrice = a.EndPointAssessmentPrice,
-                    CourseCode = a.CourseCode,
-                    CourseName = a.CourseName,
-                    DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
-                    DateOfBirth =  a.DateOfBirth,
-                    StartDate = a.StartDate,
-                    ActualStartDate = a.ActualStartDate,
-                    EndDate = a.EndDate,
-                    Uln = a.Uln,
-                    OriginalStartDate = a.OriginalStartDate,
-                    EmploymentEndDate = a.FlexibleEmployment?.EmploymentEndDate,
-                    EmploymentPrice = a.FlexibleEmployment?.EmploymentPrice,
-                    RecognisePriorLearning = a.RecognisePriorLearning,
-                    DurationReducedBy = a.PriorLearning?.DurationReducedBy,
-                    PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                    RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
-                    IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
-                    EmployerHasEditedCost = a.EmployerHasEditedCost,
-                    EmailAddressConfirmed = a.EmailAddressConfirmed,
-                    DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
-                }).ToList()
-            });
-        }
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Email = a.Email,
+                Cost = (int?)a.Cost,
+                TrainingPrice = a.TrainingPrice,
+                EndPointAssessmentPrice = a.EndPointAssessmentPrice,
+                CourseCode = a.CourseCode,
+                CourseName = a.CourseName,
+                DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
+                DateOfBirth = a.DateOfBirth,
+                StartDate = a.StartDate,
+                ActualStartDate = a.ActualStartDate,
+                EndDate = a.EndDate,
+                Uln = a.Uln,
+                OriginalStartDate = a.OriginalStartDate,
+                EmploymentEndDate = a.FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = a.FlexibleEmployment?.EmploymentPrice,
+                RecognisePriorLearning = a.RecognisePriorLearning,
+                DurationReducedBy = a.PriorLearning?.DurationReducedBy,
+                PriceReducedBy = a.PriorLearning?.PriceReducedBy,
+                RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
+                IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
+                EmployerHasEditedCost = a.EmployerHasEditedCost,
+                EmailAddressConfirmed = a.EmailAddressConfirmed,
+                DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
+            }).ToList()
+        });
     }
 }

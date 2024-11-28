@@ -2,17 +2,16 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
+namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
+
+public class GetDataLockSummariesResponseMapper : IMapper<GetDataLockSummariesQueryResult, GetDataLockSummariesResponse>
 {
-    public class GetDataLockSummariesResponseMapper : IMapper<GetDataLockSummariesQueryResult, GetDataLockSummariesResponse>
+    public Task<GetDataLockSummariesResponse> Map(GetDataLockSummariesQueryResult result)
     {
-        public Task<GetDataLockSummariesResponse> Map(GetDataLockSummariesQueryResult result)
+        return Task.FromResult(new GetDataLockSummariesResponse
         {
-            return Task.FromResult(new GetDataLockSummariesResponse
-            {
-                DataLocksWithCourseMismatch = result.DataLocksWithCourseMismatch,
-                DataLocksWithOnlyPriceMismatch = result.DataLocksWithOnlyPriceMismatch
-            });
-        }
+            DataLocksWithCourseMismatch = result.DataLocksWithCourseMismatch,
+            DataLocksWithOnlyPriceMismatch = result.DataLocksWithOnlyPriceMismatch
+        });
     }
 }

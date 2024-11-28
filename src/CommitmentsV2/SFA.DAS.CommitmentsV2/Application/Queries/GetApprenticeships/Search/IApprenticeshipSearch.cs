@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
+
+public interface IApprenticeshipSearch
 {
-    public interface IApprenticeshipSearch
-    {
-        Task<ApprenticeshipSearchResult> Find<T>(T searchParams);
-    }
+    Task<ApprenticeshipSearchResult> Find<T>(T searchParams);
 }

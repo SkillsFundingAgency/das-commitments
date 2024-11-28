@@ -14,71 +14,55 @@ using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
-[Route("api/cohorts/{cohortId}/draft-apprenticeships")]
+[Route("api/cohorts/{cohortId:long}/draft-apprenticeships")]
 [ApiController]
 [Authorize]
-public class DraftApprenticeshipController : Controller
+public class DraftApprenticeshipController(
+    IMediator mediator,
+    IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
+    IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
+    IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper,
+    IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
+    IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper)
+    : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
-    private readonly IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
-    private readonly IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
-    private readonly IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
-    private readonly IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
-
-    public DraftApprenticeshipController(
-        IMediator mediator,
-        IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
-        IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
-        IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
-        IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
-        IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
-    )
-    {
-        _mediator = mediator;
-        _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
-        _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
-        _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
-        _getDraftApprenticeshipsResultMapper = getDraftApprenticeshipsResultMapper;
-        _deleteDraftApprenticeshipsMapper = deleteDraftApprenticeshipsMapper;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetAll(long cohortId)
     {
-        var result = await _mediator.Send(new GetDraftApprenticeshipsQuery(cohortId));
-        var response = await _getDraftApprenticeshipsResultMapper.Map(result);
+        var result = await mediator.Send(new GetDraftApprenticeshipsQuery(cohortId));
+        var response = await getDraftApprenticeshipsResultMapper.Map(result);
 
         if (response.DraftApprenticeships == null)
         {
             return NotFound();
         }
+        
         return Ok(response);
     }
 
     [HttpGet]
-    [Route("{apprenticeshipId}")]
+    [Route("{apprenticeshipId:long}")]
     public async Task<IActionResult> Get(long cohortId, long apprenticeshipId)
     {
         var command = new GetDraftApprenticeshipQuery(cohortId, apprenticeshipId);
 
-        var response = await _mediator.Send(command);
+        var response = await mediator.Send(command);
 
         if (response == null)
         {
             return NotFound();
         }
 
-        return Ok(await _getDraftApprenticeshipMapper.Map(response));
+        return Ok(await getDraftApprenticeshipMapper.Map(response));
     }
 
     [HttpGet]
-    [Route("{apprenticeshipId}/prior-learning-summary")]
+    [Route("{apprenticeshipId:long}/prior-learning-summary")]
     public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
     {
         var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
 
-        var response = await _mediator.Send(query);
+        var response = await mediator.Send(query);
 
         if (response == null)
         {
@@ -101,37 +85,38 @@ public class DraftApprenticeshipController : Controller
     }
     
     [HttpPut]
-    [Route("{apprenticeshipId}")]
+    [Route("{apprenticeshipId:long}")]
     public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
     {
-        var command = await _updateDraftApprenticeshipMapper.Map(request);
+        var command = await updateDraftApprenticeshipMapper.Map(request);
         command.CohortId = cohortId;
         command.ApprenticeshipId = apprenticeshipId;
 
-        await _mediator.Send(command);
+        await mediator.Send(command);
 
         return Ok();
     }
 
     [HttpPost]
-    [Route("{apprenticeshipId}/recognise-prior-learning")]
+    [Route("{apprenticeshipId:long}/recognise-prior-learning")]
     public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
     {
-        await _mediator.Send(new RecognisePriorLearningCommand
+        await mediator.Send(new RecognisePriorLearningCommand
         {
             ApprenticeshipId = apprenticeshipId, 
             CohortId = cohortId,
             RecognisePriorLearning = request.RecognisePriorLearning, 
             UserInfo = request.UserInfo
         });
+        
         return Ok();
     }
 
     [HttpPost]
-    [Route("{apprenticeshipId}/prior-learning-data")]
+    [Route("{apprenticeshipId:long}/prior-learning-data")]
     public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
     {
-        await _mediator.Send(new PriorLearningDataCommand
+        await mediator.Send(new PriorLearningDataCommand
         {
             ApprenticeshipId = apprenticeshipId,
             CohortId = cohortId,
@@ -142,17 +127,18 @@ public class DraftApprenticeshipController : Controller
             TrainingTotalHours = request.TrainingTotalHours,
             UserInfo = request.UserInfo
         });
+        
         return Ok();
     }
 
     [HttpPost]
     public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
     {
-        var command = await _addDraftApprenticeshipMapper.Map(request);
+        var command = await addDraftApprenticeshipMapper.Map(request);
 
         command.CohortId = cohortId;
             
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
             
         return Ok(new AddDraftApprenticeshipResponse
         {
@@ -161,14 +147,14 @@ public class DraftApprenticeshipController : Controller
     }
 
     [HttpPost]
-    [Route("{apprenticeshipId}")]
+    [Route("{apprenticeshipId:long}")]
     public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
     {
-        var command = await _deleteDraftApprenticeshipsMapper.Map(request);
+        var command = await deleteDraftApprenticeshipsMapper.Map(request);
         command.CohortId = cohortId;
         command.ApprenticeshipId = apprenticeshipId;
 
-        await _mediator.Send(command);
+        await mediator.Send(command);
 
         return Ok();
     }

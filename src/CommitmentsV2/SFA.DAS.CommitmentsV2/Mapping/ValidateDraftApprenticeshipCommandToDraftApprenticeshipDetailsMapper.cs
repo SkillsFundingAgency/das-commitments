@@ -5,8 +5,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping;
 
-public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
-    : IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails>
+public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup) : IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails>
 {
     public async Task<DraftApprenticeshipDetails> Map(ValidateDraftApprenticeshipDetailsCommand comand)
     {

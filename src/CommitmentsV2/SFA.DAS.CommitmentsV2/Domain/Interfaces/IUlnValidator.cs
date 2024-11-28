@@ -1,9 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IUlnValidator
 {
-    public interface IUlnValidator
-    {
-        UlnValidationResult Validate(string uln);
-    }
+    UlnValidationResult Validate(string uln);
 }

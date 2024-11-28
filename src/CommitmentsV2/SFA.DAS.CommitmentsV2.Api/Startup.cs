@@ -91,8 +91,7 @@ public class Startup
         services.AddDasDistributedMemoryCache(_configuration, _env.IsDevelopment());
         services.AddDasHealthChecks(_configuration);
         services.AddMemoryCache();
-        services.AddApiClients(_configuration);
-        services.AddApplicationInsightsTelemetry();
+        services.AddApiClients();
         services.AddTelemetryUriRedaction("firstName,lastName,dateOfBirth,email");
 
         services.AddAcademicYearDateProviderServices();
@@ -120,6 +119,8 @@ public class Startup
         services.AddDefaultServices(_configuration);
         services.AddNServiceBusClientUnitOfWork();
         services.AddProviderRelationshipsApiClient(_configuration);
+
+        services.AddApplicationInsightsTelemetry();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)

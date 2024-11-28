@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Client
+﻿namespace SFA.DAS.CommitmentsV2.Api.Client;
+
+public interface ICommitmentsApiClientFactory
 {
-    public interface ICommitmentsApiClientFactory
-    {
-        ICommitmentsApiClient CreateClient();
-    }
+    ICommitmentsApiClient CreateClient();
 }

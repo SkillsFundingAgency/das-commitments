@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
+
+public class PauseApprenticeshipRequest : SaveDataRequest
 {
-    public class PauseApprenticeshipRequest : SaveDataRequest
-    {
-        public long ApprenticeshipId { get; set; }
-    }
+    public long ApprenticeshipId { get; set; }
 }

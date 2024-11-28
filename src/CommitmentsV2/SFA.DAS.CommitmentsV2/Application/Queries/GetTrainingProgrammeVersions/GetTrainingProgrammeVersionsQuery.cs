@@ -1,12 +1,11 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions
-{
-    public class GetTrainingProgrammeVersionsQuery : IRequest<GetTrainingProgrammeVersionsQueryResult>
-    {
-        public string Id { get; set; }
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 
-        public GetTrainingProgrammeVersionsQuery(string id)
-        {
-            Id = id;
-        }
+public class GetTrainingProgrammeVersionsQuery : IRequest<GetTrainingProgrammeVersionsQueryResult>
+{
+    public string Id { get; set; }
+
+    public GetTrainingProgrammeVersionsQuery(string id)
+    {
+        Id = id;
     }
 }

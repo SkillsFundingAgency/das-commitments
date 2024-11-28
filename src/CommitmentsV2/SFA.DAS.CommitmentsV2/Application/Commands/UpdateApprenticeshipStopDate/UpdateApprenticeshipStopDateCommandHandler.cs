@@ -15,48 +15,28 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 
-public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<UpdateApprenticeshipStopDateCommand>
+public class UpdateApprenticeshipStopDateCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<UpdateApprenticeshipStopDateCommandHandler> logger,
+    ICurrentDateTime currentDate,
+    IAuthenticationService authenticationService,
+    IMessageSession nserviceBusContext,
+    IEncodingService encodingService,
+    IOverlapCheckService overlapCheckService,
+    CommitmentsV2Configuration commitmentsV2Configuration,
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    : IRequestHandler<UpdateApprenticeshipStopDateCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ILogger<UpdateApprenticeshipStopDateCommandHandler> _logger;
-    private readonly ICurrentDateTime _currentDate;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IMessageSession _nserviceBusContext;
-    private readonly IEncodingService _encodingService;
-    private readonly IOverlapCheckService _overlapCheckService;
-    private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-    private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
     private const string StopEditNotificationEmailTemplate = "ProviderApprenticeshipStopEditNotification";
-
-    public UpdateApprenticeshipStopDateCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<UpdateApprenticeshipStopDateCommandHandler> logger,
-        ICurrentDateTime currentDate,
-        IAuthenticationService authenticationService,
-        IMessageSession nserviceBusContext,
-        IEncodingService encodingService,
-        IOverlapCheckService overlapCheckService,
-        CommitmentsV2Configuration commitmentsV2Configuration,
-        IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-        _currentDate = currentDate;
-        _authenticationService = authenticationService;
-        _nserviceBusContext = nserviceBusContext;
-        _encodingService = encodingService;
-        _overlapCheckService = overlapCheckService;
-        _commitmentsV2Configuration = commitmentsV2Configuration;
-        _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-    }
 
     public async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Employer: {AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {ApprenticeshipId} ", command.AccountId, command.ApprenticeshipId);
+        logger.LogInformation("Employer: {AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {ApprenticeshipId} ", command.AccountId, command.ApprenticeshipId);
 
-        var party = _authenticationService.GetUserParty();
+        var party = authenticationService.GetUserParty();
         CheckPartyIsValid(party);
 
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
 
         CheckAuthorization(command, apprenticeship);
 
@@ -65,14 +45,16 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
         ValidateEndDateOverlap(command, apprenticeship, cancellationToken);
 
         var oldStopDate = apprenticeship.StopDate;
-        apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
-        await _dbContext.Value.SaveChangesAsync(cancellationToken);
+        apprenticeship.ApprenticeshipStopDate(command, currentDate, party);
+        
+        await dbContext.Value.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Update apprenticeship stop date. Apprenticeship-Id:{ApprenticeshipId}", command.ApprenticeshipId);
+        logger.LogInformation("Update apprenticeship stop date. Apprenticeship-Id:{ApprenticeshipId}", command.ApprenticeshipId);
 
-        await _resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
+        await resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
-        _logger.LogInformation("Sending email to Provider {CohortProviderId}, template {StopEditNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopEditNotificationEmailTemplate);
+        logger.LogInformation("Sending email to Provider {CohortProviderId}, template {StopEditNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopEditNotificationEmailTemplate);
+        
         await NotifyProvider(apprenticeship, oldStopDate, command.StopDate);
     }
 
@@ -96,7 +78,7 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
             throw new DomainException(nameof(newStopDate), "Apprenticeship must be stopped in order to update stop date");
         }
 
-        if (newStopDate.Date > _currentDate.UtcNow.Date)
+        if (newStopDate.Date > currentDate.UtcNow.Date)
             throw new DomainException(nameof(newStopDate), "Invalid Date of Change. Date cannot be in the future.");
 
         if (newStopDate.Date == apprenticeship.StopDate.Value.Date)
@@ -110,7 +92,7 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
     {
         if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-        var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
 
         if (!overlapResult.Result.HasOverlaps) return;
 
@@ -138,9 +120,9 @@ public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<Update
                    {"APPRENTICE", apprenticeship.ApprenticeName },
                    {"OLDDATE", oldStopDate.Value.ToString("dd/MM/yyyy") },
                    {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
-                   {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
+                   {"URL", $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
             });
 
-        await _nserviceBusContext.Send(sendEmailToProviderCommand);
+        await nserviceBusContext.Send(sendEmailToProviderCommand);
     }
 }

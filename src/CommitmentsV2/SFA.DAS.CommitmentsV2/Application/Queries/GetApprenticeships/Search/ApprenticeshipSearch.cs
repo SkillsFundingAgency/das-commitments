@@ -1,22 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
+
+public class ApprenticeshipSearch(IServiceProvider serviceProvider) : IApprenticeshipSearch
 {
-    public class ApprenticeshipSearch : IApprenticeshipSearch
+    public async Task<ApprenticeshipSearchResult> Find<T>(T searchParams)
     {
-        private readonly IServiceProvider _serviceProvider;
+        var handler = serviceProvider.GetService<IApprenticeshipSearchService<T>>();
 
-        public ApprenticeshipSearch(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public async Task<ApprenticeshipSearchResult> Find<T>(T searchParams)
-        {
-            var handler =  _serviceProvider.GetService<IApprenticeshipSearchService<T>>();
-            
-            return await handler.Find(searchParams);
-        }
+        return await handler.Find(searchParams);
     }
 }

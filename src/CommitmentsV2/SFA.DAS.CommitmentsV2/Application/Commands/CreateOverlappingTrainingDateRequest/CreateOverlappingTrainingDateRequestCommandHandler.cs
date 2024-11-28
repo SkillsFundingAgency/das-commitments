@@ -1,35 +1,31 @@
 ﻿using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest
-{
-    public class CreateOverlappingTrainingDateRequestCommandHandler : IRequestHandler<
+namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
+
+public class CreateOverlappingTrainingDateRequestCommandHandler(
+    IOverlappingTrainingDateRequestDomainService overlappingTrainingDateRequestDomainService,
+    IAuthenticationService authenticationService)
+    : IRequestHandler<
         CreateOverlappingTrainingDateRequestCommand, CreateOverlappingTrainingDateResult>
+{
+    public async Task<CreateOverlappingTrainingDateResult> Handle(
+        CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
     {
-        private readonly IOverlappingTrainingDateRequestDomainService _overlappingTrainingDateRequestDomainService;
-        private readonly IAuthenticationService _authenticationService;
+        var originatingParty = authenticationService.GetUserParty();
+        
+        var result =
+            await overlappingTrainingDateRequestDomainService.CreateOverlappingTrainingDateRequest(
+                request.DraftApprenticeshipId,
+                originatingParty,
+                null,
+                request.UserInfo,
+                cancellationToken
+            );
 
-        public CreateOverlappingTrainingDateRequestCommandHandler(
-            IOverlappingTrainingDateRequestDomainService overlappingTrainingDateRequestDomainService,
-            IAuthenticationService authenticationService)
+        return new CreateOverlappingTrainingDateResult
         {
-            _overlappingTrainingDateRequestDomainService = overlappingTrainingDateRequestDomainService;
-            _authenticationService = authenticationService;
-        }
-
-        public async Task<CreateOverlappingTrainingDateResult> Handle(
-            CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
-        {
-            var originatingParty = _authenticationService.GetUserParty();
-            var result = await _overlappingTrainingDateRequestDomainService
-                .CreateOverlappingTrainingDateRequest(request.DraftApprenticeshipId, originatingParty, null,
-                    request.UserInfo,
-                    cancellationToken);
-
-            return new CreateOverlappingTrainingDateResult
-            {
-                Id = result.Id
-            };
-        }
+            Id = result.Id
+        };
     }
 }

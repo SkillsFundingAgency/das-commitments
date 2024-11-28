@@ -9,43 +9,41 @@ using SFA.DAS.CommitmentsV2.Api.Types.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 
-namespace SFA.DAS.CommitmentsV2.Api.Client.Http
+namespace SFA.DAS.CommitmentsV2.Api.Client.Http;
+
+public class CommitmentsRestHttpClient : RestHttpClient
 {
-    public class CommitmentsRestHttpClient : RestHttpClient
+    private readonly ILogger<CommitmentsRestHttpClient> _logger;
+
+    public CommitmentsRestHttpClient(HttpClient httpClient, ILoggerFactory loggerFactory) : base(httpClient)
     {
-        private readonly ILogger<CommitmentsRestHttpClient> _logger;
+        _logger = loggerFactory.CreateLogger<CommitmentsRestHttpClient>();
+    }
 
-        public CommitmentsRestHttpClient(HttpClient httpClient, ILoggerFactory loggerFactory) : base(httpClient)
+    protected override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
+    {
+        if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest && httpResponseMessage.GetSubStatusCode() == HttpSubStatusCode.DomainException)
         {
-            _logger = loggerFactory.CreateLogger<CommitmentsRestHttpClient>();
+            return CreateApiModelException(httpResponseMessage, content);
         }
 
-        protected override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
+        return base.CreateClientException(httpResponseMessage, content);
+    }
+
+    private CommitmentsApiModelException CreateApiModelException(HttpResponseMessage httpResponseMessage, string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
         {
-            if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest && httpResponseMessage.GetSubStatusCode() == HttpSubStatusCode.DomainException)
-            {
-                return CreateApiModelException(httpResponseMessage, content);
-            }
-            else
-            {
-               return base.CreateClientException(httpResponseMessage, content);
-            }
+            _logger.LogWarning("{RequestUri} has returned an empty string when an array of error responses was expected.", httpResponseMessage.RequestMessage.RequestUri);
+            return new CommitmentsApiModelException([]);
         }
 
-        private Exception CreateApiModelException(HttpResponseMessage httpResponseMessage, string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                _logger.LogWarning($"{httpResponseMessage.RequestMessage.RequestUri} has returned an empty string when an array of error responses was expected.");
-                return new CommitmentsApiModelException(new List<ErrorDetail>());
-            }
+        var errors = new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors);
 
-            var errors = new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors);
+        var errorDetails = string.Join(";", errors.Errors.Select(errorDetail => $"{errorDetail.Field} ({errorDetail.Message})"));
+        _logger.Log(errors.Errors.Count == 0 ? LogLevel.Warning : LogLevel.Debug, "{RequestUri} has returned {ErrorCount} errors: {ErrorDetails}", 
+            httpResponseMessage.RequestMessage.RequestUri, errors.Errors.Count, errorDetails);
 
-            var errorDetails = string.Join(";", errors.Errors.Select(e => $"{e.Field} ({e.Message})"));
-            _logger.Log(errors.Errors.Count == 0 ? LogLevel.Warning : LogLevel.Debug, $"{httpResponseMessage.RequestMessage.RequestUri} has returned {errors.Errors.Count} errors: {errorDetails}");
-
-            return errors;
-        }
+        return errors;
     }
 }

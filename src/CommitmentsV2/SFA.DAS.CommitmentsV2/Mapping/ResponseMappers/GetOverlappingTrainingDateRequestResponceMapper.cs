@@ -2,24 +2,23 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
+namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
+
+public class GetOverlappingTrainingDateRequestResponceMapper : IMapper<GetOverlappingTrainingDateRequestQueryResult, GetOverlappingTrainingDateRequestResponce>
 {
-    public class GetOverlappingTrainingDateRequestResponceMapper : IMapper<GetOverlappingTrainingDateRequestQueryResult, GetOverlappingTrainingDateRequestResponce>
+    public Task<GetOverlappingTrainingDateRequestResponce> Map(GetOverlappingTrainingDateRequestQueryResult source)
     {
-        public Task<GetOverlappingTrainingDateRequestResponce> Map(GetOverlappingTrainingDateRequestQueryResult source)
+        return Task.FromResult(new GetOverlappingTrainingDateRequestResponce
         {
-            return Task.FromResult(new GetOverlappingTrainingDateRequestResponce
+            OverlappingTrainingDateRequest = source.OverlappingTrainingDateRequests.Select(x => new ApprenticeshipOverlappingTrainingDateRequest
             {
-                OverlappingTrainingDateRequest = source.OverlappingTrainingDateRequests.Select(x => new ApprenticeshipOverlappingTrainingDateRequest
-                {
-                    Id = x.Id,
-                    DraftApprenticeshipId = x.DraftApprenticeshipId,
-                    PreviousApprenticeshipId = x.PreviousApprenticeshipId,
-                    ResolutionType = x.ResolutionType,
-                    Status = x.Status,
-                    ActionedOn = x.ActionedOn
-                }).ToList()
-            });
-        }
+                Id = x.Id,
+                DraftApprenticeshipId = x.DraftApprenticeshipId,
+                PreviousApprenticeshipId = x.PreviousApprenticeshipId,
+                ResolutionType = x.ResolutionType,
+                Status = x.Status,
+                ActionedOn = x.ActionedOn
+            }).ToList()
+        });
     }
 }

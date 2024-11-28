@@ -2,45 +2,37 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
+
+public class ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext) : OrderedApprenticeshipSearchBaseService, IApprenticeshipSearchService<ReverseOrderedApprenticeshipSearchParameters>
 {
-    public class ReverseOrderedApprenticeshipSearchService : OrderedApprenticeshipSearchBaseService, IApprenticeshipSearchService<ReverseOrderedApprenticeshipSearchParameters>
+    public async Task<ApprenticeshipSearchResult> Find(ReverseOrderedApprenticeshipSearchParameters searchParameters)
     {
-        private readonly IProviderCommitmentsDbContext _dbContext;
-
-        public ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
-        public async Task<ApprenticeshipSearchResult> Find(ReverseOrderedApprenticeshipSearchParameters searchParameters)
-        {
-            var apprenticeshipsQuery = _dbContext
-                .Apprenticeships
-                .WithProviderOrEmployerId(searchParameters)
-                .DownloadsFilter(searchParameters.PageNumber == 0);
+        var apprenticeshipsQuery = dbContext
+            .Apprenticeships
+            .WithProviderOrEmployerId(searchParameters)
+            .DownloadsFilter(searchParameters.PageNumber == 0);
                 
-            var totalAvailableApprenticeships = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
+        var totalAvailableApprenticeships = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
                 
-            apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
+        apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true, searchParameters).CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true, searchParameters).CountAsync(searchParameters.CancellationToken);
 
-            apprenticeshipsQuery = apprenticeshipsQuery
-                .OrderByDescending(GetOrderByField(searchParameters.FieldName))
-                .ThenByDescending(GetSecondarySortByField(searchParameters.FieldName))
-                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Include(apprenticeship => apprenticeship.PriceHistory)
-                .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.AccountLegalEntity)
-                .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.Provider)
-                .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
+        apprenticeshipsQuery = apprenticeshipsQuery
+            .OrderByDescending(GetOrderByField(searchParameters.FieldName))
+            .ThenByDescending(GetSecondarySortByField(searchParameters.FieldName))
+            .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+            .Include(apprenticeship => apprenticeship.DataLockStatus)
+            .Include(apprenticeship => apprenticeship.PriceHistory)
+            .Include(apprenticeship => apprenticeship.Cohort)
+            .ThenInclude(cohort => cohort.AccountLegalEntity)
+            .Include(apprenticeship => apprenticeship.Cohort)
+            .ThenInclude(cohort => cohort.Provider)
+            .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
 
-            var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 
-            return await CreatePagedApprenticeshipSearchResult(searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound, totalAvailableApprenticeships, searchParameters.CancellationToken);
-        }
+        return await CreatePagedApprenticeshipSearchResult(searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound, totalAvailableApprenticeships, searchParameters.CancellationToken);
     }
 }

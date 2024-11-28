@@ -1,9 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IApprenticeshipDomainService
 {
-    public interface IApprenticeshipDomainService
-    {
-        Task<List<EmployerAlertSummaryNotification>> GetEmployerAlertSummaryNotifications();
-    }
+    Task<List<EmployerAlertSummaryNotification>> GetEmployerAlertSummaryNotifications();
 }

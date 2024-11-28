@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
+
+public class RecognisePriorLearningRequest : SaveDataRequest
 {
-    public class RecognisePriorLearningRequest : SaveDataRequest
-    {
-        public bool? RecognisePriorLearning { get; set; }
-    }
+    public bool? RecognisePriorLearning { get; set; }
 }

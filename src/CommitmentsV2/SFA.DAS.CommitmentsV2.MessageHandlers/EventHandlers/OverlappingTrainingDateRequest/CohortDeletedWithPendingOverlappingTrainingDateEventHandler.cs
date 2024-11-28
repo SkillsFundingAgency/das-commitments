@@ -4,77 +4,67 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
+
+public class CohortDeletedWithPendingOverlappingTrainingDateEventHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
+    ILogger<CohortDeletedWithPendingOverlappingTrainingDateEventHandler> logger)
+    : IHandleMessages<CohortDeletedEvent>
 {
-    public class CohortDeletedWithPendingOverlappingTrainingDateEventHandler : IHandleMessages<CohortDeletedEvent>
+    public async Task Handle(CohortDeletedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<CohortDeletedWithPendingOverlappingTrainingDateEventHandler> _logger;
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
+        logger.LogInformation("CohortDeletedEvent received for Cohort {CohortId}, with pending OverlappingTrainingDateRequest", message.CohortId);
 
-        public CohortDeletedWithPendingOverlappingTrainingDateEventHandler(
-            Lazy<ProviderCommitmentsDbContext> dbContext,
-            IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
-            ILogger<CohortDeletedWithPendingOverlappingTrainingDateEventHandler> logger)
+        try
         {
-            _dbContext = dbContext;
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
-            _logger = logger;
+            var cohort = await dbContext.Value.Cohorts
+                .IgnoreQueryFilters()
+                .Include(x => x.Apprenticeships)
+                .ThenInclude(a => (a as Apprenticeship).OverlappingTrainingDateRequests)
+                .Include(x => x.Apprenticeships)
+                .ThenInclude(a => (a as DraftApprenticeship).OverlappingTrainingDateRequests)
+                .Where(x => x.Id == message.CohortId)
+                .FirstOrDefaultAsync();
+
+            if (cohort == null)
+            {
+                logger.LogWarning("No cohort found for Id {CohortId}", message.CohortId);
+                return;
+            }
+
+            var overlappingTrainingDateRequests = cohort.Apprenticeships
+                .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
+                .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                .ToList();
+
+            if (overlappingTrainingDateRequests.Count == 0)
+            {
+                logger.LogWarning("No OverlappingTrainingDateRequests found for Cohort Id {cohortId}", message.CohortId);
+                return;
+            }
+
+            foreach (var request in overlappingTrainingDateRequests)
+            {
+                if (request.Status == OverlappingTrainingDateRequestStatus.Pending)
+                {
+                    logger.LogInformation("Resolving OverlappingTrainingDateRequest {Id} for Cohort Id {CohortId}", request.Id, message.CohortId);
+
+                    await resolveOverlappingTrainingDateRequestService.Resolve(
+                        request.PreviousApprenticeshipId,
+                        null,
+                        OverlappingTrainingDateRequestResolutionType.CohortDeleted);
+                }
+                else
+                {
+                    logger.LogWarning("Unable to modify OverlappingTrainingDateRequest {Id} - status is already {Status}", request.Id, request.Status);
+                }
+            }
         }
-        public async Task Handle(CohortDeletedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation("CohortDeletedEvent received for Cohort {cohortId}, with pending OverlappingTrainingDateRequest", message.CohortId);
-
-            try
-            {
-                var cohort = await _dbContext.Value.Cohorts
-                    .IgnoreQueryFilters()
-                    .Include(x => x.Apprenticeships)
-                        .ThenInclude(a => (a as Apprenticeship).OverlappingTrainingDateRequests)
-                    .Include(x => x.Apprenticeships)
-                        .ThenInclude(a => (a as DraftApprenticeship).OverlappingTrainingDateRequests)
-                    .Where(x => x.Id == message.CohortId)
-                    .FirstOrDefaultAsync();
-
-                if (cohort == null)
-                {
-                    _logger.LogWarning("No cohort found for Id {cohortId}", message.CohortId);
-                    return;
-                }
-
-                var overlappingTrainingDateRequests = cohort.Apprenticeships
-                  .Where(apprenticeship => apprenticeship.OverlappingTrainingDateRequests != null)
-                  .SelectMany(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                  .ToList();
-
-                if (!overlappingTrainingDateRequests.Any())
-                {
-                    _logger.LogWarning("No OverlappingTrainingDateRequests found for Cohort Id {cohortId}", message.CohortId);
-                    return;
-                }
-
-                foreach (var request in overlappingTrainingDateRequests)
-                {
-                    if (request.Status == OverlappingTrainingDateRequestStatus.Pending)
-                    {
-                        _logger.LogInformation("Resolving OverlappingTrainingDateRequest {id} for Cohort Id {cohortId}", request.Id, message.CohortId);
-
-                        await _resolveOverlappingTrainingDateRequestService.Resolve(
-                          request.PreviousApprenticeshipId,
-                          null,
-                          OverlappingTrainingDateRequestResolutionType.CohortDeleted);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Unable to modify OverlappingTrainingDateRequest {id} - status is already {status}", request.Id, request.Status);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error processing CohortWithPendingOverlappingTrainingDateRequestDeletedEvent");
-                throw;
-            }
+            logger.LogError(e, "Error processing CohortWithPendingOverlappingTrainingDateRequestDeletedEvent");
+            throw;
         }
     }
 }

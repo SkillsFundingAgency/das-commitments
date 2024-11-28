@@ -2,26 +2,21 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId;
 
-public class AddLastSubmissionEventIdCommandHandler : IRequestHandler<AddLastSubmissionEventIdCommand>
+public class AddLastSubmissionEventIdCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext) : IRequestHandler<AddLastSubmissionEventIdCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public AddLastSubmissionEventIdCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
-    {
-        _dbContext = dbContext;
-    }
     public async Task Handle(AddLastSubmissionEventIdCommand request, CancellationToken cancellationToken)
     {
-        var jobProgress = _dbContext.Value.JobProgress.FirstOrDefault(x => x.Lock == "X");
+        var jobProgress = await dbContext.Value.JobProgress.FirstOrDefaultAsync(x => x.Lock == "X", cancellationToken);
+        
         if (jobProgress != null)
         {
             jobProgress.AddEpaLastSubmissionEventId = request.LastSubmissionEventId;
         }
         else
         {
-            _dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId, Lock = "X" });    
+            dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId, Lock = "X" });    
         }
 
-        await _dbContext.Value.SaveChangesAsync(cancellationToken);
+        await dbContext.Value.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,32 +1,23 @@
 ﻿using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.ApprenticeCommitments.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+
+public class ApprenticeshipResendInvitationCommandHandler(ILogger<ApprenticeshipResendInvitationCommandHandler> logger)
+    : IHandleMessages<ApprenticeshipResendInvitationCommand>
 {
-    public class ApprenticeshipResendInvitationCommandHandler : IHandleMessages<ApprenticeshipResendInvitationCommand>
+    public async Task Handle(ApprenticeshipResendInvitationCommand message, IMessageHandlerContext context)
     {
-        private readonly ILogger<ApprenticeshipResendInvitationCommandHandler> _logger;
-
-        public ApprenticeshipResendInvitationCommandHandler(ILogger<ApprenticeshipResendInvitationCommandHandler> logger)
+        try
         {
-            _logger = logger;
+            logger.LogInformation("Forwarding SendApprenticeshipInvitationCommand to Apprentice Commitments for Apprenticeship {ApprenticeshipId}", message.ApprenticeshipId);
+
+            await context.Send(new SendApprenticeshipInvitationCommand { CommitmentsApprenticeshipId = message.ApprenticeshipId, ResendOn = message.ResendOn });
         }
-
-        public async Task Handle(ApprenticeshipResendInvitationCommand message, IMessageHandlerContext context)
+        catch (Exception exception)
         {
-            try
-            {
-                _logger.LogInformation(
-                    "Forwarding SendApprenticeshipInvitationCommand to Apprentice Commitments for Apprenticeship {0}",
-                    message.ApprenticeshipId);
-                await context.Send(new SendApprenticeshipInvitationCommand
-                    {CommitmentsApprenticeshipId = message.ApprenticeshipId, ResendOn = message.ResendOn});
-            }
-            catch (Exception)
-            {
-                _logger.LogError("Forwarding SendApprenticeshipInvitationCommand failed");
-                throw;
-            }
+            logger.LogError(exception, "Forwarding SendApprenticeshipInvitationCommand failed");
+            throw;
         }
     }
 }

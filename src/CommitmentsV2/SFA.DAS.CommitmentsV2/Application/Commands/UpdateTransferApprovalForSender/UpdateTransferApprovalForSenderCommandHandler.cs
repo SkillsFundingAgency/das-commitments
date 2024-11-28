@@ -6,24 +6,15 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateTransferApprovalForSender;
 
-public class UpdateTransferApprovalForSenderCommandHandler : IRequestHandler<UpdateTransferApprovalForSenderCommand>
+public class UpdateTransferApprovalForSenderCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ITransferRequestDomainService transferRequestDomainService,
+    ICurrentDateTime currentDateTime)
+    : IRequestHandler<UpdateTransferApprovalForSenderCommand>
 {
-    private readonly ITransferRequestDomainService _transferRequestDomainService;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ICurrentDateTime _currentDateTime;
-
-    public UpdateTransferApprovalForSenderCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        ITransferRequestDomainService transferRequestDomainService,
-        ICurrentDateTime currentDateTime)
-    {
-        _dbContext = dbContext;
-        _transferRequestDomainService = transferRequestDomainService;
-        _currentDateTime = currentDateTime;
-    }
-
     public async Task Handle(UpdateTransferApprovalForSenderCommand command, CancellationToken cancellationToken)
     {
-        var cohort = await _dbContext.Value.Cohorts
+        var cohort = await dbContext.Value.Cohorts
             .SingleOrDefaultAsync(c => c.Id == command.CohortId, cancellationToken);
 
         if (cohort == null)
@@ -36,11 +27,11 @@ public class UpdateTransferApprovalForSenderCommandHandler : IRequestHandler<Upd
 
         if (command.TransferApprovalStatus == TransferApprovalStatus.Approved)
         {
-            await _transferRequestDomainService.ApproveTransferRequest(command.TransferRequestId, command.UserInfo, _currentDateTime.UtcNow, cancellationToken);
+            await transferRequestDomainService.ApproveTransferRequest(command.TransferRequestId, command.UserInfo, currentDateTime.UtcNow, cancellationToken);
         }
         else if (command.TransferApprovalStatus == TransferApprovalStatus.Rejected)
         {
-            await _transferRequestDomainService.RejectTransferRequest(command.TransferRequestId, command.UserInfo, _currentDateTime.UtcNow, cancellationToken);
+            await transferRequestDomainService.RejectTransferRequest(command.TransferRequestId, command.UserInfo, currentDateTime.UtcNow, cancellationToken);
         }
     }
 

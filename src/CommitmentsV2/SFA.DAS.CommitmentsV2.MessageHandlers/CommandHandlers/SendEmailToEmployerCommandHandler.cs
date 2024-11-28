@@ -4,32 +4,26 @@ using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 
-public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmployerCommand>
+public class SendEmailToEmployerCommandHandler(
+    IAccountApiClient accountApiClient, 
+    ILogger<SendEmailToEmployerCommandHandler> logger)
+    : IHandleMessages<SendEmailToEmployerCommand>
 {
     private const string Owner = "Owner";
     private const string Transactor = "Transactor";
-
-    private readonly ILogger<SendEmailToEmployerCommandHandler> _logger;
-    private readonly IAccountApiClient _accountApiClient;
-
-    public SendEmailToEmployerCommandHandler(IAccountApiClient accountApiClient, ILogger<SendEmailToEmployerCommandHandler> logger)
-    {
-        _logger = logger;
-        _accountApiClient = accountApiClient;
-    }
 
     public async Task Handle(SendEmailToEmployerCommand message, IMessageHandlerContext context)
     {
         try
         {
-            _logger.LogInformation($"Getting AccountUsers for {message.AccountId}");
+            logger.LogInformation("Getting AccountUsers for {AccountId}", message.AccountId);
 
             var emails = new List<(string Email, string Name)>();
-            var users = await _accountApiClient.GetAccountUsers(message.AccountId);
+            var users = await accountApiClient.GetAccountUsers(message.AccountId);
 
             if (string.IsNullOrWhiteSpace(message.EmailAddress))
             {
-                _logger.LogInformation("Sending emails to all AccountUsers who can receive emails");
+                logger.LogInformation("Sending emails to all AccountUsers who can receive emails");
 
                 emails.AddRange(users.Where(x =>
                         x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
@@ -43,14 +37,14 @@ public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmpl
 
                 if (user != null)
                 {
-                    _logger.LogInformation("Sending email to the explicit user in message");
+                    logger.LogInformation("Sending email to the explicit user in message");
                     emails.Add((Email: message.EmailAddress, user.Name));
                 }
             }
 
-            if (emails.Any())
+            if (emails.Count != 0)
             {
-                _logger.LogInformation("Calling SendEmailCommand for {Count} emails", emails.Count);
+                logger.LogInformation("Calling SendEmailCommand for {Count} emails", emails.Count);
 
                 var emailTasks = emails.Select(email =>
                 {
@@ -67,12 +61,12 @@ public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmpl
             }
             else
             {
-                _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for AccountId {message.AccountId}");
+                logger.LogWarning("No Email Addresses found to send Template {Template} for AccountId {AccountId}", message.Template, message.AccountId);
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error processing {CommandName)}", nameof(SendEmailToEmployerCommand));
+            logger.LogError(e, "Error processing {CommandName}", nameof(SendEmailToEmployerCommand));
             throw;
         }
     }
