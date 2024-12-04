@@ -2,54 +2,50 @@
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class CohortWithChangeOfPartyCreatedEventHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<CohortWithChangeOfPartyCreatedEventHandler> logger)
+    : IHandleMessages<CohortWithChangeOfPartyCreatedEvent>
 {
-    public class CohortWithChangeOfPartyCreatedEventHandler : IHandleMessages<CohortWithChangeOfPartyCreatedEvent>
+    public async Task Handle(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<CohortWithChangeOfPartyCreatedEventHandler> _logger;
+        logger.LogInformation("CohortWithChangeOfPartyCreatedEvent received for Cohort {CohortId}, ChangeOfPartyRequest {ChangeOfPartyRequestId}", message.CohortId, message.ChangeOfPartyRequestId);
 
-        public CohortWithChangeOfPartyCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<CohortWithChangeOfPartyCreatedEventHandler> logger)
+        try
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            var changeOfPartyRequest = await dbContext.Value.GetChangeOfPartyRequestAggregateSafely(message.ChangeOfPartyRequestId, default);
+            if (changeOfPartyRequest == null)
+            {
+                logger.LogInformation("ChangeOfPartyRequest {ChangeOfPartyRequestId} not found", message.ChangeOfPartyRequestId);
+                return;
+            }
+
+            var cohort = await dbContext.Value.GetCohortAggregateSafely(message.CohortId, default);
+            if (cohort == null)
+            {
+                logger.LogInformation("Cohort {CohortId} not found", message.CohortId);
+                return;
+            }
+
+            if (changeOfPartyRequest.CohortId.HasValue)
+            {
+                logger.LogWarning("ChangeOfPartyRequest {ChangeOfPartyRequestId} already has CohortId {ChangeOfPartyRequestCohortId} - {Event} with CohortId {MessageCohortId} will be ignored", 
+                    changeOfPartyRequest.Id,
+                    changeOfPartyRequest.CohortId,
+                    nameof(CohortWithChangeOfPartyCreatedEvent),
+                    message.CohortId);
+                
+                return;
+            }
+
+            changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
         }
-
-        public async Task Handle(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
+        catch (Exception e)
         {
-            _logger.LogInformation("CohortWithChangeOfPartyCreatedEvent received for Cohort {CohortId}, ChangeOfPartyRequest {ChangeOfPartyRequestId}", message.CohortId, message.ChangeOfPartyRequestId);
-
-            try
-            {
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregateSafely(message.ChangeOfPartyRequestId, default);
-                if (changeOfPartyRequest == null)
-                {
-                    _logger.LogInformation("ChangeOfPartyRequest {ChangeOfPartyRequestId} not found", message.ChangeOfPartyRequestId);
-                    return;
-                }
-
-                var cohort = await _dbContext.Value.GetCohortAggregateSafely(message.CohortId, default);
-                if (cohort == null)
-                {
-                    _logger.LogInformation("Cohort {CohortId} not found", message.CohortId);
-                    return;
-                }
-
-                if (changeOfPartyRequest.CohortId.HasValue)
-                {
-                    _logger.LogWarning("ChangeOfPartyRequest {ChangeOfPartyRequestId} already has CohortId {ChangeOfPartyRequestCohortId} - {Event} with CohortId {MessageCohortId} will be ignored", 
-                        changeOfPartyRequest.Id, changeOfPartyRequest.CohortId, nameof(CohortWithChangeOfPartyCreatedEvent), message.CohortId);
-                    return;
-                }
-
-                changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error processing CohortWithChangeOfPartyCreatedEvent", e);
-                throw;
-            }
+            logger.LogError(e, "Error processing CohortWithChangeOfPartyCreatedEvent");
+            throw;
         }
     }
 }

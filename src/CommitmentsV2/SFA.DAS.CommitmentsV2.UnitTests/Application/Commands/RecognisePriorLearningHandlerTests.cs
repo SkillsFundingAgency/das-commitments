@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class RecognisePriorLearningHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
-        public Fixture fixture { get; set; }
+        public Fixture Fixture { get; set; }
         public RecognisePriorLearningCommand Command { get; set; }
         public DraftApprenticeship ApprenticeshipDetails { get; set; }
         public Cohort Cohort { get; set; }
@@ -75,9 +75,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public RecognisePriorLearningHandlerTestsFixture()
         {
-            fixture = new Fixture();
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            fixture.Customizations.Add(
+            Fixture = new Fixture();
+            Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            Fixture.Customizations.Add(
                 new TypeRelay(
                     typeof(ApprenticeshipBase),
                     typeof(DraftApprenticeship)));
@@ -93,6 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Set(c => c.AccountId, 444);
 
             Cohort = new Cohort()
+                .Set(c => c.Reference, Guid.NewGuid().ToString())
                 .Set(c => c.Id, 111)
                 .Set(c => c.Reference, "XXXX")
                 .Set(c => c.EmployerAccountId, 222)
@@ -101,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Set(c => c.AccountLegalEntityId, AccountLegalEntity.Id)
                 .Set(c => c.AccountLegalEntity, AccountLegalEntity);
 
-            ApprenticeshipDetails = fixture.Build<DraftApprenticeship>()
+            ApprenticeshipDetails = Fixture.Build<DraftApprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, Cohort)
              .With(s => s.EndDate, DateTime.UtcNow)
@@ -121,8 +122,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
 
-            UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<RecognisePriorLearningCommand>().With(o => o.UserInfo, UserInfo).Create();
+            UserInfo = Fixture.Create<UserInfo>();
+            Command = Fixture.Build<RecognisePriorLearningCommand>().With(o => o.UserInfo, UserInfo).Create();
             Command.ApprenticeshipId = ApprenticeshipId;
             Command.CohortId = Cohort.Id;
 

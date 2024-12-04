@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.Commitments.Support.SubSite.Caching;
 using SFA.DAS.Commitments.Support.SubSite.DependencyResolution;
@@ -20,20 +22,23 @@ namespace SFA.DAS.Commitments.Support.SubSite;
 public class Startup
 {
     private readonly IWebHostEnvironment _env;
-    public IConfiguration Configuration { get; }
+    private readonly IConfiguration _configuration;
 
     public Startup(IConfiguration configuration, IWebHostEnvironment env)
     {
-        Configuration = configuration;
+        _configuration = configuration;
         _env = env;
     }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddRazorPages();
+        services.AddLogging(builder =>
+        {
+            builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+            builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
+        });
 
-        services.AddActiveDirectoryAuthentication(Configuration);
+        services.AddActiveDirectoryAuthentication(_configuration);
         services.AddMvc(options =>
         {
             if (!_env.IsDevelopment())
@@ -42,12 +47,11 @@ public class Startup
             }
         });
 
-        services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
+        services.AddDasDistributedMemoryCache(_configuration, _env.IsDevelopment());
         services.AddMemoryCache();
         services.AddHealthChecks();
-        services.AddApplicationInsightsTelemetry();
 
-        services.AddSupportConfigurationSections(Configuration);
+        services.AddSupportConfigurationSections(_configuration);
         services.AddDatabaseRegistration();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetSupportApprenticeshipQuery).GetTypeInfo().Assembly));
@@ -58,10 +62,11 @@ public class Startup
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-        services.AddSupportSiteDefaultServices(Configuration);
+        services.AddSupportSiteDefaultServices(_configuration);
+
+        services.AddApplicationInsightsTelemetry();
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
@@ -74,18 +79,10 @@ public class Startup
             app.UseAuthentication();
         }
 
-        app.UseStaticFiles();
-
-        app.UseRouting();
-
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapRazorPages();
-            endpoints.MapControllers();
-        });
-
-        app.UseHealthChecks("/health");
+        app.UseStaticFiles()
+            .UseRouting()
+            .UseAuthorization()
+            .UseEndpoints(endpoints => { endpoints.MapControllers(); })
+            .UseHealthChecks("/health");
     }
 }

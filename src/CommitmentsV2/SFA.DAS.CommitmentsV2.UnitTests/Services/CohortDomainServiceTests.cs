@@ -992,8 +992,7 @@ public class CohortDomainServiceTests
                 EncodingService.Object,
                 AccountApiClient.Object,
                 EmailOptionalService.Object,
-                LevyTransferMatchingApiClient.Object,
-                RplFundingCalculationService.Object);
+                LevyTransferMatchingApiClient.Object);
 
             Db.SaveChanges();
         }

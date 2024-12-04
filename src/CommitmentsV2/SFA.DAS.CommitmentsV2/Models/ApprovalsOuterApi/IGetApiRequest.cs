@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+
+public interface IGetApiRequest
 {
-    public interface IGetApiRequest
-    {
-        string GetUrl { get; }
-    }
+    string GetUrl { get; }
 }

@@ -1,7 +1,6 @@
-namespace SFA.DAS.CommitmentsV2.Api.Types.Http
+namespace SFA.DAS.CommitmentsV2.Api.Types.Http;
+
+public static class HttpHeaderNames
 {
-    public static class HttpHeaderNames
-    {
-        public const string SubStatusCode = "X-Sfa-Sub-Status-Code";
-    }
+    public const string SubStatusCode = "X-Sfa-Sub-Status-Code";
 }

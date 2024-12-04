@@ -1,9 +1,8 @@
-﻿namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
+﻿namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+
+public class PageOfResults<T>
 {
-    public class PageOfResults<T>
-    {
-        public int PageNumber { get; set; }
-        public int TotalNumberOfPages { get; set; }
-        public T[] Items { get; set; }
-    }
+    public int PageNumber { get; set; }
+    public int TotalNumberOfPages { get; set; }
+    public T[] Items { get; set; }
 }

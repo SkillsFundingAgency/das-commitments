@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Models
+﻿namespace SFA.DAS.CommitmentsV2.Models;
+
+public class DateRange
 {
-    public class DateRange
-    {
-        public DateTime? From { get; set; }
-        public DateTime? To { get; set; }
-    }
+    public DateTime? From { get; set; }
+    public DateTime? To { get; set; }
 }

@@ -4,15 +4,11 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
 
-public class GetDataLockSummariesQueryHandler : IRequestHandler<GetDataLockSummariesQuery, GetDataLockSummariesQueryResult>
+public class GetDataLockSummariesQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) : IRequestHandler<GetDataLockSummariesQuery, GetDataLockSummariesQueryResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public GetDataLockSummariesQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) => _dbContext = dbContext;
-
     public async Task<GetDataLockSummariesQueryResult> Handle(GetDataLockSummariesQuery request, CancellationToken cancellationToken)
     {
-        var dataLocks = await _dbContext.Value.DataLocks
+        var dataLocks = await dbContext.Value.DataLocks
             .Where(x => x.ApprenticeshipId == request.ApprenticeshipId && x.EventStatus != EventStatus.Removed && !x.IsExpired)
             .ToListAsync(cancellationToken: cancellationToken);    
 

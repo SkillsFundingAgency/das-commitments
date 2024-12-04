@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
+
+public class GetApprenticeshipsValidateQueryResult
 {
-    public class GetApprenticeshipsValidateQueryResult
-    {
-        public IEnumerable<ApprenticeshipValidateModel> Apprenticeships { get; set; }
-    }
+    public IEnumerable<ApprenticeshipValidateModel> Apprenticeships { get; set; }
 }

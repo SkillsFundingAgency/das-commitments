@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
+
+public class ValidateUlnOverlapOnStartDateQueryResult
 {
-    public class ValidateUlnOverlapOnStartDateQueryResult
-    {
-        public long? HasOverlapWithApprenticeshipId { get; set; }
-        public bool HasStartDateOverlap { get; set; }
-    }
+    public long? HasOverlapWithApprenticeshipId { get; set; }
+    public bool HasStartDateOverlap { get; set; }
 }

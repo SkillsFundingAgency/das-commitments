@@ -1,24 +1,15 @@
 using Microsoft.Extensions.Caching.Distributed;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+
+public class RunHealthCheckCommandHandler(IDistributedCache distributedCache, ILogger<RunHealthCheckCommandHandler> logger)
+    : IHandleMessages<RunHealthCheckCommand>
 {
-    public class RunHealthCheckCommandHandler : IHandleMessages<RunHealthCheckCommand>
+    public Task Handle(RunHealthCheckCommand message, IMessageHandlerContext context)
     {
-        private readonly IDistributedCache _distributedCache;
-        private readonly ILogger<RunHealthCheckCommandHandler> _logger;
+        logger.LogInformation("Handled {TypeName} with MessageId '{MessageId}'", nameof(RunHealthCheckCommand), context.MessageId);
 
-        public RunHealthCheckCommandHandler(IDistributedCache distributedCache, ILogger<RunHealthCheckCommandHandler> logger)
-        {
-            _distributedCache = distributedCache;
-            _logger = logger;
-        }
-
-        public Task Handle(RunHealthCheckCommand message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation($"Handled {nameof(RunHealthCheckCommand)} with MessageId '{context.MessageId}'");
-
-            return _distributedCache.SetStringAsync(context.MessageId, "OK");
-        }
+        return distributedCache.SetStringAsync(context.MessageId, "OK");
     }
 }

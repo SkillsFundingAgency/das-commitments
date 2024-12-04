@@ -1,29 +1,21 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SFA.DAS.Reservations.Api.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
+namespace SFA.DAS.CommitmentsV2.Api.HealthChecks;
+
+public class ReservationsApiHealthCheck(IReservationsApiClient reservationsApiClient) : IHealthCheck
 {
-    public class ReservationsApiHealthCheck : IHealthCheck
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        private readonly IReservationsApiClient _reservationsApiClient;
-
-        public ReservationsApiHealthCheck(IReservationsApiClient reservationsApiClient)
+        try
         {
-            _reservationsApiClient = reservationsApiClient;
-        }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                await _reservationsApiClient.Ping(cancellationToken);
+            await reservationsApiClient.Ping(cancellationToken);
                 
-                return HealthCheckResult.Healthy();
-            }
-            catch (Exception exception)
-            {
-                return HealthCheckResult.Degraded(exception.Message);
-            }
+            return HealthCheckResult.Healthy();
+        }
+        catch (Exception exception)
+        {
+            return HealthCheckResult.Degraded(exception.Message);
         }
     }
 }

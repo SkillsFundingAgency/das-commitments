@@ -3,18 +3,11 @@ using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 
-public class GetApprenticeshipQueryHandler: IRequestHandler<GetApprenticeshipQuery, GetApprenticeshipQueryResult>
+public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext) : IRequestHandler<GetApprenticeshipQuery, GetApprenticeshipQueryResult>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-
-    public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
     {
-        var result = await _dbContext.Value
+        var result = await dbContext.Value
             .Apprenticeships
             .Include(x => x.FlexibleEmployment)
             .Include(x => x.PriorLearning)

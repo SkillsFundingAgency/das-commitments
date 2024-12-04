@@ -1,24 +1,21 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmationCommenced;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+
+public class ApprenticeshipConfirmationCommencedEventHandler(IMediator mediator, ILogger<ApprenticeshipConfirmationCommencedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipConfirmationCommencedEvent>
 {
-    public class ApprenticeshipConfirmationCommencedEventHandler : IHandleMessages<ApprenticeshipConfirmationCommencedEvent>
+    public Task Handle(ApprenticeshipConfirmationCommencedEvent message, IMessageHandlerContext context)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<ApprenticeshipConfirmationCommencedEventHandler> _logger;
+        logger.LogInformation("Message {TypeName} received, for commitments apprenticeship id {CommitmentsApprenticeshipId}", nameof(ApprenticeshipConfirmationCommencedEvent), message.CommitmentsApprenticeshipId);
 
-        public ApprenticeshipConfirmationCommencedEventHandler(IMediator mediator, ILogger<ApprenticeshipConfirmationCommencedEventHandler> logger)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
+        var command = new ApprenticeshipConfirmationCommencedCommand(
+            message.CommitmentsApprenticeshipId,
+            message.CommitmentsApprovedOn,
+            message.ConfirmationOverdueOn
+            );
 
-        public Task Handle(ApprenticeshipConfirmationCommencedEvent message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation($"Message {nameof(ApprenticeshipConfirmationCommencedEvent)} received, for commitments apprenticeship id {message.CommitmentsApprenticeshipId}");
-            return _mediator.Send(new ApprenticeshipConfirmationCommencedCommand(message.CommitmentsApprenticeshipId,
-                message.CommitmentsApprovedOn, message.ConfirmationOverdueOn));
-        }
+        return mediator.Send(command);
     }
 }

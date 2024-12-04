@@ -4,52 +4,43 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Services
+namespace SFA.DAS.CommitmentsV2.Services;
+
+public class ApprenticeshipStatusSummaryService(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<ApprenticeshipStatusSummaryService> logger)
+    : IApprenticeshipStatusSummaryService
 {
-    public class ApprenticeshipStatusSummaryService : IApprenticeshipStatusSummaryService
+    public async Task<GetApprenticeshipStatusSummaryQueryResults> GetApprenticeshipStatusSummary(long accountId, CancellationToken cancellationToken)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<ApprenticeshipStatusSummaryService> _logger;
+        logger.LogInformation("Getting Apprenticeship Status Summary for employer account {AccountId}", accountId);
 
-        public ApprenticeshipStatusSummaryService(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<ApprenticeshipStatusSummaryService> logger)
+        var results = await dbContext.Value.AccountLegalEntities
+            .Include(t => t.Cohorts)
+            .ThenInclude(c => c.Apprenticeships)
+            .Where(w => w.AccountId == accountId) 
+            .ToListAsync(cancellationToken);
+
+        if (results.Count == 0)
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            logger.LogInformation("Cannot find Apprenticeship Status Summary for employer account {AccountId}", accountId);
+        }
+        else
+        {
+            logger.LogInformation("Retrieved Apprenticeship Status Summary for employer account {AccountId}", accountId);
         }
 
-        public async Task<GetApprenticeshipStatusSummaryQueryResults> GetApprenticeshipStatusSummary(long accountId, CancellationToken cancellationToken)
+        return new GetApprenticeshipStatusSummaryQueryResults
         {
-            _logger.LogInformation($"Getting Apprenticeship Status Summary for employer account {accountId}");
-
-            var results = await _dbContext.Value.AccountLegalEntities
-                              .Include(t => t.Cohorts)
-                              .ThenInclude(c => c.Apprenticeships)
-                              .Where(w => w.AccountId == accountId) 
-                              .ToListAsync();
-
-            if (results.Any())
+            GetApprenticeshipStatusSummaryQueryResult = results.Select(x => new GetApprenticeshipStatusSummaryQueryResult
             {
-                _logger.LogInformation($"Retrieved Apprenticeship Status Summary for employer account {accountId}");
-            }
-            else
-            {
-                _logger.LogInformation($"Cannot find Apprenticeship Status Summary for employer account {accountId}");                
-            }           
-
-            return new GetApprenticeshipStatusSummaryQueryResults
-            {
-                GetApprenticeshipStatusSummaryQueryResult = results.Select(x => new GetApprenticeshipStatusSummaryQueryResult
-                {
-                    LegalEntityIdentifier = x.LegalEntityId,
-                    LegalEntityOrganisationType = x.OrganisationType,
-                    ActiveCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Active).Count(),
-                    WithdrawnCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Withdrawn).Count(),
-                    CompletedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Completed).Count(),
-                    PausedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Paused).Count()
-                })
-               
-            };  
-        }
+                LegalEntityIdentifier = x.LegalEntityId,
+                LegalEntityOrganisationType = x.OrganisationType,
+                ActiveCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Active),
+                WithdrawnCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Withdrawn),
+                CompletedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Completed),
+                PausedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Count(apprenticeship => apprenticeship.PaymentStatus == PaymentStatus.Paused)
+            })
+        };  
     }
 }

@@ -14,6 +14,13 @@ public static class ServiceCollectionExtensions
     {
         var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
 
+        services.AddHealthChecks()
+            .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
+            .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
+            .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check", configure: BeforeOpen);
+
+        return services;
+
         void BeforeOpen(SqlConnection connection)
         {
             {
@@ -21,13 +28,6 @@ public static class ServiceCollectionExtensions
                 connection.AccessToken = ((SqlConnection) conn).AccessToken;
             }
         }
-
-        services.AddHealthChecks()
-            .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
-            .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
-            .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check", configure: BeforeOpen);
-
-        return services;
     }
         
     public static IApplicationBuilder UseDasHealthChecks(this IApplicationBuilder app)

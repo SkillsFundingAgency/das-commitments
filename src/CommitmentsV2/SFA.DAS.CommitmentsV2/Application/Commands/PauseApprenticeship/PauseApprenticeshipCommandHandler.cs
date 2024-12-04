@@ -7,28 +7,19 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 
-public class PauseApprenticeshipCommandHandler : IRequestHandler<PauseApprenticeshipCommand>
+public class PauseApprenticeshipCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ICurrentDateTime currentDate,
+    IAuthenticationService authenticationService)
+    : IRequestHandler<PauseApprenticeshipCommand>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly ICurrentDateTime _currentDate;
-    private readonly IAuthenticationService _authenticationService;
-
-    public PauseApprenticeshipCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        ICurrentDateTime currentDate,
-        IAuthenticationService authenticationService)
-    {
-        _dbContext = dbContext;
-        _currentDate = currentDate;
-        _authenticationService = authenticationService;
-    }
-
     public async Task Handle(PauseApprenticeshipCommand command, CancellationToken cancellationToken)
     {
-        var party = _authenticationService.GetUserParty();
+        var party = authenticationService.GetUserParty();
         CheckPartyIsValid(party);
 
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
-        apprenticeship.PauseApprenticeship(_currentDate, party, command.UserInfo);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+        apprenticeship.PauseApprenticeship(currentDate, party, command.UserInfo);
     }
 
     private static void CheckPartyIsValid(Party party)

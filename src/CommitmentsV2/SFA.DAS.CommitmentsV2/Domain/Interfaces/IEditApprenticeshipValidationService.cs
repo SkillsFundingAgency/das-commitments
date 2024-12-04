@@ -2,10 +2,9 @@
 using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IEditApprenticeshipValidationService
 {
-    public interface IEditApprenticeshipValidationService
-    {
-        Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None);
-    }
+    Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None);
 }

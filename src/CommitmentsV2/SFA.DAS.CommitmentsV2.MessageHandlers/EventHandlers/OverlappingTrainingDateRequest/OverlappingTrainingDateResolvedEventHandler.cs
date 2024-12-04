@@ -7,29 +7,21 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 
-public class OverlappingTrainingDateResolvedEventHandler : IHandleMessages<OverlappingTrainingDateResolvedEvent>
+public class OverlappingTrainingDateResolvedEventHandler(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<OverlappingTrainingDateResolvedEventHandler> logger,
+    CommitmentsV2Configuration commitmentsV2Configuration)
+    : IHandleMessages<OverlappingTrainingDateResolvedEvent>
 {
-    private readonly ILogger<OverlappingTrainingDateResolvedEventHandler> _logger;
-    private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    public OverlappingTrainingDateResolvedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-        ILogger<OverlappingTrainingDateResolvedEventHandler> logger,
-        CommitmentsV2Configuration commitmentsV2Configuration)
-    {
-        _logger = logger;
-        _commitmentsV2Configuration = commitmentsV2Configuration;
-        _dbContext = dbContext;
-    }
-
     public async Task Handle(OverlappingTrainingDateResolvedEvent message, IMessageHandlerContext context)
     {
         try
         {
-            _logger.LogInformation($"Received {nameof(OverlappingTrainingDateResolvedEvent)} for DraftApprenticeship {message?.ApprenticeshipId}");
+            logger.LogInformation("Received {TypeName} for DraftApprenticeship {ApprenticeshipId}", nameof(OverlappingTrainingDateResolvedEvent), message?.ApprenticeshipId);
 
             if (message != null)
             {
-                var draftApprenticeship = await _dbContext.Value.GetOLTDResolvedDraftApprenticeshipAggregate(message.CohortId, message.ApprenticeshipId, default);
+                var draftApprenticeship = await dbContext.Value.GetOLTDResolvedDraftApprenticeshipAggregate(message.CohortId, message.ApprenticeshipId, default);
 
                 var sendEmailToProviderCommand = BuildEmailToEmployerCommand(draftApprenticeship);
 
@@ -38,7 +30,7 @@ public class OverlappingTrainingDateResolvedEventHandler : IHandleMessages<Overl
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Send message to provider for DraftApprenticeship {message?.ApprenticeshipId}");
+            logger.LogError(e, "Send message to provider for DraftApprenticeship {ApprenticeshipId}", message?.ApprenticeshipId);
             throw;
         }
     }
@@ -49,8 +41,8 @@ public class OverlappingTrainingDateResolvedEventHandler : IHandleMessages<Overl
             "ProviderOverlappingTrainingDateClosed",
             new Dictionary<string, string>
             {
-                {"CohortReference",draftApprenticeship.Cohort.Reference},
-                {"Url", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{draftApprenticeship.Cohort.ProviderId}/unapproved/{draftApprenticeship.Cohort.Reference}/details"}
+                { "CohortReference", draftApprenticeship.Cohort.Reference },
+                { "Url", $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{draftApprenticeship.Cohort.ProviderId}/unapproved/{draftApprenticeship.Cohort.Reference}/details" }
             }, draftApprenticeship.Cohort.LastUpdatedByProviderEmail
         );
 

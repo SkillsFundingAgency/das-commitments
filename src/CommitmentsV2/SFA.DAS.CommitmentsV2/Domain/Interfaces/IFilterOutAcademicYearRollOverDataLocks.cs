@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IFilterOutAcademicYearRollOverDataLocks
 {
-    public interface IFilterOutAcademicYearRollOverDataLocks
-    {
-        Task Filter(long apprenticeshipId);
-    }
+    Task Filter(long apprenticeshipId);
 }

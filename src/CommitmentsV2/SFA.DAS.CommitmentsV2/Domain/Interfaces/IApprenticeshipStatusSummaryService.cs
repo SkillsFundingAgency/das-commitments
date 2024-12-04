@@ -1,9 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IApprenticeshipStatusSummaryService
 {
-    public interface IApprenticeshipStatusSummaryService
-    {
-        Task<GetApprenticeshipStatusSummaryQueryResults> GetApprenticeshipStatusSummary(long employerAccountId, CancellationToken cancellationToken);        
-    }
+    Task<GetApprenticeshipStatusSummaryQueryResults> GetApprenticeshipStatusSummary(long employerAccountId, CancellationToken cancellationToken);        
 }

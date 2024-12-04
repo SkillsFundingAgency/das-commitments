@@ -5,47 +5,33 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 
-namespace SFA.DAS.CommitmentsV2.Services
+namespace SFA.DAS.CommitmentsV2.Services;
+
+public class EmployerTransferRequestPendingEmailService(
+    ITransferRequestDomainService transferRequestDomainService,
+    IEncodingService encodingService,
+    IMessageSession messageSession,
+    ILogger<EmployerTransferRequestPendingEmailService> logger)
+    : IEmployerTransferRequestPendingEmailService
 {
-    public class EmployerTransferRequestPendingEmailService : IEmployerTransferRequestPendingEmailService
+    public async Task SendEmployerTransferRequestPendingNotifications()
     {
-        private readonly ITransferRequestDomainService _transferRequestDomainService;
-        private readonly IEncodingService _encodingService;
-        private readonly IMessageSession _messageSession;
-        private readonly ILogger<EmployerTransferRequestPendingEmailService> _logger;
+        logger.LogInformation($"Sending notifications for pending transfer requests");
 
-        public EmployerTransferRequestPendingEmailService(ITransferRequestDomainService transferRequestDomainService, IEncodingService encodingService, IMessageSession messageSession, 
-            ILogger<EmployerTransferRequestPendingEmailService> logger)
+        var employerAlertSummaryNotifications = await transferRequestDomainService.GetEmployerTransferRequestPendingNotifications();
+
+        employerAlertSummaryNotifications.ForEach(pendingNotification => { SendEmail(pendingNotification, pendingNotification.SendingEmployerAccountId.Value, encodingService.Encode(pendingNotification.SendingEmployerAccountId.Value, EncodingType.AccountId)); });
+    }
+
+    private void SendEmail(EmployerTransferRequestPendingNotification notification, long accountId, string hashedAccountId)
+    {
+        var tokens = new Dictionary<string, string>
         {
-            _transferRequestDomainService = transferRequestDomainService;
-            _encodingService = encodingService;
-            _messageSession = messageSession;
-            _logger = logger;
-        }
+            { "cohort_reference", notification.CohortReference },
+            { "receiver_name", notification.ReceivingLegalEntityName },
+            { "transfers_dashboard_url", $"accounts/{hashedAccountId}/transfers" }
+        };
 
-        public async Task SendEmployerTransferRequestPendingNotifications()
-        {
-            _logger.LogInformation($"Sending notifications for pending transfer requests");
-
-            var employerAlertSummaryNotifications = await _transferRequestDomainService.GetEmployerTransferRequestPendingNotifications();
-
-            employerAlertSummaryNotifications.ForEach(x => 
-            {
-                SendEmail(x, x.SendingEmployerAccountId.Value, _encodingService.Encode(x.SendingEmployerAccountId.Value, EncodingType.AccountId));
-            });
-        }
-
-        private void SendEmail(EmployerTransferRequestPendingNotification notification, long accountId, string hashedAccountId)
-        {
-            var tokens =
-                new Dictionary<string, string>
-                {
-                    {"cohort_reference", notification.CohortReference},
-                    {"receiver_name", notification.ReceivingLegalEntityName},
-                    {"transfers_dashboard_url", $"accounts/{hashedAccountId}/transfers"}
-                };
-
-            _messageSession.Send(new SendEmailToEmployerCommand(accountId, "SendingEmployerTransferRequestNotification", tokens));
-        }
+        messageSession.Send(new SendEmailToEmployerCommand(accountId, "SendingEmployerTransferRequestNotification", tokens));
     }
 }

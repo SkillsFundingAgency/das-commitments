@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Mapping
+﻿namespace SFA.DAS.CommitmentsV2.Mapping;
+
+public interface IOldMapper<in TFrom, TTo> where TFrom: class where TTo: class
 {
-    public interface IOldMapper<in TFrom, TTo> where TFrom: class where TTo: class
-    {
-        Task<TTo> Map(TFrom source);
-    }
+    Task<TTo> Map(TFrom source);
 }

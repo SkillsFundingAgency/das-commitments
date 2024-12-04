@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+
+public interface IEmployerTransferRequestPendingEmailService
 {
-    public interface IEmployerTransferRequestPendingEmailService
-    {
-        Task SendEmployerTransferRequestPendingNotifications();
-    }
+    Task SendEmployerTransferRequestPendingNotifications();
 }

@@ -61,7 +61,7 @@ public static class ServiceRegistrationExtensions
         return hostBuilder;
     }
 
-    public static IServiceCollection AddDefaultMessageHandlerServices(this IServiceCollection services)
+    private static IServiceCollection AddDefaultMessageHandlerServices(this IServiceCollection services)
     {
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
         services.AddTransient<IFundingCapService, FundingCapService>();

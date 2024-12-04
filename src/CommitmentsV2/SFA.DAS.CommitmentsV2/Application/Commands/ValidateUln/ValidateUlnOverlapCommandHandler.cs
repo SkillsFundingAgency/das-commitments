@@ -2,26 +2,19 @@
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
+
+public class ValidateUlnOverlapCommandHandler(IOverlapCheckService overlapCheckService) : IRequestHandler<ValidateUlnOverlapCommand, ValidateUlnOverlapResult>
 {
-    public class ValidateUlnOverlapCommandHandler : IRequestHandler<ValidateUlnOverlapCommand, ValidateUlnOverlapResult>
+    public async Task<ValidateUlnOverlapResult> Handle(ValidateUlnOverlapCommand command, CancellationToken cancellationToken)
     {
-        private readonly IOverlapCheckService _overlapCheckService;
-
-        public ValidateUlnOverlapCommandHandler(IOverlapCheckService overlapCheckService)
+        var result = await overlapCheckService.CheckForOverlaps(command.ULN, command.StartDate.To(command.EndDate), command.ApprenticeshipId, cancellationToken);
+        
+        return new ValidateUlnOverlapResult
         {
-            _overlapCheckService = overlapCheckService;
-        }
-
-        public async Task<ValidateUlnOverlapResult> Handle(ValidateUlnOverlapCommand command, CancellationToken cancellationToken)
-        {
-            var result = await _overlapCheckService.CheckForOverlaps(command.ULN, command.StartDate.To(command.EndDate), command.ApprenticeshipId, cancellationToken);
-            return new ValidateUlnOverlapResult
-            {
-                ULN = command.ULN,
-                HasOverlappingStartDate = result.HasOverlappingStartDate,
-                HasOverlappingEndDate = result.HasOverlappingEndDate
-            };
-        }
+            ULN = command.ULN,
+            HasOverlappingStartDate = result.HasOverlappingStartDate,
+            HasOverlappingEndDate = result.HasOverlappingEndDate
+        };
     }
 }

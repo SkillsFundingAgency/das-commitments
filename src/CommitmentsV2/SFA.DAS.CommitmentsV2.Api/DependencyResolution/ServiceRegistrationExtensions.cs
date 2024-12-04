@@ -22,7 +22,6 @@ public static class ServiceRegistrationExtensions
         if (config["UseStubProviderRelationships"] != null && config["UseStubProviderRelationships"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
         {
             services.AddTransient<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>();
-            //services.AddTransient<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>();
         }
 
         return services;

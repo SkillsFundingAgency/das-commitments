@@ -1,11 +1,10 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
+
+public class GetCohortPriorLearningErrorQuery : IRequest<GetCohortPriorLearningErrorQueryResult>
 {
-    public class GetCohortPriorLearningErrorQuery : IRequest<GetCohortPriorLearningErrorQueryResult>
+    public GetCohortPriorLearningErrorQuery(long cohortId)
     {
-        public GetCohortPriorLearningErrorQuery(long cohortId)
-        {
-            CohortId = cohortId;
-        }
-        public long CohortId { get; }
+        CohortId = cohortId;
     }
+    public long CohortId { get; }
 }

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -14,30 +13,20 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
-public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticeshipCommand, EditApprenticeshipResponse>
+public class EditApprenticeshipCommandHandler(
+    IEditApprenticeshipValidationService editValidationService,
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IAuthenticationService authenticationService,
+    ICurrentDateTime currentDateTime,
+    IMediator mediator,
+    ILogger<EditApprenticeshipCommandHandler> logger)
+    : IRequestHandler<EditApprenticeshipCommand, EditApprenticeshipResponse>
 {
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly IEditApprenticeshipValidationService _editValidationService;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly ICurrentDateTime _currentDateTime;
-    private readonly ILogger<EditApprenticeshipCommandHandler> _logger;
-    private readonly IMediator _mediator;
-
-    public EditApprenticeshipCommandHandler(IEditApprenticeshipValidationService editValidationService, Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, ICurrentDateTime currentDateTime,  IMediator mediator, ILogger<EditApprenticeshipCommandHandler> logger)
-    {
-        _editValidationService = editValidationService;
-        _dbContext = dbContext;
-        _authenticationService = authenticationService;
-        _currentDateTime = currentDateTime;
-        _logger = logger;
-        _mediator = mediator;
-    }
-
     public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
     {
         var party = GetParty(command);
 
-        var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
+        var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
         await Validate(command, apprenticeship, party, cancellationToken);
 
@@ -48,15 +37,12 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
         return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
     }
 
-        private Party GetParty(EditApprenticeshipCommand command)
-        {
-            if (_authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
-            {
-                return command.Party;
-            }
-
-            return _authenticationService.GetUserParty();
-        }
+    private Party GetParty(EditApprenticeshipCommand command)
+    {
+        return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler 
+            ? command.Party 
+            : authenticationService.GetUserParty();
+    }
 
     private static void CreateImmediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
     {
@@ -76,17 +62,17 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
         {
             return false;
         }
-            
-        var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
+
+        var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, currentDateTime.UtcNow);
 
         if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode) || !string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCourseVersion))
         {
             var version = command.EditApprenticeshipRequest.Version ?? apprenticeship.TrainingCourseVersion;
             var courseCode = command.EditApprenticeshipRequest.CourseCode ?? apprenticeship.CourseCode;
 
-            if (int.TryParse(courseCode, out var standardId))
+            if (int.TryParse(courseCode, out _))
             {
-                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
+                var result = await mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
 
                 if (result == null)
                 {
@@ -107,7 +93,7 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
             }
             else
             {
-                var result = await _mediator.Send(new GetTrainingProgrammeQuery
+                var result = await mediator.Send(new GetTrainingProgrammeQuery
                 {
                     Id = apprenticeshipUpdate.TrainingCode
                 });
@@ -126,22 +112,22 @@ public class EditApprenticeshipCommandHandler : IRequestHandler<EditApprenticesh
         }
 
         apprenticeship.CreateApprenticeshipUpdate(apprenticeshipUpdate, party);
+        
         return true;
-
     }
 
     private async Task Validate(EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party, CancellationToken cancellationToken)
     {
         CheckAuthorisation(command, apprenticeship, party);
 
-        var validationResult = await _editValidationService.Validate(command.CreateValidationRequest(apprenticeship, _currentDateTime.UtcNow), cancellationToken, party);
+        var validationResult = await editValidationService.Validate(command.CreateValidationRequest(apprenticeship, currentDateTime.UtcNow), cancellationToken, party);
         if (validationResult?.Errors?.Count > 0)
         {
             // This shouldn't get triggered as these checks should already been passed.
             // But in case someone is calling the EditApprenticeship endpoint directly
             var messages = string.Empty;
             validationResult.Errors.ForEach(x => messages += x.PropertyName + ":" + x.ErrorMessage);
-            _logger.LogError("Invalid operation for edit - the following error/s occured : {Messages}", messages);
+            logger.LogError("Invalid operation for edit - the following error/s occured : {Messages}", messages);
             throw new InvalidOperationException("The operation is not allowed for the current state of the object");
         }
 

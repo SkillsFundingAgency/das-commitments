@@ -1,12 +1,11 @@
 ﻿using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.Models
+namespace SFA.DAS.CommitmentsV2.Models;
+
+public abstract class Entity
 {
-    public abstract class Entity
+    protected void Publish<T>(Func<T> action) where T : class
     {
-        protected void Publish<T>(Func<T> action) where T : class
-        {
-            UnitOfWorkContext.AddEvent(action);
-        }
+        UnitOfWorkContext.AddEvent(action);
     }
 }

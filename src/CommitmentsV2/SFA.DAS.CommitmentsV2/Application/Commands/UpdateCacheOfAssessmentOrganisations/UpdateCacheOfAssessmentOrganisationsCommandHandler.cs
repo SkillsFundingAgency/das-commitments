@@ -27,9 +27,10 @@ public class
 
         logger.LogInformation("Fetched {Count} OrganisationSummaries", allOrganisationSummaries.Count);
 
-        var latestCachedEPAOrgId = providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId)
+        var latestCachedEPAOrgId = await providerDbContext.Value.AssessmentOrganisations
+            .Select(x => x.EpaOrgId)
             .OrderByDescending(x => x)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync(cancellationToken);
 
         logger.LogInformation("Latest EPAOrgId in cache is {latestCachedEPAOrgId}", latestCachedEPAOrgId ?? "N/A. Cache is Empty");
 
@@ -39,7 +40,7 @@ public class
                 .SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1)
                 .ToList();
 
-        if (!organisationSummariesToAdd.Any())
+        if (organisationSummariesToAdd.Count == 0)
         {
             logger.LogInformation("Organisation org cache is already up-to-date.");
             return;
