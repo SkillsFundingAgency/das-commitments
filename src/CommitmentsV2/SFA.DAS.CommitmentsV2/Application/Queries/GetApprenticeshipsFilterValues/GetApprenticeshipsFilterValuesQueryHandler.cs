@@ -101,9 +101,9 @@ public class GetApprenticeshipsFilterValuesQueryHandler(
         return await dbContext.Apprenticeships
             .WithProviderOrEmployerId(request)
             .Where(apprenticeship => apprenticeship.StartDate.HasValue)
-            .OrderBy(apprenticeship => apprenticeship.StartDate)
             .Select(apprenticeship => apprenticeship.StartDate.Value)
             .Distinct()
+            .OrderBy(sd => sd)
             .ToListAsync(cancellationToken);
     }
 
@@ -112,9 +112,9 @@ public class GetApprenticeshipsFilterValuesQueryHandler(
         return await dbContext.Apprenticeships
             .WithProviderOrEmployerId(request)
             .Where(apprenticeship => apprenticeship.EndDate.HasValue)
-            .OrderBy(apprenticeship => apprenticeship.EndDate)
             .Select(apprenticeship => apprenticeship.EndDate.Value)
             .Distinct()
+            .OrderBy(ed => ed)
             .ToListAsync(cancellationToken);
     }
 }
