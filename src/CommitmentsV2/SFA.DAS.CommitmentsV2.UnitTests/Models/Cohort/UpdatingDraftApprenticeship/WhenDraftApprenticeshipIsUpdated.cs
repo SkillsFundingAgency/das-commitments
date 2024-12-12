@@ -242,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             fixture
                 .WithExistingDraftApprenticeships()
-                .WithStartDate()
+                .WithPSPilotStartDate()
                 .WithPriorApprovalOfOtherParty()
                 .UpdateFlexiPaymentPilotDraftApprenticeshipStartDateDay();
 
@@ -474,6 +474,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             
             // If you use DateTime.Now, some of the tests will fail if run on the last day of the month.
             private readonly DateTime _referenceDate = new DateTime(2023,10,10);
+            // PS Pilot start date must be later than 2024-11-01
+            private readonly DateTime _psPilotReferenceDate = new DateTime(2024, 11, 01);
             private UnitOfWorkContext UnitOfWorkContext { get; }
             private UserInfo UserInfo { get; }
             private Party ModifyingParty { get; }
@@ -565,6 +567,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             public UpdatingDraftApprenticeshipTestFixture WithStartDate()
             {
                 var nextMonth = _referenceDate.AddMonths(1);
+                Cohort.Apprenticeships.ForEach(c => c.StartDate = new DateTime(nextMonth.Year, nextMonth.Month, 1));
+                return this;
+            }
+
+            public UpdatingDraftApprenticeshipTestFixture WithPSPilotStartDate()
+            {
+                var nextMonth = _psPilotReferenceDate.AddMonths(1);
                 Cohort.Apprenticeships.ForEach(c => c.StartDate = new DateTime(nextMonth.Year, nextMonth.Month, 1));
                 return this;
             }
