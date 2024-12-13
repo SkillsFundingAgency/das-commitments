@@ -5,6 +5,9 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmailValidationService;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
+using Azure.Core;
+using static SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult;
+using MediatR;
 
 namespace SFA.DAS.CommitmentsV2.Extensions;
 
@@ -171,8 +174,7 @@ public static class DraftApprenticeshipExtensions
     private static IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details, long? transferSenderId)
     {
         if (!details.StartDate.HasValue && !details.ActualStartDate.HasValue) yield break;
-
-        var startDate = details.StartDate.HasValue ? details.StartDate.Value : details.ActualStartDate.Value;
+        var startDate = details.StartDate.HasValue ? details.StartDate.Value : details.ActualStartDate.Value;                
         var startDateField = details.StartDate.HasValue ? nameof(details.StartDate) : nameof(details.ActualStartDate);
 
         var courseStartedBeforeDas = details.TrainingProgramme != null &&
@@ -214,6 +216,13 @@ public static class DraftApprenticeshipExtensions
             details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16())
         {
             yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
+        }
+
+        if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&      
+            details.ActualStartDate.HasValue &&
+            details.ActualStartDate.Value < Constants.SimplifiedPaymentsStartDate)
+        {
+            yield return new DomainError(startDateField, $"The start date must not be earlier than {Constants.SimplifiedPaymentsStartDate:d MMMM yyyy}.");
         }
     }
 
