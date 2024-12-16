@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
 
                 if (isDevelopment)
                 {
-                    endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+                    endpointConfiguration.UseLearningTransport(learningTransportFolderPath: configuration.NServiceBusConfiguration.LearningTransportFolderPath);
                 }
                 else
                 {
@@ -50,5 +50,18 @@ public static class ServiceCollectionExtensions
             })
             .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
             .AddHostedService<NServiceBusHostedService>();
+    }
+
+    public static EndpointConfiguration UseLearningTransport(this EndpointConfiguration config, Action<RoutingSettings> routing = null, string learningTransportFolderPath = null)
+    {
+        TransportExtensions<LearningTransport> transportExtensions = config.UseTransport<LearningTransport>();
+        if (!string.IsNullOrWhiteSpace(learningTransportFolderPath))
+        {
+            transportExtensions.StorageDirectory(learningTransportFolderPath);
+        }
+
+        transportExtensions.Transactions(TransportTransactionMode.ReceiveOnly);
+        routing?.Invoke(transportExtensions.Routing());
+        return config;
     }
 }

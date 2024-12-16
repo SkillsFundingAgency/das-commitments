@@ -55,6 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj" />
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj">
       <TreatAsUsed>true</TreatAsUsed>
