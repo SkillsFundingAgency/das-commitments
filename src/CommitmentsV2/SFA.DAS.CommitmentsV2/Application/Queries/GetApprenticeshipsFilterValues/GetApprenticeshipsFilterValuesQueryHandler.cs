@@ -70,9 +70,9 @@ public class GetApprenticeshipsFilterValuesQueryHandler(
     {
         return await dbContext.Apprenticeships
             .WithProviderOrEmployerId(request)
-            .OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
             .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
             .Distinct()
+            .OrderBy(accountLegalEntityName => accountLegalEntityName)
             .ToListAsync(cancellationToken);
     }
 
@@ -80,9 +80,9 @@ public class GetApprenticeshipsFilterValuesQueryHandler(
     {
         return await dbContext.Apprenticeships
             .WithProviderOrEmployerId(request)
-            .OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
             .Select(apprenticeship => apprenticeship.Cohort.Provider.Name)
             .Distinct()
+            .OrderBy(providerName => providerName)
             .ToListAsync(cancellationToken);
     }
 
@@ -90,9 +90,9 @@ public class GetApprenticeshipsFilterValuesQueryHandler(
     {
         return await dbContext.Apprenticeships
             .WithProviderOrEmployerId(request)
-            .OrderBy(apprenticeship => apprenticeship.CourseName)
             .Select(apprenticeship => apprenticeship.CourseName)
             .Distinct()
+            .OrderBy(courseName => courseName)
             .ToListAsync(cancellationToken);
     }
 
