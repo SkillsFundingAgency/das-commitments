@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NUnit.Framework.Internal.Execution;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -36,12 +37,32 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
+
+        [Test]
+        public async Task WhenHandlingOverlappingTrainingDateResolvedEvent_And_ApprenticeshipNotFoundThenDoNotSendEmail()
+        {
+            _fixture.Event.ApprenticeshipId++;
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.IsAny<SendEmailToProviderCommand>()
+                , It.IsAny<SendOptions>()), Times.Never);
+        }
+
+        [Test]
+        public async Task WhenHandlingOverlappingTrainingDateResolvedEvent_And_CohortFullyApprovedThenDoNotSendEmailToProvider()
+        {
+            _fixture.SetWithParty(Party.None);
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.IsAny<SendEmailToProviderCommand>()
+                , It.IsAny<SendOptions>()), Times.Never);
+        }
+
     }
 
     public class OverlappingTrainingDateResolvedEventHandlerTestsFixture : EventHandlerTestsFixture<OverlappingTrainingDateResolvedEvent, OverlappingTrainingDateResolvedEventHandler>
     {
         public Mock<ILogger<OverlappingTrainingDateResolvedEventHandler>> Logger { get; set; }
-        public Mock<IEncodingService> MockEncodingService { get; set; }
         public OverlappingTrainingDateResolvedEvent Event { get; set; }
 
         private readonly DraftApprenticeship _draftApprenticeship;
@@ -86,6 +107,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             Handler = new OverlappingTrainingDateResolvedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object,
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
+        }
+
+        public OverlappingTrainingDateResolvedEventHandlerTestsFixture SetWithParty(Party withParty)
+        {
+            _draftApprenticeship.Cohort.WithParty = withParty;
+            return this;
         }
 
         public override Task Handle()

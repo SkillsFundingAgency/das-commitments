@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Types;
@@ -49,7 +51,31 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public void Handle_ThrowsException_LogsAndThrows()
+        public async Task Handle_ThrowsBadRequestExceptionAndHandlerAcceptsIt()
+        {
+            // Arrange
+            var message = _fixture.Create<AutomaticallyStopOverlappingTrainingDateRequestCommand>();
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<StopApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new BadRequestException("Apprenticeship 1 was not found"));
+
+            // Act
+            await _handler.Handle(message, Mock.Of<IMessageHandlerContext>());
+        }
+
+        [Test]
+        public async Task Handle_ThrowsDomainExceptionAndHandlerAcceptsIt()
+        {
+            // Arrange
+            var message = _fixture.Create<AutomaticallyStopOverlappingTrainingDateRequestCommand>();
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<StopApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DomainException("General", "Some rule failed"));
+
+            // Act
+            await _handler.Handle(message, Mock.Of<IMessageHandlerContext>());
+        }
+
+        [Test]
+        public void Handle_ThrowsAnUnexpectedException_LogsAndThrows()
         {
             // Arrange
             var message = _fixture.Create<AutomaticallyStopOverlappingTrainingDateRequestCommand>();

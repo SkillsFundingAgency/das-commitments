@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -27,6 +28,14 @@ public class OverlappingTrainingDateResolvedEventHandler(
 
                 await context.Send(sendEmailToProviderCommand, new SendOptions());
             }
+        }
+        catch (InvalidOperationException ex) when (ex.Message.EndsWith("can't be modified"))
+        {
+            logger.LogError(ex, "Apprenticeship has already been approved for id {ApprenticeshipId}", message?.ApprenticeshipId);
+        }
+        catch (BadRequestException ex) when (ex.Message.EndsWith("was not found"))
+        {
+            logger.LogError(ex, "Apprenticeship id {ApprenticeshipId} was not found", message?.ApprenticeshipId);
         }
         catch (Exception e)
         {
