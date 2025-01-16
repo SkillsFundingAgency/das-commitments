@@ -1,7 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 
@@ -14,6 +16,19 @@ public class AutomaticallyStopOverlappingTrainingDateRequestCommandHandler(
     {
         try
         {
+            var apprenticeship = await mediator.Send(new GetApprenticeshipQuery(message.ApprenticeshipId));
+            if (apprenticeship == null)
+            {
+                logger.LogInformation("Handling AutomaticallyStopOverlappingTrainingDateRequestCommand not processed as apprenticeship was not found");
+                return;
+            }
+
+            if (apprenticeship.Status == ApprenticeshipStatus.Completed || apprenticeship.Status == ApprenticeshipStatus.Stopped)
+            {
+                logger.LogInformation("Handling AutomaticallyStopOverlappingTrainingDateRequestCommand not processed as apprenticeship was already completed or stopped");
+                return;
+            }
+
             logger.LogInformation(
                 "Sending AutomaticallyStopOverlappingTrainingDateRequestCommand for ApprenticeshipId {ApprenticeshipId}",
                 message.ApprenticeshipId);
@@ -25,15 +40,6 @@ public class AutomaticallyStopOverlappingTrainingDateRequestCommandHandler(
                 false,
                 Types.UserInfo.System,
                 Types.Party.Employer));
-        }
-        catch (BadRequestException ex) when
-            (ex.Message.StartsWith("Apprenticeship") && ex.Message.EndsWith("not found"))
-        {
-            logger.LogError(ex, "Handling AutomaticallyStopOverlappingTrainingDateRequestCommand not processed as apprenticeship not found");
-        }
-        catch (DomainException ex)
-        {
-            logger.LogError(ex, "Handling AutomaticallyStopOverlappingTrainingDateRequestCommand not processed because a domain exception was thrown");
         }
         catch (Exception ex)
         {

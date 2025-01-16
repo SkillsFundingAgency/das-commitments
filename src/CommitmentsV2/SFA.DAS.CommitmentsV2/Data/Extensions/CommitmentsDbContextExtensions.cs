@@ -114,22 +114,4 @@ public static class CommitmentsDbContextExtensions
                                        && c.Status == OverlappingTrainingDateRequestStatus.Pending, cancellationToken);
         return result;
     }
-
-    public static async Task<DraftApprenticeship> GetOLTDResolvedDraftApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long cohortId, long apprenticeshipId, CancellationToken cancellationToken)
-    {
-        var draftApprenticeship = await db.DraftApprenticeships
-            .Include(a => a.Cohort).ThenInclude(c => c.Provider)
-            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
-        if (draftApprenticeship == null)
-        {
-            throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
-        }
-
-        if (draftApprenticeship.Cohort.IsApprovedByAllParties)
-        {
-            throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
-        }
-
-        return draftApprenticeship;
-    }
 }

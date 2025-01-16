@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using NUnit.Framework.Internal.Execution;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
@@ -58,6 +56,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 , It.IsAny<SendOptions>()), Times.Never);
         }
 
+        [Test]
+        public async Task WhenHandlingOverlappingTrainingDateResolvedEvent_And_ExcetpionCohortFullyApprovedThenDoNotSendEmailToProvider()
+        {
+            _fixture.SetWithParty(Party.None);
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.IsAny<SendEmailToProviderCommand>()
+                , It.IsAny<SendOptions>()), Times.Never);
+        }
     }
 
     public class OverlappingTrainingDateResolvedEventHandlerTestsFixture : EventHandlerTestsFixture<OverlappingTrainingDateResolvedEvent, OverlappingTrainingDateResolvedEventHandler>

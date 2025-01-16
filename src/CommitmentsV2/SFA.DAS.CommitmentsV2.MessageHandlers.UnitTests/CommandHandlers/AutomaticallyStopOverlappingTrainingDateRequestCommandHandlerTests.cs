@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
@@ -15,17 +16,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         private Mock<IMediator> _mediatorMock;
         private Mock<ILogger<AutomaticallyStopOverlappingTrainingDateRequestCommandHandler>> _loggerMock;
         private AutomaticallyStopOverlappingTrainingDateRequestCommandHandler _handler;
+        private GetApprenticeshipQueryResult _apprenticeQueryResult;
         private Fixture _fixture;
 
         [SetUp]
         public void Setup()
         {
+            _fixture = new Fixture();
+
+            _apprenticeQueryResult = _fixture.Build<GetApprenticeshipQueryResult>()
+                .With(x => x.Status, ApprenticeshipStatus.Live).Create();
             _mediatorMock = new Mock<IMediator>();
+            _mediatorMock.Setup(x => x.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(_apprenticeQueryResult);
+
             _loggerMock = new Mock<ILogger<AutomaticallyStopOverlappingTrainingDateRequestCommandHandler>>();
             _handler = new AutomaticallyStopOverlappingTrainingDateRequestCommandHandler(
                 _mediatorMock.Object,
                 _loggerMock.Object);
-            _fixture = new Fixture();
         }
 
         [Test]
@@ -51,10 +58,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public async Task Handle_ThrowsBadRequestExceptionAndHandlerAcceptsIt()
+        public async Task Handle_DoesNotProcessIfNoApprenticeship()
         {
             // Arrange
             var message = _fixture.Create<AutomaticallyStopOverlappingTrainingDateRequestCommand>();
+            _mediatorMock.Setup(x => x.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetApprenticeshipQueryResult) null);
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<StopApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new BadRequestException("Apprenticeship 1 was not found"));
 
@@ -62,13 +71,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             await _handler.Handle(message, Mock.Of<IMessageHandlerContext>());
         }
 
-        [Test]
-        public async Task Handle_ThrowsDomainExceptionAndHandlerAcceptsIt()
+        [TestCase(ApprenticeshipStatus.Completed)]
+        [TestCase(ApprenticeshipStatus.Stopped)]
+        public async Task Handle_DoesNotProcessApprenticeshipWithThisStatus(ApprenticeshipStatus status)
         {
             // Arrange
             var message = _fixture.Create<AutomaticallyStopOverlappingTrainingDateRequestCommand>();
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<StopApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DomainException("General", "Some rule failed"));
+            _apprenticeQueryResult.Status = status;
 
             // Act
             await _handler.Handle(message, Mock.Of<IMessageHandlerContext>());
