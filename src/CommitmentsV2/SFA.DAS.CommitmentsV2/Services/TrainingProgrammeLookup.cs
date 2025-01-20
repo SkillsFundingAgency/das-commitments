@@ -241,7 +241,7 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         );
         trainingProgrammes.AddRange(standards.Select(standard =>
             new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
-                ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
+                standard.Version, standard.StandardUId, standard.StandardPageUrl, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                 new List<IFundingPeriod>(standard.FundingPeriods))));
 
         return trainingProgrammes.OrderBy(c => c.Name);
@@ -254,7 +254,7 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         var trainingProgrammes = new List<TrainingProgramme>();
         trainingProgrammes.AddRange(standards.Select(standard =>
             new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
-                ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
+                standard.Version, standard.StandardUId, standard.StandardPageUrl, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                 new List<IFundingPeriod>(standard.FundingPeriods))));
 
         return trainingProgrammes.OrderBy(c => c.Name);
