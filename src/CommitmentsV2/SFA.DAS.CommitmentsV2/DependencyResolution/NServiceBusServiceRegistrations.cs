@@ -40,7 +40,7 @@ public static class NServiceBusServiceRegistrations
             .UseNewtonsoftJsonSerializer()
             .UseOutbox(true)
             .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString))
-            .ConfigureServiceBusTransport(() => commitmentsConfiguration.NServiceBusConfiguration.ServiceBusConnectionString, isDevOrLocal, commitmentsConfiguration.NServiceBusConfiguration.LearningTransportFolderPath)
+            .ConfigureServiceBusTransport(() => commitmentsConfiguration.NServiceBusConfiguration.ServiceBusConnectionString, isDevOrLocal, commitmentsConfiguration.NServiceBusConfiguration)
             .UseUnitOfWork();
 
         if (!string.IsNullOrEmpty(commitmentsConfiguration.NServiceBusConfiguration.NServiceBusLicense))
