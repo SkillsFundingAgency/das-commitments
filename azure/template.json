@@ -589,7 +589,7 @@
             ]
         },
         {
-            "condition": "[equals(parameters('enableFailedRequestAlert'), true())]",
+            "condition": "[and(equals(parameters('enableFailedRequestAlert'), true()), parameters('deploySupportApp'))]",
             "apiVersion": "2021-04-01",
             "name": "[concat('application-insights-', variables('supportAppServiceName'), '-alert-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
