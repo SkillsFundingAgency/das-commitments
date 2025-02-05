@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
@@ -150,6 +151,8 @@ public class Startup
                 {
                     context.Response.Headers.Remove("X-Powered-By");
                 }
+                
+                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
 
                 return Task.CompletedTask;
             });
