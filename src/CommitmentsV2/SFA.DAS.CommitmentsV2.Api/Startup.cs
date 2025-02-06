@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Api.Middleware;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
@@ -143,6 +144,8 @@ public class Startup
             app.UseHsts();
         }
 
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+
         app.Use(async (context, next) =>
         {
             context.Response.OnStarting(() =>
@@ -152,8 +155,6 @@ public class Startup
                     context.Response.Headers.Remove("X-Powered-By");
                 }
                 
-                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
-
                 return Task.CompletedTask;
             });
             await next();
