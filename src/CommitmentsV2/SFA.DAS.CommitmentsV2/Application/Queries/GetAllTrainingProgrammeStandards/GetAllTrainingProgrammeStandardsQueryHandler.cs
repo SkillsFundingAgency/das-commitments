@@ -20,6 +20,8 @@ public class GetAllTrainingProgrammeStandardsQueryHandler(ITrainingProgrammeLook
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = c.ProgrammeType,
+                StandardUId = c.StandardUId,
+                StandardPageUrl = c.StandardPageUrl,
                 FundingPeriods = c.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
                 {
                     EffectiveFrom = x.EffectiveFrom,
