@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 && command.StopDate == message.LastDayOfLearning
                 && command.MadeRedundant == false
                 && command.UserInfo.UserId == UserInfo.System.UserId
-                && command.Party == Party.Provider
+                && command.Party == Party.Employer
                 ), It.IsAny<CancellationToken>()));
         }
 

@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         message.LastDayOfLearning,
                         false,
                         Types.UserInfo.System,
-                        Types.Party.Provider));
+                        Types.Party.Employer));
                     break;
 
                 case WithdrawReason.WithdrawFromBeta:
