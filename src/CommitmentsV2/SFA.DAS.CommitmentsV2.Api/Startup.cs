@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
@@ -19,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Api.Middleware;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
@@ -142,6 +144,8 @@ public class Startup
             app.UseHsts();
         }
 
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+
         app.Use(async (context, next) =>
         {
             context.Response.OnStarting(() =>
@@ -150,7 +154,7 @@ public class Startup
                 {
                     context.Response.Headers.Remove("X-Powered-By");
                 }
-
+                
                 return Task.CompletedTask;
             });
             await next();
