@@ -8,6 +8,6 @@ namespace SFA.DAS.Apprenticeships.Types
         public long ApprenticeshipId { get; set; }
         public string Reason { get; set; }
         public DateTime LastDayOfLearning { get; set; }
-
+        public long EmployerAccountId { get; set; }
     }
 }
