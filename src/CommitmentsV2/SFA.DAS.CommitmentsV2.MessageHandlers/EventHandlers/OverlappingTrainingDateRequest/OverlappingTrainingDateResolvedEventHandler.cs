@@ -1,6 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Configuration;
+﻿using System.Threading;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -19,14 +19,25 @@ public class OverlappingTrainingDateResolvedEventHandler(
         {
             logger.LogInformation("Received {TypeName} for DraftApprenticeship {ApprenticeshipId}", nameof(OverlappingTrainingDateResolvedEvent), message?.ApprenticeshipId);
 
-            if (message != null)
+            var draftApprenticeship = await dbContext.Value.DraftApprenticeships
+                .Include(a => a.Cohort).ThenInclude(c => c.Provider)
+                .SingleOrDefaultAsync(a => a.Id == message.ApprenticeshipId && a.CommitmentId == message.CohortId, CancellationToken.None);
+
+            if (draftApprenticeship == null)
             {
-                var draftApprenticeship = await dbContext.Value.GetOLTDResolvedDraftApprenticeshipAggregate(message.CohortId, message.ApprenticeshipId, default);
-
-                var sendEmailToProviderCommand = BuildEmailToEmployerCommand(draftApprenticeship);
-
-                await context.Send(sendEmailToProviderCommand, new SendOptions());
+                logger.LogInformation("Apprenticeship id {ApprenticeshipId} was not found", message?.ApprenticeshipId);
+                return;
             }
+
+            if (draftApprenticeship.Cohort.IsApprovedByAllParties)
+            {
+                logger.LogInformation("Apprenticeship has already been approved for id {ApprenticeshipId}", message?.ApprenticeshipId);
+                return;
+            }
+
+            var sendEmailToProviderCommand = BuildEmailToEmployerCommand(draftApprenticeship);
+
+            await context.Send(sendEmailToProviderCommand, new SendOptions());
         }
         catch (Exception e)
         {
