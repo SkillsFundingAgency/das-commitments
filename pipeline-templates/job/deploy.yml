@@ -118,6 +118,7 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             AppServiceName: $(WorkerV2AppServiceName)
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}V2.Host.zip
+            ResourceGroupName: $(ResourceGroupName)
             DeploymentType: zipDeploy
         - ${{ if or(eq(parameters.Environment, 'AT'), eq(parameters.Environment, 'TEST'), eq(parameters.Environment, 'PP'), eq(parameters.Environment, 'PROD')) }}:
           - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
