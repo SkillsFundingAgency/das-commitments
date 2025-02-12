@@ -37,13 +37,13 @@ public static class ServiceCollectionExtensions
                     .UseUnitOfWork()
                     .UseServicesBuilder(new UpdateableServiceProvider(services));
 
-                if (isDevelopment)
+                if (hostingEnvironment.ShouldUseServiceBus(configuration))
                 {
-                    endpointConfiguration.UseLearningTransport(learningTransportFolderPath: configuration.NServiceBusConfiguration.LearningTransportFolderPath);
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting()); 
                 }
                 else
                 {
-                    endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
+                    endpointConfiguration.UseLearningTransport(learningTransportFolderPath: configuration.NServiceBusConfiguration.LearningTransportFolderPath);
                 }
                 
                 return Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
@@ -63,5 +63,19 @@ public static class ServiceCollectionExtensions
         transportExtensions.Transactions(TransportTransactionMode.ReceiveOnly);
         routing?.Invoke(transportExtensions.Routing());
         return config;
+    }
+
+    private static bool ShouldUseServiceBus(this IHostEnvironment hostingEnvironment, CommitmentsV2Configuration configuration)
+    {
+        var isDevelopment = hostingEnvironment.IsDevelopment();
+
+        if (!isDevelopment)
+            return true; // Always use service bus in non-development environments
+
+        if(configuration.NServiceBusConfiguration.UseServiceBusInDev)
+            return true; // Use service bus in development if configured to do so
+
+        return false; // Otherwise, use learning transport
+
     }
 }
