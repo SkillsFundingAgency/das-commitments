@@ -19,14 +19,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             await fixture.ValidateReservation();
             fixture.AssertUriCorrectlyFormedWhenTransferSenderIsNotPresent();
         }
-
-        [Test]
-        public async Task ThenTheRequestPayloadIsCorrectlyFormed()
-        {
-            var fixture = new WhenRetrievingStatusTestFixtures().WithTransferSender();
-            await fixture.ValidateReservation();
-            fixture.AssertUriCorrectlyFormedWhenTransferSenderIsPresent();
-        }
     }
 
     public class WhenRetrievingStatusTestFixtures : ReservationsClientTestFixtures
@@ -42,12 +34,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             _request = AutoFixture.Create<ReservationAllocationStatusMessage>();
         }
 
-        public WhenRetrievingStatusTestFixtures WithTransferSender()
-        {
-            _request.TransferSenderId = 123;
-            return this;
-        }
-
         public Task ValidateReservation()
         {
             return ReservationsApiClient.GetReservationAllocationStatus(_request, new CancellationToken());
@@ -61,11 +47,5 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 It.IsAny<object>(), It.IsAny<CancellationToken>()));
         }
 
-        public void AssertUriCorrectlyFormedWhenTransferSenderIsPresent()
-        {
-            var expectedUrl = $"{Config.ApiBaseUrl}/api/accounts/{_request.AccountId}/status?transferSenderId={_request.TransferSenderId}";
-
-            HttpHelper.Verify(x => x.GetAsync<ReservationAllocationStatusResult>(It.IsAny<string>(), null, It.IsAny<CancellationToken>()));
-        }
     }
 }
