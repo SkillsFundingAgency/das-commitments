@@ -37,9 +37,7 @@ namespace SFA.DAS.Reservations.Api.Types
 
         public Task<ReservationAllocationStatusResult> GetReservationAllocationStatus(ReservationAllocationStatusMessage request, CancellationToken cancellationToken)
         {
-            var optionQueryString=request.TransferSenderId.HasValue ? $"?transferSenderId={request.TransferSenderId}" : "";
-
-            var url = BuildUrl($"api/accounts/{request.AccountId}/status{optionQueryString}");
+            var url = BuildUrl($"api/accounts/{request.AccountId}/status");
 
             return _httpHelper.GetAsync<ReservationAllocationStatusResult>(url, null, cancellationToken);
         }
