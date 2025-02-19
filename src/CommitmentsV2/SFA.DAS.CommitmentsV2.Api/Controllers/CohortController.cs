@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSupportStatus;
 using SFA.DAS.CommitmentsV2.Types;
 
 
@@ -141,6 +142,21 @@ public class CohortController(IMediator mediator) : ControllerBase
             TransferApprovalStatus = result.TransferApprovalStatus,
             ApprenticeEmailIsRequired = result.ApprenticeEmailIsRequired
         });
+    }
+
+    [HttpGet]
+    [Route("{cohortId}/support-status")]
+    public async Task<IActionResult> GetSupportStatus(long cohortId)
+    {
+        var query = new GetCohortSupportStatusQuery(cohortId);
+        var result = await mediator.Send(query);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
 
     [HttpGet]
