@@ -17,7 +17,9 @@ jobs:
       parameters:
         RunAcceptanceTests: false
         ContinueOnVulnerablePackageScanError: true
-  
+        SonarCloudExtraProperties: |
+          sonar.scanner.javaOpts=-Xmx4096m
+
     - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Web
       inputs:
@@ -27,7 +29,7 @@ jobs:
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
         zipAfterPublish: true
-    
+
     - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Api
       inputs:
@@ -37,7 +39,7 @@ jobs:
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
         zipAfterPublish: true
-  
+
     - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Host
       inputs:
@@ -54,7 +56,7 @@ jobs:
         Contents: |
           azure/**
         TargetFolder: $(build.artifactstagingdirectory)/publish
-  
+
     - task: PublishPipelineArtifact@1
       displayName: Publish Build Artifact
       inputs:
@@ -71,4 +73,3 @@ jobs:
           src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj;
           src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Types/SFA.DAS.ReservationsV2.Api.Types.csproj;
           src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj;
-          
