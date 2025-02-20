@@ -11,8 +11,8 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSupportStatus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Types;
-
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
@@ -215,5 +215,15 @@ public class CohortController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(query);
 
         return Ok(new GetCohortPriorLearningErrorResponse { DraftApprenticeshipIds = result.DraftApprenticeshipIds });
+    }
+
+    [HttpGet]
+    [Route("{cohortId:long}/approved-apprenticeships")]
+    public async Task<IActionResult> GetCohortApprovedApprenticeships(long cohortId)
+    {
+        var query = new GetSupportApprovedApprenticeshipsQuery(cohortId, null, null);
+        var result = await mediator.Send(query);
+
+        return Ok(result);
     }
 }

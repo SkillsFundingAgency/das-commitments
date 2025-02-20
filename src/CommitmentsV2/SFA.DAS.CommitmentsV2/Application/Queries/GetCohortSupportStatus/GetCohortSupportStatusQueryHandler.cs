@@ -13,7 +13,7 @@ public class GetCohortSupportStatusQueryHandler(Lazy<ProviderCommitmentsDbContex
             .Include(x => x.Apprenticeships)
             .Select(x => new
             {
-                x.Id, x.EditStatus, x.ProviderId, NoOfApprentices = x.Apprenticeships.Count, x.WithParty, x.LastAction, x.TransferSenderId, x.TransferApprovalStatus
+                x.Id, x.EditStatus, x.ProviderId, NoOfApprovedApprentices = x.Apprenticeships.Count(a=>a.IsApproved == true), x.WithParty, x.LastAction, x.TransferSenderId, x.TransferApprovalStatus
             })
             .FirstOrDefaultAsync(c => c.Id == request.CohortId, cancellationToken);
 
@@ -23,10 +23,10 @@ public class GetCohortSupportStatusQueryHandler(Lazy<ProviderCommitmentsDbContex
         var result = new GetCohortSupportStatusQueryResult
         {
             CohortId = cohort.Id,
-            NoOfApprentices = cohort.NoOfApprentices,
+            NoOfApprentices = cohort.NoOfApprovedApprentices,
             CohortStatus = calculator.GetStatus(
                 cohort.EditStatus,
-                cohort.NoOfApprentices > 0, 
+                cohort.NoOfApprovedApprentices > 0, 
                 cohort.LastAction,
                 cohort.WithParty, 
                 cohort.TransferSenderId, 
