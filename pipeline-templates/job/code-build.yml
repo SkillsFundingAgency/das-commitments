@@ -34,7 +34,7 @@ jobs:
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Api
       inputs:
         command: publish
-        publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
+        publishWebProjects: false #set to false as this setting ( which defaults to true) will parse the entire repo for web projects
         projects: src/CommitmentsV2/${{ parameters.SolutionBaseName }}V2.Api/${{ parameters.SolutionBaseName }}V2.Api.csproj
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
