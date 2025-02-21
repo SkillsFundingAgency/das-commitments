@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
@@ -275,6 +276,28 @@ public class ApprenticeshipController(
     {
         var query = new GetApprenticeshipsValidateQuery(firstName, lastName, dateOfBirth);
 
+        var result = await mediator.Send(query);
+
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("{apprenticeshipId:long}/approved-apprenticeship")]
+    public async Task<IActionResult> GetApprovedApprenticeship(long apprenticeshipId)
+    {
+        var query = new GetSupportApprovedApprenticeshipsQuery(null, null, apprenticeshipId);
+        var result = await mediator.Send(query);
+        if(!result.ApprovedApprenticeships.Any())
+            return NotFound();
+
+        return Ok(result.ApprovedApprenticeships.First());
+    }
+
+    [HttpGet]
+    [Route("{uln:string}/approved-apprenticeships")]
+    public async Task<IActionResult> GetApprovedApprenticeshipForUln(string uln)
+    {
+        var query = new GetSupportApprovedApprenticeshipsQuery(null, uln, null);
         var result = await mediator.Send(query);
 
         return Ok(result);
