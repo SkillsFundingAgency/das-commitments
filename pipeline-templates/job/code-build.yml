@@ -18,7 +18,7 @@ jobs:
         RunAcceptanceTests: false
         ContinueOnVulnerablePackageScanError: true
         SonarCloudExtraProperties: |
-          sonar.scanner.javaOpts=-Xmx4096m
+          sonar.scanner.javaOpts=-Xmx8192m
 
     - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Web
