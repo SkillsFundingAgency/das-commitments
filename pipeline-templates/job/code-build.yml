@@ -19,6 +19,10 @@ jobs:
         ContinueOnVulnerablePackageScanError: true
         SonarCloudExtraProperties: |
           sonar.scanner.javaOpts=-Xmx8192m
+          sonar.javascript.node.maxspace=8192
+          sonar.web.timeout=600
+          sonar.exclusions=**/*.sql
+          sonar.log.level=DEBUG
 
     - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Web
