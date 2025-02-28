@@ -203,6 +203,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WhenValidatingSimplifiedPaymentsApprenticeship_WithStopDateInFuture_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var stopDate = DateTime.UtcNow.AddDays(1);
+            var apprenticeship = await SetupApprenticeship(isOnFlexiPaymentsPilot: true);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be in the future." });
+        }
+
+        [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInPast_ThenShouldThrowDomainException()
         {
             // Arrange
@@ -386,7 +401,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return true;
         }
 
-        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
+        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null, bool isOnFlexiPaymentsPilot = false)
         {
             var today = DateTime.UtcNow;
             _currentDateTime.Setup(a => a.UtcNow).Returns(today);
@@ -403,7 +418,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 },
                 DataLockStatus = SetupDataLocks(apprenticeshipId),
                 PaymentStatus = paymentStatus,
-                StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2)
+                StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2),
+                IsOnFlexiPaymentPilot = isOnFlexiPaymentsPilot
             };
 
             _dbContext.Apprenticeships.Add(apprenticeship);
