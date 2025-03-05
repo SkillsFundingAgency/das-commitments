@@ -13,3 +13,14 @@ public class LevyAddedToAccountEventHandler(IMediator mediator, ILogger<LevyAdde
         await mediator.Send(new UpdateLevyStatusToLevyCommand { AccountId = message.AccountId });
     }
 }
+
+public class LevyAddedToAccountEventHandlerNew(IMediator mediator, ILogger<LevyAddedToAccountEventHandlerNew> logger)
+    : IHandleMessages<LevyAddedToAccountEvent>
+{
+    public async Task Handle(LevyAddedToAccountEvent message, IMessageHandlerContext context)
+    {
+        logger.LogInformation("LevyAddedToAccountEvent event received for Account {AccountId}", message.AccountId);
+
+        await mediator.Send(new UpdateLevyStatusToLevyCommand { AccountId = message.AccountId });
+    }
+}
