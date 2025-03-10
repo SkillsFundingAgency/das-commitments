@@ -76,7 +76,7 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
 
             _cohort.Object.LastAction = LastAction.Amend;
             _cohort.Object.LastUpdatedOn = DateTime.UtcNow.AddDays(-15);
-            _cohort.Object.IsDraft = true;
+            _cohort.Object.IsDraft = false;
 
             _dbContext
                 .Setup(context => context.Cohorts)

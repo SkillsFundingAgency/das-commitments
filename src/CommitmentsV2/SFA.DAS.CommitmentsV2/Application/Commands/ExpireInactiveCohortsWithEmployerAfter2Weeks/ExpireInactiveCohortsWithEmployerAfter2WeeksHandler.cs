@@ -22,7 +22,7 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
 
             var recordsToExpire = await commitmentsDbContext.Value.Cohorts
                 .Where(x => x.LastAction != LastAction.None
-                            && x.IsDraft == true
+                            && x.IsDraft == false
                             && x.WithParty == Party.Employer
                             && x.LastUpdatedOn < currentDate.AddDays(-14).Date
                             && x.LastUpdatedOn > implementationDate)
