@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -8,35 +7,34 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEm
 public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
     Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
     ICurrentDateTime currentDateTime,
-        CommitmentsV2Configuration configuration,
-
-    ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler> logger
+    CommitmentsV2Configuration configuration
     ) : IRequestHandler<ExpireInactiveCohortsWithEmployerAfter2WeeksCommand>
 {
+    private const int ExpirationDays = 14;
+
     public async Task Handle(ExpireInactiveCohortsWithEmployerAfter2WeeksCommand command, CancellationToken cancellationToken)
     {
-        try
-        {
-            var implementationDate = configuration.ExpireInactveEmployerCohortImplentationDate;
-            var currentDate = currentDateTime.UtcNow;
+        var implementationDate = configuration.ExpireInactiveEmployerCohortImplementationDate;
+        var currentDate = currentDateTime.UtcNow;
 
-            var recordsToExpire = await commitmentsDbContext.Value.Cohorts
-                .Where(x => x.LastAction != LastAction.None
-                            && x.IsDraft == false
-                            && x.WithParty == Party.Employer
-                            && x.LastUpdatedOn < currentDate.AddDays(-14).Date
-                            && x.LastUpdatedOn > implementationDate)
-                .ToListAsync(cancellationToken);
+        var recordsToExpire = await GetCohortsToExpire(implementationDate, currentDate, cancellationToken);
 
-            foreach (var record in recordsToExpire)
-            {
-                record.SendToOtherParty(Party.Employer, "", UserInfo.System, currentDate);
-            }
-        }
-        catch (Exception ex)
+        foreach (var record in recordsToExpire)
         {
-            logger.LogError(ex, "An error occurred while handling ExpireInactiveCohortsWithEmployerAfter2WeeksCommand");
-            throw;
+            record.SendToOtherParty(Party.Employer, "", UserInfo.System, currentDate);
         }
+    }
+
+    private async Task<List<Models.Cohort>> GetCohortsToExpire(DateTime implementationDate, DateTime currentDate, CancellationToken cancellationToken)
+    {
+        var expirationThreshold = currentDate.AddDays(-ExpirationDays).Date;
+
+        return await commitmentsDbContext.Value.Cohorts
+        .Where(cohort => cohort.LastAction != LastAction.None
+            && !cohort.IsDraft
+            && cohort.WithParty == Party.Employer
+            && cohort.LastUpdatedOn < expirationThreshold
+            && cohort.LastUpdatedOn > implementationDate)
+        .ToListAsync(cancellationToken);
     }
 }

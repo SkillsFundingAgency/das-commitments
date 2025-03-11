@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing.Fakes;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 [TestFixture]
@@ -26,19 +25,11 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
         _fixture.VerifyCohortIsSentToOtherParty();
     }
 
-    [Test]
-    public void Handle_WhenHandlingCommandAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
-    {
-        Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetUpExceptionInQuery().Handle());
-        _fixture.VerifyHasError();
-    }
-
     public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTestsFixture
     {
         private readonly ExpireInactiveCohortsWithEmployerAfter2WeeksHandler _handler;
         private readonly ExpireInactiveCohortsWithEmployerAfter2WeeksCommand _command;
         public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
-        private readonly FakeLogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler> _logger;
         private readonly Mock<Cohort> _cohort;
         private readonly CommitmentsV2Configuration _configuration;
         private readonly Mock<ICurrentDateTime> _currentDateTime;
@@ -50,21 +41,19 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
             _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options)
             { CallBase = true };
-            _logger = new FakeLogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler>();
 
             _currentDateTime = new Mock<ICurrentDateTime>();
             _currentDateTime.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
 
             _configuration = new CommitmentsV2Configuration
             {
-                ExpireInactveEmployerCohortImplentationDate = DateTime.UtcNow.AddDays(-50),
+                ExpireInactiveEmployerCohortImplementationDate = DateTime.UtcNow.AddDays(-50),
             };
 
             _handler = new ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object),
                 _currentDateTime.Object,
-                _configuration,
-                _logger
+                _configuration
                 );
 
             _command = autoFixture.Create<ExpireInactiveCohortsWithEmployerAfter2WeeksCommand>();
@@ -99,11 +88,6 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
         public void VerifyCohortIsSentToOtherParty()
         {
             _cohort.Verify(x => x.SendToOtherParty(Party.Employer, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
-        }
-
-        public void VerifyHasError()
-        {
-            Assert.That(_logger.HasErrors, Is.True);
         }
     }
 }
