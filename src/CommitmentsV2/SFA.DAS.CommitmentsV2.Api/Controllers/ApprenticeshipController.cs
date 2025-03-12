@@ -294,7 +294,7 @@ public class ApprenticeshipController(
     }
 
     [HttpGet]
-    [Route("uln/{uln:long}/approved-apprenticeships")]
+    [Route("uln/{uln:string}/approved-apprenticeships")]
     public async Task<IActionResult> GetApprovedApprenticeshipForUln(string uln)
     {
         var query = new GetSupportApprovedApprenticeshipsQuery(null, uln.ToString(), null);
