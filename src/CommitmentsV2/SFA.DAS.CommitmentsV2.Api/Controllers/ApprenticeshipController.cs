@@ -297,7 +297,7 @@ public class ApprenticeshipController(
     [Route("uln/{uln:long}/approved-apprenticeships")]
     public async Task<IActionResult> GetApprovedApprenticeshipForUln(string uln)
     {
-        var query = new GetSupportApprovedApprenticeshipsQuery(null, uln.ToString(), null);
+        var query = new GetSupportApprovedApprenticeshipsQuery(uln: uln.ToString());
         var result = await mediator.Send(query);
 
         return Ok(result);
