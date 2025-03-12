@@ -285,7 +285,7 @@ public class ApprenticeshipController(
     [Route("{apprenticeshipId:long}/approved-apprenticeship")]
     public async Task<IActionResult> GetApprovedApprenticeship(long apprenticeshipId)
     {
-        var query = new GetSupportApprovedApprenticeshipsQuery(null, null, apprenticeshipId);
+        var query = new GetSupportApprovedApprenticeshipsQuery(apprenticeshipId: apprenticeshipId);
         var result = await mediator.Send(query);
         if(!result.ApprovedApprenticeships.Any())
             return NotFound();
@@ -297,7 +297,7 @@ public class ApprenticeshipController(
     [Route("uln/{uln:string}/approved-apprenticeships")]
     public async Task<IActionResult> GetApprovedApprenticeshipForUln(string uln)
     {
-        var query = new GetSupportApprovedApprenticeshipsQuery(null, uln.ToString(), null);
+        var query = new GetSupportApprovedApprenticeshipsQuery(uln: uln.ToString());
         var result = await mediator.Send(query);
 
         return Ok(result);

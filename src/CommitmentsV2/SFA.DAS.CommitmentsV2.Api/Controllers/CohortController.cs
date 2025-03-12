@@ -221,7 +221,7 @@ public class CohortController(IMediator mediator) : ControllerBase
     [Route("{cohortId:long}/approved-apprenticeships")]
     public async Task<IActionResult> GetCohortApprovedApprenticeships(long cohortId)
     {
-        var query = new GetSupportApprovedApprenticeshipsQuery(cohortId, null, null);
+        var query = new GetSupportApprovedApprenticeshipsQuery(cohortId: cohortId);
         var result = await mediator.Send(query);
 
         return Ok(result);
