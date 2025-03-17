@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEmployerAfter2Weeks;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEmployerAfter2Weeks;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -33,6 +34,7 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
         private readonly Mock<Cohort> _cohort;
         private readonly CommitmentsV2Configuration _configuration;
         private readonly Mock<ICurrentDateTime> _currentDateTime;
+        private readonly Mock<ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler>> _logger;
 
         public ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTestsFixture()
         {
@@ -50,7 +52,10 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
                 ExpireInactiveEmployerCohortImplementationDate = DateTime.UtcNow.AddDays(-50),
             };
 
+            _logger = new Mock<ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler>>();
+
             _handler = new ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
+                _logger.Object,
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object),
                 _currentDateTime.Object,
                 _configuration
