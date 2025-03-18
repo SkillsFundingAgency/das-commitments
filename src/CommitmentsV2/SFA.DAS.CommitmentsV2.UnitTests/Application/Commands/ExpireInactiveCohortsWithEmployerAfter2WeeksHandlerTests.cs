@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEmployerAfter2Weeks;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
@@ -34,6 +36,8 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
         private readonly Mock<Cohort> _cohort;
         private readonly CommitmentsV2Configuration _configuration;
         private readonly Mock<ICurrentDateTime> _currentDateTime;
+        Mock<IMessageSession> _messageSession;
+
         private readonly Mock<ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler>> _logger;
 
         public ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTestsFixture()
@@ -46,6 +50,7 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
 
             _currentDateTime = new Mock<ICurrentDateTime>();
             _currentDateTime.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
+            _messageSession = new Mock<IMessageSession>();
 
             _configuration = new CommitmentsV2Configuration
             {
@@ -56,6 +61,7 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
 
             _handler = new ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
                 _logger.Object,
+                _messageSession.Object,
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object),
                 _currentDateTime.Object,
                 _configuration
@@ -92,7 +98,8 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandlerTests
 
         public void VerifyCohortIsSentToOtherParty()
         {
-            _cohort.Verify(x => x.SendToOtherParty(Party.Employer, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
+            _messageSession.Verify(y => y.Send(It.IsAny<EmployerSendCohortCommand>(), It.IsAny<SendOptions>()), Times.Once);
+
         }
     }
 }

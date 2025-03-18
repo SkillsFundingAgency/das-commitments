@@ -1,12 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEmployerAfter2Weeks;
 public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
     ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksHandler> logger,
+    IMessageSession messageSession,
     Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
     ICurrentDateTime currentDateTime,
     CommitmentsV2Configuration configuration
@@ -24,7 +27,14 @@ public class ExpireInactiveCohortsWithEmployerAfter2WeeksHandler(
         logger.LogInformation("ExpireInactiveCohortsWithEmployerAfter2WeeksCommand found {count} cohorts to expire", recordsToExpire.Count);
         foreach (var record in recordsToExpire)
         {
-            record.SendToOtherParty(Party.Employer, "", UserInfo.System, currentDate);
+            logger.LogInformation("ExpireInactiveCohortsWithEmployerAfter2WeeksCommand sending {command} for cohort {id}", nameof(EmployerSendCohortCommand), record.Id);
+
+            await messageSession.Send(new EmployerSendCohortCommand
+            {
+                CohortId = record.Id,
+                Message = "",
+                UserInfo = UserInfo.System
+            });
         }
     }
 
