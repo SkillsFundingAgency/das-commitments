@@ -1,8 +1,8 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Commands.ExpireInactiveCohortsWithEmployerAfter2Weeks;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
-public class ExpireInactiveCohortsWithEmployerAfter2Weeks(
-      ILogger<ExpireInactiveCohortsWithEmployerAfter2Weeks> logger,
+public class ExpireInactiveCohortsWithEmployerAfter2WeeksJob(
+      ILogger<ExpireInactiveCohortsWithEmployerAfter2WeeksJob> logger,
       IMediator mediator)
 {
     public async Task ExpireCohorts([TimerTrigger("%SFA.DAS.CommitmentsV2:ExpireInactiveCohortsWithEmployerAfter2WeeksSchedule%", RunOnStartup = false)] TimerInfo timer)
