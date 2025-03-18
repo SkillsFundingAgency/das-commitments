@@ -1,4 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
+﻿using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -97,7 +99,7 @@ public class GetSupportApprovedApprenticeshipsQueryHandlerTests
             _mapper = new Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>>();
 
             SeedData();
-            _queryHandler = new GetSupportApprovedApprenticeshipsQueryHandler(lazyDb, _mapper.Object);
+            _queryHandler = new GetSupportApprovedApprenticeshipsQueryHandler(lazyDb, _mapper.Object, Mock.Of<ILogger<GetSupportApprovedApprenticeshipsQueryHandler>>());
         }
 
         public GetSupportApprovedApprenticeshipsQueryHandlerTestsFixture WithApprenticeship1Uln()
