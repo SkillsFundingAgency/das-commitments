@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Apprenticeships.Types.Enums;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -9,13 +9,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     {
         private readonly ILogger<ApprenticeshipPriceChangedEventHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IMediator _mediator;
 
         public ApprenticeshipWithdrawnEventHandler(
             ILogger<ApprenticeshipPriceChangedEventHandler> logger,
-            Lazy<ProviderCommitmentsDbContext> dbContext)
+            Lazy<ProviderCommitmentsDbContext> dbContext, IMediator mediator)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _mediator = mediator;
         }
 
         public async Task Handle(ApprenticeshipWithdrawnEvent message, IMessageHandlerContext context)
@@ -27,11 +29,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             switch (reason)
             {
                 case WithdrawReason.WithdrawFromStart:
-                    // Will be developed in a future story
-                    break;
-
                 case WithdrawReason.WithdrawDuringLearning:
-                    // Will be developed in a future story
+                    //NB there may be more logic needed here to complete these 2 reason's scenarios
+                    await _mediator.Send(new StopApprenticeshipCommand(
+                        message.EmployerAccountId,
+                        message.ApprenticeshipId,
+                        message.LastDayOfLearning,
+                        false,
+                        Types.UserInfo.System,
+                        Types.Party.Employer));
                     break;
 
                 case WithdrawReason.WithdrawFromBeta:
