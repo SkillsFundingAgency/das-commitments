@@ -6,6 +6,8 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSupportStatus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
@@ -80,6 +82,38 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         }
 
         [Test]
+        public async Task WhenGetCohortSupportStatus_ThenShouldReturnOkResponseWithResult()
+        {
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetSupportStatus();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().Be(fixture.GetCohortSupportStatusQueryResult);
+        }
+
+        [Test]
+        public async Task WhenGetCohortSupportStatus_And_None_Found_ThenShouldReturnNotFoundResponse()
+        {
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetSupportStatus(-199);
+
+            result.Should().NotBeNull()
+                .And.BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task WhenGetCohortApprovedApprenticeships_ThenShouldReturnOkResponseWithResult()
+        {
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetCohortApprovedApprenticeships();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().Be(fixture.GetSupportApprovedApprenticeshipsQueryResult);
+        }
+
+        [Test]
         public async Task WhenGetCohortEmailOverlaps_ThenShouldReturnOkResponseWithList()
         {
             var fixture = new GetTestsFixture();
@@ -91,7 +125,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                 .And.Match<GetEmailOverlapsResponse>(v =>
                     v.ApprenticeshipEmailOverlaps.ToList().Count == fixture.GetCohortEmailOverlapsResult.Overlaps.Count);
         }
-
 
         [Test]
         public async Task WhenGetGetCohortPriorLearningErrors_ThenShouldReturnOkResponseWithList()
@@ -118,6 +151,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public GetCohortPriorLearningErrorQueryResult GetCohortPriorLearningErrorResult { get; }
         public GetCohortsRequest GetCohortsRequest { get; }
         public GetCohortsResult GetCohortsResult { get; }
+        public GetCohortSupportStatusQueryResult GetCohortSupportStatusQueryResult { get; }
+        public GetSupportApprovedApprenticeshipsQueryResult GetSupportApprovedApprenticeshipsQueryResult { get; }
 
         public long AccountId = 1;
         private const long CohortId = 123;
@@ -131,6 +166,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             GetCohortResult = AutoFixture.Create<GetCohortSummaryQueryResult>();
             GetCohortEmailOverlapsResult = AutoFixture.Create<GetCohortEmailOverlapsQueryResult>();
             GetCohortPriorLearningErrorResult = AutoFixture.Create<GetCohortPriorLearningErrorQueryResult>();
+            GetCohortSupportStatusQueryResult = AutoFixture.Create<GetCohortSupportStatusQueryResult>();
+            GetSupportApprovedApprenticeshipsQueryResult = AutoFixture.Create<GetSupportApprovedApprenticeshipsQueryResult>();
+
             Mediator.Setup(m =>
                     m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None))
                 .ReturnsAsync(GetCohortResult);
@@ -139,7 +177,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                 .ReturnsAsync(GetCohortEmailOverlapsResult);
             Mediator.Setup(m => m.Send(It.Is<GetCohortPriorLearningErrorQuery>(q => q.CohortId == CohortId),
                 CancellationToken.None)).ReturnsAsync(GetCohortPriorLearningErrorResult);
-
+            Mediator.Setup(m => m.Send(It.Is<GetCohortSupportStatusQuery>(q => q.CohortId == CohortId),
+                CancellationToken.None)).ReturnsAsync(GetCohortSupportStatusQueryResult);
+            Mediator.Setup(m => m.Send(It.Is<GetSupportApprovedApprenticeshipsQuery>(q => q.CohortId == CohortId),
+                CancellationToken.None)).ReturnsAsync(GetSupportApprovedApprenticeshipsQueryResult);
 
             GetCohortsRequest = AutoFixture.Build<GetCohortsRequest>().With(x => x.AccountId, AccountId).Create();
             GetCohortsResult = AutoFixture.Create<GetCohortsResult>();
@@ -162,6 +203,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public Task<IActionResult> GetEmailOverlaps()
         {
             return Controller.GetEmailOverlapChecks(CohortId);
+        }
+
+        public Task<IActionResult> GetSupportStatus(long? id = null)
+        {
+            var cohortId = id ?? CohortId;
+            return Controller.GetSupportStatus(cohortId);
+        }
+
+        public Task<IActionResult> GetCohortApprovedApprenticeships(long? id = null)
+        {
+            var cohortId = id ?? CohortId;
+            return Controller.GetCohortApprovedApprenticeships(cohortId);
         }
 
         public Task<IActionResult> GetCohortPriorLearningErrors()
