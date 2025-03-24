@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     public class LevyAddedToAccountEventHandlerNewTestsFixture
     {
         public Mock<IMediator> Mediator { get; set; }
-        public LevyAddedToAccountEventHandlerNew Sut;
+        public LevyAddedToAccountEventHandler Sut;
         public LevyAddedToAccountEvent LevyAddedToAccount;
 
         public LevyAddedToAccountEventHandlerNewTestsFixture()
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Mediator = new Mock<IMediator>();
             LevyAddedToAccount = autoFixture.Create<LevyAddedToAccountEvent>();
 
-            Sut = new LevyAddedToAccountEventHandlerNew(Mediator.Object, Mock.Of<ILogger<LevyAddedToAccountEventHandlerNew>>());
+            Sut = new LevyAddedToAccountEventHandler(Mediator.Object, Mock.Of<ILogger<LevyAddedToAccountEventHandler>>());
         }
 
         public Task Handle()
