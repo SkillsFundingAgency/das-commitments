@@ -17,5 +17,6 @@
     [IsLatestVersion] BIT NOT NULL DEFAULT 0,
     [VersionEarliestStartDate] DATETIME NULL,
     [VersionLatestStartDate] DATETIME NULL,
-    [Route] NVARCHAR(500) NULL
+    [Route] NVARCHAR(500) NULL,
+    [ApprenticeshipType] NVARCHAR(50) NULL
 )

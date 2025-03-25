@@ -93,7 +93,8 @@ public class ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApprovalsOu
             p => p.IsLatestVersion,
             p => p.VersionEarliestStartDate,
             p => p.VersionLatestStartDate,
-            p => p.Route
+            p => p.Route,
+            p => p.ApprenticeshipType
         ));
 
         foreach (var batch in batches)
