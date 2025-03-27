@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading;
-using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services;
 

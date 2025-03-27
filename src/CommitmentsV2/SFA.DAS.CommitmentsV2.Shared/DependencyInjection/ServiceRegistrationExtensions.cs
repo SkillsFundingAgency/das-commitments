@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Client;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.ModelBinding;
+using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
-using SFA.DAS.ProviderRelationships.Api.Client;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
