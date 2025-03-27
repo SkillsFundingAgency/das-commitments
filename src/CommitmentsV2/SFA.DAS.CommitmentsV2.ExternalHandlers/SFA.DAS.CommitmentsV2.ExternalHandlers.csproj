@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.108" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
     <PackageReference Include="SFA.DAS.EmployerAccounts.Messages" Version="1.3.2504" />
     <PackageReference Include="SFA.DAS.EmployerFinance.Messages" Version="2.0.3" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
