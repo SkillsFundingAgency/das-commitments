@@ -5,11 +5,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
@@ -108,6 +106,7 @@ public class Startup
             .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
         services.AddEmployerAccountServices(_configuration);
         services.AddSingleton<IEncodingService, EncodingService>();
+        services.AddSingleton<ICohortSupportStatusCalculator, CohortSupportStatusCalculator>();
         services.AddDatabaseRegistration();
         services.AddCurrentDateTimeService(_configuration);
 
