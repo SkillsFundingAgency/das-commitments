@@ -11,6 +11,11 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
 {
     public Task<GetApprenticeshipsQueryResult.ApprenticeshipDetails> Map(Apprenticeship source)
     {
+        if (source.PriceHistory == null || source.PriceHistory.Count == 0)
+        {
+            throw new NullReferenceException($"There are no price history records for the apprenticeship Id: {source.Id}");
+        }
+        
         return Task.FromResult(new GetApprenticeshipsQueryResult.ApprenticeshipDetails
         {
             Id = source.Id,
