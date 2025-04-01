@@ -21,27 +21,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     public class LevyAddedToAccountEventHandlerNewTestsFixture
     {
         public Mock<IMediator> Mediator { get; set; }
-        public LevyAddedToAccountEventHandlerNew Sut;
-        public LevyAddedToAccountEvent LevyAddedToAccount;
+        public LevyAddedToAccountEventHandler Sut;
+        public LevyAddedToAccountEvent ALevyAddedToAccount;
 
         public LevyAddedToAccountEventHandlerNewTestsFixture()
         {
             var autoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            LevyAddedToAccount = autoFixture.Create<LevyAddedToAccountEvent>();
+            ALevyAddedToAccount = autoFixture.Create<LevyAddedToAccountEvent>();
 
-            Sut = new LevyAddedToAccountEventHandlerNew(Mediator.Object, Mock.Of<ILogger<LevyAddedToAccountEventHandlerNew>>());
+            Sut = new LevyAddedToAccountEventHandler(Mediator.Object, Mock.Of<ILogger<LevyAddedToAccountEventHandler>>());
         }
 
         public Task Handle()
         {
-            return Sut.Handle(LevyAddedToAccount, Mock.Of<IMessageHandlerContext>());
+            return Sut.Handle(ALevyAddedToAccount, Mock.Of<IMessageHandlerContext>());
         }
 
         public void VerifyUpdateLevyStatusToLevyCommandSent()
         {
             Mediator.Verify(x =>
-                x.Send(It.Is<UpdateLevyStatusToLevyCommand>(p => p.AccountId == LevyAddedToAccount.AccountId),
+                x.Send(It.Is<UpdateLevyStatusToLevyCommand>(p => p.AccountId == ALevyAddedToAccount.AccountId),
                     It.IsAny<CancellationToken>()));
         }
     }
