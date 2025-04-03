@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.ProviderRelationships.Api.Client;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 
