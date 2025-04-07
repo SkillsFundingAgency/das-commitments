@@ -25,6 +25,7 @@ public class StandardSummary
     public bool IsLatestVersion { get; set; }
     public string[] Options { get; set; }
     public string Route { get; set; }
+    public string ApprenticeshipType { get; set; }
 
     /// <summary>
     /// Property to allow the ToDataTable Extension to function with the Lambda Expression

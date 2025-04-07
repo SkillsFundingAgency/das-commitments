@@ -61,7 +61,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         StandardPageUrl = (string)r[12],
                         Status = (string)r[13],
                         IsLatestVersion = (bool)r[14],
-                        Route = (string)r[17]
+                        Route = (string)r[17],
+                        ApprenticeshipType = (string)r[18]
                     }));
                 });
 
@@ -84,6 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 approvedStandard.StandardPageUrl,
                 approvedStandard.Status,
                 approvedStandard.IsLatestVersion,
+                approvedStandard.ApprenticeshipType,
                 EffectiveFrom = approvedStandard.EffectiveFrom,
                 LastDateForNewStarts = approvedStandard.LastDateForNewStarts
             },
@@ -101,6 +103,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 retiredStandard.StandardPageUrl,
                 retiredStandard.Status,
                 retiredStandard.IsLatestVersion,
+                retiredStandard.ApprenticeshipType,
                 EffectiveFrom = retiredStandard.EffectiveFrom,
                 LastDateForNewStarts = retiredStandard.LastDateForNewStarts
             }});
