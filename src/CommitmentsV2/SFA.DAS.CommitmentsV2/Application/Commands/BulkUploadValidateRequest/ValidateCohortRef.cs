@@ -2,7 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
