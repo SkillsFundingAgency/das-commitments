@@ -70,6 +70,23 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+  - job: TriggerSmokeTest
+    displayName: "Trigger das-live-smoke-test-suite"
+    dependsOn: []
+    condition: succeeded()
+    steps:
+      - task: AzureCLI@2
+        displayName: "Trigger das-live-smoke-test-suite Pipeline"
+        inputs:
+          azureSubscription: SFA-DIG-Prod-ARM
+          scriptType: "ps"
+          scriptLocation: "inlineScript"
+          inlineScript: |
+            az pipelines run `
+            --organization https://dev.azure.com/sfa-gov-uk `
+            --project "Digital Apprenticeship Service" `
+            --pipeline-id 3923 `
+            --branch master
 
 - stage: Deploy_TEST
   dependsOn: Build
