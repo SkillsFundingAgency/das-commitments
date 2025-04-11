@@ -72,7 +72,7 @@ stages:
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
   - job: TriggerSmokeTest
     displayName: "Trigger das-live-smoke-test-suite"
-    dependsOn: Deploy_AT
+    dependsOn: DeployWebApp
     condition: succeeded()
     pool:
       name: DAS - Continuous Deployment Agents
