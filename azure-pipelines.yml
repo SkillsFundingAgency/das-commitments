@@ -86,11 +86,7 @@ stages:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
             az extension add --name azure-devops
-            az pipelines run `
-            --organization https://dev.azure.com/sfa-gov-uk `
-            --project "Digital Apprenticeship Service" `
-            --id 3923 `
-            --branch master
+            az pipelines run --organization https://dev.azure.com/sfa-gov-uk --project "Digital Apprenticeship Service" --id 3923 --branch master
 
 - stage: Deploy_TEST
   dependsOn: Build
