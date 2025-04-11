@@ -71,14 +71,14 @@ stages:
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
   - job: TriggerSmokeTest
-    displayName: "Trigger das-live-smoke-test-suite"
+    displayName: "Trigger Live Smoke Test"
     dependsOn: DeployWebApp
     condition: succeeded()
     pool:
       name: DAS - Continuous Deployment Agents
     steps:
       - task: AzureCLI@2
-        displayName: "Trigger das-live-smoke-test-suite Pipeline"
+        displayName: "Trigger das-live-smoke-test-suite"
         inputs:
           azureSubscription: SFA-DIG-Prod-ARM
           scriptType: "ps"
@@ -87,7 +87,7 @@ stages:
             az pipelines run `
             --organization https://dev.azure.com/sfa-gov-uk `
             --project "Digital Apprenticeship Service" `
-            --pipeline-id 3923 `
+            --id 3923 `
             --branch master
 
 - stage: Deploy_TEST
