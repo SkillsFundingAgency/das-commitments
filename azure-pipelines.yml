@@ -80,7 +80,7 @@ stages:
       - task: AzureCLI@2
         displayName: "Trigger das-live-smoke-test-suite"
         inputs:
-          azureSubscription: SFA-DIG-Prod-ARM
+          azureSubscription: SFA-DAS-DevTest-ARM
           scriptType: "ps"
           scriptLocation: "inlineScript"
           inlineScript: |
