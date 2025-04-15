@@ -70,14 +70,6 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
-- stage: TriggerSmokeTest
-  dependsOn: Deploy_AT
-  displayName: Trigger Live Smoke Test 
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
-  variables:
-  - group: LIVE Shared Resources
-  jobs:  
-  - template: azure-pipelines-templates/deploy/job/trigger-live-smoke-test.yml@das-platform-building-blocks
 
 - stage: Deploy_TEST
   dependsOn: Build
