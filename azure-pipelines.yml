@@ -70,6 +70,11 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+- stage: TriggerSmokeTest
+  dependsOn: Deploy_AT
+  displayName: Trigger Live Smoke Test 
+  condition: and(succeeded(), eq(variables.Deploy, 'true'))
+  jobs:  
   - job: TriggerSmokeTest
     displayName: "Trigger Live Smoke Test"
     dependsOn: DeployWebApp
