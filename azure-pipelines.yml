@@ -28,7 +28,7 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/3.0.0
+    ref: refs/heads/DASD-10922
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
@@ -75,24 +75,7 @@ stages:
   displayName: Trigger Live Smoke Test 
   condition: and(succeeded(), eq(variables.Deploy, 'true'))
   jobs:  
-  - job: TriggerSmokeTest
-    displayName: "Trigger Live Smoke Test"
-    condition: succeeded()
-    pool:
-      name: DAS - Continuous Deployment Agents
-    steps:
-      - task: AzureCLI@2
-        displayName: "Trigger das-live-smoke-test-suite"
-        inputs:
-          azureSubscription: SFA-DAS-DevTest-ARM
-          scriptType: "ps"
-          scriptLocation: "inlineScript"
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            az extension add --name azure-devops
-            az pipelines run --organization https://dev.azure.com/sfa-gov-uk --project "Digital Apprenticeship Service" --id 3923 --branch master
-        env:
-          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+  - template: azure-pipelines-templates/deploy/job/trigger-live-smoke-test.yml@das-platform-building-blocks
 
 - stage: Deploy_TEST
   dependsOn: Build
