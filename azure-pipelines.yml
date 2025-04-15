@@ -44,14 +44,33 @@ resources:
 stages:
 - stage: Build
   jobs:
-  - template: pipeline-templates/job/code-build.yml
-    parameters:
-      BuildConfiguration: $(BuildConfiguration)
-      SolutionBaseName: $(SolutionBaseName)
-  - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
-    parameters:
-      SolutionBaseName: $(SolutionBaseName).dacpac
-      SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
+  # - template: pipeline-templates/job/code-build.yml
+  #   parameters:
+  #     BuildConfiguration: $(BuildConfiguration)
+  #     SolutionBaseName: $(SolutionBaseName)
+  # - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
+  #   parameters:
+  #     SolutionBaseName: $(SolutionBaseName).dacpac
+  #     SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
+  - job: TriggerSmokeTest
+    displayName: "Trigger Live Smoke Test"
+    dependsOn: [] #DeployWebApp
+    condition: succeeded()
+    pool:
+      name: DAS - Continuous Deployment Agents
+    steps:
+      - task: AzureCLI@2
+        displayName: "Trigger das-live-smoke-test-suite"
+        inputs:
+          azureSubscription: SFA-DAS-DevTest-ARM
+          scriptType: "ps"
+          scriptLocation: "inlineScript"
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az extension add --name azure-devops
+            az pipelines run --organization https://dev.azure.com/sfa-gov-uk --project "Digital Apprenticeship Service" --id 3923 --branch master
+        env:
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
 - template: azure-pipelines-templates/deploy/stage/nuget-publish.yml@das-platform-building-blocks
 
 - stage: Deploy_AT
@@ -70,25 +89,6 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
-  - job: TriggerSmokeTest
-    displayName: "Trigger Live Smoke Test"
-    dependsOn: [] #DeployWebApp
-    condition: succeeded()
-    pool:
-      name: DAS - Continuous Deployment Agents
-    steps:
-      - task: AzureCLI@2
-        displayName: "Trigger das-live-smoke-test-suite"
-        inputs:
-          azureSubscription: das-app-role-assignments-CDS
-          scriptType: "ps"
-          scriptLocation: "inlineScript"
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            az extension add --name azure-devops
-            az pipelines run --organization https://dev.azure.com/sfa-gov-uk --project "Digital Apprenticeship Service" --id 3923 --branch master
-        # env:
-        #   AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
 
 - stage: Deploy_TEST
   dependsOn: Build
