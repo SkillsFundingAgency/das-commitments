@@ -77,7 +77,6 @@ stages:
   jobs:  
   - job: TriggerSmokeTest
     displayName: "Trigger Live Smoke Test"
-    dependsOn: DeployWebApp
     condition: succeeded()
     pool:
       name: DAS - Continuous Deployment Agents
