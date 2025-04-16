@@ -4,8 +4,8 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 using SFA.DAS.CommitmentsV2.Shared.Services;
-using SFA.DAS.ProviderRelationships.Api.Client;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 
