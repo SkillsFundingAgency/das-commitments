@@ -28,5 +28,6 @@ public class AddDraftApprenticeshipCommand : IRequest<AddDraftApprenticeshipResu
     public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
+    public long? LearnerDataId { get; set; }
 
 }

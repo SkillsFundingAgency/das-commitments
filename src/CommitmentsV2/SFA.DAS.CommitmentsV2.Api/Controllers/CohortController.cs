@@ -59,7 +59,8 @@ public class CohortController(IMediator mediator) : ControllerBase
             request.IgnoreStartDateOverlap,
             request.IsOnFlexiPaymentPilot,
             request.TrainingPrice,
-            request.EndPointAssessmentPrice);
+            request.EndPointAssessmentPrice,
+            request.LearnerDataId);
 
         var result = await mediator.Send(command);
 

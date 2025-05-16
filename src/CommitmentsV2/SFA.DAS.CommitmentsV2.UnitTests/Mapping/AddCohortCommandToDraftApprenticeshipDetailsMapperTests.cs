@@ -77,6 +77,15 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     }
 
     [Test]
+    public async Task WhenMapping_ThenShouldSetLearnerDataId()
+    {
+        var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+        var draftApprenticeshipDetails = await fixture.Map();
+
+        draftApprenticeshipDetails.LearnerDataId.Should().Be(fixture.Command.LearnerDataId);
+    }
+
+    [Test]
     public async Task WhenMappingFramework_ThenShouldSetPropertiesAndNoStandardUIdOrVersion()
     {
         var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();

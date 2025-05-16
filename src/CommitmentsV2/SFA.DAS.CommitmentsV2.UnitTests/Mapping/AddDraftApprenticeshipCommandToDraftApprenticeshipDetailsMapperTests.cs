@@ -34,6 +34,7 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
         result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
+        result.LearnerDataId.Should().Be(fixture.Command.LearnerDataId);
     }
 
     [Test]

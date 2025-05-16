@@ -52,7 +52,7 @@
     [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
     [TrainingTotalHours] INT NULL, 
     [EmployerHasEditedCost] BIT NULL, 
-
+    [LearnerDataId] BIGINT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )

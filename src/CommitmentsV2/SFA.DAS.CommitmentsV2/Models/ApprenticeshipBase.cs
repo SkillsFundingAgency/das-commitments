@@ -46,6 +46,7 @@ public abstract class ApprenticeshipBase : Aggregate
     public Guid? ReservationId { get; set; }
     public long? ContinuationOfId { get; set; }
     public DateTime? OriginalStartDate { get; set; }
+    public long? LearnerDataId { get; set; }
 
     public virtual Cohort Cohort { get; set; }
     public virtual AssessmentOrganisation EpaOrg { get; set; }
