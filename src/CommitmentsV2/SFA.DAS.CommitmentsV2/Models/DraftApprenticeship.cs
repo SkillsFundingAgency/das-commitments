@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Merge(source, modifyingParty);
 
             ReservationId = source.ReservationId;
+            LearnerDataId = source.LearnerDataId;
         }
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)

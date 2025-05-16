@@ -139,6 +139,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             false,
             false,
             null,
+            null,
             null);
 
         var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),

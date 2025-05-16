@@ -27,4 +27,5 @@ public class AddDraftApprenticeshipRequest : SaveDataRequest
     public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
+    public long? LearnerDataId { get; set; }
 }

@@ -58,4 +58,5 @@ public class DraftApprenticeshipDetails
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRPL { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
+    public long? LearnerDataId { get; set; }
 }

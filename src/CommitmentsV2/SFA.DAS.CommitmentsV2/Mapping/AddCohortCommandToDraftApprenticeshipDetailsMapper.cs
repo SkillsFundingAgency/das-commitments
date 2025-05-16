@@ -31,7 +31,8 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgram
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value,
             TrainingPrice = source.TrainingPrice,
-            EndPointAssessmentPrice = source.EndPointAssessmentPrice
+            EndPointAssessmentPrice = source.EndPointAssessmentPrice,
+            LearnerDataId = source.LearnerDataId
         };
 
         // Only populate standard version specific items if start is specified.

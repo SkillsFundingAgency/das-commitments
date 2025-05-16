@@ -31,7 +31,8 @@ public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper 
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             TrainingPrice = source.TrainingPrice,
-            EndPointAssessmentPrice = source.EndPointAssessmentPrice
+            EndPointAssessmentPrice = source.EndPointAssessmentPrice,
+            LearnerDataId = source.LearnerDataId
         });
     }
 }

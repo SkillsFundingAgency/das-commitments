@@ -64,6 +64,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
         }
 
+        [TestCase(null)]
+        [TestCase(12345)]
+        public Task Map_LearnerDataId_ShouldBeSet(long? learnerDataId)
+        {
+            return AssertPropertySet(input => input.LearnerDataId = learnerDataId, output => output.LearnerDataId == learnerDataId);
+        }
+
         [Test]
         public Task Map_StartDate_ShouldBeSet()
         {
