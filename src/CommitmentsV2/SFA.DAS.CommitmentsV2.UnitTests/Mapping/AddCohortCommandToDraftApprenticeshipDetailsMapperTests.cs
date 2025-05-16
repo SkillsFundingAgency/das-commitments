@@ -199,14 +199,14 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
         TrainingProgrammeFramework = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
             ProgrammeType.Framework, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
 
-        var command = AutoFixture.Build<AddCohortCommand>()
+        var command = AutoFixture.Build<AddCohortCommand>().Without(x=>x.LearnerDataId)
             .Create();
 
         Command = new AddCohortCommand(command.RequestingParty, command.AccountId, command.AccountLegalEntityId, command.ProviderId,
             courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.ActualStartDate, command.EndDate, command.OriginatorReference,
             command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
             command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, 
-            true, false, command.TrainingPrice, command.EndPointAssessmentPrice);
+            true, false, command.TrainingPrice, command.EndPointAssessmentPrice, command.LearnerDataId);
 
         TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
         Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
@@ -251,7 +251,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, null, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice);
+            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId);
     }
 
     private AddCohortCommand AddFlexiPaymentsCohortCommand()
@@ -260,7 +260,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             Command.CourseCode, Command.DeliveryModel, Command.Cost, null, Command.ActualStartDate, null, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, true, Command.TrainingPrice, Command.EndPointAssessmentPrice);
+            false, true, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId);
     }
 
     public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -284,6 +284,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.ActualStartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, 
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice);
+            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId);
     }
 }
