@@ -18,6 +18,8 @@ public class PledgeApplication
         Accepted = 3,
         FundsUsed = 4,
         Declined = 5,
-        Withdrawn = 6
+        Withdrawn = 6,
+        WithdrawnAfterAcceptance = 7,
+        FundsExpired = 8
     }
 }
