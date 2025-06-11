@@ -869,7 +869,7 @@ public class CohortDomainServiceTests
             AccountLegalEntity = new Mock<AccountLegalEntity>(() =>
                 new AccountLegalEntity(EmployerAccount, AccountLegalEntityId, MaLegalEntityId, "test", "ABC", "Test", OrganisationType.CompaniesHouse, "test", DateTime.UtcNow));
             AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<int>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(NewCohort);
             AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                     It.IsAny<string>(), It.IsAny<UserInfo>()))
@@ -1479,7 +1479,7 @@ public class CohortDomainServiceTests
             try
             {
                 var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                    DraftApprenticeshipDetails, UserInfo, RequestingParty, Constants.MaximumAgeAtApprenticeshipStart, CancellationToken.None);
+                    DraftApprenticeshipDetails, UserInfo, RequestingParty, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, CancellationToken.None);
                 await Db.SaveChangesAsync();
                 return result;
             }
@@ -1646,13 +1646,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1674,7 +1674,7 @@ public class CohortDomainServiceTests
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
-                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1683,13 +1683,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 

@@ -13,6 +13,7 @@ public interface ICohortOriginator
         int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails,
         UserInfo userInfo,
+        int minimumAgeAtApprenticeshipStart,
         int maximumAgeAtApprenticeshipStart
     );
 

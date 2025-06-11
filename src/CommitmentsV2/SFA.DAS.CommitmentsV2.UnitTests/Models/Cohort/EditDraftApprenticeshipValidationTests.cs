@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                Cohort.UpdateDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
+                Cohort.UpdateDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
                 Assert.That(expected, Is.True);
             }
             catch (DomainException ex)

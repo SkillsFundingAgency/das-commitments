@@ -123,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
                 draftApprenticeshipDetails,
                 Party.Provider,
                 new UserInfo(),
+                Constants.MinimumAgeAtApprenticeshipStart,
                 Constants.MaximumAgeAtApprenticeshipStart);
 
             Db.Cohorts.Add(commitment);

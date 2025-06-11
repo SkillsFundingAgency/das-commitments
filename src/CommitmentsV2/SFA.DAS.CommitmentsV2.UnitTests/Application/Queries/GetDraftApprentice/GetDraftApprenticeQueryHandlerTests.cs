@@ -153,6 +153,7 @@ public class GetDraftApprenticeHandlerTestFixtures
             draftApprenticeshipDetails,
             creatingParty,
             new UserInfo(),
+            Constants.MinimumAgeAtApprenticeshipStart,
             Constants.MaximumAgeAtApprenticeshipStart);
 
         Db.Cohorts.Add(commitment);

@@ -35,6 +35,7 @@ public class AddCohortCommandHandlerTests
             It.IsAny<DraftApprenticeshipDetails>(),
             fixtures.UserInfo,
             AddCohortCommandHandlerTestFixture.RequestingParty,
+            Constants.MinimumAgeAtApprenticeshipStart,
             Constants.MaximumAgeAtApprenticeshipStart,
             It.IsAny<CancellationToken>()));
 
@@ -84,7 +85,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
 
         CohortDomainServiceMock = new Mock<ICohortDomainService>();
         CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), Constants.MaximumAgeAtApprenticeshipStart, It.IsAny<CancellationToken>()))
+                It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, It.IsAny<CancellationToken>()))
             .ReturnsAsync(commitment);
 
         Logger = new TestLogger();
@@ -143,6 +144,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             null,
             null,
             null,
+            Constants.MinimumAgeAtApprenticeshipStart,
             Constants.MaximumAgeAtApprenticeshipStart);
 
         var handler = new AddCohortCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),

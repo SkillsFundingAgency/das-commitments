@@ -40,7 +40,7 @@ public class CohortDomainService(
         var db = dbContext.Value;
         var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
         var party = requestingParty ?? authenticationService.GetUserParty();
-        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
+        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken);
         return draftApprenticeship;
     }
@@ -57,7 +57,7 @@ public class CohortDomainService(
 
         var isContinuation = cohort != null && cohort.ChangeOfPartyRequestId.HasValue;
 
-        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, cohort?.TransferSenderId, cohort?.Apprenticeships, Constants.MaximumAgeAtApprenticeshipStart);
+        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, cohort?.TransferSenderId, cohort?.Apprenticeships, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
         errors.ThrowIfAny();
     }
 
@@ -114,7 +114,7 @@ public class CohortDomainService(
                 }
             }
 
-            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
+            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
         }
 
@@ -156,7 +156,7 @@ public class CohortDomainService(
         }
     }
 
-    public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken)
+    public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken)
     {
         var originatingParty = requestingParty ?? authenticationService.GetUserParty();
         var db = dbContext.Value;
@@ -167,7 +167,7 @@ public class CohortDomainService(
 
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
-        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo, maximumAgeAtApprenticeshipStart);
+        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
     }
 
     public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -220,7 +220,7 @@ public class CohortDomainService(
         AssertHasProvider(cohortId, cohort.ProviderId);
         AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
-        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo, Constants.MaximumAgeAtApprenticeshipStart);
+        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
 
         if (cohort.IsLinkedToChangeOfPartyRequest)
         {

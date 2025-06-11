@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public DraftApprenticeship AddDraftApprenticeship()
             {
-                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
+                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public WhenAddingDraftApprenticeshipTestsFixture SetWithParty(Party withParty)

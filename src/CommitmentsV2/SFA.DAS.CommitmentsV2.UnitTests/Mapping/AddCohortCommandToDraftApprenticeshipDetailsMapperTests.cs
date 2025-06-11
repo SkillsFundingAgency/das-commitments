@@ -206,7 +206,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.ActualStartDate, command.EndDate, command.OriginatorReference,
             command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
             command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, 
-            true, false, command.TrainingPrice, command.EndPointAssessmentPrice, command.LearnerDataId, command.MaximumAgeAtApprenticeshipStart);
+            true, false, command.TrainingPrice, command.EndPointAssessmentPrice, command.LearnerDataId, command.MinimumAgeAtApprenticeshipStart, command.MaximumAgeAtApprenticeshipStart);
 
         TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
         Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
@@ -251,7 +251,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, null, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MaximumAgeAtApprenticeshipStart);
+            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
     }
 
     private AddCohortCommand AddFlexiPaymentsCohortCommand()
@@ -260,7 +260,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             Command.CourseCode, Command.DeliveryModel, Command.Cost, null, Command.ActualStartDate, null, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, true, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MaximumAgeAtApprenticeshipStart);
+            false, true, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
     }
 
     public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -284,6 +284,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.ActualStartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, 
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MaximumAgeAtApprenticeshipStart);
+            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
     }
 }

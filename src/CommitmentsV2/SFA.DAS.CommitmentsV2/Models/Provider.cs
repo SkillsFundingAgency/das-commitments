@@ -29,9 +29,10 @@ public class Provider : ICohortOriginator
         int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails,
         UserInfo userInfo,
+        int minimumAgeAtApprenticeshipStart,
         int maximumAgeAtApprenticeshipStart)
     {
-        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Provider, userInfo, maximumAgeAtApprenticeshipStart);
+        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Provider, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
     }
 
     public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

@@ -26,7 +26,7 @@ public class WhenUpdatingDraftApprenticeship
         cohort.Apprenticeships.Add(originalDraft);
 
         // Act
-        cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
+        cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
 
         // Assert
         var savedDraft = cohort.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
@@ -48,7 +48,7 @@ public class WhenUpdatingDraftApprenticeship
         cohort.Apprenticeships.Add(originalDraft);
 
         // Act
-        Assert.Throws<DomainException>(() => cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+        Assert.Throws<DomainException>(() => cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
     }
 }
 

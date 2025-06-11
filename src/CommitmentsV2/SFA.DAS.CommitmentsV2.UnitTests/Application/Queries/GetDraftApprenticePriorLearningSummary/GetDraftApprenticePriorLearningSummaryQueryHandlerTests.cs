@@ -223,6 +223,7 @@ public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : I
             draftApprenticeshipDetails,
             Party.Provider,
             new UserInfo(),
+            Constants.MinimumAgeAtApprenticeshipStart,
             Constants.MaximumAgeAtApprenticeshipStart);
 
         Db.Cohorts.Add(commitment);

@@ -126,8 +126,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase("2019-04-01", null, true, Description = "DoB not specified")]
         [TestCase("2019-04-01", "2004-04-01", true, Description = "Exactly 15 years old")]
         [TestCase("2019-04-01", "2004-04-02", false, Description = "One day prior to 15 years old")]
-        [TestCase("2019-04-01", "1904-04-01", false, Description = "Exactly 115 years old")]
-        [TestCase("2019-04-01", "1904-04-02", true, Description = "One day prior to 115 years old")]
+        [TestCase("2019-04-01", "1903-04-01", false, Description = "Exactly 115 years old")]
+        [TestCase("2019-04-01", "1903-04-02", true, Description = "One day prior to 115 years old")]
         [TestCase(null, "1899-12-31", false, Description = "Date earlier than minimum acceptable")]
         public void DateOfBirth_Validation(DateTime? courseStartDate, DateTime? dateOfBirth, bool passes)
         {
@@ -190,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             };
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
-                    _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    _fixture.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
 
@@ -246,7 +246,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             };
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
-                    _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+                    _fixture.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate));
 
@@ -261,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.Cohort.WithParty = withParty;
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(_fixture.Cohort.WithParty));
 
             Assert.That(domainError?.ErrorMessage, Is.EqualTo($"Cohort must be with the party; {modifyingParty} is not valid"));
@@ -456,7 +456,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider, _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
+                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider, _fixture.UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
             catch (DomainException ex)
             {
@@ -523,7 +523,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
                 Assert.That(expected, Is.True);
             }
             catch (DomainException ex)

@@ -92,6 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     DraftApprenticeshipDetails,
                     CreatingParty,
                     UserInfo,
+                    Constants.MinimumAgeAtApprenticeshipStart,
                     Constants.MaximumAgeAtApprenticeshipStart);
 
                 Cohort.TransferSender = TransferSender;

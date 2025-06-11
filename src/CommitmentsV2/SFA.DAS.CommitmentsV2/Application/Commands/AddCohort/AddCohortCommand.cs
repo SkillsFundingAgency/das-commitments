@@ -31,6 +31,7 @@ public class AddCohortCommand : IRequest<AddCohortResult>
     public bool IgnoreStartDateOverlap { get; set; }
     public bool? IsOnFlexiPaymentPilot { get; set; }
     public long? LearnerDataId { get; set; }
+    public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; }
 
     public AddCohortCommand(Party? requestingParty, long accountId, long accountLegalEntityId, long providerId, string courseCode,
@@ -39,7 +40,7 @@ public class AddCohortCommand : IRequest<AddCohortResult>
         string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId,
         int? pledgeApplicationId,
         int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo, bool ignoreStartDateOverlap,
-        bool? isOnFlexiPaymentPilot, int? trainingPrice, int? endPointAssessmentPrice, long? learnerDataId, int maximumAgeAtApprenticeshipStart)
+        bool? isOnFlexiPaymentPilot, int? trainingPrice, int? endPointAssessmentPrice, long? learnerDataId, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
         RequestingParty = requestingParty;
         AccountId = accountId;
@@ -69,6 +70,7 @@ public class AddCohortCommand : IRequest<AddCohortResult>
         UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
         IgnoreStartDateOverlap = ignoreStartDateOverlap;
         LearnerDataId = learnerDataId;
+        MinimumAgeAtApprenticeshipStart = minimumAgeAtApprenticeshipStart;
         MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart;
     }
 }
