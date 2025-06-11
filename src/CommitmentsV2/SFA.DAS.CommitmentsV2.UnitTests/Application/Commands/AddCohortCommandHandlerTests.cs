@@ -35,6 +35,7 @@ public class AddCohortCommandHandlerTests
             It.IsAny<DraftApprenticeshipDetails>(),
             fixtures.UserInfo,
             AddCohortCommandHandlerTestFixture.RequestingParty,
+            Constants.MaximumAgeAtApprenticeshipStart,
             It.IsAny<CancellationToken>()));
 
         Assert.That(response.Reference, Is.EqualTo(expectedHash));
@@ -83,7 +84,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
 
         CohortDomainServiceMock = new Mock<ICohortDomainService>();
         CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()))
+                It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), Constants.MaximumAgeAtApprenticeshipStart, It.IsAny<CancellationToken>()))
             .ReturnsAsync(commitment);
 
         Logger = new TestLogger();

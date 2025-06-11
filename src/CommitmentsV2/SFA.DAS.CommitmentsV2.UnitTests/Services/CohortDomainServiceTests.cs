@@ -1470,16 +1470,16 @@ public class CohortDomainServiceTests
         public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null, bool ignoreStartDateOverlap = false)
         {
             DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
-            Db.SaveChanges();
+            await Db.SaveChangesAsync();
             DomainErrors.Clear();
 
-            accountId = accountId ?? AccountId;
-            accountLegalEntityId = accountLegalEntityId ?? AccountLegalEntityId;
+            accountId ??= AccountId;
+            accountLegalEntityId ??= AccountLegalEntityId;
 
             try
             {
                 var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                    DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                    DraftApprenticeshipDetails, UserInfo, RequestingParty, Constants.MaximumAgeAtApprenticeshipStart, CancellationToken.None);
                 await Db.SaveChangesAsync();
                 return result;
             }
