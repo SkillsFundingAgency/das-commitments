@@ -156,7 +156,7 @@ public class CohortDomainService(
         }
     }
 
-    public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
+    public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken)
     {
         var originatingParty = requestingParty ?? authenticationService.GetUserParty();
         var db = dbContext.Value;
@@ -167,7 +167,7 @@ public class CohortDomainService(
 
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
-        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
+        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo, maximumAgeAtApprenticeshipStart);
     }
 
     public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken)

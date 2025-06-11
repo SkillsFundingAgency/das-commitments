@@ -31,5 +31,5 @@ public class CreateCohortRequest : SaveDataRequest
     public bool IgnoreStartDateOverlap { get; set; }
     public bool? IsOnFlexiPaymentPilot { get; set; }
     public long? LearnerDataId { get; set; }
-    public int MaxAgeAtApprenticeshipStart { get; set; }
+    public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

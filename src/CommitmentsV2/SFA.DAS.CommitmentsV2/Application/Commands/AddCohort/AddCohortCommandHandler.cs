@@ -29,6 +29,7 @@ public class AddCohortCommandHandler(
             draftApprenticeshipDetails,
             command.UserInfo,
             command.RequestingParty,
+            command.MaximumAgeAtApprenticeshipStart,
             cancellationToken);
 
         db.Cohorts.Add(cohort);

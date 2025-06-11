@@ -61,7 +61,7 @@ public class CohortController(IMediator mediator) : ControllerBase
             request.TrainingPrice,
             request.EndPointAssessmentPrice,
             request.LearnerDataId,
-            request.MaxAgeAtApprenticeshipStart);
+            request.MaximumAgeAtApprenticeshipStart);
 
         var result = await mediator.Send(command);
 

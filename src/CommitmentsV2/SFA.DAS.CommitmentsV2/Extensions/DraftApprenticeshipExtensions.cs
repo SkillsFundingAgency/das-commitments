@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 
 public static class DraftApprenticeshipExtensions
 {
-    public static List<DomainError> ValidateDraftApprenticeshipDetails(this DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, long? transferSenderId, ICollection<ApprenticeshipBase> apprenticeships, int maxAgeAtApprenticeshipStart)
+    public static List<DomainError> ValidateDraftApprenticeshipDetails(this DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, long? transferSenderId, ICollection<ApprenticeshipBase> apprenticeships, int maximumAgeAtApprenticeshipStart)
     {
         var errors = new List<DomainError>();
         errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
@@ -19,7 +19,7 @@ public static class DraftApprenticeshipExtensions
         errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
-        errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, maxAgeAtApprenticeshipStart));
+        errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, maximumAgeAtApprenticeshipStart));
         if (!isContinuation)
         {
             errors.AddRange(BuildIsOnFlexiPaymentPilotValidationFailures(draftApprenticeshipDetails));
@@ -133,7 +133,7 @@ public static class DraftApprenticeshipExtensions
         }
     }
 
-    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int maxAgeAtApprenticeshipStart)
+    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int maximumAgeAtApprenticeshipStart)
     {
         if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
         {
@@ -141,9 +141,9 @@ public static class DraftApprenticeshipExtensions
             yield break;
         }
 
-        if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value >= maxAgeAtApprenticeshipStart)
+        if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value >= maximumAgeAtApprenticeshipStart)
         {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be {maxAgeAtApprenticeshipStart} years old or younger at the start of their training");
+            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be {maximumAgeAtApprenticeshipStart} years old or younger at the start of their training");
             yield break;
         }
 

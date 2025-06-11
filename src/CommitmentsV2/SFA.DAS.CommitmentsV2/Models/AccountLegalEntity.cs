@@ -79,9 +79,9 @@ public class AccountLegalEntity : ICohortOriginator
     }
 
     public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId,
-        DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int maxAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStart)
+        DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStart)
     {
-        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer, userInfo, maxAgeAtApprenticeshipStart);
+        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer, userInfo, maximumAgeAtApprenticeshipStart);
     }
 
     public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

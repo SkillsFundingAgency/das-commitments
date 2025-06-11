@@ -13,7 +13,7 @@ public interface ICohortOriginator
         int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails,
         UserInfo userInfo,
-        int maxAgeAtApprenticeshipStart
+        int maximumAgeAtApprenticeshipStart
     );
 
     Cohort CreateCohort(long providerId,

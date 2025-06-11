@@ -795,11 +795,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 TryUpdate(details, ModifyingParty, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
-            private void TryUpdate(DraftApprenticeshipDetails details, Party modifyingParty, UserInfo userInfo, int maxAgeAtApprenticeshipStart)
+            private void TryUpdate(DraftApprenticeshipDetails details, Party modifyingParty, UserInfo userInfo, int maximumAgeAtApprenticeshipStart)
             {
                 try
                 {
-                    Cohort.UpdateDraftApprenticeship(details, modifyingParty, userInfo, maxAgeAtApprenticeshipStart);
+                    Cohort.UpdateDraftApprenticeship(details, modifyingParty, userInfo, maximumAgeAtApprenticeshipStart);
                 }
                 catch (Exception ex)
                 {
