@@ -12,7 +12,8 @@ public interface ICohortOriginator
         Account transferSender,
         int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails,
-        UserInfo userInfo
+        UserInfo userInfo,
+        int maxAgeAtApprenticeshipStart
     );
 
     Cohort CreateCohort(long providerId,

@@ -1,3 +1,4 @@
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -163,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public DraftApprenticeship AddDraftApprenticeship()
             {
-                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo);
+                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public WhenAddingDraftApprenticeshipTestsFixture SetWithParty(Party withParty)

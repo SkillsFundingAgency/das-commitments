@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -39,7 +40,7 @@ public class CohortDomainService(
         var db = dbContext.Value;
         var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
         var party = requestingParty ?? authenticationService.GetUserParty();
-        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
+        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken);
         return draftApprenticeship;
     }
@@ -56,7 +57,7 @@ public class CohortDomainService(
 
         var isContinuation = cohort != null && cohort.ChangeOfPartyRequestId.HasValue;
 
-        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, cohort?.TransferSenderId, cohort?.Apprenticeships);
+        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, cohort?.TransferSenderId, cohort?.Apprenticeships, Constants.MaximumAgeAtApprenticeshipStart);
         errors.ThrowIfAny();
     }
 
@@ -113,7 +114,7 @@ public class CohortDomainService(
                 }
             }
 
-            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo);
+            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
             await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
         }
 
@@ -166,7 +167,7 @@ public class CohortDomainService(
 
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
-        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo);
+        return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo, Constants.MaximumAgeAtApprenticeshipStart);
     }
 
     public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -219,7 +220,7 @@ public class CohortDomainService(
         AssertHasProvider(cohortId, cohort.ProviderId);
         AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
-        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo);
+        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo, Constants.MaximumAgeAtApprenticeshipStart);
 
         if (cohort.IsLinkedToChangeOfPartyRequest)
         {
@@ -428,7 +429,7 @@ public class CohortDomainService(
             return;
         }
 
-        var startDate = details.StartDate.HasValue ? details.StartDate.Value : details.ActualStartDate.Value;
+        var startDate = details.StartDate ?? details.ActualStartDate.Value;
         var startDateField = details.StartDate.HasValue ? nameof(details.StartDate) : nameof(details.ActualStartDate);
 
         if (startDate > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))

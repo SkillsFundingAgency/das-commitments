@@ -1,5 +1,6 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -110,7 +111,8 @@ public class GetDraftApprenticePriorLearningSummaryQueryHandlerTests
         var priorLearning = new ApprenticeshipPriorLearning
         {
             DurationReducedByHours = 200,
-            PriceReducedBy = 1000
+            PriceReducedBy = 1000,
+            IsDurationReducedByRpl = true
         };
 
         using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
@@ -220,7 +222,8 @@ public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : I
             null,
             draftApprenticeshipDetails,
             Party.Provider,
-            new UserInfo());
+            new UserInfo(),
+            Constants.MaximumAgeAtApprenticeshipStart);
 
         Db.Cohorts.Add(commitment);
 
@@ -245,7 +248,6 @@ public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : I
         apprenticeship.PriorLearning = PriorLearning;
         apprenticeship.TrainingTotalHours = trainingTotalHours;
             
-
         Db.SaveChanges();
 
         return this;

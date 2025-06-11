@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -40,7 +41,7 @@ public class AddCohortCommandHandlerTests
     }
 }
 
-public class TestLogger : ILogger<AddCohortHandler>
+public class TestLogger : ILogger<AddCohortCommandHandler>
 {
     private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages = new List<(LogLevel logLevel, Exception exception, string message)>();
 
@@ -140,9 +141,10 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             false,
             null,
             null,
-            null);
+            null,
+            Constants.MaximumAgeAtApprenticeshipStart);
 
-        var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+        var handler = new AddCohortCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
             EncodingService,
             Logger,
             DraftApprenticeshipDetailsMapperMock.Object,

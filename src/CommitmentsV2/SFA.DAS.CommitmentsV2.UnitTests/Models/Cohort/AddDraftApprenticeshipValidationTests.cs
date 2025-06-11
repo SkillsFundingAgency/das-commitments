@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -189,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             };
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
-                    _fixture.UserInfo));
+                    _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
 
@@ -207,25 +208,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate,
-                    nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate)
-                    , passes);
-        }
-
-        [TestCase(null, true)]
-        [TestCase("2024-10-31", false)]
-        [TestCase("2024-11-01", true)]
-        public void ActualStartDate_CheckNotBeforeNovember2024_Validation(DateTime? startDate, bool passes)
-        {
-            var utcStartDate = startDate.HasValue
-                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
-                : default(DateTime?);
-
-            _fixture.WithCurrentDate(new DateTime(2024, 11, 1))
-                .AssertValidationForProperty(() =>
-                {
-                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate;
-                },
                     nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate)
                     , passes);
         }
@@ -264,7 +246,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             };
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
-                    _fixture.UserInfo));
+                    _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate));
 
@@ -279,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.Cohort.WithParty = withParty;
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(_fixture.Cohort.WithParty));
 
             Assert.That(domainError?.ErrorMessage, Is.EqualTo($"Cohort must be with the party; {modifyingParty} is not valid"));
@@ -474,7 +456,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider, _fixture.UserInfo);
+                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider, _fixture.UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
             }
             catch (DomainException ex)
             {
@@ -541,7 +523,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
                 Assert.That(expected, Is.True);
             }
             catch (DomainException ex)

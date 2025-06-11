@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -12,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         private readonly Fixture _autoFixture = new Fixture();
         public Party CreatingParty { get; private set; }
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
-        public CommitmentsV2.Models.Provider Provider { get; private set; }
+        public Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
         public Account TransferSender { get; private set; }
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
@@ -27,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
+            Provider = new Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
 
             var account = new Account(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
@@ -90,7 +91,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     PledgeApplicationId,
                     DraftApprenticeshipDetails,
                     CreatingParty,
-                    UserInfo);
+                    UserInfo,
+                    Constants.MaximumAgeAtApprenticeshipStart);
 
                 Cohort.TransferSender = TransferSender;
             }

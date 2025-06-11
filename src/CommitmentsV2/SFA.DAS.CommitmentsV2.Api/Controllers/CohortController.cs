@@ -60,7 +60,8 @@ public class CohortController(IMediator mediator) : ControllerBase
             request.IsOnFlexiPaymentPilot,
             request.TrainingPrice,
             request.EndPointAssessmentPrice,
-            request.LearnerDataId);
+            request.LearnerDataId,
+            request.MaxAgeAtApprenticeshipStart);
 
         var result = await mediator.Send(command);
 

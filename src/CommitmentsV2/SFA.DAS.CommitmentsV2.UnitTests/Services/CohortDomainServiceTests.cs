@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -868,7 +869,7 @@ public class CohortDomainServiceTests
             AccountLegalEntity = new Mock<AccountLegalEntity>(() =>
                 new AccountLegalEntity(EmployerAccount, AccountLegalEntityId, MaLegalEntityId, "test", "ABC", "Test", OrganisationType.CompaniesHouse, "test", DateTime.UtcNow));
             AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<int>()))
                 .Returns(NewCohort);
             AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                     It.IsAny<string>(), It.IsAny<UserInfo>()))
@@ -1645,13 +1646,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1673,7 +1674,7 @@ public class CohortDomainServiceTests
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1682,13 +1683,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 

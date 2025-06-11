@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -158,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             try
             {
-                Cohort.UpdateDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo);
+                Cohort.UpdateDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo, Constants.MaximumAgeAtApprenticeshipStart);
                 Assert.That(expected, Is.True);
             }
             catch (DomainException ex)

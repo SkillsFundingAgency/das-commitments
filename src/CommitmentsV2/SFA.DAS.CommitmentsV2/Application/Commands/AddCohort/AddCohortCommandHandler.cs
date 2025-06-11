@@ -7,10 +7,10 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
-public class AddCohortHandler(
+public class AddCohortCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IEncodingService encodingService,
-    ILogger<AddCohortHandler> logger,
+    ILogger<AddCohortCommandHandler> logger,
     IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
     ICohortDomainService cohortDomainService)
     : IRequestHandler<AddCohortCommand, AddCohortResult>

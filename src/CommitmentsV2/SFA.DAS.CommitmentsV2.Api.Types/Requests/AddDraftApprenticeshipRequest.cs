@@ -1,4 +1,5 @@
 using System;
+using Microsoft.VisualBasic;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -28,4 +29,5 @@ public class AddDraftApprenticeshipRequest : SaveDataRequest
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
     public long? LearnerDataId { get; set; }
+    public int MaxAgeAtApprenticeshipStart { get; set; }
 }
