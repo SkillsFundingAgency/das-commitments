@@ -126,8 +126,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase("2019-04-01", null, true, Description = "DoB not specified")]
         [TestCase("2019-04-01", "2004-04-01", true, Description = "Exactly 15 years old")]
         [TestCase("2019-04-01", "2004-04-02", false, Description = "One day prior to 15 years old")]
-        [TestCase("2019-04-01", "1903-04-01", false, Description = "Exactly 115 years old")]
-        [TestCase("2019-04-01", "1903-04-02", true, Description = "One day prior to 115 years old")]
+        [TestCase("2019-04-01", "1904-04-01", false, Description = "Exactly 115 years old")]
+        [TestCase("2019-04-01", "1904-04-02", true, Description = "One day prior to 115 years old")]
         [TestCase(null, "1899-12-31", false, Description = "Date earlier than minimum acceptable")]
         public void DateOfBirth_Validation(DateTime? courseStartDate, DateTime? dateOfBirth, bool passes)
         {
