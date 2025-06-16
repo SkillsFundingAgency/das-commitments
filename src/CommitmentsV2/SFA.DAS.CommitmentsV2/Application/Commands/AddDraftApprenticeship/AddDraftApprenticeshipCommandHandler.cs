@@ -17,7 +17,15 @@ public class AddDraftApprenticeshipCommandHandler(
     {
         var db = dbContext.Value;
         var draftApprenticeshipDetails = await draftApprenticeshipDetailsMapper.Map(command);
-        var draftApprenticeship = await cohortDomainService.AddDraftApprenticeship(command.ProviderId, command.CohortId, draftApprenticeshipDetails, command.UserInfo, command.RequestingParty, cancellationToken);
+        var draftApprenticeship = await cohortDomainService.AddDraftApprenticeship(
+            command.ProviderId,
+            command.CohortId, 
+            draftApprenticeshipDetails,
+            command.UserInfo,
+            command.MinimumAgeAtApprenticeshipStart,
+            command.MaximumAgeAtApprenticeshipStart,
+            command.RequestingParty,
+            cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
 

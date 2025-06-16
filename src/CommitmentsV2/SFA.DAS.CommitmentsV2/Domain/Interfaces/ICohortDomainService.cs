@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 public interface ICohortDomainService
 {
-    Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken);
+    Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, Party? requestingParty, CancellationToken cancellationToken);
     Task ApproveCohort(long cohortId, string message, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken);
     Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken);
     Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken);

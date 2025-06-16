@@ -1497,7 +1497,7 @@ public class CohortDomainServiceTests
             }
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long? transferSenderId = null, int? pledgeApplicationId = null)
+        public async Task CreateCohortWithOtherParty(long? transferSenderId = null, int? pledgeApplicationId = null)
         {
             Db.SaveChanges();
             DomainErrors.Clear();
@@ -1506,21 +1506,18 @@ public class CohortDomainServiceTests
             {
                 var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, pledgeApplicationId, Message, UserInfo, new CancellationToken());
                 await Db.SaveChangesAsync();
-                return result;
             }
             catch (DomainException ex)
             {
                 DomainErrors.AddRange(ex.DomainErrors);
-                return null;
             }
             catch (Exception ex)
             {
                 Exception = ex;
-                return null;
             }
         }
 
-        public async Task<Cohort> CreateEmptyCohort()
+        public async Task CreateEmptyCohort()
         {
             Db.SaveChanges();
             DomainErrors.Clear();
@@ -1529,17 +1526,14 @@ public class CohortDomainServiceTests
             {
                 var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, new CancellationToken());
                 await Db.SaveChangesAsync();
-                return result;
             }
             catch (DomainException ex)
             {
                 DomainErrors.AddRange(ex.DomainErrors);
-                return null;
             }
             catch (Exception ex)
             {
                 Exception = ex;
-                return null;
             }
         }
 
@@ -1552,7 +1546,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, RequestingParty, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)

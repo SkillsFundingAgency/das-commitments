@@ -35,12 +35,12 @@ public class CohortDomainService(
     ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
     : ICohortDomainService
 {
-    public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
+    public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, Party? requestingParty, CancellationToken cancellationToken)
     {
         var db = dbContext.Value;
         var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
         var party = requestingParty ?? authenticationService.GetUserParty();
-        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
+        var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken);
         return draftApprenticeship;
     }
