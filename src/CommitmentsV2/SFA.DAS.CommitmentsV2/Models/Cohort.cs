@@ -72,10 +72,13 @@ public class Cohort : Aggregate, ITrackableEntity
         int? pledgeApplicationId,
         DraftApprenticeshipDetails draftApprenticeshipDetails,
         Party originatingParty,
-        UserInfo userInfo, bool ignoreStartDateOverlap = false) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
+        UserInfo userInfo,
+        int minimumAgeAtApprenticeshipStart,
+        int maximumAgeAtApprenticeshipStart,
+        bool ignoreStartDateOverlap = false) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
     {
         CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
-        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);
+        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
         WithParty = originatingParty;
         EditStatus = originatingParty.ToEditStatus();
         IsDraft = true;
@@ -231,10 +234,10 @@ public class Cohort : Aggregate, ITrackableEntity
 
     public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
-    public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
+    public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
         CheckIsWithParty(creator);
-        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);
+        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
 
         StartTrackingSession(UserAction.AddDraftApprenticeship, creator, EmployerAccountId, ProviderId, userInfo);
         ChangeTrackingSession.TrackUpdate(this);
@@ -393,13 +396,13 @@ public class Cohort : Aggregate, ITrackableEntity
         ChangeTrackingSession.CompleteTrackingSession();
     }
 
-    public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
+    public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
         CheckIsWithParty(modifyingParty);
 
         var existingDraftApprenticeship = GetDraftApprenticeship(draftApprenticeshipDetails.Id);
 
-        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ChangeOfPartyRequestId.HasValue);
+        ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ChangeOfPartyRequestId.HasValue, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
 
         if (ChangeOfPartyRequestId.HasValue)
         {
@@ -552,9 +555,9 @@ public class Cohort : Aggregate, ITrackableEntity
         Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
     }
 
-    private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation)
+    private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
-        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, TransferSenderId, Apprenticeships);
+        var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, TransferSenderId, Apprenticeships, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
         errors.ThrowIfAny();
     }
 

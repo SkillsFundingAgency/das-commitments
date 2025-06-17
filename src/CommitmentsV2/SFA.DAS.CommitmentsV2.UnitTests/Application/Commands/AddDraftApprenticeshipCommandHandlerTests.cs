@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.CohortDomainService.Verify(c => c.AddDraftApprenticeship(fixture.Command.ProviderId,
                 fixture.Command.CohortId, fixture.DraftApprenticeshipDetails, fixture.UserInfo,
-                fixture.Command.RequestingParty, fixture.CancellationToken));
+                 fixture.Command.MinimumAgeAtApprenticeshipStart, fixture.Command.MaximumAgeAtApprenticeshipStart, fixture.Command.RequestingParty, fixture.CancellationToken));
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(o => o.IgnoreStartDateOverlap, false)
                 .Create();
             DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
-            CancellationToken = new CancellationToken();
+            CancellationToken = CancellationToken.None;
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                    DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, CancellationToken))
+                    DraftApprenticeshipDetails, Command.UserInfo, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart, Command.RequestingParty, CancellationToken))
                 .ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }

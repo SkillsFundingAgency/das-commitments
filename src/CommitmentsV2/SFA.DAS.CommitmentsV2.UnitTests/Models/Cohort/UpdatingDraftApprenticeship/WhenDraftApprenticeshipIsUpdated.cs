@@ -1,4 +1,5 @@
 ﻿using MoreLinq;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -620,7 +621,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.Cost = details.Cost + 1 ?? 1;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipTrainingPrice()
@@ -628,7 +629,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.IsOnFlexiPaymentPilot = true;
                 details.TrainingPrice = details.TrainingPrice + 1 ?? 1;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipEndPointAssessmentPrice()
@@ -636,7 +637,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.IsOnFlexiPaymentPilot = true;
                 details.EndPointAssessmentPrice = details.EndPointAssessmentPrice + 1 ?? 1;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipTrainingAndEndPointAssessmentPriceButTotalPriceUnchanged()
@@ -645,7 +646,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.IsOnFlexiPaymentPilot = true;
                 details.TrainingPrice += 1;
                 details.EndPointAssessmentPrice -= 1;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipEmployerMakesNoChangeToCostAndDoesNotKnowAboutPriceBreakdown()
@@ -654,28 +655,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.IsOnFlexiPaymentPilot = true;
                 details.EndPointAssessmentPrice = null;
                 details.TrainingPrice = null;
-                Cohort.UpdateDraftApprenticeship(details, Party.Employer, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, Party.Employer, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipEmploymentPrice()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EmploymentPrice = details.EmploymentPrice + 1 ?? 1;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipEmploymentEndDate()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EmploymentEndDate = details.EmploymentEndDate.Value.AddDays(1);
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipStartDate()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.StartDate = details.StartDate.Value.AddMonths(1);
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateDay()
@@ -684,7 +685,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.ActualStartDate = details.StartDate.Value.AddDays(14);
                 details.StartDate = null;
                 details.IsOnFlexiPaymentPilot = true;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotStatusAndCopyStartDate()
@@ -693,7 +694,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.IsOnFlexiPaymentPilot = !details.IsOnFlexiPaymentPilot;
                 details.StartDate = details.ActualStartDate.Value;
                 details.ActualStartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateMonth()
@@ -701,7 +702,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.StartDate.Value.AddMonths(1);
                 details.StartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
             
             public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateYear()
@@ -709,7 +710,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.StartDate.Value.AddYears(1);
                 details.StartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateDay()
@@ -717,7 +718,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.ActualStartDate.Value.AddDays(1);
                 details.StartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateMonth()
@@ -725,7 +726,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.ActualStartDate.Value.AddMonths(1);
                 details.StartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateYear()
@@ -733,28 +734,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.ActualStartDate.Value.AddYears(1);
                 details.StartDate = null;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipEndDateDay()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EndDate = details.EndDate.Value.AddDays(1);
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipEndDateMonth()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EndDate = details.EndDate.Value.AddMonths(1);
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateFlexiPaymentPilotDraftApprenticeshipEndDateYear()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EndDate = details.EndDate.Value.AddYears(1);
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipDeliveryModel()
@@ -763,42 +764,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.DeliveryModel = details.DeliveryModel != DeliveryModel.Regular ? DeliveryModel.Regular :
                     details.DeliveryModel != DeliveryModel.PortableFlexiJob ? DeliveryModel.FlexiJobAgency :
                     DeliveryModel.PortableFlexiJob;
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipFirstName()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.FirstName += "_modified";
-                TryUpdate(details, ModifyingParty, UserInfo);
+                TryUpdate(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipLastName()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.LastName += "_modified";
-                TryUpdate(details, ModifyingParty, UserInfo);
+                TryUpdate(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipDateOfBirth()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.DateOfBirth = details.DateOfBirth?.AddDays(1) ?? _autoFixture.Create<DateTime>();
-                TryUpdate(details, ModifyingParty, UserInfo);
+                TryUpdate(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipCourseCode()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
-                TryUpdate(details, ModifyingParty, UserInfo);
+                TryUpdate(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
-            private void TryUpdate(DraftApprenticeshipDetails details, Party modifyingParty, UserInfo userInfo)
+            private void TryUpdate(DraftApprenticeshipDetails details, Party modifyingParty, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
             {
                 try
                 {
-                    Cohort.UpdateDraftApprenticeship(details, modifyingParty, userInfo);
+                    Cohort.UpdateDraftApprenticeship(details, modifyingParty, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
                 }
                 catch (Exception ex)
                 {
@@ -810,14 +811,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.Reference += " modified";
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             public void UpdateDraftApprenticeshipUln()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.Uln = "3688243446";
-                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
             }
 
             private DraftApprenticeshipDetails GetRandomApprenticeshipDetailsFromCohort()
