@@ -237,7 +237,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction, int maximumTrainingTimeReduction)
+        public void SetPriorLearningData(
+            int? trainingTotalHours, 
+            int? durationReducedByHours, 
+            bool? isDurationReducedByRpl, 
+            int? durationReducedBy, 
+            int? priceReduced, 
+            int minimumPriceReduction, 
+            int maximumTrainingTimeReduction, 
+            int minimumOffTheJobTrainingHoursRequired)
         {
 
             if (RecognisePriorLearning != true)
@@ -245,7 +253,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction, maximumTrainingTimeReduction);
+            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction, maximumTrainingTimeReduction, minimumOffTheJobTrainingHoursRequired);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
@@ -262,7 +270,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction, int maximumTrainingTimeReduction)
+        private List<DomainError> ValidateDraftApprenticeshipRplData(
+            int? trainingTotalHours, 
+            int? durationReducedByHours, 
+            bool? isDurationReducedByRpl, 
+            int? durationReducedBy, 
+            int? priceReduced, 
+            int minimumPriceReduction, 
+            int maximumTrainingTimeReduction,
+            int minimumOffTheJobTrainingHoursRequired)
         {
             void CheckPriceReduced(List<DomainError> list1)
             {

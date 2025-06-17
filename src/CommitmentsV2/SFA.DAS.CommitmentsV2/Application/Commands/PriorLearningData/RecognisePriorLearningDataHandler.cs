@@ -22,7 +22,8 @@ public class RecognisePriorLearningDataHandler(
             command.DurationReducedBy,
             command.PriceReducedBy,
             config.MinimumPriceReduction,
-            config.MaximumTrainingTimeReduction
+            config.MaximumTrainingTimeReduction,
+            command.MinimumOffTheJobTrainingHoursRequired
         );
 
         logger.LogInformation("Set PriorLearning data draft Apprenticeship:{ApprenticeshipId}.", command.ApprenticeshipId);
