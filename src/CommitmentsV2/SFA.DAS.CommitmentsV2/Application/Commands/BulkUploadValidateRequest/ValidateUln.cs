@@ -1,7 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using System.Text.RegularExpressions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
@@ -11,7 +10,7 @@ public partial class BulkUploadValidateCommandHandler
     {
         var domainErrors = new List<Error>();
 
-        var checkResult = _ulnValidator.Validate(csvRecord.Uln);
+        var checkResult = ulnValidator.Validate(csvRecord.Uln);
 
         if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
         {
@@ -55,7 +54,7 @@ public partial class BulkUploadValidateCommandHandler
         
         if (learnerStartDate.HasValue && learnerEndDate.HasValue)
         {
-            return _overlapService.CheckForOverlaps(csvRecord.Uln, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, CancellationToken.None).Result;
+            return overlapService.CheckForOverlaps(csvRecord.Uln, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, CancellationToken.None).Result;
         }
 
         return new OverlapCheckResult(false, false);
