@@ -9,4 +9,5 @@ public class BulkUploadValidateCommand : IRequest<BulkUploadValidateApiResponse>
     public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; } = new List<BulkUploadAddDraftApprenticeshipRequest>();
     public BulkReservationValidationResults ReservationValidationResults { get; set; } = new();
     public ProviderStandardResults ProviderStandardResults { get; set; } = new();
+    public int MinimumOffTheJobTrainingHoursRequired { get; set; }
 }

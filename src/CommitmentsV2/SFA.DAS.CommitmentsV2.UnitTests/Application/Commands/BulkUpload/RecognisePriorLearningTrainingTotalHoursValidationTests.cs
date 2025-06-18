@@ -2,9 +2,9 @@
 {
     public class RecognisePriorLearningTrainingTotalHoursValidationTests
     {
-        [TestCase(277, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(0, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(-10, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
+        [TestCase(186, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more")]
+        [TestCase(0, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more")]
+        [TestCase(-10, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more")]
         [TestCase(10000, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less")]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_AreInvalid(int trainingTotalHours, string error)
         {
@@ -39,7 +39,7 @@
             fixture.SetTrainingTotalHours("-10");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
         }
 
         [Test]
@@ -50,7 +50,7 @@
             fixture.SetTrainingTotalHours("34");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
         }
 
         [Test]

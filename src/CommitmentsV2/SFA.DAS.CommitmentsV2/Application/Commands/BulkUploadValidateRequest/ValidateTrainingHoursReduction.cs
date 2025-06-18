@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private static IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord, int maxTrainingHoursReduction)
+    private static IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord, int maxTrainingHoursReduction, int minimumOffTheJobTrainingHoursRequired)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
@@ -34,9 +34,9 @@ public partial class BulkUploadValidateCommandHandler
                 {
                     yield return new Error("TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be lower than the total off-the-job training time for this apprenticeship standard");
                 }
-                if (csvRecord.TrainingTotalHours - csvRecord.TrainingHoursReduction < 278)
+                if (csvRecord.TrainingTotalHours - csvRecord.TrainingHoursReduction < minimumOffTheJobTrainingHoursRequired)
                 {
-                    yield return new Error("TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the <b>RPL reduction</b> is too high");
+                    yield return new Error("TrainingHoursReduction", $"The remaining off-the-job training is below the minimum {minimumOffTheJobTrainingHoursRequired} hours required for funding. Check if the <b>RPL reduction</b> is too high");
                 }
             }
         }

@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursRequired)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
@@ -26,9 +26,9 @@ public partial class BulkUploadValidateCommandHandler
         {
             yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less");
         }
-        else if (csvRecord.TrainingTotalHours.Value < 278)
+        else if (csvRecord.TrainingTotalHours.Value < minimumOffTheJobTrainingHoursRequired)
         {
-            yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
+            yield return new Error("TrainingTotalHours", $"Total <b>off-the-job training time</b> for this apprenticeship standard must be {minimumOffTheJobTrainingHoursRequired} hours or more");
         }
     }
 }

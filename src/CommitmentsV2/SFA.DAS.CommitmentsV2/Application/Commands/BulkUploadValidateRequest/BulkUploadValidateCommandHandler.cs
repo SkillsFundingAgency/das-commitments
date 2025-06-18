@@ -55,7 +55,7 @@ public partial class BulkUploadValidateCommandHandler(
                 continue;
             }
             
-            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
+            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.MinimumOffTheJobTrainingHoursRequired);
             
             await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
@@ -140,7 +140,7 @@ public partial class BulkUploadValidateCommandHandler(
         return cohortDetails.TransferSenderId.HasValue;
     }
 
-    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults)
+    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, int minimumOffTheJobTrainingHoursRequired)
     {
         var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
         
@@ -170,8 +170,8 @@ public partial class BulkUploadValidateCommandHandler(
         domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
         domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
-        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
-        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction));
+        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursRequired));
+        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursRequired));
         domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
         domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
        
