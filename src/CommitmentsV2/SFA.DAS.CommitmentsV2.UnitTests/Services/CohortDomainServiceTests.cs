@@ -1001,14 +1001,14 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithExtendedPriorLearning()
         {
             ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-            ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 12, 1000, 5, 9999);
+            ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 12, 1000, 5, 9999, 187);
             return this;
         }
 
         public CohortDomainServiceTestFixture WithPriorLearningExtended()
         {
             ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-            ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 20, 110, 5, 9999);
+            ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 20, 110, 5, 9999, 187);
             return this;
         }
 
@@ -1035,7 +1035,7 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithPriorLearningData()
         {
             ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-            ExistingDraftApprenticeship.SetPriorLearningData(1000, 10, true, 5, 100, 5, 9999);
+            ExistingDraftApprenticeship.SetPriorLearningData(1000, 10, true, 5, 100, 5, 9999, 187);
 
             return this;
         }

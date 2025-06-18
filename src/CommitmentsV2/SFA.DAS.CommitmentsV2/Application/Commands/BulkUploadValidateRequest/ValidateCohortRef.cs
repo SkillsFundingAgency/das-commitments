@@ -96,7 +96,7 @@ public partial class BulkUploadValidateCommandHandler
         if (!hasPermissionToCreateCohort)
         {
             var errorTextToUse = (isLevy.HasValue && isLevy.Value) ? levyPermissionText : nonLevyPermissionText;
-            _logger.LogInformation("Has permission to create cohort : {ProviderId}", providerId);
+            logger.LogInformation("Has permission to create cohort : {ProviderId}", providerId);
             domainErrors.Add(new Error(CohortRefPermissionIssue, errorTextToUse));
         }
 
@@ -112,7 +112,7 @@ public partial class BulkUploadValidateCommandHandler
             return true;
         }
 
-        _logger.LogInformation("Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {ProviderId}", employerDetails.LegalEntityId.Value, providerId);
+        logger.LogInformation("Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {ProviderId}", employerDetails.LegalEntityId.Value, providerId);
         var request = new HasPermissionRequest
         {
             AccountLegalEntityId = employerDetails.LegalEntityId.Value,
@@ -120,8 +120,8 @@ public partial class BulkUploadValidateCommandHandler
             Ukprn = providerId
         };
 
-        var result = await _providerRelationshipsApiClient.HasPermission(request);
-        _logger.LogInformation("Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}", employerDetails.LegalEntityId.Value, providerId, result);
+        var result = await providerRelationshipsApiClient.HasPermission(request);
+        logger.LogInformation("Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}", employerDetails.LegalEntityId.Value, providerId, result);
 
         employerDetails.HasPermissionToCreateCohort = result;
         return result;
@@ -129,11 +129,11 @@ public partial class BulkUploadValidateCommandHandler
 
     private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
     {
-        return await _overlapService.CheckForOverlaps(cohort.Id, CancellationToken.None);
+        return await overlapService.CheckForOverlaps(cohort.Id, CancellationToken.None);
     }
 
     private async Task<List<EmailOverlapCheckResult>> OverlapEmailCheckForCohort(Models.Cohort cohort)
     {
-        return await _overlapService.CheckForEmailOverlaps(cohort.Id, CancellationToken.None);
+        return await overlapService.CheckForEmailOverlaps(cohort.Id, CancellationToken.None);
     }
 }

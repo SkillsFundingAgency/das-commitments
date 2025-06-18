@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using System.Data.SQLite;
-using FluentValidation;
+﻿using FluentValidation;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -78,17 +76,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
 
         public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
-            return RunWithConnection(connection =>
-            {
-                var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                    .Options;
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+                .Options;
 
-                using var dbContext = new ProviderCommitmentsDbContext(options);
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            });
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)
@@ -96,20 +91,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             dbContext.Accounts.AddRange(SeedAccounts);
             dbContext.AccountLegalEntities.AddRange(SeedAccounts.SelectMany(ac => ac.AccountLegalEntities));
             dbContext.SaveChanges(true);
-        }
-
-        private static Task<T> RunWithConnection<T>(Func<DbConnection, Task<T>> action)
-        {
-            using var connection = new SQLiteConnection("DataSource=:memory:");
-            connection.Open();
-            try
-            {
-                return action(connection);
-            }
-            finally
-            {
-                connection.Close();
-            }
         }
     }
 }

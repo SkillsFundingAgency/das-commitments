@@ -33,7 +33,7 @@ public partial class BulkUploadValidateCommandHandler
             {
                 domainErrors.Add(new Error("StartDate", "The <b>start date</b> for apprenticeships funded through a transfer must not be earlier than May 2018"));
             }
-            if (startDate > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+            if (startDate > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
             {
                 domainErrors.Add(new Error("StartDate", "The <b>start date</b> must be no later than one year after the end of the current teaching year"));
             }

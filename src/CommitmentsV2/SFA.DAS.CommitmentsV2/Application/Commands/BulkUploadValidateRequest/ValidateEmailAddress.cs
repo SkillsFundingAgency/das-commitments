@@ -74,7 +74,7 @@ public partial class BulkUploadValidateCommandHandler
         var learnerEndDate = csvRecord.EndDate;
         if (learnerStartDate.HasValue && learnerEndDate.HasValue)
         {
-            return _overlapService.CheckForEmailOverlaps(csvRecord.Email, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, null, CancellationToken.None).Result;
+            return overlapService.CheckForEmailOverlaps(csvRecord.Email, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, null, CancellationToken.None).Result;
         }
 
         return new EmailOverlapCheckResult(csvRecord.RowNumber, OverlapStatus.None, false);

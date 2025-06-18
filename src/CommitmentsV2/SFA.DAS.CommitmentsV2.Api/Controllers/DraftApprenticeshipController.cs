@@ -125,7 +125,8 @@ public class DraftApprenticeshipController(
             DurationReducedByHours = request.DurationReducedByHours,
             IsDurationReducedByRpl = request.IsDurationReducedByRpl,
             TrainingTotalHours = request.TrainingTotalHours,
-            UserInfo = request.UserInfo
+            UserInfo = request.UserInfo,
+            MinimumOffTheJobTrainingHoursRequired = request.MinimumOffTheJobTrainingHoursRequired
         });
         
         return Ok();

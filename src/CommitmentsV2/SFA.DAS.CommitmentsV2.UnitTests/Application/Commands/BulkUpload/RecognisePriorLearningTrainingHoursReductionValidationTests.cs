@@ -86,15 +86,15 @@
         }
 
         [Test]
-        public async Task Prior_Learning_Training_When_TrainingHoursReduction_Values_TrainingTotalHours_and_TrainingHoursReduction_less_than_278()
+        public async Task Prior_Learning_Training_When_TrainingHoursReduction_Values_TrainingTotalHours_and_TrainingHoursReduction_less_than_187()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingHoursReduction("50");
-            fixture.SetTrainingTotalHours("300");
+            fixture.SetTrainingTotalHours("226");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the <b>RPL reduction</b> is too high");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingHoursReduction", "The remaining off-the-job training is below the minimum 187 hours required for funding. Check if the <b>RPL reduction</b> is too high");
         }
 
         [Test]

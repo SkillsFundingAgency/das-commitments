@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
-using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Extensions;

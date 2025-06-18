@@ -12,4 +12,5 @@ public class PriorLearningDataCommand : IRequest
     public int? DurationReducedBy { get; set; }
     public int? PriceReducedBy { get; set; }
     public UserInfo UserInfo { get; set; }
+    public int MinimumOffTheJobTrainingHoursRequired { get; set; }
 }

@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
             public AssessmentOrganisation EndpointAssessmentOrganisation { get; private set; }
             public Apprenticeship PreviousApprenticeship { get; private set; }
 
-            private Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
+            private readonly Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
 
             public GetSupportApprenticeshipQueryHandlerTestsFixture()
             {
@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
 
             public async Task<GetSupportApprenticeshipQueryResult> Handle()
             {
-                _queryResult = await _queryHandler.Handle(TestHelper.Clone(_query), new CancellationToken());
+                _queryResult = await _queryHandler.Handle(TestHelper.Clone(_query), CancellationToken.None);
                 return _queryResult;
             }
 
