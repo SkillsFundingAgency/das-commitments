@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -78,9 +79,9 @@ public class AccountLegalEntity : ICohortOriginator
     }
 
     public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId,
-        DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo)
+        DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStart)
     {
-        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer, userInfo);
+        return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
     }
 
     public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

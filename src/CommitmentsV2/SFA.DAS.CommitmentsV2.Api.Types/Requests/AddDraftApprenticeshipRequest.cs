@@ -28,4 +28,6 @@ public class AddDraftApprenticeshipRequest : SaveDataRequest
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
     public long? LearnerDataId { get; set; }
+    public int MinimumAgeAtApprenticeshipStart { get; set; }
+    public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

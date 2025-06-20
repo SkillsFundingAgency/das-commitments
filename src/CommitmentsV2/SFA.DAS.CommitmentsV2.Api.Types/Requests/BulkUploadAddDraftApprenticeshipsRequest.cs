@@ -146,4 +146,6 @@ public class BulkUploadAddDraftApprenticeshipRequest
             };
         }
     }
+    public int? MinimumAgeAtApprenticeshipStart { get; set; }
+    public int? MaximumAgeAtApprenticeshipStart { get; set; }
 }

@@ -32,7 +32,9 @@ public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper 
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
-            LearnerDataId = source.LearnerDataId
+            LearnerDataId = source.LearnerDataId,
+            MinimumAgeAtApprenticeshipStart = source.MinimumAgeAtApprenticeshipStart,
+            MaximumAgeAtApprenticeshipStart = source.MaximumAgeAtApprenticeshipStart
         });
     }
 }
