@@ -1504,7 +1504,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, pledgeApplicationId, Message, UserInfo, new CancellationToken());
+                var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, pledgeApplicationId, Message, UserInfo, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1524,7 +1524,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, new CancellationToken());
+                var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1570,7 +1570,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, RequestingParty, new CancellationToken());
+                await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, RequestingParty, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1587,7 +1587,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, RequestingParty, new CancellationToken());
+                await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, RequestingParty, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1609,7 +1609,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1626,7 +1626,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.DeleteDraftApprenticeship(CohortId, DraftApprenticeshipId, UserInfo, new CancellationToken());
+                await CohortDomainService.DeleteDraftApprenticeship(CohortId, DraftApprenticeshipId, UserInfo, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)

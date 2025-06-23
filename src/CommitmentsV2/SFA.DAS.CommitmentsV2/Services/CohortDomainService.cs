@@ -213,14 +213,14 @@ public class CohortDomainService(
         cohort.SendToOtherParty(party, message, userInfo, currentDateTime.UtcNow);
     }
 
-    public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
+    public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken)
     {
         var cohort = await dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
         AssertHasProvider(cohortId, cohort.ProviderId);
         AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
-        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
+        cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, requestingParty ?? authenticationService.GetUserParty(), userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
 
         if (cohort.IsLinkedToChangeOfPartyRequest)
         {

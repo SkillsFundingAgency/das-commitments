@@ -15,7 +15,7 @@ public class UpdateDraftApprenticeshipHandler(
     {
         var draftApprenticeshipDetails = await draftApprenticeshipDetailsMapper.Map(command);
 
-        await cohortDomainService.UpdateDraftApprenticeship(command.CohortId, draftApprenticeshipDetails, command.UserInfo, command.RequestingParty, cancellationToken);
+        await cohortDomainService.UpdateDraftApprenticeship(command.CohortId, draftApprenticeshipDetails, command.UserInfo, command.RequestingParty, command.MinimumAgeAtApprenticeshipStart, command.MaximumAgeAtApprenticeshipStart, cancellationToken);
 
         logger.LogInformation("Saved cohort. Reservation-Id:{ReservationId} Commitment-Id:{CohortId} Apprenticeship:{ApprenticeshipId}", command.ReservationId, command.CohortId, command.ApprenticeshipId);
 
