@@ -52,7 +52,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             {
                 Standards = new List<ProviderStandard> { new("123", "123") }
             },
-            MinimumOffTheJobTrainingHoursRequired = 187
+            OtjTrainingHours = new Dictionary<string, int?>()
         };
 
         OverlapCheckService = new Mock<IOverlapCheckService>();

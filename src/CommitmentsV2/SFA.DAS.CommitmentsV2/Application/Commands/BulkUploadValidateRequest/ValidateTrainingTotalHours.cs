@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursRequired)
+    private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursForCourse)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
@@ -20,15 +20,18 @@ public partial class BulkUploadValidateCommandHandler
         
         if (csvRecord.TrainingTotalHours == null)
         {
-            yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
+            yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 187 and 9,999");
         }
         else if (csvRecord.TrainingTotalHours.Value > 9999)
         {
             yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less");
         }
-        else if (csvRecord.TrainingTotalHours.Value < minimumOffTheJobTrainingHoursRequired)
+        else
         {
-            yield return new Error("TrainingTotalHours", $"Total <b>off-the-job training time</b> for this apprenticeship standard must be {minimumOffTheJobTrainingHoursRequired} hours or more");
+            if (csvRecord.TrainingTotalHours.Value < minimumOffTheJobTrainingHoursForCourse)
+            {
+                yield return new Error("TrainingTotalHours", $"Total <b>off-the-job training time</b> for this apprenticeship standard must be {minimumOffTheJobTrainingHoursForCourse} hours or more");
+            }
         }
     }
 }

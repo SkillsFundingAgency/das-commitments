@@ -14,7 +14,7 @@ public class BulkUploadValidateRequestToBulkUploadValidateQuery : IMapper<BulkUp
             ProviderId = source.ProviderId,
             ReservationValidationResults = source.BulkReservationValidationResults,
             ProviderStandardResults = source.ProviderStandardsData,
-            MinimumOffTheJobTrainingHoursRequired = source.MinimumOffTheJobTrainingHoursRequired
+            OtjTrainingHours = source.OtjTrainingHours
         });
     }
 }

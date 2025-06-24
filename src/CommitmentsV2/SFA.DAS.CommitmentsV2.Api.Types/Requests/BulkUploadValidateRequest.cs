@@ -8,6 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkReservationValidationResults BulkReservationValidationResults { get; set; }
         public ProviderStandardResults ProviderStandardsData { get; set; }
-        public int MinimumOffTheJobTrainingHoursRequired { get; set; }
+        public Dictionary<string, int?> OtjTrainingHours { get; set; }
     }
 }

@@ -58,10 +58,10 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetTrainingTotalHours("“1000 2000");
+            fixture.SetTrainingTotalHours("1000 2000");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 187 and 9,999");
         }
 
         [Test]
@@ -72,7 +72,7 @@
             fixture.SetTrainingTotalHours("6282ABC");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 187 and 9,999");
         }
 
         [Test]
@@ -83,7 +83,94 @@
             fixture.SetTrainingTotalHours("#22738");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 187 and 9,999");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Uses_Course_Specific_Minimum_From_Dictionary()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("250");
+            
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "59", 300 }
+            };
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 300 hours or more");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Uses_Fallback_When_Course_Not_In_Dictionary()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("180");
+            
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "123", 400 }
+            };
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Uses_Fallback_When_Course_Value_Is_Null()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("180");
+            
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "59", null }
+            };
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Valid_With_Course_Specific_Minimum()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("350");
+            
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "59", 300 }
+            };
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Multiple_Courses_With_Different_Minimums()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("250");
+            
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "59", 300 },
+                { "123", 250 },
+                { "456", 400 }
+            };
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 300 hours or more");
         }
     }
 }

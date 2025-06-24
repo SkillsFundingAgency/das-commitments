@@ -55,7 +55,7 @@ public partial class BulkUploadValidateCommandHandler(
                 continue;
             }
             
-            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.MinimumOffTheJobTrainingHoursRequired);
+            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
             
             await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
@@ -140,7 +140,7 @@ public partial class BulkUploadValidateCommandHandler(
         return cohortDetails.TransferSenderId.HasValue;
     }
 
-    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, int minimumOffTheJobTrainingHoursRequired)
+    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
         
@@ -170,12 +170,24 @@ public partial class BulkUploadValidateCommandHandler(
         domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
         domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
-        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursRequired));
-        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursRequired));
+        
+        var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
+        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
         domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
         domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
        
         return domainErrors;
+    }
+    
+    private static int GetCourseSpecificMinimumOtjHours(string courseCode, Dictionary<string, int?> otjTrainingHours)
+    {
+        if (otjTrainingHours != null && otjTrainingHours.TryGetValue(courseCode, out var courseSpecificHours) && courseSpecificHours.HasValue)
+        {
+            return courseSpecificHours.Value;
+        }
+        
+        return 187;
     }
 
     private async Task<string> GetEmployerName(string agreementId)
