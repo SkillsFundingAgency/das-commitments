@@ -1,5 +1,6 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
@@ -121,7 +122,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
                 null,
                 draftApprenticeshipDetails,
                 Party.Provider,
-                new UserInfo());
+                new UserInfo(),
+                Constants.MinimumAgeAtApprenticeshipStart,
+                Constants.MaximumAgeAtApprenticeshipStart);
 
             Db.Cohorts.Add(commitment);
 

@@ -1,6 +1,7 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -151,7 +152,9 @@ public class GetDraftApprenticeHandlerTestFixtures
             null,
             draftApprenticeshipDetails,
             creatingParty,
-            new UserInfo());
+            new UserInfo(),
+            Constants.MinimumAgeAtApprenticeshipStart,
+            Constants.MaximumAgeAtApprenticeshipStart);
 
         Db.Cohorts.Add(commitment);
 

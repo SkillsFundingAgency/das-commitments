@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -868,7 +869,7 @@ public class CohortDomainServiceTests
             AccountLegalEntity = new Mock<AccountLegalEntity>(() =>
                 new AccountLegalEntity(EmployerAccount, AccountLegalEntityId, MaLegalEntityId, "test", "ABC", "Test", OrganisationType.CompaniesHouse, "test", DateTime.UtcNow));
             AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(NewCohort);
             AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                     It.IsAny<string>(), It.IsAny<UserInfo>()))
@@ -1469,16 +1470,16 @@ public class CohortDomainServiceTests
         public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null, bool ignoreStartDateOverlap = false)
         {
             DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
-            Db.SaveChanges();
+            await Db.SaveChangesAsync();
             DomainErrors.Clear();
 
-            accountId = accountId ?? AccountId;
-            accountLegalEntityId = accountLegalEntityId ?? AccountLegalEntityId;
+            accountId ??= AccountId;
+            accountLegalEntityId ??= AccountLegalEntityId;
 
             try
             {
                 var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                    DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                    DraftApprenticeshipDetails, UserInfo, RequestingParty, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, CancellationToken.None);
                 await Db.SaveChangesAsync();
                 return result;
             }
@@ -1496,7 +1497,7 @@ public class CohortDomainServiceTests
             }
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long? transferSenderId = null, int? pledgeApplicationId = null)
+        public async Task CreateCohortWithOtherParty(long? transferSenderId = null, int? pledgeApplicationId = null)
         {
             Db.SaveChanges();
             DomainErrors.Clear();
@@ -1505,21 +1506,18 @@ public class CohortDomainServiceTests
             {
                 var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, pledgeApplicationId, Message, UserInfo, new CancellationToken());
                 await Db.SaveChangesAsync();
-                return result;
             }
             catch (DomainException ex)
             {
                 DomainErrors.AddRange(ex.DomainErrors);
-                return null;
             }
             catch (Exception ex)
             {
                 Exception = ex;
-                return null;
             }
         }
 
-        public async Task<Cohort> CreateEmptyCohort()
+        public async Task CreateEmptyCohort()
         {
             Db.SaveChanges();
             DomainErrors.Clear();
@@ -1528,17 +1526,14 @@ public class CohortDomainServiceTests
             {
                 var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, new CancellationToken());
                 await Db.SaveChangesAsync();
-                return result;
             }
             catch (DomainException ex)
             {
                 DomainErrors.AddRange(ex.DomainErrors);
-                return null;
             }
             catch (Exception ex)
             {
                 Exception = ex;
-                return null;
             }
         }
 
@@ -1551,7 +1546,7 @@ public class CohortDomainServiceTests
 
             try
             {
-                await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart, RequestingParty, CancellationToken.None);
                 await Db.SaveChangesAsync();
             }
             catch (DomainException ex)
@@ -1645,13 +1640,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1673,7 +1668,7 @@ public class CohortDomainServiceTests
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
@@ -1682,13 +1677,13 @@ public class CohortDomainServiceTests
             if (party == Party.Provider)
             {
                 Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
 
             if (party == Party.Employer)
             {
                 AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                    DraftApprenticeshipDetails, UserInfo));
+                    DraftApprenticeshipDetails, UserInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart));
             }
         }
 
