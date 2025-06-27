@@ -26,4 +26,6 @@ public class UpdateDraftApprenticeshipRequest : SaveDataRequest
     public Guid? ReservationId { get; set; }
     public bool IgnoreStartDateOverlap { get; set; }
     public bool? IsOnFlexiPaymentPilot { get; set; }
+    public int MinimumAgeAtApprenticeshipStart { get; set; }
+    public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

@@ -11,46 +11,23 @@ using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
-public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+public partial class BulkUploadValidateCommandHandler(
+    ILogger<BulkUploadValidateCommandHandler> logger,
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IOverlapCheckService overlapService,
+    IAcademicYearDateProvider academicYearDateProvider,
+    IProviderRelationshipsApiClient providerRelationshipsApiClient,
+    IEmployerAgreementService employerAgreementService,
+    RplSettingsConfiguration rplConfig,
+    IUlnValidator ulnValidator,
+    ILinkGenerator urlHelper)
+    : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
 {
-    private readonly ILogger<BulkUploadValidateCommandHandler> _logger;
-    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private readonly EmployerSummaries _employerSummaries;
-    private readonly IOverlapCheckService _overlapService;
-    private readonly IAcademicYearDateProvider _academicYearDateProvider;
-    private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
-    private readonly IEmployerAgreementService _employerAgreementService;
-    private readonly RplSettingsConfiguration _rplConfig;
-    private readonly IUlnValidator _ulnValidator;
+    private readonly EmployerSummaries _employerSummaries = [];
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
-    private readonly Dictionary<string, Cohort> _cachedCohortDetails;
-    private readonly ILinkGenerator _urlHelper;
+    private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
 
     public long ProviderId { get; set; }
-
-    public BulkUploadValidateCommandHandler(
-        ILogger<BulkUploadValidateCommandHandler> logger,
-        Lazy<ProviderCommitmentsDbContext> dbContext,
-        IOverlapCheckService overlapService,
-        IAcademicYearDateProvider academicYearDateProvider,
-        IProviderRelationshipsApiClient providerRelationshipsApiClient,
-        IEmployerAgreementService employerAgreementService,
-        RplSettingsConfiguration rplConfig,
-        IUlnValidator ulnValidator,
-        ILinkGenerator urlHelper)
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _employerSummaries = [];
-        _overlapService = overlapService;
-        _academicYearDateProvider = academicYearDateProvider;
-        _providerRelationshipsApiClient = providerRelationshipsApiClient;
-        _employerAgreementService = employerAgreementService;
-        _rplConfig = rplConfig;
-        _ulnValidator = ulnValidator;
-        _cachedCohortDetails = new Dictionary<string, Cohort>();
-        _urlHelper = urlHelper;
-    }
 
     public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
     {
@@ -78,7 +55,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
                 continue;
             }
             
-            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
+            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
             
             await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
@@ -163,7 +140,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         return cohortDetails.TransferSenderId.HasValue;
     }
 
-    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults)
+    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
         
@@ -193,12 +170,24 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
         domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
-        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
-        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, _rplConfig.MaximumTrainingTimeReduction));
+        
+        var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
+        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
         domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
-        domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, _rplConfig.MinimumPriceReduction));
+        domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
        
         return domainErrors;
+    }
+    
+    private static int GetCourseSpecificMinimumOtjHours(string courseCode, Dictionary<string, int?> otjTrainingHours)
+    {
+        if (otjTrainingHours != null && otjTrainingHours.TryGetValue(courseCode, out var courseSpecificHours) && courseSpecificHours.HasValue)
+        {
+            return courseSpecificHours.Value;
+        }
+        
+        return 187;
     }
 
     private async Task<string> GetEmployerName(string agreementId)
@@ -220,7 +209,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             return result;
         }
 
-        var accountLegalEntity = _dbContext.Value.AccountLegalEntities
+        var accountLegalEntity = dbContext.Value.AccountLegalEntities
             .Include(x => x.Account)
             .FirstOrDefault(x => x.PublicHashedId == agreementId);
 
@@ -231,7 +220,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             
         var employerName = accountLegalEntity.Account.Name;
         var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-        var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+        var isSigned = await employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
         var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
         
         _employerSummaries.Add(employerSummary);
@@ -246,7 +235,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             return _cachedCohortDetails.GetValueOrDefault(cohortRef);
         }
 
-        var cohort = _dbContext.Value.Cohorts
+        var cohort = dbContext.Value.Cohorts
             .Include(x => x.AccountLegalEntity)
             .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
         
@@ -262,6 +251,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             return null;
         }
 
-        return int.TryParse(stdCode, out var result) ? _dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
+        return int.TryParse(stdCode, out var result) ? dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
     }
 }

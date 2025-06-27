@@ -1,12 +1,11 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 
-namespace SFA.DAS.CommitmentsV2.Extensions
+namespace SFA.DAS.CommitmentsV2.Extensions;
+
+public static class DraftApprenticeshipDetailsExtensions
 {
-    public static class DraftApprenticeshipDetailsExtensions
+    public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
     {
-        public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
-        {
-            return details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
-        }
+        return details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
     }
 }

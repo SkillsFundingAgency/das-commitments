@@ -7,4 +7,5 @@ public class PriorLearningDataRequest : SaveDataRequest
     public bool? IsDurationReducedByRpl { get; set; }
     public int? DurationReducedBy { get; set; }
     public int? PriceReducedBy { get; set; }
+    public int MinimumOffTheJobTrainingHoursRequired { get; set; }
 }
