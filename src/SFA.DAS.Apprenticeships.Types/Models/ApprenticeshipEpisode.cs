@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SFA.DAS.Apprenticeships.Types.Enums;
+using SFA.DAS.Learning.Types.Enums;
 
-namespace SFA.DAS.Apprenticeships.Types.Models
+namespace SFA.DAS.Learning.Types.Models
 {
     public class ApprenticeshipEpisode
     {

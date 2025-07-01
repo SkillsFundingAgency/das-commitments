@@ -1,10 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Apprenticeships.Types.Models;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+using SFA.DAS.Learning.Types;
+using SFA.DAS.Learning.Types.Enums;
+using SFA.DAS.Learning.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers;
 
@@ -34,8 +35,8 @@ public class ApprenticeshipPriceChangedEventHandlerTests
     {
         //Arrange
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-        var message = _fixture.Create<ApprenticeshipPriceChangedEvent>();
-        message.ApprovedBy = (Apprenticeships.Types.Enums.ApprovedBy)99;//invalid value
+        var message = _fixture.Create<LearningPriceChangedEvent>();
+        message.ApprovedBy = (ApprovedBy)99;//invalid value
 
         //Act
         var actual = Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
@@ -49,8 +50,8 @@ public class ApprenticeshipPriceChangedEventHandlerTests
     {
         //Arrange
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-        var message = _fixture.Create<ApprenticeshipPriceChangedEvent>();
-        message.ApprovedBy = Apprenticeships.Types.Enums.ApprovedBy.Employer;
+        var message = _fixture.Create<LearningPriceChangedEvent>();
+        message.ApprovedBy = ApprovedBy.Employer;
 
         _mockMediator.Setup(x => x.Send(It.IsAny<EditApprenticeshipCommand>(), default)).ThrowsAsync(new Exception("TEST"));
 
@@ -66,8 +67,8 @@ public class ApprenticeshipPriceChangedEventHandlerTests
     {
         //Arrange
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-        var message = _fixture.Create<ApprenticeshipPriceChangedEvent>();
-        message.ApprovedBy = Apprenticeships.Types.Enums.ApprovedBy.Employer;
+        var message = _fixture.Create<LearningPriceChangedEvent>();
+        message.ApprovedBy = ApprovedBy.Employer;
 
         _mockMediator.Setup(x => x.Send(It.IsAny<AcceptApprenticeshipUpdatesCommand>(), default)).ThrowsAsync(new Exception("TEST"));
 
@@ -84,8 +85,8 @@ public class ApprenticeshipPriceChangedEventHandlerTests
     {
         //Arrange
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-        var message = _fixture.Create<ApprenticeshipPriceChangedEvent>();
-        message.ApprovedBy = Apprenticeships.Types.Enums.ApprovedBy.Employer;
+        var message = _fixture.Create<LearningPriceChangedEvent>();
+        message.ApprovedBy = ApprovedBy.Employer;
 
         //Act / Assert
         Action act = () => handler.Handle(message, _mockIMessageHandlerContext.Object);
@@ -97,8 +98,8 @@ public class ApprenticeshipPriceChangedEventHandlerTests
     {
         //Arrange
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-        var message = _fixture.Create<ApprenticeshipPriceChangedEvent>();
-        message.ApprovedBy = Apprenticeships.Types.Enums.ApprovedBy.Employer;
+        var message = _fixture.Create<LearningPriceChangedEvent>();
+        message.ApprovedBy = ApprovedBy.Employer;
         message.Episode.Prices = new List<ApprenticeshipEpisodePrice>
         {
             new() { TrainingPrice = 7000, EndPointAssessmentPrice = 500 },

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SFA.DAS.Apprenticeships.Types\SFA.DAS.Apprenticeships.Types.csproj" />
+    <ProjectReference Include="..\..\SFA.DAS.Apprenticeships.Types\SFA.DAS.Learning.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>

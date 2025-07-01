@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Apprenticeships.Types.Models;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+using SFA.DAS.Learning.Types;
+using SFA.DAS.Learning.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             //Arrange
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var message = _fixture.Create<LearningStartDateChangedEvent>();
 
             //Act
             var actual = Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(message, _mockIMessageHandlerContext.Object));
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             //Arrange
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var message = _fixture.Create<LearningStartDateChangedEvent>();
             message.Initiator = "Provider";
 
             _mockMediator.Setup(x => x.Send(It.IsAny<EditApprenticeshipCommand>(), default)).ThrowsAsync(new Exception("TEST"));
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             //Arrange
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var message = _fixture.Create<LearningStartDateChangedEvent>();
             message.Initiator = "Provider";
 
             _mockMediator.Setup(x => x.Send(It.IsAny<AcceptApprenticeshipUpdatesCommand>(), default)).ThrowsAsync(new Exception("TEST"));
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             //Arrange
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var message = _fixture.Create<LearningStartDateChangedEvent>();
             message.Initiator = "Provider";
 
             //Act / Assert
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
 	        //Arrange
 	        var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-	        var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+	        var message = _fixture.Create<LearningStartDateChangedEvent>();
 	        message.Initiator = "Provider";
 
 	        //Act
@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             //Arrange
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
-            var message = _fixture.Create<ApprenticeshipStartDateChangedEvent>();
+            var message = _fixture.Create<LearningStartDateChangedEvent>();
             var endDate = _fixture.Create<DateTime>();
             message.Episode.Prices = new List<ApprenticeshipEpisodePrice>
             {

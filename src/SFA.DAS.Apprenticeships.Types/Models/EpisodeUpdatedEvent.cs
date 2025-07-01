@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Apprenticeships.Types.Models
+﻿namespace SFA.DAS.Learning.Types.Models
 {
     public class EpisodeUpdatedEvent
     {
