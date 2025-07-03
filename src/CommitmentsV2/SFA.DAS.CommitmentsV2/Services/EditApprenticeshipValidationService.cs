@@ -416,16 +416,15 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                 if (request.StartDate.HasValue)
                 {
                     var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
-                    if (ageOnStartDate.HasValue && ageOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
+                    if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
                     {
-                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
+                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {request.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
                         yield break;
                     }
 
-                    if (ageOnStartDate.HasValue && ageOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
+                    if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
                     {
-                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
-                        yield break;
+                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
                     }
                 }
             }
