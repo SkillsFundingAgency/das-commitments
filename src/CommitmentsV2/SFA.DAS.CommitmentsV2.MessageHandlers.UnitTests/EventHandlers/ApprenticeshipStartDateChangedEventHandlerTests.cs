@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var handler = new ApprenticeshipStartDateChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
             var message = _fixture.Create<LearningStartDateChangedEvent>();
             var endDate = _fixture.Create<DateTime>();
-            message.Episode.Prices = new List<ApprenticeshipEpisodePrice>
+            message.Episode.Prices = new List<LearningEpisodePrice>
             {
                 new() { EndDate = endDate },
                 new() { EndDate = endDate.AddDays(-1) }

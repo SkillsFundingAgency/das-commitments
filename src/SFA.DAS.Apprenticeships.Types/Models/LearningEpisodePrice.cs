@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Learning.Types.Models
 {
-    public class ApprenticeshipEpisodePrice
+    public class LearningEpisodePrice
     {
         public Guid Key { get; set; }
         public DateTime StartDate { get; set; }

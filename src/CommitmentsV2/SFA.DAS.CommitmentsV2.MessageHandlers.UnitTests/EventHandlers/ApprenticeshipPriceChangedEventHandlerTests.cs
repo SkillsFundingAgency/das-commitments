@@ -100,7 +100,7 @@ public class ApprenticeshipPriceChangedEventHandlerTests
         var handler = new ApprenticeshipPriceChangedEventHandler(_mockLogger.Object, _mockMediator.Object);
         var message = _fixture.Create<LearningPriceChangedEvent>();
         message.ApprovedBy = ApprovedBy.Employer;
-        message.Episode.Prices = new List<ApprenticeshipEpisodePrice>
+        message.Episode.Prices = new List<LearningEpisodePrice>
         {
             new() { TrainingPrice = 7000, EndPointAssessmentPrice = 500 },
         };

@@ -2,6 +2,6 @@
 {
     public class EpisodeUpdatedEvent
     {
-        public ApprenticeshipEpisode Episode { get; set; }
+        public LearningEpisode Episode { get; set; }
     }
 }
