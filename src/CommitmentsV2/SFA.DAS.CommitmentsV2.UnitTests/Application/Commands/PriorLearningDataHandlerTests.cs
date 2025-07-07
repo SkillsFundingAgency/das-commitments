@@ -26,14 +26,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.Exception.Should().NotBeNull();
         }
 
-        [TestCase(277, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(0, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(-10, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
+        [TestCase(186, "Total off-the-job training time for this apprenticeship standard must be 187 hours or more")]
+        [TestCase(0, "Total off-the-job training time for this apprenticeship standard must be 187 hours or more")]
+        [TestCase(-10, "Total off-the-job training time for this apprenticeship standard must be 187 hours or more")]
         [TestCase(10000, "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less")]
         public async Task Handle_WhenTrainingTotalHoursAreInvalid(int trainingTotalHours, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = trainingTotalHours;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    TrainingTotalHours = trainingTotalHours,
+                    MinimumOffTheJobTrainingHoursRequired = 187
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -50,8 +56,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(10000, "Total reduction in off-the-job training time due to RPL must be 9999 hours or less")]
         public async Task Handle_WhenDurationReducedByHoursAreInvalid(int durationReducedByHours, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.DurationReducedByHours = durationReducedByHours;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    DurationReducedByHours = durationReducedByHours
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -64,12 +75,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [TestCase(900, 1200, "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard")]
-        [TestCase(900, 700, "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high")]
+        [TestCase(800, 700, "The remaining off-the-job training is below the minimum 187 hours required for funding. Check if the RPL reduction is too high")]
         public async Task Handle_WhenTrainTotalHoursWithDurationReducedByHoursAreInvalid(int trainingTotalHours, int durationReducedByHours, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = trainingTotalHours;
-            fixture.Command.DurationReducedByHours = durationReducedByHours;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    TrainingTotalHours = trainingTotalHours,
+                    DurationReducedByHours = durationReducedByHours
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -86,9 +102,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(261, "Reduction in duration must be 260 weeks or less")]
         public async Task Handle_WhenDurationReducedIsSetIncorrectly_ExceptionIsThrown(int? durationReducedBy, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.IsDurationReducedByRpl = true;
-            fixture.Command.DurationReducedBy = durationReducedBy;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    IsDurationReducedByRpl = true,
+                    DurationReducedBy = durationReducedBy
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -103,9 +124,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(261, "Reduction in duration should not have a value")]
         public async Task Handle_WhenDurationReducedIsNotExpectedToBeSet_ExceptionIsThrown(int? durationReducedBy, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.IsDurationReducedByRpl = false;
-            fixture.Command.DurationReducedBy = durationReducedBy;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    IsDurationReducedByRpl = false,
+                    DurationReducedBy = durationReducedBy
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -122,8 +148,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(18001, "Total price reduction due to RPL must be 18,000 or less")]
         public async Task Handle_WhenPriceReducedIsInvalid_ExceptionIsThrown(int? priceReducedBy, string error)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.PriceReducedBy = priceReducedBy;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    PriceReducedBy = priceReducedBy
+                }
+            };
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -150,12 +181,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenRplData_is_Valid(bool isDurationReducedByRpl, int? durationReducedBy)
         {
-            fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = 3000;
-            fixture.Command.DurationReducedByHours = 180;
-            fixture.Command.IsDurationReducedByRpl = isDurationReducedByRpl;
-            fixture.Command.DurationReducedBy = durationReducedBy;
-            fixture.Command.PriceReducedBy = 100;
+            fixture = new PriorLearningDataHandlerTestsFixture
+            {
+                Command =
+                {
+                    TrainingTotalHours = 3000,
+                    DurationReducedByHours = 180,
+                    IsDurationReducedByRpl = isDurationReducedByRpl,
+                    DurationReducedBy = durationReducedBy,
+                    PriceReducedBy = 100
+                }
+            };
 
             await fixture.Handle();
 
@@ -222,7 +258,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.PreviousApprenticeship)
              .Create();
 
-            CancellationToken = new CancellationToken();
+            CancellationToken = CancellationToken.None;
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().EnableSensitiveDataLogging()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -230,6 +266,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             UserInfo = fixture.Create<UserInfo>();
             Command = fixture.Build<PriorLearningDataCommand>()
+                .With(c => c.MinimumOffTheJobTrainingHoursRequired, 187)
                 .With(o => o.UserInfo, UserInfo)
                 .With(o => o.ApprenticeshipId, ApprenticeshipId)
                 .With(o => o.CohortId, Cohort.Id)
