@@ -50,5 +50,46 @@
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 115 years old at the start of their training");
         }
+
+        [Test]
+        public async Task Validate_Apprentice_AtLeast_MinAge_On_Start_Of_Course()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("2009-05-01");
+            fixture.SetMinAge(16);
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are at least 16 years old at the start of their training");
+        }
+
+        [Test]
+        public async Task Validate_Apprentice_Age_Less_Than_MaxAge_On_Start_Of_Course()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("1924-05-01");
+            fixture.SetMaxAge(25);
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 25 years old at the start of their training");
+        }
+
+        [Test]
+        public async Task Validate_Apprentice_AtLeast_15_On_Start_Of_Course_When_No_MinAge()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("2009-05-01");
+            fixture.SetMinAge(null);
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are at least 15 years old at the start of their training");
+        }
+
+        [Test]
+        public async Task Validate_Apprentice_Age_Less_Than_115_On_Start_Of_Course_When_No_MaxAge()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("1904-05-01");
+            fixture.SetMaxAge(null);
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 115 years old at the start of their training");
+        }
+
     }
 }
