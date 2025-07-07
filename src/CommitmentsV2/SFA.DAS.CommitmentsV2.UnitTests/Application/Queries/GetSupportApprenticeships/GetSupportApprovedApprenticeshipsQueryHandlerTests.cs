@@ -128,9 +128,9 @@ public class GetSupportApprovedApprenticeshipsQueryHandlerTests
 
         private void SeedData()
         {
-
-            ApprenticeshipId1 = _autoFixture.Create<long>();
-            ApprenticeshipId2 = _autoFixture.Create<long>();
+            var uniqueIds = _autoFixture.CreateMany<long>(2).ToList();
+            ApprenticeshipId1 = uniqueIds[0];
+            ApprenticeshipId2 = uniqueIds[1];
 
             ApprenticeshipUln1 = _autoFixture.Create<string>();
             ApprenticeshipUln2 = _autoFixture.Create<string>();

@@ -29,4 +29,6 @@ public class UpdateDraftApprenticeshipCommand : IRequest<UpdateDraftApprenticesh
     public bool IgnoreStartDateOverlap { get; set; }
     public bool? IsOnFlexiPaymentPilot { get; set; }
     public bool IsContinuation { get; set; }
+    public int MinimumAgeAtApprenticeshipStart { get; set; }
+    public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

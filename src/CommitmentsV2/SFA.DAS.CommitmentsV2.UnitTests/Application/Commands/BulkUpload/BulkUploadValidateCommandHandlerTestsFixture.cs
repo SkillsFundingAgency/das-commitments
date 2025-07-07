@@ -42,15 +42,18 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         MockUlnValidator = new Mock<IUlnValidator>();
         MockUlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
 
-        CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
+        CsvRecords = [];
         PopulateCsvRecord();
         Command = new BulkUploadValidateCommand
         {
             CsvRecords = CsvRecords,
-            ProviderId = ProviderId
+            ProviderId = ProviderId,
+            ProviderStandardResults =
+            {
+                Standards = new List<ProviderStandard> { new("123", "123") }
+            },
+            OtjTrainingHours = new Dictionary<string, int?>()
         };
-
-        Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new("123", "123") };
 
         OverlapCheckService = new Mock<IOverlapCheckService>();
         OverlapCheckResult = new OverlapCheckResult(false, false);
@@ -413,7 +416,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
 
     internal BulkUploadValidateCommandHandlerTestsFixture SetStandardsEmpty()
     {
-        Command.ProviderStandardResults.Standards = Enumerable.Empty<ProviderStandard>();
+        Command.ProviderStandardResults.Standards = [];
 
         return this;
     }
