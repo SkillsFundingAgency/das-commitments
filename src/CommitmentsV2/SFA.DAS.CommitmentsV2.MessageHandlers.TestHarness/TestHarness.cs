@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -232,9 +232,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCreatedEvent)}");
                             break;
                         case ConsoleKey.D2:
-	                        await _publisher.Publish(new ApprenticeshipStartDateChangedEvent());
+	                        await _publisher.Publish(new LearningStartDateChangedEvent());
 	                        Console.WriteLine();
-	                        Console.WriteLine($"Sent {nameof(ApprenticeshipStartDateChangedEvent)}");
+	                        Console.WriteLine($"Sent {nameof(LearningStartDateChangedEvent)}");
 	                        break;
 
 					}

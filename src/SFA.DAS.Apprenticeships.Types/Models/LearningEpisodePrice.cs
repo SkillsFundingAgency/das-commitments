@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace SFA.DAS.Apprenticeships.Types.Models
+namespace SFA.DAS.Learning.Types.Models
 {
-    public class ApprenticeshipEpisodePrice
+    public class LearningEpisodePrice
     {
         public Guid Key { get; set; }
         public DateTime StartDate { get; set; }
