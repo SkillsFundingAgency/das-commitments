@@ -47,13 +47,15 @@ public partial class BulkUploadValidateCommandHandler
             if (standard.EffectiveFrom.HasValue &&
                 startDate < standard.EffectiveFrom.Value)
             {
-                domainErrors.Add(new Error("StartDate", $"This training course is only available to apprentices with a <b>start date</b> after {standard.EffectiveFrom.Value.Month}  {standard.EffectiveFrom.Value.Year}"));
+                var prevMonth = standard.EffectiveFrom.Value.AddMonths(-1);
+                domainErrors.Add(new Error("StartDate", $"This training course is only available to apprentices with a <b>start date</b> after {prevMonth.Month}  {prevMonth.Year}"));
             }
 
             if (standard.EffectiveTo.HasValue &&
                 startDate > standard.EffectiveTo.Value)
             {
-                domainErrors.Add(new Error("StartDate", $"This training course is only available to apprentices with a <b>start date</b> before {standard.EffectiveTo.Value.Month}  {standard.EffectiveTo.Value.Year}"));
+                var nextMonth = standard.EffectiveTo.Value.AddMonths(1);
+                domainErrors.Add(new Error("StartDate", $"This training course is only available to apprentices with a <b>start date</b> before {nextMonth.Month}  {nextMonth.Year}"));
             }
         }
         else
