@@ -314,7 +314,9 @@ public class EditApprenticeshipValidationServiceTestsFixture
         int? employmentEndMonth = null,
         int? employmentEndYear = null,
         int? employmentPrice = null,
-        DateTime? actualStartDate = null
+        DateTime? actualStartDate = null,
+        int minimumAgeAtApprenticeshipStart = 15,
+        int maximumAgeAtApprenticeshipStart = 25
     )
     {
         var request = new EditApprenticeshipValidationRequest
@@ -334,7 +336,9 @@ public class EditApprenticeshipValidationServiceTestsFixture
             ULN = string.IsNullOrEmpty(uln) ? Apprenticeship.Uln : uln,
             DeliveryModel = deliveryModel,
             EmploymentEndDate = null,
-            EmploymentPrice = employmentPrice ?? Apprenticeship.FlexibleEmployment?.EmploymentPrice
+            EmploymentPrice = employmentPrice ?? Apprenticeship.FlexibleEmployment?.EmploymentPrice,
+            MinimumAgeAtApprenticeshipStart = minimumAgeAtApprenticeshipStart,
+            MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart
         };
 
         if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)
