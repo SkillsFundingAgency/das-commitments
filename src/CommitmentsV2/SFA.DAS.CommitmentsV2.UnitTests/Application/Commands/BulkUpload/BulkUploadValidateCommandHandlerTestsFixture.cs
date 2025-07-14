@@ -173,6 +173,8 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             ProviderRef = "ZB88",
             Email = "abc34628125987@abc.com",
             RecognisePriorLearningAsString = "false",
+            MinimumAgeAtApprenticeshipStart = 15,
+            MaximumAgeAtApprenticeshipStart = 115
         });
     }
 
@@ -192,7 +194,10 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             EndDateAsString = "2020-05",
             CostAsString = "2000",
             ProviderRef = "ZB88",
-            Email = "abc34628125987@abc2.com"
+            Email = "abc34628125987@abc2.com",
+            MinimumAgeAtApprenticeshipStart = 15,
+            MaximumAgeAtApprenticeshipStart = 115
+
         });
     }
 
@@ -212,7 +217,9 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             EndDateAsString = "2020-05",
             CostAsString = "2000",
             ProviderRef = "ZB88",
-            Email = "abc34628125987@abc.com"
+            Email = "abc34628125987@abc.com",
+            MinimumAgeAtApprenticeshipStart = 15,
+            MaximumAgeAtApprenticeshipStart = 115
         });
     }
 
@@ -232,7 +239,10 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             EndDateAsString = "2020-05",
             CostAsString = "2000",
             ProviderRef = "ZB88",
-            Email = "abc34628125987@abc3.com"
+            Email = "abc34628125987@abc3.com",
+            MinimumAgeAtApprenticeshipStart = 15,
+            MaximumAgeAtApprenticeshipStart = 115
+
         });
 
         Cohort.Apprenticeships.Add(new DraftApprenticeship
@@ -266,7 +276,9 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             EndDateAsString = "2020-05",
             CostAsString = "2000",
             ProviderRef = "ZB88",
-            Email = "abc@test.com"
+            Email = "abc@test.com",
+            MinimumAgeAtApprenticeshipStart = 15,
+            MaximumAgeAtApprenticeshipStart = 115
         });
 
         Cohort.Apprenticeships.Add(new DraftApprenticeship
@@ -430,6 +442,18 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     internal BulkUploadValidateCommandHandlerTestsFixture SetDateOfBirth(string dateOfBirth)
     {
         CsvRecords[0].DateOfBirthAsString = dateOfBirth;
+        return this;
+    }
+
+    internal BulkUploadValidateCommandHandlerTestsFixture SetMinAge(int? minAge)
+    {
+        CsvRecords[0].MinimumAgeAtApprenticeshipStart = minAge;
+        return this;
+    }
+
+    internal BulkUploadValidateCommandHandlerTestsFixture SetMaxAge(int? maxAge)
+    {
+        CsvRecords[0].MaximumAgeAtApprenticeshipStart = maxAge;
         return this;
     }
 
