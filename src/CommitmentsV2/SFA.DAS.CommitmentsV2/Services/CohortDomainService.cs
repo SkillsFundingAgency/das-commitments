@@ -114,7 +114,9 @@ public class CohortDomainService(
                 }
             }
 
-            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo, Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart);
+            cohort.AddDraftApprenticeship(apprenticeship, party, userInfo, 
+                csvApprenticeship.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart, 
+                csvApprenticeship.MaximumAgeAtApprenticeshipStart ?? Constants.MaximumAgeAtApprenticeshipStart);
             await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
         }
 
