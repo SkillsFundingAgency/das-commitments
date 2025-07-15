@@ -1,7 +1,7 @@
-﻿using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Apprenticeships.Types.Enums;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.Learning.Types;
+using SFA.DAS.Learning.Types.Enums;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ApprenticeshipWithdrawnEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation("Received ApprenticeshipWithdrawnEvent for apprenticeshipId : {apprenticeshipId}", message.ApprenticeshipId);
+            _logger.LogInformation("Received ApprenticeshipWithdrawnEvent for apprenticeshipId : {apprenticeshipId}", message.ApprovalsApprenticeshipId);
 
             var reason = GetWithdrawReason(message);
 
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     //NB there may be more logic needed here to complete these 2 reason's scenarios
                     await _mediator.Send(new StopApprenticeshipCommand(
                         message.EmployerAccountId,
-                        message.ApprenticeshipId,
+                        message.ApprovalsApprenticeshipId,
                         message.LastDayOfLearning,
                         false,
                         Types.UserInfo.System,
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         private async Task WithdrawFromPaymentSimplificationBeta(ApprenticeshipWithdrawnEvent message)
         {
-            var apprenticeship = _dbContext.Value.Apprenticeships.Single(x => x.Id == message.ApprenticeshipId);
+            var apprenticeship = _dbContext.Value.Apprenticeships.Single(x => x.Id == message.ApprovalsApprenticeshipId);
             apprenticeship.IsOnFlexiPaymentPilot = false;
             _dbContext.Value.Update(apprenticeship);
             _dbContext.Value.SaveChanges();
