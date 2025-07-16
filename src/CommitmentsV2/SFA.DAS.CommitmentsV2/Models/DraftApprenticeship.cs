@@ -394,4 +394,13 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         return Cost != update.Cost;
     }
+    
+    public bool HasLearnerDataChanges { get; set; }
+    public DateTime? LastLearnerDataSync { get; set; }
+
+    public void MarkLearnerDataChanged()
+    {
+        HasLearnerDataChanges = true;
+        LastLearnerDataSync = DateTime.UtcNow;
+    }
 }

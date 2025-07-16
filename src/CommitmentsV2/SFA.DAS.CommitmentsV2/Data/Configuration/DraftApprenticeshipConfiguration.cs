@@ -8,5 +8,12 @@ public class DraftApprenticeshipConfiguration : IEntityTypeConfiguration<DraftAp
     public void Configure(EntityTypeBuilder<DraftApprenticeship> builder)
     {
         builder.HasBaseType<ApprenticeshipBase>();
+        
+        builder.Property(e => e.HasLearnerDataChanges)
+            .IsRequired()
+            .HasDefaultValue(false);
+            
+        builder.Property(e => e.LastLearnerDataSync)
+            .HasColumnType("datetime");
     }
 }
