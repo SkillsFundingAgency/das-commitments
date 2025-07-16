@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Apprenticeships.Types.Enums
+﻿namespace SFA.DAS.Learning.Types.Enums
 {
     public enum ApprovedBy
     {
