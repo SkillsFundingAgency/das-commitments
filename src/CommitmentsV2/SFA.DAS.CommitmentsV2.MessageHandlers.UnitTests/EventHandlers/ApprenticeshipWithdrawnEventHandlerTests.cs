@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Models;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task Handle_Should_Call_WithdrawFromPaymentSimplificationBeta_When_Reason_Is_WithdrawFromBeta()
         {
             // Arrange
-            var message = new ApprenticeshipWithdrawnEvent { ApprenticeshipId = 1, Reason = "WithdrawFromBeta" };
+            var message = new ApprenticeshipWithdrawnEvent { ApprovalsApprenticeshipId = 1, Reason = "WithdrawFromBeta" };
             var context = new Mock<IMessageHandlerContext>();
             var apprenticeship = new Apprenticeship { Id = 1, IsOnFlexiPaymentPilot = true };
             var mockDbContext = GetMockDbContext(apprenticeship);
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task Handle_Should_Send_StopApprenticeshipCommand_When_Apprenticeship_Is_Fully_Withdrawn(string reason)
         {
             // Arrange
-            var message = new ApprenticeshipWithdrawnEvent { ApprenticeshipId = 1, Reason = reason, EmployerAccountId = 2, ApprenticeshipKey = Guid.NewGuid(), LastDayOfLearning = new DateTime(2022, 7, 12)};
+            var message = new ApprenticeshipWithdrawnEvent { ApprovalsApprenticeshipId = 1, Reason = reason, EmployerAccountId = 2, LearningKey = Guid.NewGuid(), LastDayOfLearning = new DateTime(2022, 7, 12)};
             var context = new Mock<IMessageHandlerContext>();
             var apprenticeship = new Apprenticeship { Id = 1, IsOnFlexiPaymentPilot = true };
             var mockDbContext = GetMockDbContext(apprenticeship);
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             // Assert
             _mediatorMock.Verify(x => x.Send(It.Is<StopApprenticeshipCommand>(command =>
                 command.AccountId == message.EmployerAccountId
-                && command.ApprenticeshipId == message.ApprenticeshipId
+                && command.ApprenticeshipId == message.ApprovalsApprenticeshipId
                 && command.StopDate == message.LastDayOfLearning
                 && command.MadeRedundant == false
                 && command.UserInfo.UserId == UserInfo.System.UserId
