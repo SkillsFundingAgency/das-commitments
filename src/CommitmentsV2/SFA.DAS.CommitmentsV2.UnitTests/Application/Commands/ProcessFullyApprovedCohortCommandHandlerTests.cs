@@ -267,7 +267,8 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                       apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
                       apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                       apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
-                      apprenticeshipCreatedEvent.LastName == apprenticeship.LastName;
+                      apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
+                      apprenticeshipCreatedEvent.LearnerDataId == apprenticeship.LearnerDataId;
 
         for (var index = 0; index < apprenticeship.PriceHistory.Count; index++)
         {
