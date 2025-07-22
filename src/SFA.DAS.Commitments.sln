@@ -82,7 +82,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Types.UnitTests", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Types.UnitTest\SFA.DAS.ReservationsV2.Api.Types.UnitTests.csproj", "{3FEA711A-B011-4826-85CB-0227D521C555}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Apprenticeships.Types", "SFA.DAS.Apprenticeships.Types\SFA.DAS.Apprenticeships.Types.csproj", "{8C8321A0-A6F1-4513-9282-C0AECB97728E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Learning.Types", "SFA.DAS.Apprenticeships.Types\SFA.DAS.Learning.Types.csproj", "{8C8321A0-A6F1-4513-9282-C0AECB97728E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

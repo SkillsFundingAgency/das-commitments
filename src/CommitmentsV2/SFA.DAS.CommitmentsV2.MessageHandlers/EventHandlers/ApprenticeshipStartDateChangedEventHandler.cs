@@ -1,33 +1,33 @@
-﻿using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
 public class ApprenticeshipStartDateChangedEventHandler(
     ILogger<ApprenticeshipStartDateChangedEventHandler> logger,
     IMediator mediator)
-    : IHandleMessages<ApprenticeshipStartDateChangedEvent>
+    : IHandleMessages<LearningStartDateChangedEvent>
 {
-    public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
+    public async Task Handle(LearningStartDateChangedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
+        logger.LogInformation("Received ApprenticeshipStartDateChangedEvent for apprenticeshipId : {ApprenticeshipId}", message.ApprovalsApprenticeshipId);
 
         ResolveUsers(message, out var initiator, out var approver);
 
         await EditApprenticeship(message, initiator);
         await ApproveApprenticeship(message, approver);
 
-        logger.LogInformation("Successfully completed handling of {EventName}", nameof(ApprenticeshipStartDateChangedEvent));
+        logger.LogInformation("Successfully completed handling of {EventName}", nameof(LearningStartDateChangedEvent));
     }
 
-    private async Task EditApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
+    private async Task EditApprenticeship(LearningStartDateChangedEvent message, PartyUser partyUser)
     {
         var editApprenticeshipRequest = new EditApprenticeshipApiRequest
         {
-            ApprenticeshipId = message.ApprenticeshipId,
+            ApprenticeshipId = message.ApprovalsApprenticeshipId,
             AccountId = partyUser.AccountId,
             ProviderId = message.Episode.Ukprn,
             StartDate = new DateTime(message.StartDate.Year, message.StartDate.Month, 1),
@@ -44,14 +44,14 @@ public class ApprenticeshipStartDateChangedEventHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
+            logger.LogError(ex, "Error sending EditApprenticeshipCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprovalsApprenticeshipId);
             throw;
         }
     }
 
-    private async Task ApproveApprenticeship(ApprenticeshipStartDateChangedEvent message, PartyUser partyUser)
+    private async Task ApproveApprenticeship(LearningStartDateChangedEvent message, PartyUser partyUser)
     {
-        var command = new AcceptApprenticeshipUpdatesCommand(partyUser.Party, partyUser.AccountId, message.ApprenticeshipId, partyUser.UserInfo);
+        var command = new AcceptApprenticeshipUpdatesCommand(partyUser.Party, partyUser.AccountId, message.ApprovalsApprenticeshipId, partyUser.UserInfo);
 
         try
         {
@@ -59,12 +59,12 @@ public class ApprenticeshipStartDateChangedEventHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprenticeshipId);
+            logger.LogError(ex, "Error sending AcceptApprenticeshipUpdatesCommand to mediator for apprenticeshipId : {ApprenticeshipId}", message.ApprovalsApprenticeshipId);
             throw;
         }
     }
 
-    private static void ResolveUsers(ApprenticeshipStartDateChangedEvent message, out PartyUser initiator, out PartyUser approver)
+    private static void ResolveUsers(LearningStartDateChangedEvent message, out PartyUser initiator, out PartyUser approver)
     {
         switch (message.Initiator)
         {

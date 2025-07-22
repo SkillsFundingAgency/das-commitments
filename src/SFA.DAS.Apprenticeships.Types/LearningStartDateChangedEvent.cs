@@ -1,11 +1,11 @@
 ﻿using System;
-using SFA.DAS.Apprenticeships.Types.Models;
+using SFA.DAS.Learning.Types.Models;
 
-namespace SFA.DAS.Apprenticeships.Types
+namespace SFA.DAS.Learning.Types
 {
-    public class ApprenticeshipStartDateChangedEvent : ApprenticeshipEvent
+    public class LearningStartDateChangedEvent : LearningEvent
     {
-        public long ApprenticeshipId { get; set; }
+        public long ApprovalsApprenticeshipId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ApprovedDate { get; set; }
         public string ProviderApprovedBy { get; set; }

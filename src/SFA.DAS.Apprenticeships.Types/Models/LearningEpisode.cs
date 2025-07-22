@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using SFA.DAS.Apprenticeships.Types.Enums;
+using SFA.DAS.Learning.Types.Enums;
 
-namespace SFA.DAS.Apprenticeships.Types.Models
+namespace SFA.DAS.Learning.Types.Models
 {
-    public class ApprenticeshipEpisode
+    public class LearningEpisode
     {
         public Guid Key { get; set; }
         public long Ukprn { get; set; }
@@ -18,6 +18,6 @@ namespace SFA.DAS.Apprenticeships.Types.Models
         public string TrainingCode { get; set; }
         public string TrainingCourseVersion { get; set; }
         public bool PaymentsFrozen { get; set; }
-        public List<ApprenticeshipEpisodePrice> Prices { get; set; }
+        public List<LearningEpisodePrice> Prices { get; set; }
     }
 }
