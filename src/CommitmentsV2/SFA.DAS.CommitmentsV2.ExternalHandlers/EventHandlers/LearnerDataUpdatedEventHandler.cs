@@ -17,23 +17,10 @@ public class LearnerDataUpdatedEventHandler(
     {
         try
         {
-            logger.LogInformation("Handling LearnerDataUpdatedEvent for learner {LearnerId} with {ChangeCount} changes", 
-                message.LearnerId, message.ChangeSummary.Changes.Count);
+            logger.LogInformation("Handling LearnerDataUpdatedEvent for learner {LearnerId} at {ChangedAt}", 
+                message.LearnerId, message.ChangedAt);
 
-            if (message.ChangeSummary.HasChanges)
-            {
-                foreach (var change in message.ChangeSummary.Changes)
-                {
-                    logger.LogInformation("Learner {LearnerId} field '{FieldName}' changed from '{OldValue}' to '{NewValue}'", 
-                        message.LearnerId, change.FieldName, change.OldValue, change.NewValue);
-                }
-
-                await ProcessLearnerDataChanges(message);
-            }
-            else
-            {
-                logger.LogInformation("LearnerDataUpdatedEvent for learner {LearnerId} has no changes to process", message.LearnerId);
-            }
+            await ProcessLearnerDataChanges(message);
         }
         catch (Exception e)
         {
@@ -46,12 +33,6 @@ public class LearnerDataUpdatedEventHandler(
     {
         logger.LogInformation("Processing learner data changes for learner {LearnerId}", message.LearnerId);
 
-        if (!message.ChangeSummary.HasChanges)
-        {
-            logger.LogInformation("No changes detected for learner {LearnerId}, skipping processing", message.LearnerId);
-            return;
-        }
-
         var draftApprenticeship = await dbContext.Value.DraftApprenticeships
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
@@ -62,7 +43,7 @@ public class LearnerDataUpdatedEventHandler(
         }
 
         draftApprenticeship.HasLearnerDataChanges = true;
-        draftApprenticeship.LastLearnerDataSync = DateTime.UtcNow;
+        draftApprenticeship.LastLearnerDataSync = message.ChangedAt;
         logger.LogInformation("Flagged draft apprenticeship {ApprenticeshipId} for learner data changes", draftApprenticeship.Id);
 
         await dbContext.Value.SaveChangesAsync();

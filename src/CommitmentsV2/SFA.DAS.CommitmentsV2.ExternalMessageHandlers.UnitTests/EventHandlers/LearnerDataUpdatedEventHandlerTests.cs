@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,60 +14,55 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
 
 [TestFixture]
 public class LearnerDataUpdatedEventHandlerTests
 {
-    private Lazy<ProviderCommitmentsDbContext> _dbContext;
-    private Mock<ProviderCommitmentsDbContext> _mockContext;
+    private Fixture _fixture;
+    private ProviderCommitmentsDbContext _dbContext;
     private Mock<ILogger<LearnerDataUpdatedEventHandler>> _mockLogger;
+    private Mock<IMessageHandlerContext> _mockContext;
     private LearnerDataUpdatedEventHandler _handler;
-    private Mock<IMessageHandlerContext> _mockMessageContext;
 
     [SetUp]
     public void Setup()
     {
-        _mockContext = new Mock<ProviderCommitmentsDbContext>();
+        _fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearnerDataUpdatedEventHandler>>();
-        _mockMessageContext = new Mock<IMessageHandlerContext>();
+        _mockContext = new Mock<IMessageHandlerContext>();
 
-        // Create a real Lazy instance that returns our mock context
-        _dbContext = new Lazy<ProviderCommitmentsDbContext>(() => _mockContext.Object);
+        // Use in-memory database for testing
+        var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
 
-        _handler = new LearnerDataUpdatedEventHandler(_dbContext, _mockLogger.Object);
+        _dbContext = new ProviderCommitmentsDbContext(options);
+        _handler = new LearnerDataUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockLogger.Object);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext?.Dispose();
     }
 
     [Test]
     public async Task Handle_WhenLearnerDataUpdatedEventReceived_LogsInformation()
     {
         // Arrange
-        var message = new LearnerDataUpdatedEvent
-        {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
         // Act
-        await _handler.Handle(message, _mockMessageContext.Object);
+        await _handler.Handle(message, _mockContext.Object);
 
         // Assert
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Handling LearnerDataUpdatedEvent")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Handling LearnerDataUpdatedEvent for learner {message.LearnerId}")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -74,222 +72,153 @@ public class LearnerDataUpdatedEventHandlerTests
     public async Task Handle_WhenNoDraftApprenticeshipsFound_LogsWarning()
     {
         // Arrange
-        var message = new LearnerDataUpdatedEvent
-        {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        var emptyList = new List<DraftApprenticeship>().AsQueryable();
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Provider).Returns(emptyList.Provider);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Expression).Returns(emptyList.Expression);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.ElementType).Returns(emptyList.ElementType);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.GetEnumerator()).Returns(emptyList.GetEnumerator());
-
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
         // Act
-        await _handler.Handle(message, _mockMessageContext.Object);
+        await _handler.Handle(message, _mockContext.Object);
 
         // Assert
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No draft apprenticeships found")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"No draft apprenticeship found for learner {message.LearnerId}")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [Test]
-    public async Task Handle_WhenExceptionOccurs_LogsError()
+    public async Task ProcessLearnerDataChanges_WhenDraftApprenticeshipFound_FlagsItCorrectly()
     {
         // Arrange
-        var message = new LearnerDataUpdatedEvent
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var draftApprenticeship = new DraftApprenticeship
         {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString()
         };
 
-        _mockContext.Setup(x => x.DraftApprenticeships).Throws(new Exception("Database error"));
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
 
         // Act
-        await _handler.Handle(message, _mockMessageContext.Object);
+        await _handler.ProcessLearnerDataChanges(message);
 
         // Assert
+        var updatedApprenticeship = await _dbContext.DraftApprenticeships
+            .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
+
+        updatedApprenticeship.Should().NotBeNull();
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
+        updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
+
         _mockLogger.Verify(
             x => x.Log(
-                LogLevel.Error,
+                LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error handling LearnerDataUpdatedEvent")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Flagged draft apprenticeship {draftApprenticeship.Id} for learner data changes")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [Test]
-    public async Task ProcessLearnerDataChanges_WhenDraftApprenticeshipsFound_FlagsThemCorrectly()
+    public async Task ProcessLearnerDataChanges_WhenMultipleDraftApprenticeshipsFound_FlagsFirstOneCorrectly()
     {
         // Arrange
-        var message = new LearnerDataUpdatedEvent
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var draftApprenticeship1 = new DraftApprenticeship
         {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test1",
+            LastName = "User1",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString()
+        };
+        var draftApprenticeship2 = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test2",
+            LastName = "User2",
+            DateOfBirth = DateTime.UtcNow.AddYears(-21),
+            Uln = _fixture.Create<long>().ToString()
         };
 
-        var draftApprenticeships = new List<DraftApprenticeship>
-        {
-            new() { Id = 1, LearnerDataId = 123, HasLearnerDataChanges = false },
-            new() { Id = 2, LearnerDataId = 123, HasLearnerDataChanges = false },
-            new() { Id = 3, LearnerDataId = 456, HasLearnerDataChanges = false } // Different learner data ID
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        var queryableList = draftApprenticeships.AsQueryable();
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Provider).Returns(queryableList.Provider);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Expression).Returns(queryableList.Expression);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.ElementType).Returns(queryableList.ElementType);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.GetEnumerator()).Returns(queryableList.GetEnumerator());
-
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
+        _dbContext.DraftApprenticeships.AddRange(draftApprenticeship1, draftApprenticeship2);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _handler.ProcessLearnerDataChanges(message);
 
         // Assert
-        Assert.That(draftApprenticeships[0].HasLearnerDataChanges, Is.True);
-        Assert.That(draftApprenticeships[0].LearnerDataChangeDate, Is.Not.Null);
-        Assert.That(draftApprenticeships[1].HasLearnerDataChanges, Is.True);
-        Assert.That(draftApprenticeships[1].LearnerDataChangeDate, Is.Not.Null);
-        Assert.That(draftApprenticeships[2].HasLearnerDataChanges, Is.False);
-        Assert.That(draftApprenticeships[2].LearnerDataChangeDate, Is.Null);
-    }
+        var updatedApprenticeships = await _dbContext.DraftApprenticeships
+            .Where(da => da.LearnerDataId == message.LearnerId)
+            .ToListAsync();
 
-    [Test]
-    public async Task ProcessLearnerDataChanges_WhenNoChanges_DoesNotFlagApprenticeships()
-    {
-        // Arrange
-        var message = new LearnerDataUpdatedEvent
-        {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>() // Empty list means no changes
-            }
-        };
-
-        var draftApprenticeships = new List<DraftApprenticeship>
-        {
-            new() { Id = 1, LearnerDataId = 123, HasLearnerDataChanges = false }
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        var queryableList = draftApprenticeships.AsQueryable();
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Provider).Returns(queryableList.Provider);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Expression).Returns(queryableList.Expression);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.ElementType).Returns(queryableList.ElementType);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.GetEnumerator()).Returns(queryableList.GetEnumerator());
-
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
-
-        // Act
-        await _handler.ProcessLearnerDataChanges(message);
-
-        // Assert
-        Assert.That(draftApprenticeships[0].HasLearnerDataChanges, Is.False);
-        Assert.That(draftApprenticeships[0].LearnerDataChangeDate, Is.Null);
+        updatedApprenticeships.Should().HaveCount(2);
+        
+        // One should be updated, one should remain unchanged
+        var updatedApprenticeship = updatedApprenticeships.FirstOrDefault(da => da.HasLearnerDataChanges);
+        var unchangedApprenticeship = updatedApprenticeships.FirstOrDefault(da => !da.HasLearnerDataChanges);
+        
+        updatedApprenticeship.Should().NotBeNull();
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
+        updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
+        
+        unchangedApprenticeship.Should().NotBeNull();
+        unchangedApprenticeship.HasLearnerDataChanges.Should().BeFalse();
+        unchangedApprenticeship.LastLearnerDataSync.Should().BeNull();
     }
 
     [Test]
     public async Task ProcessLearnerDataChanges_WhenAlreadyFlagged_UpdatesChangeDate()
     {
         // Arrange
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var originalChangeDate = DateTime.UtcNow.AddDays(-1);
-        var message = new LearnerDataUpdatedEvent
+        var draftApprenticeship = new DraftApprenticeship
         {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = true,
+            LastLearnerDataSync = originalChangeDate,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString()
         };
 
-        var draftApprenticeships = new List<DraftApprenticeship>
-        {
-            new() 
-            { 
-                Id = 1, 
-                LearnerDataId = 123, 
-                HasLearnerDataChanges = true,
-                LearnerDataChangeDate = originalChangeDate
-            }
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        var queryableList = draftApprenticeships.AsQueryable();
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Provider).Returns(queryableList.Provider);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Expression).Returns(queryableList.Expression);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.ElementType).Returns(queryableList.ElementType);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.GetEnumerator()).Returns(queryableList.GetEnumerator());
-
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _handler.ProcessLearnerDataChanges(message);
 
         // Assert
-        Assert.That(draftApprenticeships[0].HasLearnerDataChanges, Is.True);
-        Assert.That(draftApprenticeships[0].LearnerDataChangeDate, Is.Not.Null);
-        Assert.That(draftApprenticeships[0].LearnerDataChangeDate, Is.GreaterThan(originalChangeDate));
+        var updatedApprenticeship = await _dbContext.DraftApprenticeships
+            .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
+
+        updatedApprenticeship.Should().NotBeNull();
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
+        updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
+        updatedApprenticeship.LastLearnerDataSync.Should().NotBe(originalChangeDate);
     }
 
     [Test]
     public async Task ProcessLearnerDataChanges_WhenNoDraftApprenticeshipsFound_LogsWarning()
     {
         // Arrange
-        var message = new LearnerDataUpdatedEvent
-        {
-            LearnerId = 123,
-            ChangeSummary = new ChangeSummary
-            {
-                Changes = new List<FieldChange>
-                {
-                    new() { FieldName = "FirstName", OldValue = "John", NewValue = "Jonathan" }
-                }
-            }
-        };
-
-        var mockDbSet = new Mock<DbSet<DraftApprenticeship>>();
-        var emptyList = new List<DraftApprenticeship>().AsQueryable();
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Provider).Returns(emptyList.Provider);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.Expression).Returns(emptyList.Expression);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.ElementType).Returns(emptyList.ElementType);
-        mockDbSet.As<IQueryable<DraftApprenticeship>>().Setup(m => m.GetEnumerator()).Returns(emptyList.GetEnumerator());
-
-        _mockContext.Setup(x => x.DraftApprenticeships).Returns(mockDbSet.Object);
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
         // Act
         await _handler.ProcessLearnerDataChanges(message);
@@ -299,7 +228,7 @@ public class LearnerDataUpdatedEventHandlerTests
             x => x.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No draft apprenticeships found")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"No draft apprenticeship found for learner {message.LearnerId}")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
