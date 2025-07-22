@@ -24,6 +24,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     a.Name == fixture.Command.Name &&
                     a.Created == fixture.Command.Created);
         }
+
+        [Test]
+        public async Task Handle_WhenHandlingCreateAccountCommandAndAlreadyExists_ThenShouldNotUpdateIt()
+        {
+            using var fixture = new CreateAccountCommandHandlerTestFixture();
+            await fixture.CreateAccountWithId(fixture.Command.AccountId);
+            await fixture.Handle();
+
+            fixture.Db.Accounts.SingleOrDefault(a => a.Id == fixture.Command.AccountId)
+                .Should().NotBeNull()
+                .And.Match<Account>(a =>
+                    a.Id == fixture.Command.AccountId &&
+                    a.HashedId != fixture.Command.HashedId &&
+                    a.PublicHashedId != fixture.Command.PublicHashedId &&
+                    a.Name != fixture.Command.Name &&
+                    a.Created != fixture.Command.Created);
+        }
     }
 
     public class CreateAccountCommandHandlerTestFixture : IDisposable
@@ -37,6 +54,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Command = new CreateAccountCommand(1, "AAA111", "AAA222", "Foo", DateTime.UtcNow);
             Handler = new CreateAccountCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<CreateAccountCommandHandler>>());
+        }
+
+        public async Task CreateAccountWithId(long accountId)
+        {
+            var account = new Account(accountId, "HashedId", "PublicHashedId", "Name", DateTime.Now);
+            await Db.Accounts.AddAsync(account);
+            await Db.SaveChangesAsync();
         }
 
         public async Task Handle()
