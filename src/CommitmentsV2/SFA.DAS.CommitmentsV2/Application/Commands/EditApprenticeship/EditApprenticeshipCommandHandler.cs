@@ -24,12 +24,17 @@ public class EditApprenticeshipCommandHandler(
 {
     public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("=== COMMITMENTS API: EditApprenticeshipCommandHandler.Handle called ===");
+        logger.LogInformation("ApprenticeshipId: {ApprenticeshipId}", command.EditApprenticeshipRequest?.ApprenticeshipId);
+        
         if (command?.EditApprenticeshipRequest == null)
         {
             throw new InvalidOperationException("Edit apprenticeship request is null");
         }
 
         var party = GetParty(command);
+        logger.LogInformation("Determined Party: {Party}", party);
+        logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
@@ -44,14 +49,30 @@ public class EditApprenticeshipCommandHandler(
 
     private Party GetParty(EditApprenticeshipCommand command)
     {
+        logger.LogInformation("=== COMMITMENTS API: GetParty called ===");
+        
         if (command == null)
         {
             throw new InvalidOperationException("Command is null");
         }
 
-        return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler 
-            ? command.Party 
-            : authenticationService.GetUserParty();
+        logger.LogInformation("Command.Party: {CommandParty}", command.Party);
+        logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
+
+        Party result;
+        if (authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+        {
+            result = command.Party;
+            logger.LogInformation("Using command.Party (MessageHandler): {Party}", result);
+        }
+        else
+        {
+            result = authenticationService.GetUserParty();
+            logger.LogInformation("Using authenticationService.GetUserParty(): {Party}", result);
+        }
+
+        logger.LogInformation("Final determined party: {Party}", result);
+        return result;
     }
 
     private static void CreateImmediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
