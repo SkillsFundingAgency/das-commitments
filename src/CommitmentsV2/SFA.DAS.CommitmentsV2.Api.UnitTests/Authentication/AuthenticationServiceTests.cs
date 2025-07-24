@@ -1,5 +1,8 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
@@ -17,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
             Mock<IHttpContextAccessor> httpContextAccessorMock = new Mock<IHttpContextAccessor>();
             Mock<HttpContext> httpContextMock = new Mock<HttpContext>();
             Mock<ClaimsPrincipal> userMock = new Mock<ClaimsPrincipal>();
+            Mock<ILogger<AuthenticationService>> loggerMock = new Mock<ILogger<AuthenticationService>>();
 
             httpContextAccessorMock
                 .Setup(hca => hca.HttpContext)
@@ -30,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
                 .Setup(um => um.IsInRole(It.IsAny<string>()))
                 .Returns<string>(roles.Contains);
 
-            var sut = new AuthenticationService(httpContextAccessorMock.Object);
+            var sut = new AuthenticationService(httpContextAccessorMock.Object, loggerMock.Object);
 
             // act
             var actualRole = sut.GetUserParty();
@@ -47,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
             Mock<IHttpContextAccessor> httpContextAccessorMock = new Mock<IHttpContextAccessor>();
             Mock<HttpContext> httpContextMock = new Mock<HttpContext>();
             Mock<ClaimsPrincipal> userMock = new Mock<ClaimsPrincipal>();
+            Mock<ILogger<AuthenticationService>> loggerMock = new Mock<ILogger<AuthenticationService>>();
 
             httpContextAccessorMock
                 .Setup(hca => hca.HttpContext)
@@ -60,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
                 .Setup(um => um.IsInRole(It.IsAny<string>()))
                 .Returns<string>(roles.Contains);
 
-            var sut = new AuthenticationService(httpContextAccessorMock.Object);
+            var sut = new AuthenticationService(httpContextAccessorMock.Object, loggerMock.Object);
 
             // act & assert
             Assert.Throws<ArgumentException>(() => sut.GetUserParty());
