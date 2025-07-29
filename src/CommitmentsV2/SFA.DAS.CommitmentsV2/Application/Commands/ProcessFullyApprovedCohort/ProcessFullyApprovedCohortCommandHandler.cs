@@ -71,6 +71,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 FirstName = a.FirstName,
                 LastName = a.LastName,
                 ApprenticeshipHashedId = encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
+                LearnerDataId = a.LearnerDataId
             })
             .ToListAsync(cancellationToken);
 
