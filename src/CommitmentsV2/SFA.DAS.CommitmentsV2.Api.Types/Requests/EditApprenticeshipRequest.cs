@@ -30,4 +30,5 @@ public class EditApprenticeshipApiRequest : SaveDataRequest
     public string ProviderReference { get; set; }
     public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; set; }
+    public Party Party { get; set; }
 }

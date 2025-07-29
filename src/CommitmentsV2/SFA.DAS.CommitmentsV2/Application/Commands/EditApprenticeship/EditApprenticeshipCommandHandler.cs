@@ -60,15 +60,24 @@ public class EditApprenticeshipCommandHandler(
         logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
 
         Party result;
-        if (authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+        
+        if (command.Party != Party.None)
         {
             result = command.Party;
-            logger.LogInformation("Using command.Party (MessageHandler): {Party}", result);
+            logger.LogInformation("Using command.Party (explicitly set): {Party}", result);
         }
         else
         {
-            result = authenticationService.GetUserParty();
-            logger.LogInformation("Using authenticationService.GetUserParty(): {Party}", result);
+            if (authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+            {
+                result = command.Party;
+                logger.LogInformation("Using command.Party (MessageHandler fallback): {Party}", result);
+            }
+            else
+            {
+                result = authenticationService.GetUserParty();
+                logger.LogInformation("Using authenticationService.GetUserParty() (fallback): {Party}", result);
+            }
         }
 
         logger.LogInformation("Final determined party: {Party}", result);
