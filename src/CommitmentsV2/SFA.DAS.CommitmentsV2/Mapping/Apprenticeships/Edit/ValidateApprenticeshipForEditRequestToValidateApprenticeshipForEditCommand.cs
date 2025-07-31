@@ -31,7 +31,9 @@ public class ValidateApprenticeshipForEditRequestToValidateApprenticeshipForEdit
                 ProviderReference = request.ProviderReference,
                 Email = request.Email,
                 EmploymentEndDate = request.EmploymentEndDate,
-                EmploymentPrice = request.EmploymentPrice
+                EmploymentPrice = request.EmploymentPrice,
+                MinimumAgeAtApprenticeshipStart = request.MinimumAgeAtApprenticeshipStart,
+                MaximumAgeAtApprenticeshipStart = request.MaximumAgeAtApprenticeshipStart
             }
         });
     }

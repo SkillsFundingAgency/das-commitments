@@ -26,4 +26,6 @@ public class EditApprenticeshipValidationRequest
     public string Email { get; set; }
     public DateTime? EmploymentEndDate { get; set; }
     public int? EmploymentPrice { get; set; }
+    public int MinimumAgeAtApprenticeshipStart { get; set; }
+    public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

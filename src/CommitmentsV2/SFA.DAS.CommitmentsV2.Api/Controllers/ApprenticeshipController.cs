@@ -236,7 +236,7 @@ public class ApprenticeshipController(
     {
         logger.LogInformation("Edit apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
 
-        var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
+        var command = new EditApprenticeshipCommand(request, request.Party);
         var response = await mediator.Send(command);
 
         if (response == null)
