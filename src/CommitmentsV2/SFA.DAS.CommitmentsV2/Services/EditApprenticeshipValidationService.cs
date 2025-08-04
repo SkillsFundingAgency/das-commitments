@@ -405,27 +405,24 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
     {
         if (request.DateOfBirth.HasValue)
         {
-            if (request.DateOfBirth.Value != apprenticeshipDetails.DateOfBirth.Value)
+            if (request.DateOfBirth < Constants.MinimumDateOfBirth)
             {
-                if (request.DateOfBirth < Constants.MinimumDateOfBirth)
+                yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
+                yield break;
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
+                if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
                 {
-                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
+                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {request.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
                     yield break;
                 }
 
-                if (request.StartDate.HasValue)
+                if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
                 {
-                    var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
-                    if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
-                    {
-                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {request.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
-                        yield break;
-                    }
-
-                    if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
-                    {
-                        yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
-                    }
+                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
                 }
             }
         }
@@ -434,6 +431,33 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
             yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
         }
     }
+
+    private IEnumerable<DomainError> BuildDateOfBirthValidationFailures2(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+    {
+        var dob = request.DateOfBirth ?? apprenticeshipDetails.DateOfBirth;
+        var startDate = request.StartDate ?? apprenticeshipDetails.StartDate;
+
+        if (dob < Constants.MinimumDateOfBirth)
+        {
+            yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
+            yield break;
+        }
+
+        var ageOnStartDate = AgeOnStartDate(dob, startDate);
+        if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
+        {
+            yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {request.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
+            yield break;
+        }
+
+        if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
+        {
+            yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+        }
+    }
+
+
+
 
     private IEnumerable<DomainError> BuildStartDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {

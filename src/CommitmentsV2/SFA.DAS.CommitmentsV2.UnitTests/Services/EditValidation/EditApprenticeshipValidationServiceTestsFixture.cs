@@ -316,7 +316,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
         int? employmentPrice = null,
         DateTime? actualStartDate = null,
         int minimumAgeAtApprenticeshipStart = 15,
-        int maximumAgeAtApprenticeshipStart = 25
+        int maximumAgeAtApprenticeshipStart = 115
     )
     {
         var request = new EditApprenticeshipValidationRequest
