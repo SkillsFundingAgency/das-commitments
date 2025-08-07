@@ -43,7 +43,9 @@ public static class EditApprenticeshipExtension
             Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
             TrainingPrice = source.TrainingPrice ?? apprenticeship.PriceHistory.GetTrainingPrice(dateTimeNow),
             EndPointAssessmentPrice = source.EndPointAssessmentPrice ?? apprenticeship.PriceHistory.GetAssessmentPrice(dateTimeNow),
-            ProviderReference = source.ProviderReference
+            ProviderReference = source.ProviderReference,
+            MinimumAgeAtApprenticeshipStart = source.MinimumAgeAtApprenticeshipStart,
+            MaximumAgeAtApprenticeshipStart = source.MaximumAgeAtApprenticeshipStart
         };
 
         return validationRequest;
