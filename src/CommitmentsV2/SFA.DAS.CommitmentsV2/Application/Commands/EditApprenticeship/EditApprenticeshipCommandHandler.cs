@@ -24,7 +24,17 @@ public class EditApprenticeshipCommandHandler(
 {
     public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("=== COMMITMENTS API: EditApprenticeshipCommandHandler.Handle called ===");
+        logger.LogInformation("ApprenticeshipId: {ApprenticeshipId}", command.EditApprenticeshipRequest?.ApprenticeshipId);
+        
+        if (command?.EditApprenticeshipRequest == null)
+        {
+            throw new InvalidOperationException("Edit apprenticeship request is null");
+        }
+
         var party = GetParty(command);
+        logger.LogInformation("Determined Party: {Party}", party);
+        logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
@@ -39,13 +49,48 @@ public class EditApprenticeshipCommandHandler(
 
     private Party GetParty(EditApprenticeshipCommand command)
     {
-        return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler 
-            ? command.Party 
-            : authenticationService.GetUserParty();
+        logger.LogInformation("=== COMMITMENTS API: GetParty called ===");
+        
+        if (command == null)
+        {
+            throw new InvalidOperationException("Command is null");
+        }
+
+        logger.LogInformation("Command.Party: {CommandParty}", command.Party);
+        logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
+
+        Party result;
+        
+        if (command.Party != Party.None)
+        {
+            result = command.Party;
+            logger.LogInformation("Using command.Party (explicitly set): {Party}", result);
+        }
+        else
+        {
+            if (authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler)
+            {
+                result = command.Party;
+                logger.LogInformation("Using command.Party (MessageHandler fallback): {Party}", result);
+            }
+            else
+            {
+                result = authenticationService.GetUserParty();
+                logger.LogInformation("Using authenticationService.GetUserParty() (fallback): {Party}", result);
+            }
+        }
+
+        logger.LogInformation("Final determined party: {Party}", result);
+        return result;
     }
 
     private static void CreateImmediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
     {
+        if (command?.EditApprenticeshipRequest == null)
+        {
+            throw new InvalidOperationException("Edit apprenticeship request is null");
+        }
+
         if (command.EmployerReferenceUpdateRequired(apprenticeship, party))
         {
             apprenticeship.UpdateEmployerReference(command.EditApprenticeshipRequest.EmployerReference, party, command.EditApprenticeshipRequest.UserInfo);
@@ -58,6 +103,11 @@ public class EditApprenticeshipCommandHandler(
 
     private async Task<bool> CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
     {
+        if (command?.EditApprenticeshipRequest == null)
+        {
+            throw new InvalidOperationException("Edit apprenticeship request is null");
+        }
+
         if (!command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired(apprenticeship))
         {
             return false;
@@ -136,7 +186,7 @@ public class EditApprenticeshipCommandHandler(
             throw new InvalidOperationException("Unable to create an ApprenticeshipUpdate for an Apprenticeship with a pending update");
         }
 
-        if (apprenticeship.EmailAddressConfirmed == true && command.EditApprenticeshipRequest.Email != null)
+        if (apprenticeship.EmailAddressConfirmed == true && command.EditApprenticeshipRequest?.Email != null)
         {
             throw new DomainException("ConfirmChanges", "Unable to make these changes, as the apprentice has confirmed their email address");
         }
@@ -144,6 +194,21 @@ public class EditApprenticeshipCommandHandler(
 
     private static void CheckAuthorisation(EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party)
     {
+        if (command?.EditApprenticeshipRequest == null)
+        {
+            throw new UnauthorizedAccessException("Edit apprenticeship request is null");
+        }
+
+        if (apprenticeship?.Cohort == null)
+        {
+            throw new UnauthorizedAccessException($"Cohort not found for apprenticeship {apprenticeship?.Id}");
+        }
+
+        if (command.EditApprenticeshipRequest.UserInfo == null)
+        {
+            throw new UnauthorizedAccessException("User information is required for authorization");
+        }
+
         switch (party)
         {
             case Party.Employer:
