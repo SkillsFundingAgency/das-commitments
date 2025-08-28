@@ -48,7 +48,8 @@ public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMappe
             DurationReducedByHours = source.DurationReducedByHours,
             IsDurationReducedByRpl = source.IsDurationReducedByRpl,
             TrainingTotalHours = source.TrainingTotalHours,
-            EmployerHasEditedCost = source.EmployerHasEditedCost
+            EmployerHasEditedCost = source.EmployerHasEditedCost,
+            LearnerDataId = source.LearnerDataId
         });
     }
 }
