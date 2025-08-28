@@ -53,6 +53,8 @@
     [TrainingTotalHours] INT NULL, 
     [EmployerHasEditedCost] BIT NULL, 
     [LearnerDataId] BIGINT NULL, 
+    [HasLearnerDataChanges] BIT NOT NULL DEFAULT 0,
+    [LastLearnerDataSync] DATETIME NULL,
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
@@ -113,8 +115,11 @@ ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
 	[EPAOrgId],
 	[FirstName],
 	[HasHadDataLockSuccess],
+	[HasLearnerDataChanges],
 	[IsOnFlexiPaymentPilot],
 	[LastName],
+	[LastLearnerDataSync],
+	[LearnerDataId],
 	[MadeRedundant],
 	[NINumber],
 	[OriginalStartDate],
