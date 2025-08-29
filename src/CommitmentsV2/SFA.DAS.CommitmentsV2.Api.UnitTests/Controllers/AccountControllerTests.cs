@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
@@ -21,10 +22,17 @@ public class AccountControllerTests
     }
 
     [Test]
+    public async Task GetAccountStatus_Should_Return_Valid_Result()
+    {
+        await _fixture.GetAccountStatus();
+        _fixture.VerifyAccountStatusRepsonse();
+    }
+
+    [Test]
     public async Task GetAccount_Should_Return_Valid_Result()
     {
         await _fixture.GetAccount();
-        _fixture.VerifyResult();
+        _fixture.VerifyAccountRepsonse();
     }
 
     [Test]
@@ -54,7 +62,9 @@ public class AccountControllerTests
         private Mock<IMediator> Mediator { get; }
         private Mock<IModelMapper> ModelMapper { get; }
         private long AccountId { get; }
-        private GetAccountSummaryQueryResult MediatorQueryResult { get; }
+
+        private GetAccountStatusQueryResult AccountStatusQueryResult { get; }
+        private GetAccountSummaryQueryResult AccountSummaryQueryResult { get; }
 
         private GetAccountTransferStatusQueryResult AccountTransferStatusQueryResult { get; }
 
@@ -69,10 +79,14 @@ public class AccountControllerTests
         {
             var autoFixture = new Fixture();
 
-            MediatorQueryResult = autoFixture.Create<GetAccountSummaryQueryResult>();
+            AccountStatusQueryResult = autoFixture.Create<GetAccountStatusQueryResult>();
             Mediator = new Mock<IMediator>();
+            Mediator.Setup(x => x.Send(It.IsAny<GetAccountStatusQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(AccountStatusQueryResult);
+
+            AccountSummaryQueryResult = autoFixture.Create<GetAccountSummaryQueryResult>();
             Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(MediatorQueryResult);
+                .ReturnsAsync(AccountSummaryQueryResult);
 
             AccountTransferStatusQueryResult = autoFixture.Create<GetAccountTransferStatusQueryResult>();
             Mediator.Setup(x => x.Send(It.IsAny<GetAccountTransferStatusQuery>(), It.IsAny<CancellationToken>()))
@@ -118,6 +132,11 @@ public class AccountControllerTests
             Result = await Controller.GetAccount(AccountId);
         }
 
+        public async Task GetAccountStatus()
+        {
+            Result = await Controller.GetAccountStatus(AccountId, 0, 0, 0);
+        }
+
         public async Task GetAccountTransferStatus()
         {
             Result = await Controller.GetAccountTransferStatus(AccountId);
@@ -133,7 +152,7 @@ public class AccountControllerTests
             Result = await Controller.GetProviderPaymentsPriority(AccountId);
         }
 
-        public void VerifyResult()
+        public void VerifyAccountRepsonse()
         {
             Assert.Multiple(() =>
             {
@@ -144,8 +163,25 @@ public class AccountControllerTests
                 Assert.That(objectResult.Value, Is.InstanceOf<AccountResponse>());
 
                 var response = (AccountResponse)objectResult.Value;
-                Assert.That(response.AccountId, Is.EqualTo(MediatorQueryResult.AccountId));
-                Assert.That(response.LevyStatus, Is.EqualTo(MediatorQueryResult.LevyStatus));
+                Assert.That(response.AccountId, Is.EqualTo(AccountSummaryQueryResult.AccountId));
+                Assert.That(response.LevyStatus, Is.EqualTo(AccountSummaryQueryResult.LevyStatus));
+            });
+        }
+
+        public void VerifyAccountStatusRepsonse()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
+
+                var objectResult = (OkObjectResult)Result;
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+                Assert.That(objectResult.Value, Is.InstanceOf<AccountStatusResponse>());
+
+                var response = (AccountStatusResponse)objectResult.Value;
+                Assert.That(response.Completed, Is.EqualTo(AccountStatusQueryResult.Completed));
+                Assert.That(response.NewStart, Is.EqualTo(AccountStatusQueryResult.NewStart));
+                Assert.That(response.Active, Is.EqualTo(AccountStatusQueryResult.Active));
             });
         }
 
