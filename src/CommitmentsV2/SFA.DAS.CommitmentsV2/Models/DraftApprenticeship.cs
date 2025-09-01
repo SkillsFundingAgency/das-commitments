@@ -8,6 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 {
+    // public bool HasLearnerDataChanges { get; set; }
+    // public DateTime? LastLearnerDataSync { get; set; }
+
     public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
     {
         switch (party)
@@ -394,13 +397,10 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         return Cost != update.Cost;
     }
-    
-    public bool HasLearnerDataChanges { get; set; }
-    public DateTime? LastLearnerDataSync { get; set; }
 
     public void MarkLearnerDataChanged()
     {
-        HasLearnerDataChanges = true;
-        LastLearnerDataSync = DateTime.UtcNow;
+        // HasLearnerDataChanges = true;
+        // LastLearnerDataSync = DateTime.UtcNow;
     }
 }

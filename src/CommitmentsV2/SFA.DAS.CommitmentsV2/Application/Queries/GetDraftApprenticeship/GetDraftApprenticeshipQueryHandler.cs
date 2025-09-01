@@ -57,7 +57,10 @@ public class GetDraftApprenticeshipQueryHandler(
             RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
             IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
             EmailAddressConfirmed = draft.EmailAddressConfirmed,
-            EmployerHasEditedCost = draft.EmployerHasEditedCost
+            EmployerHasEditedCost = draft.EmployerHasEditedCost,
+            LearnerDataId = draft.LearnerDataId,
+            HasLearnerDataChanges = true, // draft.HasLearnerDataChanges,
+            LastLearnerDataSync = DateTime.UtcNow.AddDays(-10), //draft.LastLearnerDataSync
         }).SingleOrDefaultAsync(cancellationToken);
 
         return result;

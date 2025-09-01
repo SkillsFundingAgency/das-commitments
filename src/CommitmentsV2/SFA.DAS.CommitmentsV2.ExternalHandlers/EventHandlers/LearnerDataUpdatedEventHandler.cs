@@ -42,8 +42,8 @@ public class LearnerDataUpdatedEventHandler(
             return;
         }
 
-        draftApprenticeship.HasLearnerDataChanges = true;
-        draftApprenticeship.LastLearnerDataSync = message.ChangedAt;
+        // draftApprenticeship.HasLearnerDataChanges = true;
+        // draftApprenticeship.LastLearnerDataSync = message.ChangedAt;
         logger.LogInformation("Flagged draft apprenticeship {ApprenticeshipId} for learner data changes", draftApprenticeship.Id);
 
         await dbContext.Value.SaveChangesAsync();
