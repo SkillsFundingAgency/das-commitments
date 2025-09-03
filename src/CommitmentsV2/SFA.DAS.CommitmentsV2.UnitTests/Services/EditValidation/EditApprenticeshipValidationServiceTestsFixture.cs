@@ -1,4 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+﻿using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -25,7 +27,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
     private readonly Mock<IAcademicYearDateProvider> _academicYearDateProvider;
     private readonly Mock<ICurrentDateTime> _currentDateTime;
     private readonly Mock<IAuthenticationService> _authenticationService;
-
+    private readonly Mock<ILogger<EditApprenticeshipValidationService>> _logger;
     public DateTime? StartDate => Apprenticeship.StartDate;
 
     internal DateTime GetEndOfCurrentTeachingYear()
@@ -44,13 +46,15 @@ public class EditApprenticeshipValidationServiceTestsFixture
         _academicYearDateProvider = new Mock<IAcademicYearDateProvider>();
         _currentDateTime = new Mock<ICurrentDateTime>();
         _authenticationService = new Mock<IAuthenticationService>();
+        _logger = new Mock<ILogger<EditApprenticeshipValidationService>>();
 
         _sut = new EditApprenticeshipValidationService(_dbContext.Object, _mediator.Object,
             _overlapCheckService.Object,
             _reservationValidationService.Object,
             _academicYearDateProvider.Object,
             _currentDateTime.Object,
-            _authenticationService.Object);
+            _authenticationService.Object,
+            _logger.Object);
 
         _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
             .Returns(Task.FromResult(new OverlapCheckResult(false, false)));

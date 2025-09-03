@@ -1,4 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+﻿using Microsoft.Extensions.Logging;
+using NLog;
+using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -12,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmailValidationService;
 
@@ -26,6 +30,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
     private readonly IMediator _mediator;
     private readonly ICurrentDateTime _currentDateTime;
     private readonly IAuthenticationService _authenticationService;
+    private readonly ILogger<EditApprenticeshipValidationService> _logger;
+
 
     public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
         IMediator mediator,
@@ -33,7 +39,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         IReservationValidationService reservationValidationService,
         IAcademicYearDateProvider academicYearDateProvider,
         ICurrentDateTime currentDateTime,
-        IAuthenticationService authenticationService)
+        IAuthenticationService authenticationService,
+        ILogger<EditApprenticeshipValidationService> logger)
     {
         _context = context;
         _overlapCheckService = overlapCheckService;
@@ -42,11 +49,17 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         _mediator = mediator;
         _currentDateTime = currentDateTime;
         _authenticationService = authenticationService;
+        _logger = logger;
     }
 
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
     {
         var trustedParty = GetParty(party);
+
+        _logger.LogInformation("Party for ULN {ULN} is {party} at time {time}",
+           request.ULN, 
+           trustedParty,
+           DateTime.UtcNow);
 
         var errors = new List<DomainError>();
         var apprenticeship = _context.Apprenticeships
@@ -197,9 +210,19 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
     {
+        _logger.LogInformation("Party for ULN {ULN} is {party} at time {time}",
+           request.ULN,
+           party,
+           DateTime.UtcNow);
+
         var referenceNotUpdated = party == Party.Employer
             ? request.EmployerReference == apprenticeship.EmployerRef
             : request.ProviderReference == apprenticeship.ProviderRef;
+
+        _logger.LogInformation("Reference updated : {referenceUpdated} for ULN : {ULN} at {time}",
+           referenceNotUpdated,
+            request.ULN,
+           DateTime.UtcNow);
 
         if (request.FirstName == apprenticeship.FirstName
             && request.LastName == apprenticeship.LastName
