@@ -54,7 +54,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
     {
-        var trustedParty = GetParty(party);
+        var trustedParty = request.Party == Party.None ? GetParty(party) : request.Party;
 
         _logger.LogInformation("Party for ULN {ULN} is {party} at time {time}",
            request.ULN, 
