@@ -285,8 +285,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
             Uln = uln,
             PaymentStatus = paymentStatus,
             HasHadDataLockSuccess = hasHadDataLockSuccess,
-            FlexibleEmployment = flexibleEmployment,
-            IsOnFlexiPaymentPilot = isOnFlexiPaymentsPilot
+            FlexibleEmployment = flexibleEmployment
         };
 
         return this;

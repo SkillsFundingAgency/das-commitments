@@ -907,8 +907,7 @@ public class CohortDomainServiceTests
                 FirstName = "Test",
                 LastName = "Test",
                 DeliveryModel = DeliveryModel.Regular,
-                IgnoreStartDateOverlap = false,
-                IsOnFlexiPaymentPilot = false
+                IgnoreStartDateOverlap = false
             };
 
             var referenceDate = new DateTime(DateTime.Now.Year, 02, 03);
@@ -922,8 +921,7 @@ public class CohortDomainServiceTests
                 StartDate = referenceDate,
                 EndDate = referenceDate.AddYears(1),
                 CourseCode = fixture.Create<string>(),
-                Cost = fixture.Create<int>(),
-                IsOnFlexiPaymentPilot = false
+                Cost = fixture.Create<int>()
             };
             ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
@@ -1087,7 +1085,6 @@ public class CohortDomainServiceTests
             if (usingActualStartDate)
             {
                 DraftApprenticeshipDetails.ActualStartDate = new DateTime(2019, 01, 01);
-                DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             }
             else
             {
@@ -1127,7 +1124,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithUlnOverlapOnActualStartDate()
         {
             DraftApprenticeshipDetails.Uln = "X";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
@@ -1185,7 +1181,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithActualStartDateEmailOverlapWithApprenticeship(bool isApproved)
         {
             DraftApprenticeshipDetails.Email = "test@test.com";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
@@ -1198,7 +1193,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithNoActualStartDateEmailOverlaps()
         {
             DraftApprenticeshipDetails.Email = "test@test.com";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 

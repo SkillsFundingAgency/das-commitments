@@ -87,7 +87,6 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
         ActualStartDate = source.ActualStartDate;
         EndDate = source.EndDate;
         DateOfBirth = source.DateOfBirth;
-        IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot;
         EmployerHasEditedCost = source.EmployerHasEditedCost;
 
         switch (modifyingParty)
@@ -176,7 +175,7 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
     private bool StartDateIsChanged(DraftApprenticeshipDetails update)
     {
-        if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
+        if (StartDate != update.StartDate) return true;
         if (ActualStartDate.HasValue && update.ActualStartDate.HasValue && (ActualStartDate.Value.Year != update.ActualStartDate.Value.Year || ActualStartDate.Value.Month != update.ActualStartDate.Value.Month)) return true;
         if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
         if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
@@ -204,9 +203,6 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
     private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update, Party modifyingParty)
     {
-        if (update.IsOnFlexiPaymentPilot.GetValueOrDefault() && modifyingParty == Party.Provider)
-            return Cost != (update.TrainingPrice + update.EndPointAssessmentPrice);
-
         return Cost != update.Cost;
     }
 
@@ -387,9 +383,6 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     public bool HasEmployerChangedCostWhereProviderHasSetTotalAndEPAPrice(DraftApprenticeshipDetails update, Party modifyingParty)
     {
         if (modifyingParty != Party.Employer)
-            return false;
-
-        if (!IsOnFlexiPaymentPilot.GetValueOrDefault())
             return false;
 
         return Cost != update.Cost;

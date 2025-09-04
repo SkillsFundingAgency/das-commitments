@@ -265,7 +265,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                       apprenticeshipCreatedEvent.PriceEpisodes.Length == apprenticeship.PriceHistory.Count &&
                       apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth &&
                       apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
-                      apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                       apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
                       apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
                       apprenticeshipCreatedEvent.LearnerDataId == apprenticeship.LearnerDataId;

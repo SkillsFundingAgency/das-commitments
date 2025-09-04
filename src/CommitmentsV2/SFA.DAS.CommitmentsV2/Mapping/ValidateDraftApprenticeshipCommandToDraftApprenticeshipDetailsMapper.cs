@@ -32,8 +32,7 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
             ReservationId = source.ReservationId,
             EmploymentEndDate = source.EmploymentEndDate,
             EmploymentPrice = source.EmploymentPrice,
-            ActualStartDate = source.ActualStartDate,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
+            ActualStartDate = source.ActualStartDate
         };
 
         // Only populate standard version specific items if start is specified.

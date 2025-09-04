@@ -37,7 +37,6 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
         result.DeliveryModel.Should().Be(fixture.Command.DeliveryModel);
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot);
     }
 
     [Test]

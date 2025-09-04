@@ -210,8 +210,7 @@ public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : I
             LastName = "ALastName",
             DeliveryModel = DeliveryModel.Regular,
             StartDate = startDate,
-            TrainingProgramme = trainingProgramme,
-            IsOnFlexiPaymentPilot = false
+            TrainingProgramme = trainingProgramme
         };
 
         var commitment = new Cohort(

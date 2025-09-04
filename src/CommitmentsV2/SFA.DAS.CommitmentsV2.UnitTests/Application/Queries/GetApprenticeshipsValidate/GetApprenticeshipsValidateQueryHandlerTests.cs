@@ -149,7 +149,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     MadeRedundant = _autoFixture.Create<bool?>(),
                     FlexibleEmployment = _autoFixture.Create<FlexibleEmployment>(),
                     PriorLearning = _autoFixture.Create<ApprenticeshipPriorLearning>(),
-                    IsOnFlexiPaymentPilot = _autoFixture.Create<bool>(),
                     TrainingTotalHours = _autoFixture.Create<int>(),
                 };
 

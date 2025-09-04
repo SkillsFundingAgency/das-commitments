@@ -33,7 +33,6 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeTrue();
         result.DeliveryModel.Should().Be(fixture.Command.DraftApprenticeshipRequest.DeliveryModel);
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.DraftApprenticeshipRequest.IsOnFlexiPaymentPilot);
     }
 
     [Test]
@@ -59,7 +58,6 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeTrue();
         result.DeliveryModel.Should().Be(fixture.Command.DraftApprenticeshipRequest.DeliveryModel);
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.DraftApprenticeshipRequest.IsOnFlexiPaymentPilot);
     }
 }
 

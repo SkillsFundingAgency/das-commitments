@@ -491,7 +491,7 @@ public class CohortDomainService(
 
         if ((!details.IgnoreStartDateOverlap || overlapResult.HasOverlappingEndDate) && overlapResult.HasOverlappingStartDate)
         {
-            errors.Add(new DomainError(details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? nameof(details.ActualStartDate) : nameof(details.StartDate), errorMessage));
+            errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
         }
 
         if (overlapResult.HasOverlappingEndDate)

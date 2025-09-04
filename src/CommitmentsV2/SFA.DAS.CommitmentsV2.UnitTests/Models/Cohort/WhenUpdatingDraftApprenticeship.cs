@@ -75,8 +75,7 @@ internal class CohortTestFixtures
             StartDate = DateTime.Today.AddMonths(-6),
             EndDate = DateTime.Today.AddMonths(6),
             DateOfBirth = DateTime.Today.AddYears(-18),
-            DeliveryModel = DeliveryModel.Regular,
-            IsOnFlexiPaymentPilot = false
+            DeliveryModel = DeliveryModel.Regular
         }, Party.Provider);
     }
 
@@ -90,8 +89,7 @@ internal class CohortTestFixtures
             StartDate = SafeUpdate(draftApprenticeship.StartDate),
             EndDate = SafeUpdate(draftApprenticeship.EndDate),
             DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth),
-            DeliveryModel = draftApprenticeship.DeliveryModel,
-            IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
+            DeliveryModel = draftApprenticeship.DeliveryModel
         }, Party.Provider);
     }
 
@@ -111,8 +109,7 @@ internal class CohortTestFixtures
             EndDate = draftApprenticeship.EndDate,
             DateOfBirth = draftApprenticeship.DateOfBirth,
             Reference = draftApprenticeship.ProviderRef,
-            ReservationId = draftApprenticeship.ReservationId,
-            IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
+            ReservationId = draftApprenticeship.ReservationId
         };
     }
 

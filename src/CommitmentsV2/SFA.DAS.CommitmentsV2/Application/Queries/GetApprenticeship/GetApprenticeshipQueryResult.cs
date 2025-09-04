@@ -49,7 +49,6 @@ public class GetApprenticeshipQueryResult
     public bool? RecognisePriorLearning { get; set; }
     public ApprenticeshipPriorLearning ApprenticeshipPriorLearning { get; set; }
     public long? TransferSenderId { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
 }

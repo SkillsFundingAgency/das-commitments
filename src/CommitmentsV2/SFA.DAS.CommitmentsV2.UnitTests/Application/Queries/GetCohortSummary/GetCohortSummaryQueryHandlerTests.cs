@@ -167,11 +167,6 @@ public class GetCohortSummaryQueryHandlerTests
                 yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
                 yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
 
-                var flexiPilotApprenticeship =
-                    completeApprenticeship.With(x => x.IsOnFlexiPaymentPilot, true);
-                yield return (AllowedApproval.EmployerCanApprove, flexiPilotApprenticeship.Without(x => x.TrainingPrice));
-                yield return (AllowedApproval.EmployerCanApprove, flexiPilotApprenticeship.Without(x => x.EndPointAssessmentPrice));
-
                 var flexijobApprenticeship = completeApprenticeship.With(x => x.DeliveryModel, DeliveryModel.PortableFlexiJob);
                 yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentPrice));
                 yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentEndDate));

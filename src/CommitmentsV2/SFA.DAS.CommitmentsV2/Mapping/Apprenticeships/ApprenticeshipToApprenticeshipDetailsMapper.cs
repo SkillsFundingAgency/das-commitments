@@ -51,7 +51,6 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             Cost = source.Cost,
             PledgeApplicationId = source.Cohort.PledgeApplicationId,
             ActualStartDate = source.ActualStartDate,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             TrainingCourseVersion = source.TrainingCourseVersion
         });

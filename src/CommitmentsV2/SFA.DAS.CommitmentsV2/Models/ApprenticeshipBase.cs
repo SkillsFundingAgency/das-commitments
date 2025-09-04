@@ -63,7 +63,6 @@ public abstract class ApprenticeshipBase : Aggregate
         public bool? RecognisePriorLearning { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
-        public bool? IsOnFlexiPaymentPilot { get; set; }
         public int? TrainingTotalHours { get; set; }
         public bool? EmployerHasEditedCost { get; set; }
         public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered

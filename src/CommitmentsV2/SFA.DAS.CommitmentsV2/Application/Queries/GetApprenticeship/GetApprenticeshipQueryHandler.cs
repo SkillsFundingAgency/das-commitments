@@ -65,7 +65,6 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         RecognisePriorLearning = apprenticeship.RecognisePriorLearning,
                         ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
                         TransferSenderId = apprenticeship.Cohort.TransferSenderId,
-                        IsOnFlexiPaymentPilot = apprenticeship.IsOnFlexiPaymentPilot,
                         TrainingTotalHours = apprenticeship.TrainingTotalHours,
                         EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost
                     },

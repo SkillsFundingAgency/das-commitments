@@ -4,7 +4,6 @@
     {
         WithdrawFromStart,
         WithdrawDuringLearning,
-        WithdrawFromBeta,
         Other
     }
 }
