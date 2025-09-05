@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Types;
+using System.IO;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
@@ -9,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenticeship().SetupAuthenticationContextAsEmployer().SetupReservationValidationService();
-            var request = fixture.CreateValidationRequest(employerRef: "abc");
+            var request = fixture.CreateValidationRequest(employerRef: "abc", Party:Party.Employer);
 
             var result = await fixture.Validate(request);
 
@@ -32,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 .SetupAuthenticationContextAsEmployer()
                 .SetupReservationValidationService();
 
-            var request = fixture.CreateValidationRequest(employerRef: "abc");
+            var request = fixture.CreateValidationRequest(employerRef: "abc", Party: Party.Employer);
             var result = await fixture.Validate(request);
 
             var expectedDate = isOnFlexiPaymentsPilot ? fixture.Apprenticeship.ActualStartDate.GetValueOrDefault() : fixture.Apprenticeship.StartDate.GetValueOrDefault();

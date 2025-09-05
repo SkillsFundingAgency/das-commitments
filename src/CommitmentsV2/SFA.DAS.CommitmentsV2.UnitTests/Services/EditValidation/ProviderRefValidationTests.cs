@@ -7,7 +7,7 @@
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenticeship().SetupAuthenticationContextAsProvider();
-            var request = fixture.CreateValidationRequest(providerRef: "123456789012345678901");
+            var request = fixture.CreateValidationRequest(providerRef: "123456789012345678901", Party:Types.Party.Provider);
 
             var result = await fixture.Validate(request);
 

@@ -316,7 +316,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         int? employmentPrice = null,
         DateTime? actualStartDate = null,
         int minimumAgeAtApprenticeshipStart = 15,
-        int maximumAgeAtApprenticeshipStart = 115
+        int maximumAgeAtApprenticeshipStart = 115,
+        Party Party = Party.None
     )
     {
         var request = new EditApprenticeshipValidationRequest
@@ -338,7 +339,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             EmploymentEndDate = null,
             EmploymentPrice = employmentPrice ?? Apprenticeship.FlexibleEmployment?.EmploymentPrice,
             MinimumAgeAtApprenticeshipStart = minimumAgeAtApprenticeshipStart,
-            MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart
+            MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart,
+            Party = Party
         };
 
         if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)
