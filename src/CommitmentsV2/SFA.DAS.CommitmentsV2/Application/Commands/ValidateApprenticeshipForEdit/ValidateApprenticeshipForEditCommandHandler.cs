@@ -10,7 +10,7 @@ public class ValidateApprenticeshipForEditCommandHandler(
 {
     public async Task<EditApprenticeshipValidationResult> Handle(ValidateApprenticeshipForEditCommand command, CancellationToken cancellationToken)
     {
-        var response = await editValidationService.Validate(command.ApprenticeshipValidationRequest, cancellationToken);
+        var response = await editValidationService.Validate(command.ApprenticeshipValidationRequest, cancellationToken, command.ApprenticeshipValidationRequest.Party);
             
         response?.Errors?.ThrowIfAny();
 
