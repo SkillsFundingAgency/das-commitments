@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: Start an approval endpoint
+  description: Approval endpoint to allow consumers to start an approval by sending changes on approved learning. Approvals will calculate whether approval is required and start the process
+paths:
+  /info:
+    get:
+      description: information regarding this API. The version will be returned
+      responses:
+        '200':
+          $ref: '#/components/responses/infoResponse'
+  
+  /health:
+    get:
+      description: The system is fully ready to accept requests and all the dependencies are healthy
+      responses:
+        '200':
+          $ref: '#/components/responses/healthCheckResponse'
+        '503':
+          $ref: '#/components/responses/healthCheckResponse'
+
+  /approval:
+    post:
+      summary: Request approval for the changes sent across
+      requestBody:
+        $ref: '#/components/requestBodies/learningChangesRequestBody'
+      responses:
+        '200':
+          description: An approval for these changes is not required
+        '201':
+          description: An approval for these changes is required and we have accepted this request
+    
+components:  
+  requestBodies:
+    learningChangesRequestBody:
+      description: Details changes to training records to be avaluated
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/learningRequest"
+  responses:
+    acceptedResponse:
+      description: A resource has been accepted on the platform    
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              correlationId:
+                type: string
+    
+    okResponse:
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: OK
+
+    badRequest:
+      description: A bad request was sent and validation of the payload failed
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/error'
+
+    unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    healthCheckResponse:
+      description: Results of a health check
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/healthcheckResults'
+
+    infoResponse:
+      description: Information response
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Leaner data APIM for the training service - Version 3.0.2
+            
+  schemas:
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    
+    change:
+      type: object
+      properties:
+        approved:
+          type: string
+        unapproved:
+          type: string
+      required:
+        - changeType
+        - data
+
+    learningRequest:
+      type: object
+      properties:
+        approvedUri:
+          type: string
+          format: uri
+        unapprovedUri:
+          type: string
+          format: uri
+        changes:
+          $ref: "#/components/schemas/learningChanges"
+          
+    learningChanges:
+      type: array
+      description: >
+        A list of key/value pairs, where the key is a change enum and the value is a data object.
+      items:
+        $ref: '#/components/schemas/learningChange'
+
+    learningChange:
+      type: object
+      required: [changeType, data]
+      properties:
+        changeType:
+          type: string
+          enum: [PriceChangeUp, PriceChangeDown, DOB, Name]
+        data:
+          $ref: '#/components/schemas/change'
+          
+    healthcheckResults:
+      type: array
+      items:
+        $ref: '#/components/schemas/healthcheck' 
+  
+    healthcheck:
+      type: object
+      properties:
+        description: 
+          type: string
+        result: 
+          type: string
+          
