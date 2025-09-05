@@ -305,15 +305,13 @@ public class CohortDomainServiceTests
         _fixture.VerifyUlnException(passes);
     }
 
-    [TestCase(true, false, false)]
-    [TestCase(false, true, false)]
-    [TestCase(true, false, true)]
-    [TestCase(false, true, true)]
-    public async Task Reservation_Validation(bool hasValidationError, bool passes, bool usingActualStartDate)
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    public async Task Reservation_Validation(bool hasValidationError, bool passes)
     {
         await _fixture
             .WithParty(Party.Provider)
-            .WithReservationValidationResult(hasValidationError, usingActualStartDate)
+            .WithReservationValidationResult(hasValidationError)
             .CreateCohort();
 
         _fixture.VerifyReservationException(passes);
@@ -1079,18 +1077,13 @@ public class CohortDomainServiceTests
             return this;
         }
 
-        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError, bool usingActualStartDate = false)
+        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
         {
             DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
-            if (usingActualStartDate)
-            {
-                DraftApprenticeshipDetails.ActualStartDate = new DateTime(2019, 01, 01);
-            }
-            else
-            {
-                DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
-            }
-            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
+          
+            DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
+            
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                 "TEST",
                 ProgrammeType.Standard,
                 new DateTime(2016, 1, 1),

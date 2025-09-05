@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         private static async Task<EditApprenticeshipValidationResult>
         SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap, bool isOnFlexiPaymentsPilot = false)
         {
-            var eaFixture = fixture.SetupMockContextApprenticeship(isOnFlexiPaymentsPilot: isOnFlexiPaymentsPilot)
+            var eaFixture = fixture.SetupMockContextApprenticeship()
                 .SetupOverlapService(startDateOverlap, endDateOverlap);
 
             EditApprenticeshipValidationRequest request;

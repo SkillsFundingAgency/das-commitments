@@ -22,20 +22,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             });
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task CorrectDateIsUsedForReservationValidation(bool isOnFlexiPaymentsPilot)
+        [Test]
+        public async Task CorrectDateIsUsedForReservationValidation()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture
-                .SetupMockContextApprenticeship(isOnFlexiPaymentsPilot: isOnFlexiPaymentsPilot)
                 .SetupAuthenticationContextAsEmployer()
                 .SetupReservationValidationService();
 
-            var request = fixture.CreateValidationRequest(employerRef: "abc");
-            var result = await fixture.Validate(request);
+            fixture.CreateValidationRequest(employerRef: "abc");
 
-            var expectedDate = isOnFlexiPaymentsPilot ? fixture.Apprenticeship.ActualStartDate.GetValueOrDefault() : fixture.Apprenticeship.StartDate.GetValueOrDefault();
+            var expectedDate = fixture.Apprenticeship.StartDate.GetValueOrDefault();
 
             fixture.VerifyReservationValidationServiceIsCalledWithExpectedStartDate(expectedDate);
         }

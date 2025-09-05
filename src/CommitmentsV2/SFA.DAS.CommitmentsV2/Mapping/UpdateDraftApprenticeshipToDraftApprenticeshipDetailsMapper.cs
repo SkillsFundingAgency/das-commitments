@@ -8,7 +8,7 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
 {
     public async Task<DraftApprenticeshipDetails> Map(UpdateDraftApprenticeshipCommand source)
     {
-        var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+        var startDate = source.StartDate;
         var trainingProgramme = await GetCourse(source.CourseCode, startDate);
         var result = new DraftApprenticeshipDetails
         {

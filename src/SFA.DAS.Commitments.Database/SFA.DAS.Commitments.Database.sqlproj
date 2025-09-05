@@ -174,7 +174,6 @@
     <Build Include="Tables\FileUploadCohortLog.sql" />
     <Build Include="Tables\FileUploadLog.sql" />
     <Build Include="Tables\DataLockUpdaterJobHistory.sql" />
-    <Build Include="Functions\GetStartDateForOverlapChecks.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

@@ -82,26 +82,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         }
 
         [Test]
-        public async Task ActualStartDate_is_before_SimplifiedPaymentsStartDate()
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-
-            fixture
-                .SetupMockContextApprenticeship(isOnFlexiPaymentsPilot: true)
-                .CourseIsEffectiveFromDate(new DateTime(2020, 1, 1));
-            var request = fixture.CreateValidationRequest(actualStartDate: new DateTime(2022, 1, 1));
-
-            var result = await fixture.Validate(request);
-
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo($"The start date must not be earlier than 1 November 2024."));
-                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("ActualStartDate"));
-            });
-        }
-
-        [Test]
         public async Task Course_Is_Pending_On_StartDate()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();

@@ -34,31 +34,6 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
         result.TrainingCourseVersionConfirmed.Should().BeTrue();
         result.DeliveryModel.Should().Be(fixture.Command.DraftApprenticeshipRequest.DeliveryModel);
     }
-
-    [Test]
-    public async Task Map_WhenMappingFlexiPaymentsApprenticeship_ThenShouldSetProperties()
-    {
-        var fixture = new ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-        var result = await fixture.MapFlexiPaymentsApprenticeship();
-
-        result.FirstName.Should().Be(fixture.Command.DraftApprenticeshipRequest.FirstName);
-        result.LastName.Should().Be(fixture.Command.DraftApprenticeshipRequest.LastName);
-        result.Uln.Should().Be(fixture.Command.DraftApprenticeshipRequest.Uln);
-        result.EmploymentPrice.Should().Be(fixture.Command.DraftApprenticeshipRequest.EmploymentPrice);
-        result.Cost.Should().Be(fixture.Command.DraftApprenticeshipRequest.Cost);
-        result.StartDate.Should().Be(fixture.Command.DraftApprenticeshipRequest.StartDate);
-        result.ActualStartDate.Should().Be(fixture.Command.DraftApprenticeshipRequest.ActualStartDate);
-        result.EmploymentEndDate.Should().Be(fixture.Command.DraftApprenticeshipRequest.EmploymentEndDate);
-        result.EndDate.Should().Be(fixture.Command.DraftApprenticeshipRequest.EndDate);
-        result.DateOfBirth.Should().Be(fixture.Command.DraftApprenticeshipRequest.DateOfBirth);
-        result.Reference.Should().Be(fixture.Command.DraftApprenticeshipRequest.OriginatorReference);
-        result.TrainingProgramme.Should().Be(fixture.TrainingProgramme);
-        result.ReservationId.Should().Be(fixture.Command.DraftApprenticeshipRequest.ReservationId);
-        result.StandardUId.Should().Be(fixture.TrainingProgramme.StandardUId);
-        result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
-        result.TrainingCourseVersionConfirmed.Should().BeTrue();
-        result.DeliveryModel.Should().Be(fixture.Command.DraftApprenticeshipRequest.DeliveryModel);
-    }
 }
 
 public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture
@@ -84,14 +59,6 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
     public Task<DraftApprenticeshipDetails> Map()
     {
         Command.DraftApprenticeshipRequest.ActualStartDate = null;
-        Command.DraftApprenticeshipRequest.IsOnFlexiPaymentPilot = false;
-        return Mapper.Map(Command);
-    }
-
-    public Task<DraftApprenticeshipDetails> MapFlexiPaymentsApprenticeship()
-    {
-        Command.DraftApprenticeshipRequest.StartDate = null;
-        Command.DraftApprenticeshipRequest.IsOnFlexiPaymentPilot = true;
         return Mapper.Map(Command);
     }
 }

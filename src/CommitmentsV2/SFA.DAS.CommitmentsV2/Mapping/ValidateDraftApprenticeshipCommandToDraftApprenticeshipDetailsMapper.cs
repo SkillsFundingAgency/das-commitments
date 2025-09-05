@@ -11,7 +11,7 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
     {
         var source = comand.DraftApprenticeshipRequest;
 
-        var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+        var startDate = source.StartDate;
         var trainingProgrammeTask = GetCourse(source.CourseCode, startDate);
         var trainingProgramme = await trainingProgrammeTask;
 
