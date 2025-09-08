@@ -31,4 +31,6 @@ public class UpdateDraftApprenticeshipCommand : IRequest<UpdateDraftApprenticesh
     public bool IsContinuation { get; set; }
     public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; set; }
+    public bool HasLearnerDataChanges { get; set; }
+    public DateTime? LastLearnerDataSync { get; set; }
 }

@@ -32,7 +32,9 @@ public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandM
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             MinimumAgeAtApprenticeshipStart = source.MinimumAgeAtApprenticeshipStart,
-            MaximumAgeAtApprenticeshipStart =  source.MaximumAgeAtApprenticeshipStart
+            MaximumAgeAtApprenticeshipStart =  source.MaximumAgeAtApprenticeshipStart,
+            HasLearnerDataChanges = source.HasLearnerDataChanges,
+            LastLearnerDataSync = source.LastLearnerDataSync
         });
     }
 }

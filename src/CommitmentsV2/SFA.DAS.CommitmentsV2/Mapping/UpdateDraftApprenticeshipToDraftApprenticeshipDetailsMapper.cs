@@ -32,7 +32,9 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
             Reference = source.Reference,
             ReservationId = source.ReservationId,
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
+            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
+            HasLearnerDataChanges = source.HasLearnerDataChanges,
+            LastLearnerDataSync = source.LastLearnerDataSync
         };
 
         // Only populate standard version specific items if start is specified.
