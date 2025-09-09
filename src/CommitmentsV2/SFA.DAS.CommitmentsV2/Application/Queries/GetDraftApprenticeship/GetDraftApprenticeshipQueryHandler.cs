@@ -59,8 +59,8 @@ public class GetDraftApprenticeshipQueryHandler(
             EmailAddressConfirmed = draft.EmailAddressConfirmed,
             EmployerHasEditedCost = draft.EmployerHasEditedCost,
             LearnerDataId = draft.LearnerDataId,
-            HasLearnerDataChanges = true, // draft.HasLearnerDataChanges,
-            LastLearnerDataSync = DateTime.UtcNow.AddDays(-10), //draft.LastLearnerDataSync
+            HasLearnerDataChanges = draft.HasLearnerDataChanges,
+            LastLearnerDataSync = draft.LastLearnerDataSync
         }).SingleOrDefaultAsync(cancellationToken);
 
         return result;
