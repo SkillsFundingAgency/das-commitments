@@ -110,12 +110,19 @@ components:
         unapproved:
           type: string
       required:
-        - changeType
-        - data
+        - approved
+        - unapproved
 
     learningRequest:
       type: object
       properties:
+        ukprn:
+          type: string
+        emplayerId:
+          type: integer
+        learningKey:
+          type: string
+          format: uuid
         approvedUri:
           type: string
           format: uri
@@ -138,7 +145,7 @@ components:
       properties:
         changeType:
           type: string
-          enum: [PriceChangeUp, PriceChangeDown, DOB, Name]
+          enum: [PriceChangeUp, PriceChangeDown, DOB, Name] # this will expand greatly
         data:
           $ref: '#/components/schemas/change'
           
@@ -154,4 +161,3 @@ components:
           type: string
         result: 
           type: string
-          
