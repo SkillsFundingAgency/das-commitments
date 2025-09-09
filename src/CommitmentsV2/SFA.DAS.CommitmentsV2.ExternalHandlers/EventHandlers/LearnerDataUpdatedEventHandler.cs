@@ -1,11 +1,11 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -34,6 +34,7 @@ public class LearnerDataUpdatedEventHandler(
         logger.LogInformation("Processing learner data changes for learner {LearnerId}", message.LearnerId);
 
         var draftApprenticeship = await dbContext.Value.DraftApprenticeships
+            .Include(da => da.Cohort)
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
         if (draftApprenticeship == null)
@@ -42,9 +43,26 @@ public class LearnerDataUpdatedEventHandler(
             return;
         }
 
-        // draftApprenticeship.HasLearnerDataChanges = true;
-        // draftApprenticeship.LastLearnerDataSync = message.ChangedAt;
+        draftApprenticeship.HasLearnerDataChanges = true;
+        
         logger.LogInformation("Flagged draft apprenticeship {ApprenticeshipId} for learner data changes", draftApprenticeship.Id);
+
+        var cohort = draftApprenticeship.Cohort;
+        if (cohort.WithParty == Party.Employer)
+        {
+            logger.LogInformation("Cohort {CohortId} is WithEmployer, transitioning back to WithProvider due to learner data changes", cohort.Id);
+            
+            var systemUserInfo = new UserInfo
+            {
+                UserId = "System",
+                UserDisplayName = "System",
+                UserEmail = null
+            };
+
+            cohort.SendToOtherParty(Party.Employer, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+            
+            logger.LogInformation("Successfully transitioned cohort {CohortId} from WithEmployer to WithProvider", cohort.Id);
+        }
 
         await dbContext.Value.SaveChangesAsync();
         logger.LogInformation("Successfully updated draft apprenticeship {ApprenticeshipId} for learner {LearnerId}", draftApprenticeship.Id, message.LearnerId);

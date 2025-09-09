@@ -8,9 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 {
-    public bool HasLearnerDataChanges { get; set; }
-    public DateTime? LastLearnerDataSync { get; set; }
-
     public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
     {
         switch (party)
