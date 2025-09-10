@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.Commitments.Database", "SFA.DAS.Commitments.Database\SFA.DAS.Commitments.Database.sqlproj", "{0DF27E29-35FD-4CE1-90CA-01C2A55361CD}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DateModel", "SFA.DAS.Commitments.Database\DateModel.sqlproj", "{0DF27E29-35FD-4CE1-90CA-01C2A55361CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
 EndProject

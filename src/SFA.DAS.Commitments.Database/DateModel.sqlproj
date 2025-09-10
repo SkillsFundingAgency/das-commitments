@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>DateModel</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{0df27e29-35fd-4ce1-90ca-01c2a55361cd}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>SFA.DAS.Commitments.Database</RootNamespace>
+    <AssemblyName>SFA.DAS.Commitments.Database</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <IsEncryptionOn>True</IsEncryptionOn>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatTSqlWarningsAsErrors>True</TreatTSqlWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Tables" />
+    <Folder Include="Views" />
+    <Folder Include="StoredProcedures" />
+    <Folder Include="UserDefinedTypes" />
+    <Folder Include="PostDeployment" />
+    <Folder Include="AdhocScripts" />
+    <Folder Include="AdhocScripts\Support" />
+    <Folder Include="AdhocScripts\Support\DPP-1661" />
+    <Folder Include="AdhocScripts\Support\AML-2937" />
+    <Folder Include="PreDeployment" />
+    <Folder Include="AdhocScripts\Manual" />
+    <Folder Include="Functions" />
+    <Folder Include="Schemas" />
+    <Folder Include="Triggers" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="StoredProcedures\GetFrameworks.sql" />
+    <Build Include="StoredProcedures\GetStandards.sql" />
+    <Build Include="StoredProcedures\ImportFrameworks.sql" />
+    <Build Include="StoredProcedures\ImportFrameworksFunding.sql" />
+    <Build Include="StoredProcedures\ImportStandards.sql" />
+    <Build Include="StoredProcedures\ImportStandardsFunding.sql" />
+    <Build Include="Tables\Commitment.sql" />
+    <Build Include="Tables\Apprenticeship.sql" />
+    <Build Include="Tables\Framework.sql" />
+    <Build Include="Tables\FrameworkFunding.sql" />
+    <Build Include="Tables\Standard.sql" />
+    <Build Include="Tables\StandardFunding.sql" />
+    <Build Include="UserDefinedTypes\Frameworks.sql" />
+    <Build Include="UserDefinedTypes\FrameworksFunding.sql" />
+    <Build Include="UserDefinedTypes\Standards.sql" />
+    <Build Include="UserDefinedTypes\StandardsFunding.sql" />
+    <Build Include="Views\CommitmentSummary.sql" />
+    <Build Include="Views\ApprenticeshipSummary.sql" />
+    <Build Include="StoredProcedures\GetCommitment.sql" />
+    <Build Include="StoredProcedures\DeleteCommitment.sql" />
+    <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
+    <Build Include="UserDefinedTypes\ULNTable.sql" />
+    <Build Include="Tables\ApprenticeshipUpdate.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipUpdate.sql" />
+    <Build Include="StoredProcedures\CreateApprenticeshipUpdate.sql" />
+    <Build Include="Tables\DataLockStatus.sql" />
+    <Build Include="StoredProcedures\UpdateDataLockStatus.sql" />
+    <Build Include="StoredProcedures\GetLastDataLockEventId.sql" />
+    <Build Include="Tables\Message.sql" />
+    <Build Include="StoredProcedures\GetDataLockStatusesByApprenticeshipId.sql" />
+    <Build Include="StoredProcedures\GetDataLockStatus.sql" />
+    <Build Include="StoredProcedures\UpdateDataLockTriageStatus.sql" />
+    <Build Include="StoredProcedures\UpdateCommitment.sql" />
+    <Build Include="Tables\History.sql" />
+    <Build Include="StoredProcedures\InsertHistory.sql" />
+    <Build Include="Views\CommitmentSummaryWithMessages.sql" />
+    <Build Include="Tables\CustomProviderPaymentPriority.sql" />
+    <Build Include="UserDefinedTypes\ProviderPriorityTable.sql" />
+    <Build Include="Tables\PriceHistory.sql" />
+    <Build Include="StoredProcedures\GetAlertsSummary.sql" />
+    <Build Include="StoredProcedures\GetProviderAlertsSummary.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipWithPriceHistory.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipsWithPriceHistory.sql" />
+    <Build Include="StoredProcedures\GetDataLockStatusExpiryCandidates.sql" />
+    <Build Include="StoredProcedures\UpdateDatalockStatusIsExpired.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipUpdatesByDateAndStatus.sql" />
+    <Build Include="Tables\AssessmentOrganisation.sql" />
+    <Build Include="Tables\JobProgress.sql" />
+    <Build Include="Tables\IntegrationTestIds.sql" />
+    <Build Include="Tables\TransferRequest.sql" />
+    <Build Include="StoredProcedures\GetTransferRequestsForSender.sql" />
+    <Build Include="StoredProcedures\GetTransferRequestsForReceiver.sql" />
+    <Build Include="Views\TransferRequestSummary.sql" />
+    <Build Include="StoredProcedures\GetTransferRequest.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipsByULN.sql" />
+    <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />
+    <Build Include="StoredProcedures\GetStatistics.sql" />
+    <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
+    <None Include="AdhocScripts\Manual\CV-69_Populate_EmployerAccountLegalEntities.sql" />
+    <Build Include="Tables\Accounts.sql" />
+    <Build Include="Tables\AccountLegalEntities.sql" />
+    <Build Include="Tables\OutboxData.sql" />
+    <Build Include="Tables\ClientOutboxData.sql" />
+    <Build Include="Tables\Providers.sql" />
+    <Build Include="StoredProcedures\ImportProviders.sql" />
+    <Build Include="StoredProcedures\ProcessFullyApprovedCohort.sql" />
+    <None Include="AdhocScripts\Manual\CV-449_Populate_AccountLegalEntitiesWithActualLegalEntityId.sql" />
+    <None Include="AdhocScripts\Manual\CV-449_AddMaLegalEntityIdColumn.sql" />
+    <None Include="AdhocScripts\Manual\CV-504-Create-Missing-PriceHistory.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
+    <Build Include="Tables\ChangeOfPartyRequest.sql" />
+    <Build Include="Tables\ApprenticeshipConfirmationStatus.sql" />
+    <Build Include="Views\ApprenticeshipConfirmationStatusWithSort.sql" />
+    <Build Include="Tables\StandardOption.sql" />
+    <Build Include="Functions\CourseDatesOverlap.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmails.sql" />
+    <Build Include="UserDefinedTypes\EmailCheckTable.sql" />
+    <Build Include="Functions\GetEndDateForOverlapChecks.sql" />
+    <Build Include="UserDefinedTypes\StandardOptions.sql" />
+    <Build Include="StoredProcedures\ImportStandardOptions.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
+    <Build Include="Functions\GetLearners.sql" />
+    <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
+    <Build Include="Views\ApprenticeshipsWithNoEmail.sql" />
+    <Build Include="Schemas\DashboardReporting.sql" />
+    <None Include="AdhocScripts\Manual\CS-1026-UpdateEmailsToMatchEmailsInCMAD.sql" />
+    <Build Include="Views\ApprenticeshipLatestCheck.sql" />
+    <Build Include="Tables\ApprenticeshipFlexibleEmployment.sql" />
+    <Build Include="Tables\ApprenticeshipPriorLearning.sql" />
+    <Build Include="Tables\OverlappingTrainingDateRequest.sql" />
+    <Build Include="Views\ApprenticeshipsCreatedSummary.sql" />
+    <Build Include="Tables\DataLockUpdaterJobStatus.sql" />
+    <Build Include="Tables\FileUploadCohortLog.sql" />
+    <Build Include="Tables\FileUploadLog.sql" />
+    <Build Include="Tables\DataLockUpdaterJobHistory.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Database.publish.xml" />
+    <Build Include="Tables\BulkUpload.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
+    <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
+    <None Include="AdhocScripts\Support\AML-2937\AML-2937_Migrate_Provider_Assigned_New_Cohorts_To_Amended.sql" />
+    <Build Include="UserDefinedTypes\Providers.sql" />
+    <None Include="AdhocScripts\Manual\CV-656-Insert-AccountLegalEntities.sql" />
+    <None Include="AdhocScripts\Support\BulkApprenticeshipPause.sql" />
+    <None Include="AdhocScripts\Support\BulkApprenticeshipResume.sql" />
+    <None Include="AdhocScripts\Manual\CV-679-Completion-Backfill.sql" />
+    <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
+    <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
+    <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
+    <Build Include="Triggers\ApprenticeshipUpdate.sql" />
+    <Build Include="StoredProcedures\GetLearnersBatch.sql" />
+    <None Include="AdhocScripts\Manual\CS-1214-update-apprenticeship-email-addresses-which-have-changed-recently-by-the-apprentice.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="PreDeployment\PreDeploymentScript.sql" />
+  </ItemGroup>
+</Project>

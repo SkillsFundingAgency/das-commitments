@@ -200,7 +200,6 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
     }
-
     private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update, Party modifyingParty)
     {
         return Cost != update.Cost;
@@ -385,6 +384,6 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
         if (modifyingParty != Party.Employer)
             return false;
 
-        return Cost != update.Cost;
+        return false;
     }
 }

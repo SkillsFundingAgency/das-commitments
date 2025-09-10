@@ -6,6 +6,6 @@ public static class DraftApprenticeshipDetailsExtensions
 {
     public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
     {
-        return details.StartDate;
+        return details.ActualStartDate ?? details.StartDate;
     }
 }

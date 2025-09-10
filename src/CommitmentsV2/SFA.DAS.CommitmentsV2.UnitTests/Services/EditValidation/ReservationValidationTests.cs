@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
+﻿using Azure.Core;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
@@ -27,10 +28,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture
+                .SetupMockContextApprenticeship()
                 .SetupAuthenticationContextAsEmployer()
                 .SetupReservationValidationService();
 
-            fixture.CreateValidationRequest(employerRef: "abc");
+            var request = fixture.CreateValidationRequest(employerRef: "abc");
+            await fixture.Validate(request);
 
             var expectedDate = fixture.Apprenticeship.StartDate.GetValueOrDefault();
 

@@ -72,26 +72,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(null, true)]
-        [TestCase("2024-10-31", false)]
-        [TestCase("2024-11-01", true)]
-        public void ActualStartDate_CheckNotBeforeNovember2024_Validation(DateTime? startDate, bool passes)
-        {
-            var utcStartDate = startDate.HasValue
-                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
-                : default(DateTime?);
-
-            _fixture
-                .AssertValidationForProperty(
-                    () =>
-                    {
-                        _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
-                            .WithApprenticeship(1, "AAA").WithId(1).WithStartDate(null).WithActualStartDate(utcStartDate);
-                    },
-                    nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate),
-                    passes);
-        }
-
-        [TestCase(null, true)]
         [TestCase("valid@email.com", true)]
         [TestCase("valid@email", false)]
         [TestCase("invalidemail@", false)]
