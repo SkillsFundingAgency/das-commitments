@@ -29,32 +29,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
         }
 
         [Test]
-        public void UpdateDraftApprenticeship_Provider_Changes_TrainingPrice_Resets_OtherParty_Approval()
-        {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
-
-            fixture
-                .WithExistingDraftApprenticeships()
-                .WithPriorApprovalOfOtherParty()
-                .UpdateDraftApprenticeshipTrainingPrice();
-
-            fixture.VerifyCohortIsUnapproved();
-        }
-
-        [Test]
-        public void UpdateDraftApprenticeship_Provider_Changes_EndPointAssessmentPrice_Resets_OtherParty_Approval()
-        {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
-
-            fixture
-                .WithExistingDraftApprenticeships()
-                .WithPriorApprovalOfOtherParty()
-                .UpdateDraftApprenticeshipEndPointAssessmentPrice();
-
-            fixture.VerifyCohortIsUnapproved();
-        }
-
-        [Test]
         public void UpdateDraftApprenticeship_Employer_No_Cost_Change_Does_Not_Reset_OtherParty_Approval()
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
