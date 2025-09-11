@@ -9,9 +9,9 @@ public class DraftApprenticeshipConfiguration : IEntityTypeConfiguration<DraftAp
     {
         builder.HasBaseType<ApprenticeshipBase>();
         
-        // builder.Property(e => e.HasLearnerDataChanges)
-        //     .IsRequired()
-        //     .HasDefaultValue(false);
-        // builder.Property(e => e.LastLearnerDataSync).HasColumnType("datetime");
+        builder.Property(e => e.HasLearnerDataChanges)
+            .IsRequired()
+            .HasDefaultValue(false);
+        builder.Property(e => e.LastLearnerDataSync).HasColumnType("datetime");
     }
 }

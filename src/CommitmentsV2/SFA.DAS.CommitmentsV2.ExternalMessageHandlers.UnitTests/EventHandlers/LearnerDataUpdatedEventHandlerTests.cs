@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -14,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
 
@@ -93,17 +92,26 @@ public class LearnerDataUpdatedEventHandlerTests
     {
         // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Provider,
+            Reference = _fixture.Create<string>()
+        };
+        
         var draftApprenticeship = new DraftApprenticeship
         {
             Id = _fixture.Create<long>(),
             LearnerDataId = message.LearnerId,
-            // HasLearnerDataChanges = false,
+            HasLearnerDataChanges = false,
             FirstName = "Test",
             LastName = "User",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
-            Uln = _fixture.Create<long>().ToString()
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
         };
 
+        _dbContext.Cohorts.Add(cohort);
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
@@ -115,8 +123,7 @@ public class LearnerDataUpdatedEventHandlerTests
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
         updatedApprenticeship.Should().NotBeNull();
-        // updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
-        // updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
 
         _mockLogger.Verify(
             x => x.Log(
@@ -133,27 +140,43 @@ public class LearnerDataUpdatedEventHandlerTests
     {
         // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort1 = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Provider,
+            Reference = _fixture.Create<string>()
+        };
+        var cohort2 = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Provider,
+            Reference = _fixture.Create<string>()
+        };
+        
         var draftApprenticeship1 = new DraftApprenticeship
         {
             Id = _fixture.Create<long>(),
             LearnerDataId = message.LearnerId,
-            // HasLearnerDataChanges = false,
+            HasLearnerDataChanges = false,
             FirstName = "Test1",
             LastName = "User1",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
-            Uln = _fixture.Create<long>().ToString()
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort1
         };
         var draftApprenticeship2 = new DraftApprenticeship
         {
             Id = _fixture.Create<long>(),
             LearnerDataId = message.LearnerId,
-            // HasLearnerDataChanges = false,
+            HasLearnerDataChanges = false,
             FirstName = "Test2",
             LastName = "User2",
             DateOfBirth = DateTime.UtcNow.AddYears(-21),
-            Uln = _fixture.Create<long>().ToString()
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort2
         };
 
+        _dbContext.Cohorts.AddRange(cohort1, cohort2);
         _dbContext.DraftApprenticeships.AddRange(draftApprenticeship1, draftApprenticeship2);
         await _dbContext.SaveChangesAsync();
 
@@ -167,17 +190,15 @@ public class LearnerDataUpdatedEventHandlerTests
 
         updatedApprenticeships.Should().HaveCount(2);
         
-        // One should be updated, one should remain unchanged
-        // var updatedApprenticeship = updatedApprenticeships.FirstOrDefault(da => da.HasLearnerDataChanges);
-        // var unchangedApprenticeship = updatedApprenticeships.FirstOrDefault(da => !da.HasLearnerDataChanges);
-        //
-        // updatedApprenticeship.Should().NotBeNull();
-        // updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
-        // updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
-        //
-        // unchangedApprenticeship.Should().NotBeNull();
-        // unchangedApprenticeship.HasLearnerDataChanges.Should().BeFalse();
-        // unchangedApprenticeship.LastLearnerDataSync.Should().BeNull();
+        var updatedApprenticeship = updatedApprenticeships.FirstOrDefault(da => da.HasLearnerDataChanges);
+        var unchangedApprenticeship = updatedApprenticeships.FirstOrDefault(da => !da.HasLearnerDataChanges);
+        
+        updatedApprenticeship.Should().NotBeNull();
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
+        
+        unchangedApprenticeship.Should().NotBeNull();
+        unchangedApprenticeship.HasLearnerDataChanges.Should().BeFalse();
+        unchangedApprenticeship.LastLearnerDataSync.Should().BeNull();
     }
 
     [Test]
@@ -185,19 +206,27 @@ public class LearnerDataUpdatedEventHandlerTests
     {
         // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
-        var originalChangeDate = DateTime.UtcNow.AddDays(-1);
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Provider,
+            Reference = _fixture.Create<string>()
+        };
+        
         var draftApprenticeship = new DraftApprenticeship
         {
             Id = _fixture.Create<long>(),
             LearnerDataId = message.LearnerId,
-            // HasLearnerDataChanges = true,
-            // LastLearnerDataSync = originalChangeDate,
+            HasLearnerDataChanges = true,
+            LastLearnerDataSync = null,
             FirstName = "Test",
             LastName = "User",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
-            Uln = _fixture.Create<long>().ToString()
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
         };
 
+        _dbContext.Cohorts.Add(cohort);
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
@@ -209,9 +238,7 @@ public class LearnerDataUpdatedEventHandlerTests
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
         updatedApprenticeship.Should().NotBeNull();
-        // updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
-        // updatedApprenticeship.LastLearnerDataSync.Should().Be(message.ChangedAt);
-        // updatedApprenticeship.LastLearnerDataSync.Should().NotBe(originalChangeDate);
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
     }
 
     [Test]
