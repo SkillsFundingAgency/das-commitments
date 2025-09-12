@@ -70,7 +70,8 @@ public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailServic
                 { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReviewCount) },
                 { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
                 { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices" },
-                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
+                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" },
+                { "apprentice_request_for_review", RequestsForReviewText(alertSummary.RequestsForReviewCount) }
             };
 
         _messageSession.Send(new SendEmailToEmployerCommand(accountId, "EmployerAlertSummaryNotification", tokens, null, "name"));
@@ -83,6 +84,16 @@ public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailServic
             0 => string.Empty,
             1 => $"* {restartRequestCount} apprentice with requested changes",
             _ => $"* {restartRequestCount} apprentices with requested changes"
+        };
+    }
+
+    private static string RequestsForReviewText(int requestsForReviewCount)
+    {
+        return requestsForReviewCount switch
+        {
+            0 => string.Empty,
+            1 => $"* {requestsForReviewCount} apprentice request to review",
+            _ => $"* {requestsForReviewCount} apprentices requests to review"
         };
     }
 

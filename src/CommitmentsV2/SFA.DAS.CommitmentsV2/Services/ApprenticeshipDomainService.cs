@@ -23,6 +23,9 @@ public class ApprenticeshipDomainService(
             .GroupBy(app => app.Cohort.EmployerAccountId)
             .Select(m => new { EmployerAccountId = m.Key, PendingUpdateByProviderCount = m.Count() });
 
+        var cohortReviewStatusCount = dbContext.Value.Cohorts.Where(c => !c.IsDraft && c.WithParty == Party.Employer).GroupBy(p => p.EmployerAccountId)
+            .Select(t => new { EmployerAccountId = t.Key, RequestsForReviewCount = t.Count() });
+
         var queryCourseTriaged = dbContext.Value.Apprenticeships
             .Where(app => app.PaymentStatus > 0)
             .Where(app => app.DataLockStatus.Any(dlock =>
@@ -53,6 +56,7 @@ public class ApprenticeshipDomainService(
         var pendingUpdateByProvider = await queryPendingUpdateByProvider.ToDictionaryAsync(p => p.EmployerAccountId, p => p.PendingUpdateByProviderCount);
         var courseTriaged = await queryCourseTriaged.ToDictionaryAsync(p => p.EmployerAccountId, p => p.RestartRequestCount);
         var priceTriaged = await queryPriceTriaged.ToDictionaryAsync(p => p.EmployerAccountId, p => p.ChangesForReviewCount);
+        var reviewCount = await cohortReviewStatusCount.ToDictionaryAsync(p => p.EmployerAccountId, p => p.RequestsForReviewCount);
 
         var results = pendingUpdateByProvider.Select(p => p.Key).Union(courseTriaged.Select(p => p.Key).Union(priceTriaged.Select(p => p.Key)))
             .Distinct()
@@ -61,7 +65,8 @@ public class ApprenticeshipDomainService(
                 EmployerHashedAccountId = encodingService.Encode(p, EncodingType.AccountId),
                 TotalCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0) + courseTriaged.GetValueOrDefault(p, 0),
                 ChangesForReviewCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0),
-                RestartRequestCount = courseTriaged.GetValueOrDefault(p, 0)
+                RestartRequestCount = courseTriaged.GetValueOrDefault(p, 0),
+                RequestsForReviewCount = reviewCount.GetValueOrDefault(p, 0)
             })
             .ToList();
 

@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount = 0
                         }
                     }
                 };

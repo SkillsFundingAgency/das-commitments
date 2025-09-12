@@ -6,4 +6,5 @@ public class EmployerAlertSummaryNotification
     public int TotalCount { get; set; }
     public int ChangesForReviewCount { get; set; }
     public int RestartRequestCount { get; set; }
+    public int RequestsForReviewCount { get; set; }
 }
