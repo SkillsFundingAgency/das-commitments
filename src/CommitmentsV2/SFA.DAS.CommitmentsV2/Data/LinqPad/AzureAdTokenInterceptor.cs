@@ -15,9 +15,18 @@ public class AzureAdTokenInterceptor : DbConnectionInterceptor
     {
         if (connection is SqlConnection sql)
         {
-            // get a fresh token right before opening (handles expiry/refresh)
-            var token = _credential.GetToken(_ctx, default);
-            sql.AccessToken = token.Token;
+            var csb = new SqlConnectionStringBuilder(sql.ConnectionString);
+
+            bool isIntegrated = csb.IntegratedSecurity;
+            bool hasSqlAuth = !string.IsNullOrWhiteSpace(csb.UserID) || !string.IsNullOrWhiteSpace(csb.Password);
+            bool hasAuthKeyword = csb.TryGetValue("Authentication", out var authObj) && authObj is string auth && !string.IsNullOrWhiteSpace(auth);
+
+            if (!isIntegrated && !hasSqlAuth && !hasAuthKeyword)
+            {
+                // get a fresh token right before opening (handles expiry/refresh)
+                var token = _credential.GetToken(_ctx, default);
+                sql.AccessToken = token.Token;
+            }
         }
 
         return base.ConnectionOpening(connection, eventData, result);
