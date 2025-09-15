@@ -206,5 +206,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             var providerReference = "provider";
             return AssertPropertySet(input => input.ProviderReference, providerReference);
         }
+
+        [TestCase(12345)]
+        [TestCase(null)]
+        public Task Map_LearnerDataId_ShouldBeSet(long? id)
+        {
+             return AssertPropertySet(input => input.LearnerDataId, id);
+        }
     }
 }

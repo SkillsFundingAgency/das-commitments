@@ -56,7 +56,8 @@ public class GetDraftApprenticeshipQueryHandler(
             TrainingTotalHours = draft.PriorLearning != null ? draft.TrainingTotalHours : null,
             RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
             EmailAddressConfirmed = draft.EmailAddressConfirmed,
-            EmployerHasEditedCost = draft.EmployerHasEditedCost
+            EmployerHasEditedCost = draft.EmployerHasEditedCost,
+            LearnerDataId = draft.LearnerDataId
         }).SingleOrDefaultAsync(cancellationToken);
 
         return result;

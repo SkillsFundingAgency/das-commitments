@@ -42,4 +42,5 @@ public class GetDraftApprenticeshipQueryResult
     public int? DurationReducedByHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }
     public int? TrainingTotalHours { get; set; }
+    public long? LearnerDataId { get; set; }
 }
