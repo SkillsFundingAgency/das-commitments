@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Client;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
@@ -50,14 +49,6 @@ public class AccountController(IMediator mediator, IModelMapper modelMapper) : C
         });
     }
 
-    /// <summary>
-    /// Gets providers and courses for an Account
-    /// </summary>
-    /// <param name="accountId">The account for which to get the status</param>
-    /// <param name="completionLag">Months after completion to allow feedback</param>
-    /// <param name="startLag">Months since start to restrict search</param>
-    /// <param name="newStartWindow">Window of months that is considered a new start</param>
-    /// <returns></returns>
     [HttpGet]
     [Route("status")]
     public async Task<IActionResult> GetAccountStatus(long accountId, int completionLag, int startLag, int newStartWindow)
