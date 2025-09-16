@@ -33,7 +33,8 @@ public class ValidateApprenticeshipForEditRequestToValidateApprenticeshipForEdit
                 EmploymentEndDate = request.EmploymentEndDate,
                 EmploymentPrice = request.EmploymentPrice,
                 MinimumAgeAtApprenticeshipStart = request.MinimumAgeAtApprenticeshipStart,
-                MaximumAgeAtApprenticeshipStart = request.MaximumAgeAtApprenticeshipStart
+                MaximumAgeAtApprenticeshipStart = request.MaximumAgeAtApprenticeshipStart,
+                Party = request.Party
             }
         });
     }
