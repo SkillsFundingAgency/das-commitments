@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount = 0
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
                         }
                     }
                 };
@@ -112,8 +112,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             DataLockInput = new DataLockInput { DataLockStatusId = 0, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, ErrorCode = DataLockErrorCode.Dlock07 }
                         }
                     },
-                    new List<EmployerAlertSummaryNotification> 
-                    { 
+                    new List<EmployerAlertSummaryNotification>
+                    {
                         new EmployerAlertSummaryNotification
                         {
                             EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
@@ -441,7 +441,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 public long AccountId { get; set; }
                 public long CohortId { get; set; }
                 public long ApprenticeshipId { get; set; }
-                public PaymentStatus PaymentStatus {get; set;}
+                public PaymentStatus PaymentStatus { get; set; }
                 public Originator Originator { get; set; }
             }
 
@@ -451,7 +451,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 public bool IsResolved { get; set; }
                 public bool IsExpired { get; set; }
                 public Status Status { get; set; }
-                public EventStatus EventStatus {get; set; }
+                public EventStatus EventStatus { get; set; }
                 public TriageStatus TriageStatus { get; set; }
                 public DataLockErrorCode ErrorCode { get; set; }
             }
@@ -462,14 +462,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             public List<Apprenticeship> SeedApprenticeships { get; }
             public List<DataLockStatus> SeedDataLocks { get; }
-            
+
             private Mock<IEncodingService> _encodingService;
 
             public ApprenticeshipDomainServiceTestsFixture()
             {
                 SeedApprenticeships = new List<Apprenticeship>();
                 SeedDataLocks = new List<DataLockStatus>();
-                
+
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(s => s.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns<long, EncodingType>((value, encodingType) => $"HSH{value}");
             }
@@ -519,7 +519,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
                             .Set(a => a.AccountId, accountId)
                             .Set(a => a.Id, accountLegalEntityId);
-                    
+
                 var cohort =
                     SeedApprenticeships.FirstOrDefault(p => p.Cohort.Id == cohortId)?.Cohort
                         ?? new Cohort()
@@ -552,7 +552,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Set(c => c.TriageStatus, triageStatus)
                     .Set(c => c.PriceEpisodeIdentifier, "SomeIdentifier")
                     .Set(c => c.ErrorCode, errorCode);
-               
+
                 SeedDataLocks.Add(dataLock);
                 return this;
             }

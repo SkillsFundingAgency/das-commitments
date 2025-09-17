@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Services;
 using System.Collections;
-using System.Linq.Expressions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -33,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             // Act
             await _fixture.SendEmployerAlertSummaryNotifications();
-            
+
             // Assert
             _fixture.VerifyAccountReponses(outputs);
         }
@@ -54,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         public class DataCases : IEnumerable
-        {            
+        {
             public IEnumerator GetEnumerator()
             {
                 #region no notifications
@@ -84,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -111,8 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -128,7 +126,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount = 1,
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -155,8 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", $"* 1 apprentice request to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -172,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount = 0,
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -199,8 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -216,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -243,8 +239,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -260,7 +255,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -287,8 +282,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -304,7 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount=0
+                                EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -331,8 +325,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
                     }
@@ -341,38 +334,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 #region multiple notifications
                 yield return new object[]
-                 {
+                {
                     new Input
                     {
                         EmployerAlertSummaryNotifications = new List<EmployerAlertSummaryNotification>
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1001", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount=0
+                                EmployerHashedAccountId = "HSH1001", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1002", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1002", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1003", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1003", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1004", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 0, RequestsForReviewCount = 1
+                                EmployerHashedAccountId = "HSH1004", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1005", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1005", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2, RequestsForReviewCount = 0
+                                EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1007", TotalCount = 3, ChangesForReviewCount = 2, RestartRequestCount = 1, RequestsForReviewCount = 0 
+                                EmployerHashedAccountId = "HSH1007", TotalCount = 3, ChangesForReviewCount = 2, RestartRequestCount = 1
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -435,8 +428,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
                         new Output
@@ -451,8 +443,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1002/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1002" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1002" }
                             }
                         },
                         new Output
@@ -467,8 +458,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
                         new Output
@@ -481,10 +471,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "account_name", "FOUR ACCOUNT" },
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
-                                { "requested_changes", "" },
+                                { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1004/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1004" },
-                                { "apprentice_request_for_review", $"* 1 apprentice request to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1004" }
                             }
                         },
                         new Output
@@ -499,9 +488,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" },
-                                { "apprentice_request_for_review", "" }
-
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         },
                         new Output
@@ -516,8 +503,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         },
                         new Output
@@ -532,12 +518,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1007/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1007" },
-                                { "apprentice_request_for_review", "" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1007" }
                             }
                         }
                     }
-                 };
+                };
                 #endregion
 
                 #region multiple notifications for same employer account
@@ -549,7 +534,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1006", TotalCount = 6, ChangesForReviewCount = 0, RestartRequestCount = 2, RequestsForReviewCount=4
+                                EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -570,14 +555,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             HashedAccountId = "HSH1006",
                             Tokens = new Dictionary<string, string>
                             {
-                                { "total_count_text", "are 6 apprentices" },
+                                { "total_count_text", "are 2 apprentices" },
                                 { "account_name", "SIX ACCOUNT" },
                                 { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" },
-                                { "apprentice_request_for_review", $"* 4 apprentices requests to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         }
                     }
@@ -593,15 +577,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1001", TotalCount = 6, ChangesForReviewCount = 4, RestartRequestCount = 0, RequestsForReviewCount = 2
+                                EmployerHashedAccountId = "HSH1001", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1003", TotalCount = 3, ChangesForReviewCount = 2, RestartRequestCount = 0, RequestsForReviewCount=1
+                                EmployerHashedAccountId = "HSH1003", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0
                             },
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1005", TotalCount = 5, ChangesForReviewCount = 0, RestartRequestCount = 2, RequestsForReviewCount=3
+                                EmployerHashedAccountId = "HSH1005", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -634,14 +618,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             HashedAccountId = "HSH1001",
                             Tokens = new Dictionary<string, string>
                             {
-                                { "total_count_text", "are 6 apprentices" },
+                                { "total_count_text", "are 2 apprentices" },
                                 { "account_name", "ONE ACCOUNT" },
                                 { "need_needs", "need" },
-                                { "changes_for_review", $"* 4 apprentices with changes for review" },
+                                { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" },
-                                { "apprentice_request_for_review", $"* 2 apprentices requests to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
                         new Output
@@ -650,14 +633,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             HashedAccountId = "HSH1003",
                             Tokens = new Dictionary<string, string>
                             {
-                                { "total_count_text", "are 3 apprentices" },
+                                { "total_count_text", "are 2 apprentices" },
                                 { "account_name", "THREE ACCOUNT" },
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" },
-                                { "apprentice_request_for_review", $"* 1 apprentice request to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
                         new Output
@@ -666,14 +648,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             HashedAccountId = "HSH1005",
                             Tokens = new Dictionary<string, string>
                             {
-                                { "total_count_text", "are 5 apprentices" },
+                                { "total_count_text", "are 2 apprentices" },
                                 { "account_name", "FIVE ACCOUNT" },
                                 { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" },
-                                { "apprentice_request_for_review", $"* 3 apprentices requests to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         }
                     }
@@ -689,7 +670,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         {
                             new EmployerAlertSummaryNotification
                             {
-                                EmployerHashedAccountId = "HSH1001", TotalCount = 9, ChangesForReviewCount = 4, RestartRequestCount = 2, RequestsForReviewCount = 3,
+                                EmployerHashedAccountId = "HSH1001", TotalCount = 6, ChangesForReviewCount = 4, RestartRequestCount = 2
                             }
                         },
                         AccountResponses = new List<AccountResponse>
@@ -710,14 +691,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             HashedAccountId = "HSH1001",
                             Tokens = new Dictionary<string, string>
                             {
-                                { "total_count_text", $"are 9 apprentices" },
+                                { "total_count_text", $"are 6 apprentices" },
                                 { "account_name", "ONE ACCOUNT" },
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 4 apprentices with changes for review" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
                                 { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
-                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" },
-                                { "apprentice_request_for_review", $"* 3 apprentices requests to review" }
+                                { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         }
                     }
@@ -747,14 +727,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IMessageSession> _messageSession;
             private Mock<IApprovalsOuterApiClient> _approvalsOuterApiClient;
             private Mock<IApprenticeshipDomainService> _apprenticeshipDomainService;
-            private static CommitmentsV2Configuration commitmentsV2Configuration;           
+            private static CommitmentsV2Configuration commitmentsV2Configuration;
 
             public EmployerAlertSummaryEmailServiceTestsFixture()
             {
                 _apprenticeshipDomainService = new Mock<IApprenticeshipDomainService>();
                 _messageSession = new Mock<IMessageSession>();
                 _approvalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
-                commitmentsV2Configuration = new CommitmentsV2Configuration() 
+                commitmentsV2Configuration = new CommitmentsV2Configuration()
                 {
                     EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl
                 };
@@ -796,22 +776,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
 
             public void VerifySendEmailToEmployerCommandSent(List<DataCases.Output> outputs)
-            {                
-                    if (outputs.Any())
+            {
+                if (outputs.Any())
+                {
+                    foreach (var output in outputs)
                     {
-                        foreach (var output in outputs)
-                        {
-                            _messageSession.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(p =>
-                                p.AccountId == output.AccountId &&
-                                p.Template == "EmployerAlertSummaryNotification" &&
-                                p.Tokens.SequenceEqual(output.Tokens) &&
-                                p.NameToken == "name"), It.IsAny<SendOptions>()), Times.Once);
-                        }
+                        _messageSession.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(p =>
+                            p.AccountId == output.AccountId &&
+                            p.Template == "EmployerAlertSummaryNotification" &&
+                            p.Tokens.SequenceEqual(output.Tokens) &&
+                            p.NameToken == "name"), It.IsAny<SendOptions>()), Times.Once);
                     }
-                    else
-                    {
-                        _messageSession.Verify(m => m.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never);
-                    }               
+                }
+                else
+                {
+                    _messageSession.Verify(m => m.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never);
+                }
             }
         }
     }
