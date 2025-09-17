@@ -46,7 +46,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
     {
-        var trustedParty = GetParty(party);
+        var trustedParty = request.Party;
 
         var errors = new List<DomainError>();
         var apprenticeship = _context.Apprenticeships

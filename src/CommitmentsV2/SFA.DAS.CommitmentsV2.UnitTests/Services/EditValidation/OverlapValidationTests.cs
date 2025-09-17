@@ -89,12 +89,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             if (party == Party.Employer)
             {
                 eaFixture.SetupAuthenticationContextAsEmployer();
-                request = eaFixture.CreateValidationRequest(employerRef: "abc");
+                request = eaFixture.CreateValidationRequest(employerRef: "abc", Party : party );
             }
             else
             {
                 eaFixture.SetupAuthenticationContextAsProvider();
-                request = eaFixture.CreateValidationRequest(providerRef: "abc");
+                request = eaFixture.CreateValidationRequest(providerRef: "abc", Party:party);
             }
 
             var result = await fixture.Validate(request);
