@@ -1,14 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
@@ -62,7 +63,8 @@ public class ProviderAlertSummaryEmailService(
                 {
                     "link_to_mange_apprenticeships",
                     $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices"
-                }
+                },
+                { "apprentice_request_for_review", RequestsForReviewText(alert.RequestsForReviewCount) }
             });
 
         await messageSession.Send(sendEmailToProviderCommand);
@@ -88,6 +90,16 @@ public class ProviderAlertSummaryEmailService(
         };
     }
 
+    private static string RequestsForReviewText(int requestsForReviewCount)
+    {
+        return requestsForReviewCount switch
+        {
+            0 => string.Empty,
+            1 => $"* {requestsForReviewCount} apprentice request to review",
+            _ => $"* {requestsForReviewCount} apprentices requests to review"
+        };
+    }
+
     private async Task<List<ProviderAlertSummary>> GetProviderApprenticeshipAlertSummary()
     {
         var summaries = new List<ProviderAlertSummary>();
@@ -105,6 +117,11 @@ public class ProviderAlertSummaryEmailService(
                 DLocks = app.DataLockStatus
             }).ToListAsync();
 
+        var cohortReviewStatusCount = context.Cohorts.Where(c => !c.IsDraft && c.WithParty == Party.Provider).GroupBy(p => p.ProviderId)
+            .Select(t => new { ProviderId = t.Key, RequestsForReviewCount = t.Count() });
+
+        var reviewCount = await cohortReviewStatusCount.ToDictionaryAsync(p => p.ProviderId, p => p.RequestsForReviewCount);
+
         var providerGroups = providerSummaryInfos.GroupBy(app => app.ProviderId);
 
         foreach (var providerGroup in providerGroups)
@@ -121,7 +138,8 @@ public class ProviderAlertSummaryEmailService(
                 ProviderName = providerGroup.First().ProviderName,
                 TotalCount = changesForReview + dataMismatchCount,
                 ChangesForReview = changesForReview,
-                DataMismatchCount = dataMismatchCount
+                DataMismatchCount = dataMismatchCount,
+                RequestsForReviewCount = reviewCount.Where(t => t.Key == providerGroup.First().ProviderId).First().Value
             });
         }
 
