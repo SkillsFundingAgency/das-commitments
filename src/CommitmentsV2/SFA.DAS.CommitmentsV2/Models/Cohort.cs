@@ -381,9 +381,12 @@ public class Cohort : Aggregate, ITrackableEntity
         if (modifyingParty == Party.Employer || modifyingParty == Party.Provider)
         {
             AddMessage(message, modifyingParty, userInfo);
+            
+            if (!string.IsNullOrEmpty(userInfo.UserEmail))
+            {
+                UpdatedBy(modifyingParty, userInfo);
+            }
         }
-        
-        UpdatedBy(modifyingParty, userInfo);
         LastUpdatedOn = DateTime.UtcNow;
 
         switch (WithParty)
