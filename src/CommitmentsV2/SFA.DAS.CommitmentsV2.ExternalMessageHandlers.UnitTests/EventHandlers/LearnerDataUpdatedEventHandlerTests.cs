@@ -79,7 +79,7 @@ public class LearnerDataUpdatedEventHandlerTests
         // Assert
         _mockLogger.Verify(
             x => x.Log(
-                LogLevel.Warning,
+                LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"No draft apprenticeship found for learner {message.LearnerId}")),
                 It.IsAny<Exception>(),
@@ -253,9 +253,123 @@ public class LearnerDataUpdatedEventHandlerTests
         // Assert
         _mockLogger.Verify(
             x => x.Log(
-                LogLevel.Warning,
+                LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"No draft apprenticeship found for learner {message.LearnerId}")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithEmployer_TransitionsBackToProvider()
+    {
+        // Arrange
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Employer,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        await _handler.ProcessLearnerDataChanges(message);
+
+        // Assert
+        var updatedCohort = await _dbContext.Cohorts
+            .FirstOrDefaultAsync(c => c.Id == cohort.Id);
+
+        updatedCohort.Should().NotBeNull();
+        updatedCohort.WithParty.Should().Be(Party.Provider);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Cohort {cohort.Id} is WithEmployer, transitioning back to WithProvider due to learner data changes")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Successfully transitioned cohort {cohort.Id} from WithEmployer to WithProvider")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_TransitionsBackToProvider()
+    {
+        // Arrange
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.TransferSender,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        await _handler.ProcessLearnerDataChanges(message);
+
+        // Assert
+        var updatedCohort = await _dbContext.Cohorts
+            .FirstOrDefaultAsync(c => c.Id == cohort.Id);
+
+        updatedCohort.Should().NotBeNull();
+        updatedCohort.WithParty.Should().Be(Party.Provider);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Cohort {cohort.Id} is WithTransferSender, transitioning back to WithProvider due to learner data changes")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Successfully transitioned cohort {cohort.Id} from WithTransferSender to WithProvider")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);

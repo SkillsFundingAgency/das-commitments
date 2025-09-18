@@ -39,7 +39,7 @@ public class LearnerDataUpdatedEventHandler(
 
         if (draftApprenticeship == null)
         {
-            logger.LogWarning("No draft apprenticeship found for learner {LearnerId}", message.LearnerId);
+            logger.LogInformation("No draft apprenticeship found for learner {LearnerId}", message.LearnerId);
             return;
         }
 
@@ -62,6 +62,21 @@ public class LearnerDataUpdatedEventHandler(
             cohort.SendToOtherParty(Party.Employer, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
             
             logger.LogInformation("Successfully transitioned cohort {CohortId} from WithEmployer to WithProvider", cohort.Id);
+        }
+        else if (cohort.WithParty == Party.TransferSender)
+        {
+            logger.LogInformation("Cohort {CohortId} is WithTransferSender, transitioning back to WithProvider due to learner data changes", cohort.Id);
+            
+            var systemUserInfo = new UserInfo
+            {
+                UserId = "System",
+                UserDisplayName = "System",
+                UserEmail = null
+            };
+
+            cohort.SendToOtherParty(Party.TransferSender, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+            
+            logger.LogInformation("Successfully transitioned cohort {CohortId} from WithTransferSender to WithProvider", cohort.Id);
         }
 
         await dbContext.Value.SaveChangesAsync();
