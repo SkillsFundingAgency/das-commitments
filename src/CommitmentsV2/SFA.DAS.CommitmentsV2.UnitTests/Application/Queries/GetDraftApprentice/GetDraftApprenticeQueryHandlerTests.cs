@@ -129,8 +129,7 @@ public class GetDraftApprenticeHandlerTestFixtures
             FirstName = "AFirstName",
             LastName = "ALastName",
             DeliveryModel = DeliveryModel.Regular,
-            StartDate = startDate,
-            IsOnFlexiPaymentPilot = false
+            StartDate = startDate
         };
 
         if (hasOptions)

@@ -53,7 +53,6 @@ public class DraftApprenticeshipDetails
     public int? PriceReducedBy { get; set; }
 
     public bool IgnoreStartDateOverlap { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRPL { get; set; }

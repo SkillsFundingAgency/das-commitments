@@ -492,12 +492,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             {
                 priceHistoryEpisode.TrainingPrice = update.TrainingPrice.Value;
                 priceHistoryEpisode.AssessmentPrice = update.EndPointAssessmentPrice.Value;
-
-                if (IsOnFlexiPaymentPilot == true)
-                {
-                    TrainingPrice = (int)update.TrainingPrice.Value;
-                    EndPointAssessmentPrice = (int)update.EndPointAssessmentPrice.Value;
-                }
             }
         }
 
@@ -608,7 +602,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             TrainingCourseOption = this.TrainingCourseOption,
             FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
             ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
-            IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot,
             EmployerHasEditedCost = this.EmployerHasEditedCost,
             RecognisePriorLearning = this.RecognisePriorLearning,
             TrainingTotalHours = this.TrainingTotalHours,
@@ -777,15 +770,9 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             // When asking for a stop date, only a month and year are provded by the UI, The day is not supplied.
             // As a result, when constructing comparisons, it is clear the dates must also be of the same format.
-            if (!IsOnFlexiPaymentPilot.GetValueOrDefault() && stopDate.Date > new DateTime(currentDate.UtcNow.Year, currentDate.UtcNow.Month, 1))
+            if (stopDate.Date > new DateTime(currentDate.UtcNow.Year, currentDate.UtcNow.Month, 1))
             {
                 throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future and must be the 1st of the month.");
-            }
-
-            // This is not the case for payments simplification learners; so we validate against the full date
-            if (IsOnFlexiPaymentPilot.GetValueOrDefault() && stopDate.Date > currentDate.UtcNow)
-            {
-                throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future.");
             }
 
             if (stopDate.Date < new DateTime(StartDate.Value.Year, StartDate.Value.Month, 1))

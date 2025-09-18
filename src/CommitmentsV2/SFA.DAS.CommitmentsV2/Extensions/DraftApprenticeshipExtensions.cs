@@ -22,7 +22,6 @@ public static class DraftApprenticeshipExtensions
         errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart));
         if (!isContinuation)
         {
-            errors.AddRange(BuildIsOnFlexiPaymentPilotValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, transferSenderId));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, apprenticeships));
             errors.AddRange(BuildTrainingProgramValidationFailures(draftApprenticeshipDetails, transferSenderId));
@@ -54,14 +53,6 @@ public static class DraftApprenticeshipExtensions
         }
     }
 
-    private static IEnumerable<DomainError> BuildIsOnFlexiPaymentPilotValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
-    {
-        if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.HasValue)
-        {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.IsOnFlexiPaymentPilot), "Select whether this apprentice will be on the pilot programme");
-        }
-    }
-
     private static IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
     {
         if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate < Constants.DasStartDate)
@@ -74,68 +65,25 @@ public static class DraftApprenticeshipExtensions
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
         }
-
-        if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.ActualStartDate)
-        {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
-        }
-        else if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
-        {
-            var differenceBetweenStartAndEnd = draftApprenticeshipDetails.EndDate.Value - draftApprenticeshipDetails.ActualStartDate.Value;
-            differenceBetweenStartAndEnd = differenceBetweenStartAndEnd.Add(new TimeSpan(1, 0, 0, 0));
-            if (differenceBetweenStartAndEnd.Days < 365)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The duration of an apprenticeship must be at least 365 days");
-            }
-
-            var maxEndDate = draftApprenticeshipDetails.ActualStartDate.Value.AddYears(10).AddDays(-1);
-            if (draftApprenticeshipDetails.EndDate.Value > maxEndDate)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The projected finish date should be no more than ten years in the future");
-            }
-        }
     }
 
     private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
     {
-        if (draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault())
+        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
         {
-            if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Total price for training and end-point assessment cannot be more than £100,000");
-                yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), " ");
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
-                yield break;
-            }
-
-            if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "The Training Price must be in the range of 1-100000");
-            }
-
-            if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "The End-Point Assessment Price must be in the range of 1-100000");
-            }
+            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
+            yield break;
         }
-        else
-        {
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
-                yield break;
-            }
 
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
-            }
+        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+        {
+            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
         }
     }
 
     private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
-        if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < minimumAgeAtApprenticeshipStart)
+        if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < minimumAgeAtApprenticeshipStart)
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {minimumAgeAtApprenticeshipStart} years old at the start of their training");
             yield break;
@@ -205,21 +153,6 @@ public static class DraftApprenticeshipExtensions
 
             yield return new DomainError(startDateField, errorMessage);
             yield break;
-        }
-
-        if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&
-            details.DateOfBirth.HasValue &&
-            details.ActualStartDate.HasValue &&
-            details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16())
-        {
-            yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
-        }
-
-        if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&      
-            details.ActualStartDate.HasValue &&
-            details.ActualStartDate.Value < Constants.SimplifiedPaymentsStartDate)
-        {
-            yield return new DomainError(startDateField, $"The start date must not be earlier than {Constants.SimplifiedPaymentsStartDate:d MMMM yyyy}.");
         }
     }
 

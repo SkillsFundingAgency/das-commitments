@@ -157,7 +157,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     MadeRedundant = _autoFixture.Create<bool?>(),
                     FlexibleEmployment = _autoFixture.Create<FlexibleEmployment>(),
                     PriorLearning = _autoFixture.Create<ApprenticeshipPriorLearning>(),
-                    IsOnFlexiPaymentPilot = _autoFixture.Create<bool>(),
                     TrainingTotalHours = _autoFixture.Create<int>(),
                     EmployerHasEditedCost = _autoFixture.Create<bool?>()
                 };
@@ -225,7 +224,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Assert.That(_result.ApprenticeshipPriorLearning.DurationReducedBy, Is.EqualTo(Apprenticeship.PriorLearning.DurationReducedBy));
                     Assert.That(_result.ApprenticeshipPriorLearning.PriceReducedBy, Is.EqualTo(Apprenticeship.PriorLearning.PriceReducedBy));
                     Assert.That(_result.TransferSenderId, Is.EqualTo(Apprenticeship.Cohort.TransferSenderId));
-                    Assert.That(_result.IsOnFlexiPaymentPilot, Is.EqualTo(Apprenticeship.IsOnFlexiPaymentPilot));
                     Assert.That(_result.TrainingTotalHours, Is.EqualTo(Apprenticeship.TrainingTotalHours));
                     Assert.That(_result.EmployerHasEditedCost, Is.EqualTo(Apprenticeship.EmployerHasEditedCost));
                     Assert.That(_result.ApprenticeshipPriorLearning.IsDurationReducedByRpl, Is.EqualTo(Apprenticeship.PriorLearning.IsDurationReducedByRpl));

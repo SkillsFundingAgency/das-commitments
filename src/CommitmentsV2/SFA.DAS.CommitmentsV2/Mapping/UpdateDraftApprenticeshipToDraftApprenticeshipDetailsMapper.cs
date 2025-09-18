@@ -8,7 +8,7 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
 {
     public async Task<DraftApprenticeshipDetails> Map(UpdateDraftApprenticeshipCommand source)
     {
-        var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+        var startDate = source.StartDate;
         var trainingProgramme = await GetCourse(source.CourseCode, startDate);
         var result = new DraftApprenticeshipDetails
         {
@@ -31,8 +31,7 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
             DateOfBirth = source.DateOfBirth,
             Reference = source.Reference,
             ReservationId = source.ReservationId,
-            IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
+            IgnoreStartDateOverlap = source.IgnoreStartDateOverlap
         };
 
         // Only populate standard version specific items if start is specified.

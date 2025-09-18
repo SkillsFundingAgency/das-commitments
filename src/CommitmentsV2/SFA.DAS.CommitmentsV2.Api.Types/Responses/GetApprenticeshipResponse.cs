@@ -54,7 +54,6 @@ public class GetApprenticeshipResponse
     public int? DurationReducedBy { get; set; }
     public int? PriceReducedBy { get; set; }
     public long? TransferSenderId { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }

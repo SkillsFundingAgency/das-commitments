@@ -8,7 +8,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgram
 {
     public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
     {
-        var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+        var startDate = source.StartDate;
         var trainingProgramme = await GetCourse(source.CourseCode, startDate);
 
         var result = new DraftApprenticeshipDetails
@@ -29,7 +29,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgram
             EmploymentEndDate = source.EmploymentEndDate,
             EmploymentPrice = source.EmploymentPrice,
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value,
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
             LearnerDataId = source.LearnerDataId
