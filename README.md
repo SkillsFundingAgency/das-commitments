@@ -72,7 +72,7 @@ Get configuration from das-employer-config repo das-commitments/SFA.DAS.Commitme
 
 ## Design time debugging for Entity Framework queries ##
 
-In Commitments V2 using the LinqPad tool (https://www.linqpad.net/GetFile.aspx?LINQPad8Setup.exe) EF queries can be developed directly against a database, however the database model in Commmitments V2 is configured with differences from the SQL tables. 
+In Commitments V2 using the LinqPad tool (https://www.linqpad.net/GetFile.aspx?LINQPad8Setup.exe) EF queries can be developed directly against a database, however the database model in Commitments V2 is configured with differences from the SQL tables. 
 
 To make it easier to develop queries against an Azure database the ```AzureAdTokenInterceptor``` and ```ProviderCommitmentsDesignTimeDbContext``` classes have been added. 
 
