@@ -146,3 +146,10 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Validate]
 ON [dbo].[Apprenticeship] ([FirstName],[LastName],[DateOfBirth])
 INCLUDE ([Id],[ULN],[TrainingCode],[StandardUId],[PaymentStatus],[StartDate],[EndDate],[StopDate])
 GO
+
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_LearnerDataId] 
+ON [dbo].[Apprenticeship] ([LearnerDataId]) 
+INCLUDE ([HasLearnerDataChanges], [LastLearnerDataSync])
+WHERE [LearnerDataId] IS NOT NULL
+WITH (ONLINE = ON)
+GO
