@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void Arrange()
         {
             var fixture = new Fixture();
-            _source = fixture.Build<DraftApprenticeshipDetails>().Without(x=>x.Uln).With(x => x.IsOnFlexiPaymentPilot, true).Create();
+            _source = fixture.Build<DraftApprenticeshipDetails>().Without(x=>x.Uln).Create();
         }
 
         [Test]
@@ -100,13 +100,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
             Assert.That(result.ReservationId, Is.EqualTo(_source.ReservationId));
-        }
-
-        [Test]
-        public void ThenIsOnFlexiPaymentPilotIsMappedCorrectly()
-        {
-            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
-            Assert.That(result.IsOnFlexiPaymentPilot, Is.EqualTo(_source.IsOnFlexiPaymentPilot));
         }
 
         [TestCase(null)]

@@ -32,8 +32,7 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
                 DurationReducedByHours = source.TrainingHoursReduction,
                 DurationReducedBy = source.DurationReducedBy,
                 IsDurationReducedByRPL = source.IsDurationReducedByRPL,
-                PriceReducedBy = source.PriceReducedBy,
-                IsOnFlexiPaymentPilot = false
+                PriceReducedBy = source.PriceReducedBy
             };
             await MapTrainingProgramme(source, result);
             

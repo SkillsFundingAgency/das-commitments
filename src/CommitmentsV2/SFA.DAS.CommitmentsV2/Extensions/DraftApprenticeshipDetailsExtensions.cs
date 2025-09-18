@@ -6,6 +6,6 @@ public static class DraftApprenticeshipDetailsExtensions
 {
     public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
     {
-        return details.IsOnFlexiPaymentPilot.GetValueOrDefault() ? details.ActualStartDate : details.StartDate;
+        return details.ActualStartDate ?? details.StartDate;
     }
 }

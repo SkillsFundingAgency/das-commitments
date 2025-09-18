@@ -43,74 +43,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
-        [Test]
-        public void IfEndDateIsLessThan365DaysAfterStartDateForAPilotApprenticeshipValidationFails()
-        {
-            var endDate = new DateTime(2023, 12, 1);
-            var assumedEndDate = new DateTime(2023, 12, 31);
-            var startDate = new DateTime(2023, 1, 2);
-
-            _fixture.AssertValidationForProperty(() =>
-                {
-                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
-                },
-                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
-                false);
-        }
-
-        [TestCase(365)]
-        [TestCase(366)]
-        public void IfEndDateIs365DaysAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
-        {
-            var endDate = new DateTime(2025, 12, 31);
-            var startDate = endDate.AddDays(-(daysAfterStartDate - 1));
-
-            _fixture.AssertValidationForProperty(() =>
-                {
-                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
-                },
-                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
-                true);
-        }
-
-        [Test]
-        public void IfEndDateIsMoreThan10YearsAfterStartDateForAPilotApprenticeshipValidationFails()
-        {
-            var endDate = new DateTime(2032, 01, 31);
-            var startDate = new DateTime(2022, 01, 31);
-
-            _fixture.AssertValidationForProperty(() =>
-                {
-                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
-                },
-                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
-                false);
-        }
-
-        [TestCase(365)]
-        [TestCase(366)]
-        public void IfEndDateIsLessThan10YearsAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
-        {
-            var endDate = new DateTime(2035, 01, 1);
-            var assumedEndDate = new DateTime(2035, 1, 31);
-            var startDate = new DateTime(2025, 02, 1);
-
-            _fixture.AssertValidationForProperty(() =>
-                {
-                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
-                },
-                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
-                true);
-        }
-
         [TestCase(null, true)]
         [TestCase(-1, false)]
         [TestCase(0, false)]
@@ -488,8 +420,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
-                DeliveryModel = DeliveryModel.Regular,
-                IsOnFlexiPaymentPilot = false
+                DeliveryModel = DeliveryModel.Regular
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};

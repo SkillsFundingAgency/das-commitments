@@ -239,7 +239,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 Assert.That(result.DurationReducedBy, Is.EqualTo(source.PriorLearning.DurationReducedBy));
                 Assert.That(result.PriceReducedBy, Is.EqualTo(source.PriorLearning.PriceReducedBy));
                 Assert.That(result.DurationReducedByHours, Is.EqualTo(source.PriorLearning.DurationReducedByHours));
-                Assert.That(result.IsOnFlexiPaymentPilot, Is.EqualTo(source.IsOnFlexiPaymentPilot));
                 Assert.That(result.EmployerHasEditedCost, Is.EqualTo(source.EmployerHasEditedCost));
                 Assert.That(result.EmailAddressConfirmed, Is.EqualTo(source.EmailAddressConfirmed));
             });

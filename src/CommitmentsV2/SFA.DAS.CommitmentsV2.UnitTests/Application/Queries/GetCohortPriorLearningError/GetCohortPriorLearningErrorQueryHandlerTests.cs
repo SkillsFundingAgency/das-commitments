@@ -110,8 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
                 LastName = "ALastName",
                 DeliveryModel = DeliveryModel.Regular,
                 StartDate = startDate,
-                TrainingProgramme = trainingProgramme,
-                IsOnFlexiPaymentPilot = false,
+                TrainingProgramme = trainingProgramme
             };
 
             var commitment = new Cohort(

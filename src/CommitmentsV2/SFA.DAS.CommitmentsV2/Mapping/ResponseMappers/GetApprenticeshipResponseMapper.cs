@@ -57,7 +57,6 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             DurationReducedBy = source.ApprenticeshipPriorLearning?.DurationReducedBy,
             PriceReducedBy = source.ApprenticeshipPriorLearning?.PriceReducedBy,
             TransferSenderId = source.TransferSenderId,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
             TrainingTotalHours = source.TrainingTotalHours,
             IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl

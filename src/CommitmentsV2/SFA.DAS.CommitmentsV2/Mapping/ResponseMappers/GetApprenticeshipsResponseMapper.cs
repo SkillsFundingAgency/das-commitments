@@ -53,7 +53,6 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             Cost = source.Cost,
             PledgeApplicationId = source.PledgeApplicationId,
             ActualStartDate = source.ActualStartDate,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             TrainingCourseVersion = source.TrainingCourseVersion
         };

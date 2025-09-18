@@ -356,8 +356,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 EndDate = DateTime.Now.AddDays(4),
                 AccountLegalEntityId = 123,
                 StartDateRangeFrom = DateTime.Now.AddDays(-1),
-                StartDateRangeTo = DateTime.Now.AddDays(1),
-                IsOnFlexiPaymentPilot = true
+                StartDateRangeTo = DateTime.Now.AddDays(1)
             };
 
             //Act
@@ -377,9 +376,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}&" +
                 $"accountLegalEntityId={request.AccountLegalEntityId.Value}&" +
                 $"startDateRangeFrom={WebUtility.UrlEncode(request.StartDateRangeFrom.Value.ToString("u"))}&" +
-                $"startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}&" +
-                $"isOnFlexiPaymentPilot={WebUtility.UrlEncode(request.IsOnFlexiPaymentPilot.ToString())}", null, CancellationToken.None));
-
+                $"startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}", null, CancellationToken.None));
         }
 
         [Test]

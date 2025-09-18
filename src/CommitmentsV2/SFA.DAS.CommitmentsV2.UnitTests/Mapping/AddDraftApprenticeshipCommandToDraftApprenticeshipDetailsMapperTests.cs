@@ -33,7 +33,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.StandardUId.Should().Be(fixture.TrainingProgramme.StandardUId);
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
         result.LearnerDataId.Should().Be(fixture.Command.LearnerDataId);
     }
 
@@ -59,32 +58,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.TrainingCourseVersionConfirmed.Should().BeTrue();
         result.EmploymentPrice.Should().Be(fixture.Command.EmploymentPrice);
         result.EmploymentEndDate.Should().Be(fixture.Command.EmploymentEndDate);
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
-    }
-
-    [Test]
-    public async Task Map_WhenMappingFlexiPaymentsApprenticeshipStandardWithActualStartDate_Then_UsesCalculatedTrainingProgramme()
-    {
-        var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-        var result = await fixture.MapFlexiPaymentsLearnerWithStandard();
-
-        result.FirstName.Should().Be(fixture.Command.FirstName);
-        result.LastName.Should().Be(fixture.Command.LastName);
-        result.Uln.Should().Be(fixture.Command.Uln);
-        result.Cost.Should().Be(fixture.Command.Cost);
-        result.StartDate.Should().Be(fixture.Command.StartDate);
-        result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
-        result.EndDate.Should().Be(fixture.Command.EndDate);
-        result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
-        result.Reference.Should().Be(fixture.Command.OriginatorReference);
-        result.TrainingProgramme.Should().Be(fixture.TrainingProgramme2);
-        result.ReservationId.Should().Be(fixture.Command.ReservationId);
-        result.StandardUId.Should().Be(fixture.TrainingProgramme2.StandardUId);
-        result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme2.Version);
-        result.TrainingCourseVersionConfirmed.Should().BeTrue();
-        result.EmploymentPrice.Should().Be(fixture.Command.EmploymentPrice);
-        result.EmploymentEndDate.Should().Be(fixture.Command.EmploymentEndDate);
-        result.IsOnFlexiPaymentPilot.Should().Be(true);
     }
 
     [Test]
@@ -107,7 +80,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.StandardUId.Should().Be(fixture.TrainingProgramme.StandardUId);
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
     }
 
     [Test]
@@ -130,7 +102,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.StandardUId.Should().BeNull();
         result.TrainingCourseVersion.Should().BeNull();
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
-        result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
     }
 }
 
@@ -190,16 +161,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         Command.StartDate = Fixture.Create<DateTime>();
         Command.ActualStartDate = null;
         Command.CourseCode = Fixture.Create<int>().ToString();
-        Command.IsOnFlexiPaymentPilot = false;
-        return Mapper.Map(Command);
-    }
-
-    public Task<DraftApprenticeshipDetails> MapFlexiPaymentsLearnerWithStandard()
-    {
-        Command.StartDate = null;
-        Command.ActualStartDate = Fixture.Create<DateTime>();
-        Command.CourseCode = Fixture.Create<int>().ToString();
-        Command.IsOnFlexiPaymentPilot = true;
         return Mapper.Map(Command);
     }
 }

@@ -305,15 +305,13 @@ public class CohortDomainServiceTests
         _fixture.VerifyUlnException(passes);
     }
 
-    [TestCase(true, false, false)]
-    [TestCase(false, true, false)]
-    [TestCase(true, false, true)]
-    [TestCase(false, true, true)]
-    public async Task Reservation_Validation(bool hasValidationError, bool passes, bool usingActualStartDate)
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    public async Task Reservation_Validation(bool hasValidationError, bool passes)
     {
         await _fixture
             .WithParty(Party.Provider)
-            .WithReservationValidationResult(hasValidationError, usingActualStartDate)
+            .WithReservationValidationResult(hasValidationError)
             .CreateCohort();
 
         _fixture.VerifyReservationException(passes);
@@ -907,8 +905,7 @@ public class CohortDomainServiceTests
                 FirstName = "Test",
                 LastName = "Test",
                 DeliveryModel = DeliveryModel.Regular,
-                IgnoreStartDateOverlap = false,
-                IsOnFlexiPaymentPilot = false
+                IgnoreStartDateOverlap = false
             };
 
             var referenceDate = new DateTime(DateTime.Now.Year, 02, 03);
@@ -922,8 +919,7 @@ public class CohortDomainServiceTests
                 StartDate = referenceDate,
                 EndDate = referenceDate.AddYears(1),
                 CourseCode = fixture.Create<string>(),
-                Cost = fixture.Create<int>(),
-                IsOnFlexiPaymentPilot = false
+                Cost = fixture.Create<int>()
             };
             ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
@@ -1081,19 +1077,13 @@ public class CohortDomainServiceTests
             return this;
         }
 
-        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError, bool usingActualStartDate = false)
+        public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
         {
             DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
-            if (usingActualStartDate)
-            {
-                DraftApprenticeshipDetails.ActualStartDate = new DateTime(2019, 01, 01);
-                DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
-            }
-            else
-            {
-                DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
-            }
-            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
+          
+            DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
+            
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                 "TEST",
                 ProgrammeType.Standard,
                 new DateTime(2016, 1, 1),
@@ -1127,7 +1117,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithUlnOverlapOnActualStartDate()
         {
             DraftApprenticeshipDetails.Uln = "X";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
@@ -1185,7 +1174,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithActualStartDateEmailOverlapWithApprenticeship(bool isApproved)
         {
             DraftApprenticeshipDetails.Email = "test@test.com";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
@@ -1198,7 +1186,6 @@ public class CohortDomainServiceTests
         public CohortDomainServiceTestFixture WithNoActualStartDateEmailOverlaps()
         {
             DraftApprenticeshipDetails.Email = "test@test.com";
-            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
