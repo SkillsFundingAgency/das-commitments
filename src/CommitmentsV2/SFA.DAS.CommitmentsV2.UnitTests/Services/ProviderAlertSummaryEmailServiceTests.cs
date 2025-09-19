@@ -218,7 +218,7 @@ public class ProviderAlertSummaryEmailsFixture
     internal void VerifySendEmailToAllProviderRecipientsIsCalledNTimeWithSummaryAlert(long providerId, int changesForReview, int dataMismatchCount, int n)
     {
         _mockNserviceBusContext
-            .Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(p => p.Template == "ProviderAlertSummaryNotification2_dev" &&
+            .Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(p => p.Template == "ProviderAlertSummaryNotification2" &&
                                                                        ValidateTokens(p.Tokens, changesForReview, dataMismatchCount)), It.IsAny<SendOptions>()),
                 Times.Exactly(n));
     }

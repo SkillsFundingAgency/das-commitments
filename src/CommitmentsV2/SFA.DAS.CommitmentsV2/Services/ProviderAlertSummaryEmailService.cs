@@ -53,7 +53,7 @@ public class ProviderAlertSummaryEmailService(
 
         var sendEmailToProviderCommand = new SendEmailToProviderCommand(
             providerId,
-            "ProviderAlertSummaryNotification2_dev", 
+            "ProviderAlertSummaryNotification2", 
             new Dictionary<string, string>
             {
                 {"total_count_text", alert.TotalCount.ToString()},
