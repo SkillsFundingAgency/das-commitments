@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
 
@@ -31,8 +32,8 @@ public class LearnerDataUpdatedEventHandlerTests
         _fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearnerDataUpdatedEventHandler>>();
         _mockContext = new Mock<IMessageHandlerContext>();
+        _ = new UnitOfWorkContext();
 
-        // Use in-memory database for testing
         var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
