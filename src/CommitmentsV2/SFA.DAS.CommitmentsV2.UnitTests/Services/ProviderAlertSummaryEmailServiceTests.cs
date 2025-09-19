@@ -124,7 +124,8 @@ public class ProviderAlertSummaryEmailsFixture
             .Set(c => c.EmployerAccountId, AccountId)
             .Set(c => c.ProviderId, ukprn)
             .Set(c => c.AccountLegalEntity, accountLegalEntity)
-            .Set(c => c.Provider, provider);
+            .Set(c => c.Provider, provider)
+            .Set(c => c.WithParty, Party.Provider);
 
         var apprenticeship = Fixture.Build<Apprenticeship>()
             .With(s => s.Id, Fixture.Create<long>())

@@ -11,4 +11,6 @@ public class ProviderAlertSummary
     public int ChangesForReview { get; set; }
 
     public int DataMismatchCount { get; set; }
+
+    public int RequestsForReviewCount { get; set; }
 }
