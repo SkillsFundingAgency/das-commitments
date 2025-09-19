@@ -31,7 +31,9 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
             DateOfBirth = source.DateOfBirth,
             Reference = source.Reference,
             ReservationId = source.ReservationId,
-            IgnoreStartDateOverlap = source.IgnoreStartDateOverlap
+            IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+            HasLearnerDataChanges = source.HasLearnerDataChanges,
+            LastLearnerDataSync = source.LastLearnerDataSync
         };
 
         // Only populate standard version specific items if start is specified.
