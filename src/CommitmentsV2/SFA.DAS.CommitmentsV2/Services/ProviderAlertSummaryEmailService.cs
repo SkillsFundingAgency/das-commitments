@@ -64,9 +64,10 @@ public class ProviderAlertSummaryEmailService(
                     "link_to_mange_apprenticeships",
                     $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices"
                 },
-                { "apprentice_request_for_review", RequestsForReviewText(alert.RequestsForReviewCount) }
+                { "apprentice_request_for_review", RequestsForReviewText(alert.RequestsForReviewCount) },
+                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}notifications/unsubscribe"  }
             });
-
+        
         await messageSession.Send(sendEmailToProviderCommand);
     }
 
