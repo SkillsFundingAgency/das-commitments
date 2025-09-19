@@ -167,8 +167,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .Without(a => a.ApprenticeshipUpdate)
             .Without(a => a.Continuation)
             .Without(s => s.ApprenticeshipConfirmationStatus)
-            .Without(a => a.PreviousApprenticeship)
-            .With(a => a.IsOnFlexiPaymentPilot, true);
+            .Without(a => a.PreviousApprenticeship);
 
         var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
         var cohort2 = cohortBuilder.Create();

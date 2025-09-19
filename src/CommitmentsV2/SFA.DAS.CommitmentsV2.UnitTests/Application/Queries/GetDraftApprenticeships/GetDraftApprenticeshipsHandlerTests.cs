@@ -240,7 +240,6 @@ public class GetDraftApprenticeshipsHandlerTests
         result.DurationReducedBy.Should().Be(source.PriorLearning.DurationReducedBy);
         result.PriceReducedBy.Should().Be(source.PriorLearning.PriceReducedBy);
         result.DurationReducedByHours.Should().Be(source.PriorLearning.DurationReducedByHours);
-        result.IsOnFlexiPaymentPilot.Should().Be(source.IsOnFlexiPaymentPilot);
         result.EmployerHasEditedCost.Should().Be(source.EmployerHasEditedCost);
         result.EmailAddressConfirmed.Should().Be(source.EmailAddressConfirmed);
     }
