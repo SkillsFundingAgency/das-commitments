@@ -153,12 +153,11 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null,
-        bool isOnFlexiPaymentsPilot = false)
+        FlexibleEmployment flexibleEmployment = null)
             
     {
         CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
-            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, isOnFlexiPaymentsPilot);
+            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment);
 
         WithStartDateInFuture();
 
@@ -285,8 +284,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
             Uln = uln,
             PaymentStatus = paymentStatus,
             HasHadDataLockSuccess = hasHadDataLockSuccess,
-            FlexibleEmployment = flexibleEmployment,
-            IsOnFlexiPaymentPilot = isOnFlexiPaymentsPilot
+            FlexibleEmployment = flexibleEmployment
         };
 
         return this;
@@ -316,7 +314,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         int? employmentPrice = null,
         DateTime? actualStartDate = null,
         int minimumAgeAtApprenticeshipStart = 15,
-        int maximumAgeAtApprenticeshipStart = 115
+        int maximumAgeAtApprenticeshipStart = 115,
+        Party Party = Party.None
     )
     {
         var request = new EditApprenticeshipValidationRequest
@@ -338,7 +337,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             EmploymentEndDate = null,
             EmploymentPrice = employmentPrice ?? Apprenticeship.FlexibleEmployment?.EmploymentPrice,
             MinimumAgeAtApprenticeshipStart = minimumAgeAtApprenticeshipStart,
-            MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart
+            MaximumAgeAtApprenticeshipStart = maximumAgeAtApprenticeshipStart,
+            Party = Party
         };
 
         if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)

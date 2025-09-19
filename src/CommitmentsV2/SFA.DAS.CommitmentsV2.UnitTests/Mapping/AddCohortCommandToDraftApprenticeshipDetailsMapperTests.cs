@@ -37,34 +37,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
             Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
             Assert.That(draftApprenticeshipDetails.EmploymentPrice, Is.EqualTo(fixture.Command.EmploymentPrice));
             Assert.That(draftApprenticeshipDetails.EmploymentEndDate, Is.EqualTo(fixture.Command.EmploymentEndDate));
-            Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
         });
-    }
-
-    [Test]
-    public async Task WhenMappingFlexiPaymentsApprenticeshipStandardWithDate_ThenShouldSetProperties()
-    {
-        var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-        var draftApprenticeshipDetails = await fixture.MapFlexiPaymentsLearnerWithStandard();
-
-        Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
-        Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
-        Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
-        Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
-        Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
-        Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
-        Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
-        Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
-        Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
-        Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
-        Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
-        Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
-        Assert.That(draftApprenticeshipDetails.StandardUId, Is.EqualTo(fixture.TrainingProgrammeStandard.StandardUId));
-        Assert.That(draftApprenticeshipDetails.TrainingCourseVersion, Is.EqualTo(fixture.TrainingProgrammeStandard.Version));
-        Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
-        Assert.That(draftApprenticeshipDetails.EmploymentPrice, Is.EqualTo(fixture.Command.EmploymentPrice));
-        Assert.That(draftApprenticeshipDetails.EmploymentEndDate, Is.EqualTo(fixture.Command.EmploymentEndDate));
-        Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
     }
 
     [Test]
@@ -112,7 +85,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
         Assert.Multiple(() =>
         {
             Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
-            Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
         });
     }
 
@@ -140,7 +112,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
         });
         draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
         draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
-        Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
     }
 
     [Test]
@@ -168,7 +139,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
         draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
         draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
         draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
-        Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
     }
 }
 
@@ -206,7 +176,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.ActualStartDate, command.EndDate, command.OriginatorReference,
             command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
             command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, 
-            true, false, command.TrainingPrice, command.EndPointAssessmentPrice, command.LearnerDataId, command.MinimumAgeAtApprenticeshipStart, command.MaximumAgeAtApprenticeshipStart);
+            true, command.TrainingPrice, command.EndPointAssessmentPrice, command.LearnerDataId, command.MinimumAgeAtApprenticeshipStart, command.MaximumAgeAtApprenticeshipStart);
 
         TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
         Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
@@ -223,13 +193,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
         return Mapper.Map(Command);
     }
 
-    public Task<DraftApprenticeshipDetails> MapFlexiPaymentsLearnerWithStandard()
-    {
-        Command = AddFlexiPaymentsCohortCommand();
-        TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.ActualStartDate.Value))
-            .ReturnsAsync(TrainingProgrammeStandard);
-        return Mapper.Map(Command);
-    }
 
     public Task<DraftApprenticeshipDetails> MapNoDate()
     {
@@ -251,16 +214,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, null, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
-    }
-
-    private AddCohortCommand AddFlexiPaymentsCohortCommand()
-    {
-        return new AddCohortCommand(Command.RequestingParty, Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
-            Command.CourseCode, Command.DeliveryModel, Command.Cost, null, Command.ActualStartDate, null, Command.OriginatorReference, Command.ReservationId,
-            Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-            Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
-            false, true, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
+            false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
     }
 
     public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -284,6 +238,6 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
             frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.ActualStartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
             Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
             Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, 
-            false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
+            false, Command.TrainingPrice, Command.EndPointAssessmentPrice, Command.LearnerDataId, Command.MinimumAgeAtApprenticeshipStart, Command.MaximumAgeAtApprenticeshipStart);
     }
 }

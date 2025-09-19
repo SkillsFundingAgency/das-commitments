@@ -140,7 +140,6 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
             null,
             UserInfo,
             false,
-            false,
             null,
             null,
             null,

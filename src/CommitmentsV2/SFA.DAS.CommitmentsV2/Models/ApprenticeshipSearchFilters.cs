@@ -16,5 +16,4 @@ public class ApprenticeshipSearchFilters
     public Alerts? Alert { get; set; }
     public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
     public DeliveryModel? DeliveryModel { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
 }

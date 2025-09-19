@@ -22,25 +22,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _mediatorMock = new Mock<IMediator>();
         }
 
-        [Test]
-        public async Task Handle_Should_Call_WithdrawFromPaymentSimplificationBeta_When_Reason_Is_WithdrawFromBeta()
-        {
-            // Arrange
-            var message = new ApprenticeshipWithdrawnEvent { ApprovalsApprenticeshipId = 1, Reason = "WithdrawFromBeta" };
-            var context = new Mock<IMessageHandlerContext>();
-            var apprenticeship = new Apprenticeship { Id = 1, IsOnFlexiPaymentPilot = true };
-            var mockDbContext = GetMockDbContext(apprenticeship);
-            var handler = new ApprenticeshipWithdrawnEventHandler(_loggerMock.Object, new Lazy<ProviderCommitmentsDbContext>(() => mockDbContext.Object), _mediatorMock.Object);
-
-            // Act
-            await handler.Handle(message, context.Object);
-
-            // Assert
-            Assert.IsFalse(apprenticeship.IsOnFlexiPaymentPilot);
-            mockDbContext.Verify(x => x.Update(apprenticeship), Times.Once);
-            mockDbContext.Verify(x => x.SaveChanges(), Times.Once);
-        }
-
         [TestCase("WithdrawFromStart")]
         [TestCase("WithdrawDuringLearning")]
         public async Task Handle_Should_Send_StopApprenticeshipCommand_When_Apprenticeship_Is_Fully_Withdrawn(string reason)
@@ -48,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             // Arrange
             var message = new ApprenticeshipWithdrawnEvent { ApprovalsApprenticeshipId = 1, Reason = reason, EmployerAccountId = 2, LearningKey = Guid.NewGuid(), LastDayOfLearning = new DateTime(2022, 7, 12)};
             var context = new Mock<IMessageHandlerContext>();
-            var apprenticeship = new Apprenticeship { Id = 1, IsOnFlexiPaymentPilot = true };
+            var apprenticeship = new Apprenticeship { Id = 1 };
             var mockDbContext = GetMockDbContext(apprenticeship);
             var handler = new ApprenticeshipWithdrawnEventHandler(_loggerMock.Object, new Lazy<ProviderCommitmentsDbContext>(() => mockDbContext.Object), _mediatorMock.Object);
 

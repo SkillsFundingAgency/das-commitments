@@ -46,7 +46,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
     {
-        var trustedParty = GetParty(party);
+        var trustedParty = request.Party;
 
         var errors = new List<DomainError>();
         var apprenticeship = _context.Apprenticeships
@@ -210,7 +210,6 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
             && request.TrainingPrice == apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow)
             && request.EndPointAssessmentPrice == apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow)
             && request.StartDate == apprenticeship.StartDate
-            && (request.ActualStartDate == apprenticeship.ActualStartDate || !apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault())
             && request.DeliveryModel == apprenticeship.DeliveryModel
             && request.CourseCode == apprenticeship.CourseCode
             && request.ULN == apprenticeship.Uln
@@ -284,9 +283,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
     private async Task<DomainError> EmailOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         var emailMatches = request.Email == apprenticeshipDetails.Email;
-        var startDateMatches = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault()
-            ? request.ActualStartDate == apprenticeshipDetails.ActualStartDate
-            : request.StartDate == apprenticeshipDetails.StartDate;
+        var startDateMatches = request.StartDate == apprenticeshipDetails.StartDate;
         var endDateMatches = request.EndDate == apprenticeshipDetails.EndDate;
 
         bool NoChangesRequested() => (emailMatches && startDateMatches && endDateMatches);
@@ -297,7 +294,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         if (NoChangesRequested())
             return null;
 
-        var startDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate.Value : request.StartDate.Value;
+        var startDate = request.StartDate.Value;
         var endDate = request.EndDate.Value;
 
         var range = startDate.To(endDate);
@@ -316,7 +313,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
     {
         List<DomainError> errors = new List<DomainError>();
 
-        var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+        var requestedStartDate = request.StartDate;
 
         if (apprenticeship.ReservationId.HasValue && requestedStartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
         {
@@ -331,7 +328,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship, Party party)
     {
-        var requestedStartDate = apprenticeship.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
+        var requestedStartDate = request.StartDate;
         if (requestedStartDate.HasValue && request.EndDate.HasValue)
         {
             var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(party == Party.Employer ? "training provider" : "employer")} for help";
@@ -461,8 +458,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> BuildStartDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
-        var requestedStartDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? request.ActualStartDate : request.StartDate;
-        var existingStartDate = apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() ? apprenticeshipDetails.ActualStartDate : apprenticeshipDetails.StartDate;
+        var requestedStartDate = request.StartDate;
+        var existingStartDate = apprenticeshipDetails.StartDate;
         if (requestedStartDate.HasValue)
         {
             if (requestedStartDate != existingStartDate)
@@ -521,11 +518,6 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
                         yield return new DomainError(nameof(request.StartDate), errorMessage);
                     }
-                }
-
-                if (apprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && requestedStartDate < Constants.SimplifiedPaymentsStartDate)
-                {
-                    yield return new DomainError(nameof(request.ActualStartDate), $"The start date must not be earlier than {Constants.SimplifiedPaymentsStartDate:d MMMM yyyy}.");
                 }
             }
         }

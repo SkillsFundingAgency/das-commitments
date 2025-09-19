@@ -67,14 +67,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             });
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task CorrectDateIsUsedForUlnOverlapValidation(bool isOnFlexiPaymentsPilot)
+        [Test]
+        public async Task CorrectDateIsUsedForUlnOverlapValidation()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            var result = await SetupAuthenticationContext(Party.Provider, fixture, true, false, isOnFlexiPaymentsPilot);
+            var result = await SetupAuthenticationContext(Party.Provider, fixture, true, false);
 
-            var expectedDate = isOnFlexiPaymentsPilot ? fixture.Apprenticeship.ActualStartDate.GetValueOrDefault() : fixture.Apprenticeship.StartDate.GetValueOrDefault();
+            var expectedDate = fixture.Apprenticeship.StartDate.GetValueOrDefault();
 
             fixture.VerifyCheckForOverlapsIsCalledWithExpectedStartDate(expectedDate);
         }
@@ -82,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         private static async Task<EditApprenticeshipValidationResult>
         SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap, bool isOnFlexiPaymentsPilot = false)
         {
-            var eaFixture = fixture.SetupMockContextApprenticeship(isOnFlexiPaymentsPilot: isOnFlexiPaymentsPilot)
+            var eaFixture = fixture.SetupMockContextApprenticeship()
                 .SetupOverlapService(startDateOverlap, endDateOverlap);
 
             EditApprenticeshipValidationRequest request;
@@ -90,12 +89,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             if (party == Party.Employer)
             {
                 eaFixture.SetupAuthenticationContextAsEmployer();
-                request = eaFixture.CreateValidationRequest(employerRef: "abc");
+                request = eaFixture.CreateValidationRequest(employerRef: "abc", Party : party );
             }
             else
             {
                 eaFixture.SetupAuthenticationContextAsProvider();
-                request = eaFixture.CreateValidationRequest(providerRef: "abc");
+                request = eaFixture.CreateValidationRequest(providerRef: "abc", Party:party);
             }
 
             var result = await fixture.Validate(request);

@@ -44,7 +44,6 @@ public class GetApprenticeshipsResponse
         public decimal? Cost { get; set; }
         public int? PledgeApplicationId { get; set; }
         public DateTime? ActualStartDate { get; set; }
-        public bool? IsOnFlexiPaymentPilot { get; set; }
         public bool? EmployerHasEditedCost { get; set; }
         public string TrainingCourseVersion { get; set; }
     }

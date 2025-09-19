@@ -258,11 +258,6 @@ public class CommitmentsApiClient(IRestHttpClient client) : ICommitmentsApiClien
             filterQuery += $"&deliveryModel={WebUtility.UrlEncode(request.DeliveryModel.ToString())}";
         }
 
-        if (request.IsOnFlexiPaymentPilot.HasValue)
-        {
-            filterQuery += $"&isOnFlexiPaymentPilot={WebUtility.UrlEncode(request.IsOnFlexiPaymentPilot.ToString())}";
-        }
-
         return filterQuery;
     }
 

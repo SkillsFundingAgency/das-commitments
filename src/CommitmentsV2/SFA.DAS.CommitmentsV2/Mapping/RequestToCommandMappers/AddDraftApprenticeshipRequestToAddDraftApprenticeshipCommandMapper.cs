@@ -29,7 +29,6 @@ public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper 
             EmploymentPrice = source.EmploymentPrice,
             UserInfo = source.UserInfo,
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
             LearnerDataId = source.LearnerDataId,
