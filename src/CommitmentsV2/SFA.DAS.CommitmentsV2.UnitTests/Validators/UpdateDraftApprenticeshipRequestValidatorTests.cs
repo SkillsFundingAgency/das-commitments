@@ -74,7 +74,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var updateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest
             {
                 Cost = value,
-                IsOnFlexiPaymentPilot = false
             };
 
             if (expectedValid)
@@ -85,19 +84,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             {
                 new UpdateDraftApprenticeshipRequestValidator().TestValidate(updateDraftApprenticeshipRequest).ShouldHaveValidationErrorFor(request => request.Cost);
             }
-        }
-
-        [TestCase(-1)]
-        [TestCase(0)]
-        public void Validate_Cost_ShouldNotBeValidatedInFlexiPaymentScenario(int? value)
-        {
-            var updateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest
-            {
-                Cost = value,
-                IsOnFlexiPaymentPilot = true
-            };
-
-            new UpdateDraftApprenticeshipRequestValidator().TestValidate(updateDraftApprenticeshipRequest).ShouldNotHaveValidationErrorFor(request => request.Cost);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX50", false)]

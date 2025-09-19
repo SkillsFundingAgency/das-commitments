@@ -108,19 +108,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             fixture.VerifyCheckForEmailOverlapsIsNotCalled();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task CorrectDateIsUsedForEmailOverlapValidation(bool isOnFlexiPaymentsPilot)
+        [Test]
+        public async Task CorrectDateIsUsedForEmailOverlapValidation()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture
-                .SetupMockContextApprenticeship(email: "a@a.com", isOnFlexiPaymentsPilot: isOnFlexiPaymentsPilot)
+                .SetupMockContextApprenticeship(email: "a@a.com")
                 .SetupOverlapCheckServiceToReturnEmailOverlap("b@b.com");
             var request = fixture.CreateValidationRequest(email: "b@b.com");
 
-            var result = await fixture.Validate(request);
+            await fixture.Validate(request);
 
-            var expectedDate = isOnFlexiPaymentsPilot ? fixture.Apprenticeship.ActualStartDate.GetValueOrDefault() : fixture.Apprenticeship.StartDate.GetValueOrDefault();
+            var expectedDate = fixture.Apprenticeship.StartDate.GetValueOrDefault();
 
             fixture.VerifyCheckForEmailOverlapsIsCalledWithExpectedStartDate(expectedDate);
         }

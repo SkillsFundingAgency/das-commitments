@@ -101,12 +101,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
-        public void IsOnFlexiPaymentPilotIsMappedCorrectly()
-        {
-            Assert.That(_result.IsOnFlexiPaymentPilot, Is.EqualTo(_source.IsOnFlexiPaymentPilot));
-        }
-
-        [Test]
         public void IsDurationReducedByRplIsMappedCorrectly()
         {
             Assert.That(_result.IsDurationReducedByRpl, Is.EqualTo(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl));

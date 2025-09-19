@@ -60,14 +60,13 @@ public class ProcessFullyApprovedCohortCommandHandler(
                         FromDate = p.FromDate,
                         ToDate = p.ToDate,
                         Cost = p.Cost,
-                        EndPointAssessmentPrice = a.IsOnFlexiPaymentPilot == true ? a.EndPointAssessmentPrice : null,
-                        TrainingPrice = a.IsOnFlexiPaymentPilot == true ? a.TrainingPrice : null
+                        EndPointAssessmentPrice = null,
+                        TrainingPrice = null
                     })
                     .ToArray(),
                 ContinuationOfId = a.ContinuationOfId,
                 DateOfBirth = a.DateOfBirth.Value,
                 ActualStartDate = a.ActualStartDate,
-                IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                 FirstName = a.FirstName,
                 LastName = a.LastName,
                 ApprenticeshipHashedId = encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),

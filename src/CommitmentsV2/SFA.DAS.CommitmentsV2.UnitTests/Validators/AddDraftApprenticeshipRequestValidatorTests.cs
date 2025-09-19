@@ -93,14 +93,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             result.ShouldNotHaveValidationErrorFor(r => r.UserInfo);
         }
 
-        [Test]
-        public void Validate_IsOnFlexiPaymentPilotIsNull_ShouldBeInvalid()
-        {
-            var request = new AddDraftApprenticeshipRequest { IsOnFlexiPaymentPilot = null };
-
-            AssertValidationResult(r => r.IsOnFlexiPaymentPilot, request, false);
-        }
-
         private static void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property,
             AddDraftApprenticeshipRequest request, bool expectedValid)
         {

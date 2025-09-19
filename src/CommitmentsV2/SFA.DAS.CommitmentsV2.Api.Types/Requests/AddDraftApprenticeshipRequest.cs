@@ -24,7 +24,6 @@ public class AddDraftApprenticeshipRequest : SaveDataRequest
     public int? EmploymentPrice { get; set; }
     public DateTime? EmploymentEndDate { get; set; }
     public bool IgnoreStartDateOverlap { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
     public long? LearnerDataId { get; set; }

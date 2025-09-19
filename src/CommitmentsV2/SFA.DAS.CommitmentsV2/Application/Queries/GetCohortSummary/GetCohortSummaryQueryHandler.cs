@@ -73,7 +73,6 @@ public class GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db,
     {
         return CalculateIsCompleteForEmployer(apprenticeships, apprenticeEmailIsRequired)
                && apprenticeships.All(a => a.Uln != null)
-               && !apprenticeships.Any(a => a.IsOnFlexiPaymentPilot.GetValueOrDefault() && (a.TrainingPrice == null || a.EndPointAssessmentPrice == null))
                && !PriorLearningStillNeedsToBeConsidered(apprenticeships);
     }
 

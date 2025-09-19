@@ -150,18 +150,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(from => from.DateOfBirth, (DateTime?)DateTime.Now);
         }
 
-        [Test]
-        public Task Map_IsOnFlexiPaymentPilotWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.IsOnFlexiPaymentPilot, (bool?)null);
-        }
-
-        [Test]
-        public Task Map_IsOnFlexiPaymentPilotWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.IsOnFlexiPaymentPilot, (bool?)true);
-        }
-
         [TestCase(DeliveryModel.Regular)]
         [TestCase(DeliveryModel.PortableFlexiJob)]
         public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)

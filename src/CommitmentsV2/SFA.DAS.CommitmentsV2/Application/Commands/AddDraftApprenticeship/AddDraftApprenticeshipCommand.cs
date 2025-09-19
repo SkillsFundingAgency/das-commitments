@@ -25,7 +25,6 @@ public class AddDraftApprenticeshipCommand : IRequest<AddDraftApprenticeshipResu
     public string Uln { get; set; }
     public UserInfo UserInfo { get; set; }
     public bool IgnoreStartDateOverlap { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public int? TrainingPrice { get; set; }
     public int? EndPointAssessmentPrice { get; set; }
     public long? LearnerDataId { get; set; }

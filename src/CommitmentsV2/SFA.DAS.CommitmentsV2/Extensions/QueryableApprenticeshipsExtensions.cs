@@ -153,11 +153,6 @@ public static class QueryableApprenticeshipsExtensions
             apprenticeships = apprenticeships.Where(x => x.DeliveryModel != null && x.DeliveryModel == filters.DeliveryModel.Value);
         }
 
-        if (filters.IsOnFlexiPaymentPilot.HasValue)
-        {
-            apprenticeships = apprenticeships.Where(x => x.IsOnFlexiPaymentPilot != null && x.IsOnFlexiPaymentPilot == filters.IsOnFlexiPaymentPilot.Value);
-        }
-
         return apprenticeships;
     }
 
