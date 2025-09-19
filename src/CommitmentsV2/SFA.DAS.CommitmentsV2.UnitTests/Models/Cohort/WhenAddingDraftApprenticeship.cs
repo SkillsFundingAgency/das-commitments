@@ -121,6 +121,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.VerifyCohortTracking();
         }
 
+        [Test]
+        public void ThenShouldReturnTnpFieldsAndCostCorrectly()
+        {
+            var draftApprenticeship = _fixture
+                .SetWithParty(Party.Provider)
+                .SetParty(Party.Provider)
+                .SetTnpValues(10000, 900)
+                .AddDraftApprenticeship();
+
+            draftApprenticeship.Should().NotBeNull().And.Match<DraftApprenticeship>(d =>
+                d.Cost == _fixture.DraftApprenticeshipDetails.Cost &&
+                d.TrainingPrice == _fixture.DraftApprenticeshipDetails.TrainingPrice &&
+                d.EndPointAssessmentPrice == _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice);
+        }
 
         private class WhenAddingDraftApprenticeshipTestsFixture
         {
@@ -153,6 +167,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     .Without(d => d.DateOfBirth)
                     .Without(d=>d.Email)
                     .Without(d => d.Uln)
+                    .Without(d => d.TrainingPrice)
+                    .Without(d => d.EndPointAssessmentPrice)
+                    .Without(d => d.LearnerDataId)
                     .Create();
 
                 ExistingApprenticeshipDetails = new DraftApprenticeship(Fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
@@ -170,6 +187,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public WhenAddingDraftApprenticeshipTestsFixture SetWithParty(Party withParty)
             {
                 Cohort.Set(c => c.WithParty, withParty);
+                return this;
+            }
+
+            public WhenAddingDraftApprenticeshipTestsFixture SetTnpValues(int trainingPrice, int EpaoPrice)
+            {
+                DraftApprenticeshipDetails.Cost = trainingPrice + EpaoPrice;
+                DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                DraftApprenticeshipDetails.EndPointAssessmentPrice = EpaoPrice;
                 return this;
             }
 

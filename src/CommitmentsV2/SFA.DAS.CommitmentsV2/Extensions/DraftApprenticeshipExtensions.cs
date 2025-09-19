@@ -15,6 +15,7 @@ public static class DraftApprenticeshipExtensions
         var errors = new List<DomainError>();
         errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
+        errors.AddRange(BuildTnp1AndTnp2ValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildFlexibleEmploymentValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
@@ -96,16 +97,20 @@ public static class DraftApprenticeshipExtensions
         }
     }
 
-    private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildTnp1AndTnp2ValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
     {
-        if (draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault())
+        if (draftApprenticeshipDetails.LearnerDataId != null)
         {
-            if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
+            if (draftApprenticeshipDetails.TrainingPrice.HasValue &&
+                draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Total price for training and end-point assessment cannot be more than £100,000");
-                yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), " ");
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
-                yield break;
+                if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() +
+                    draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() !=
+                    draftApprenticeshipDetails.Cost)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost),
+                        "Total price for training and end-point assessment doesn't match Cost");
+                }
             }
 
             if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
@@ -118,18 +123,19 @@ public static class DraftApprenticeshipExtensions
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "The End-Point Assessment Price must be in the range of 1-100000");
             }
         }
-        else
-        {
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
-                yield break;
-            }
+    }
 
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
-            }
+    private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+    {
+        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+        {
+            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
+            yield break;
+        }
+
+        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+        {
+            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
         }
     }
 
