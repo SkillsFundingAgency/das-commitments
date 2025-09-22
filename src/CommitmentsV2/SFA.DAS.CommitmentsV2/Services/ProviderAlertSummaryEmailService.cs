@@ -65,7 +65,7 @@ public class ProviderAlertSummaryEmailService(
                     $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices"
                 },
                 { "apprentice_request_for_review", RequestsForReviewText(alert.RequestsForReviewCount) },
-                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl}notifications/unsubscribe"  }
+                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl}notification-settings"  }
             });
         
         await messageSession.Send(sendEmailToProviderCommand);
