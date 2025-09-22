@@ -65,7 +65,7 @@ public class ProviderAlertSummaryEmailService(
                     $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices"
                 },
                 { "apprentice_request_for_review", RequestsForReviewText(alert.RequestsForReviewCount) },
-                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}notifications/unsubscribe"  }
+                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl}notifications/unsubscribe"  }
             });
         
         await messageSession.Send(sendEmailToProviderCommand);
@@ -128,6 +128,7 @@ public class ProviderAlertSummaryEmailService(
         foreach (var providerGroup in providerGroups)
         {
             var changesForReview = providerGroup.Count(app => app.PendingOriginator == Originator.Employer);
+            var requestForReviewCount = reviewCount.Where(t => t.Key == providerGroup.First().ProviderId).First().Value;
 
             var dataMismatchCount = providerGroup.Count(app => app.DLocks.Any(
                 dlock => dlock.UnHandled() &&
@@ -137,10 +138,10 @@ public class ProviderAlertSummaryEmailService(
             {
                 ProviderId = providerGroup.First().ProviderId,
                 ProviderName = providerGroup.First().ProviderName,
-                TotalCount = changesForReview + dataMismatchCount,
+                TotalCount = changesForReview + dataMismatchCount+ requestForReviewCount,
                 ChangesForReview = changesForReview,
                 DataMismatchCount = dataMismatchCount,
-                RequestsForReviewCount = reviewCount.Where(t => t.Key == providerGroup.First().ProviderId).First().Value
+                RequestsForReviewCount = requestForReviewCount
             });
         }
 
