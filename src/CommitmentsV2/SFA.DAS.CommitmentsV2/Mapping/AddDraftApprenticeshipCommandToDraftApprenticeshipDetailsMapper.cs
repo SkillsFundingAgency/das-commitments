@@ -9,7 +9,7 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
 {
     public async Task<DraftApprenticeshipDetails> Map(AddDraftApprenticeshipCommand source)
     {
-        var startDate = source.IsOnFlexiPaymentPilot.GetValueOrDefault() ? source.ActualStartDate : source.StartDate;
+        var startDate = source.StartDate;
         var trainingProgrammeTask = GetCourse(source.CourseCode, startDate);
         var trainingProgramme = await trainingProgrammeTask;
 
@@ -31,7 +31,6 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
             EmploymentEndDate = source.EmploymentEndDate,
             EmploymentPrice = source.EmploymentPrice,
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value,
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
             LearnerDataId = source.LearnerDataId

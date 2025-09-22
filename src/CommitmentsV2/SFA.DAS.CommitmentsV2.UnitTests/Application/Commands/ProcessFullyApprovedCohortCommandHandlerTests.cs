@@ -83,21 +83,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                         e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
                     Times.Once));
         }
-        
-        [Test]
-        public void Handle_WhenHandlingCommandForFlexiPaymentScenario_ThenShouldPublishPriceBreakdown()
-        {
-            var fixture = new ProcessFullyApprovedCohortCommandFixture();
-            fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
-                .SetApprovedApprenticeships(false)
-                .Handle();
-            
-            fixture.Apprenticeships.ForEach(
-                a => fixture.EventPublisher.Verify(
-                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => ProcessFullyApprovedCohortCommandFixture.IsValidCostBreakdown(a, e))),
-                    Times.Once));
-        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -265,7 +250,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                       apprenticeshipCreatedEvent.PriceEpisodes.Length == apprenticeship.PriceHistory.Count &&
                       apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth &&
                       apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
-                      apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                       apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
                       apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
                       apprenticeshipCreatedEvent.LearnerDataId == apprenticeship.LearnerDataId;

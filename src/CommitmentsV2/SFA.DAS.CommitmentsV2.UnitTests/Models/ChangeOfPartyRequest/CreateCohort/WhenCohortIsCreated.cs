@@ -403,7 +403,6 @@ public class WhenCohortIsCreated
                 Assert.That(draftApprenticeship.ReservationId, Is.EqualTo(ReservationId));
                 Assert.That(draftApprenticeship.ContinuationOfId, Is.EqualTo(ContinuedApprenticeship.Id));
                 Assert.That(draftApprenticeship.OriginalStartDate, Is.EqualTo(ContinuedApprenticeship.OriginalStartDate ?? ContinuedApprenticeship.StartDate));
-                Assert.That(draftApprenticeship.IsOnFlexiPaymentPilot, Is.EqualTo(ContinuedApprenticeship.IsOnFlexiPaymentPilot));
                 Assert.That(draftApprenticeship.EmployerHasEditedCost, Is.EqualTo(ContinuedApprenticeship.EmployerHasEditedCost));
             });
         }

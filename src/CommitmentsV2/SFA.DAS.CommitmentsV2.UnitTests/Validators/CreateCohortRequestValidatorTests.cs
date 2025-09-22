@@ -95,14 +95,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(r => r.UserInfo, request, true);
         }
 
-        [Test]
-        public void Validate_IsOnFlexiPaymentPilotIsNull_ShouldBeInvalid()
-        {
-            var request = new CreateCohortRequest { IsOnFlexiPaymentPilot = null};
-            
-            AssertValidationResult(r => r.IsOnFlexiPaymentPilot, request, false);
-        }
-
         private static void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, CreateCohortRequest request, bool expectedValid)
         {
             // Arrange

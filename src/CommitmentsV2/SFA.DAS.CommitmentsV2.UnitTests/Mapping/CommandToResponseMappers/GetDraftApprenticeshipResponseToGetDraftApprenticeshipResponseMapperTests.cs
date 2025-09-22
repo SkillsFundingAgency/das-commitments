@@ -150,13 +150,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             return AssertPropertySet(input => input.HasStandardOptions, true);
         }
-
-        [Test]
-        public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
-        {
-            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, (bool?)true);
-        }
-
+        
         [Test]
         public Task Map_EmployerHasEditedCost_ShouldBeSet()
         {
@@ -211,6 +205,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var providerReference = "provider";
             return AssertPropertySet(input => input.ProviderReference, providerReference);
+        }
+
+        [TestCase(12345)]
+        [TestCase(null)]
+        public Task Map_LearnerDataId_ShouldBeSet(long? id)
+        {
+             return AssertPropertySet(input => input.LearnerDataId, id);
         }
     }
 }

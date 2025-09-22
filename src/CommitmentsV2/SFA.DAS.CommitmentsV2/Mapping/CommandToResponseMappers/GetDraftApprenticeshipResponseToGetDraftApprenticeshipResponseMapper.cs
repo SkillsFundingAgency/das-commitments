@@ -43,12 +43,12 @@ public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMappe
             DurationReducedBy = source.DurationReducedBy,
             PriceReducedBy = source.PriceReducedBy,
             RecognisingPriorLearningExtendedStillNeedsToBeConsidered = source.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
-            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             EmailAddressConfirmed = source.EmailAddressConfirmed,
             DurationReducedByHours = source.DurationReducedByHours,
             IsDurationReducedByRpl = source.IsDurationReducedByRpl,
             TrainingTotalHours = source.TrainingTotalHours,
-            EmployerHasEditedCost = source.EmployerHasEditedCost
+            EmployerHasEditedCost = source.EmployerHasEditedCost,
+            LearnerDataId = source.LearnerDataId
         });
     }
 }

@@ -42,7 +42,6 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 DurationReducedBy = a.PriorLearning?.DurationReducedBy,
                 PriceReducedBy = a.PriorLearning?.PriceReducedBy,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
-                IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                 EmployerHasEditedCost = a.EmployerHasEditedCost,
                 EmailAddressConfirmed = a.EmailAddressConfirmed,
                 DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,

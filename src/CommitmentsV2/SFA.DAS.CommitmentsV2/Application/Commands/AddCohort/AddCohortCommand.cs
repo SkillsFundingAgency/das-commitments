@@ -29,7 +29,6 @@ public class AddCohortCommand : IRequest<AddCohortResult>
     public DateTime? EmploymentEndDate { get; set; }
     public UserInfo UserInfo { get; }
     public bool IgnoreStartDateOverlap { get; set; }
-    public bool? IsOnFlexiPaymentPilot { get; set; }
     public long? LearnerDataId { get; set; }
     public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; }
@@ -40,7 +39,7 @@ public class AddCohortCommand : IRequest<AddCohortResult>
         string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId,
         int? pledgeApplicationId,
         int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo, bool ignoreStartDateOverlap,
-        bool? isOnFlexiPaymentPilot, int? trainingPrice, int? endPointAssessmentPrice, long? learnerDataId, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
+        int? trainingPrice, int? endPointAssessmentPrice, long? learnerDataId, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
         RequestingParty = requestingParty;
         AccountId = accountId;
@@ -63,7 +62,6 @@ public class AddCohortCommand : IRequest<AddCohortResult>
         PledgeApplicationId = pledgeApplicationId;
         EmploymentPrice = employmentPrice;
         EmploymentEndDate = employmentEndDate;
-        IsOnFlexiPaymentPilot = isOnFlexiPaymentPilot;
         TrainingPrice = trainingPrice;
         EndPointAssessmentPrice = endPointAssessmentPrice;
 

@@ -39,21 +39,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         Types.UserInfo.System,
                         Types.Party.Employer));
                     break;
-
-                case WithdrawReason.WithdrawFromBeta:
-                    await WithdrawFromPaymentSimplificationBeta(message);
-                    break;
             }
 
             _logger.LogInformation("Successfully completed handling of {eventName}", nameof(ApprenticeshipWithdrawnEvent));
-        }
-
-        private async Task WithdrawFromPaymentSimplificationBeta(ApprenticeshipWithdrawnEvent message)
-        {
-            var apprenticeship = _dbContext.Value.Apprenticeships.Single(x => x.Id == message.ApprovalsApprenticeshipId);
-            apprenticeship.IsOnFlexiPaymentPilot = false;
-            _dbContext.Value.Update(apprenticeship);
-            _dbContext.Value.SaveChanges();
         }
 
         private static WithdrawReason GetWithdrawReason(ApprenticeshipWithdrawnEvent message)

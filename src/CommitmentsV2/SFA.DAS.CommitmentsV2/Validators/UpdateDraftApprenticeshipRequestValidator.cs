@@ -10,7 +10,6 @@ public class UpdateDraftApprenticeshipRequestValidator :  AbstractValidator<Upda
     {
         RuleFor(model => model.Cost)
             .GreaterThan(ctx => 0)
-            .When(model => !model.IsOnFlexiPaymentPilot.GetValueOrDefault())
             .WithMessage("The cost must be greater than zero");
 
         RuleFor(model => model.CourseCode).MaximumLength(Constants.FieldLengths.CourseCode).WithMessage("Course Code must not be more than {MaxLength} characters");

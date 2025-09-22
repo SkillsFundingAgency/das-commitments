@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long? ContinuationOfId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime? ActualStartDate { get; set; }
-        public bool? IsOnFlexiPaymentPilot { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string ApprenticeshipHashedId { get; set; }

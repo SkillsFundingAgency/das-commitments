@@ -57,7 +57,6 @@ public class CohortController(IMediator mediator) : ControllerBase
             request.EmploymentEndDate,
             request.UserInfo,
             request.IgnoreStartDateOverlap,
-            request.IsOnFlexiPaymentPilot,
             request.TrainingPrice,
             request.EndPointAssessmentPrice,
             request.LearnerDataId,
