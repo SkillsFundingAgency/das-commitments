@@ -1,14 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.NServiceBus;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 
@@ -19,7 +23,8 @@ public class StopApprenticeshipCommandHandler(
     IEncodingService encodingService,
     ILogger<StopApprenticeshipCommandHandler> logger,
     CommitmentsV2Configuration commitmentsV2Configuration,
-    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
+    IEventPublisher eventPublisher)
     : IRequestHandler<StopApprenticeshipCommand>
 {
     private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
@@ -48,6 +53,17 @@ public class StopApprenticeshipCommandHandler(
                 );
 
             logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
+
+            var events = new ApprenticeshipStopBackEvent()
+            {
+                ApprenticeshipId = apprenticeship.Id,
+                LearnerDataId = apprenticeship.LearnerDataId,
+                Uln = apprenticeship.Uln,
+                ProviderId = apprenticeship.Cohort.ProviderId
+            };
+                       
+                logger.LogInformation("Emitting ApprenticeshipId for Apprenticeship {ApprenticeshipId}", events.ApprenticeshipId);
+                await eventPublisher.Publish(events);
 
             await NotifyProvider(
                 apprenticeship.Cohort.ProviderId,
