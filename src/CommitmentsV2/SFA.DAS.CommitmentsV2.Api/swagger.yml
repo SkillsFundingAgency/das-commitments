@@ -118,7 +118,9 @@ components:
       properties:
         ukprn:
           type: string
-        emplayerId:
+        apprenticeshipId:
+          type: integer
+        employerId:
           type: integer
         learningKey:
           type: string
