@@ -94,7 +94,7 @@ public class ProviderAlertSummaryEmailsFixture
         commitmentsV2Configuration = new CommitmentsV2Configuration()
         {
             ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl,
-             ProviderUrlConfiguration = new ProviderUrlConfiguration()
+             ProviderUrl = new ProviderUrlConfiguration()
              {
                  ProviderApprenticeshipServiceBaseUrl = ProviderApprenticeshipServiceBaseUrl
              }

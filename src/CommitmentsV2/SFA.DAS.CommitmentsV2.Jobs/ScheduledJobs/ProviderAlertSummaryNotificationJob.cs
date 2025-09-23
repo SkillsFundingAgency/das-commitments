@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 
 public class ProviderAlertSummaryNotificationJob(IProviderAlertSummaryEmailService alertSummaryService, ILogger<ProviderAlertSummaryNotificationJob> logger)
 {
-    public async Task Import([TimerTrigger("*/15 * * * 1-5", RunOnStartup = false)] TimerInfo timer)
+    public async Task Import([TimerTrigger("* * * * 1-5", RunOnStartup = false)] TimerInfo timer)
     {
         logger.LogInformation("ProviderAlertSummaryNotificationJob - Started {At}", timer.IsPastDue ? " later than expected" : string.Empty);
 
