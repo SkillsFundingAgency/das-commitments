@@ -54,16 +54,19 @@ public class StopApprenticeshipCommandHandler(
 
             logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
 
-            var events = new ApprenticeshipStopBackEvent()
+            if (apprenticeship.StopDate == request.StopDate)
             {
-                ApprenticeshipId = apprenticeship.Id,
-                LearnerDataId = apprenticeship.LearnerDataId,
-                Uln = apprenticeship.Uln,
-                ProviderId = apprenticeship.Cohort.ProviderId
-            };
-                       
-                logger.LogInformation("Emitting ApprenticeshipId for Apprenticeship {ApprenticeshipId}", events.ApprenticeshipId);
+                var events = new ApprenticeshipStopBackEvent()
+                {
+                    ApprenticeshipId = null,
+                    LearnerDataId = apprenticeship.LearnerDataId,
+                    Uln = apprenticeship.Uln,
+                    ProviderId = apprenticeship.Cohort.ProviderId
+                };
+
+                logger.LogInformation("Emitting stop back event for {ApprenticeshipId}", apprenticeship.Id);
                 await eventPublisher.Publish(events);
+            }
 
             await NotifyProvider(
                 apprenticeship.Cohort.ProviderId,
