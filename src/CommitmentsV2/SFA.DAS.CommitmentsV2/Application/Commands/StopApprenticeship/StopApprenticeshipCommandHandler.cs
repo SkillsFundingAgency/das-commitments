@@ -54,7 +54,7 @@ public class StopApprenticeshipCommandHandler(
 
             logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
 
-            if (apprenticeship.StopDate == request.StopDate)
+            if (apprenticeship.StartDate == request.StopDate)
             {
                 var events = new ApprenticeshipStopBackEvent()
                 {
