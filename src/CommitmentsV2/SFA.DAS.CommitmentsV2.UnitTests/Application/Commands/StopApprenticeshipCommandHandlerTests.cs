@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.NUnit3;
 using FluentAssertions;
@@ -11,11 +6,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json;
 using NServiceBus;
+using NServiceBus.Features;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -23,11 +22,15 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
-using Newtonsoft.Json;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.UnitOfWork.NServiceBus.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -41,6 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<IEncodingService> _encodingService;
         private ProviderCommitmentsDbContext _dbContext;
         private ProviderCommitmentsDbContext _confirmationDbContext;
+        private Mock<IEventPublisher> _eventPublisher;
+
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<StopApprenticeshipCommand> _handler;
         private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
@@ -63,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _encodingService = new Mock<IEncodingService>();
             _logger = new Mock<ILogger<StopApprenticeshipCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
+            _eventPublisher = new Mock<IEventPublisher>();
 
             _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
             _resolveOverlappingTrainingDateRequestService
@@ -75,7 +81,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _encodingService.Object,
                 _logger.Object,
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl },
-                _resolveOverlappingTrainingDateRequestService.Object);
+                _resolveOverlappingTrainingDateRequestService.Object, 
+                _eventPublisher.Object);
         }
 
         [TearDown]
@@ -379,6 +386,48 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _resolveOverlappingTrainingDateRequestService
                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenEmitEventIfStartandStopDateAreSame()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            apprenticeship.StartDate = stopDate;
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            _eventPublisher.Verify(p => p.Publish(It.Is<ApprenticeshipStopBackEvent>(
+                        e => e.ApprenticeshipId == null)),
+                    Times.Once);
+
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenShouldNotEmitEventIfStartandStopDateAreSame()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            _eventPublisher.Verify(p => p.Publish(It.Is<ApprenticeshipStopBackEvent>(
+                        e => e.ApprenticeshipId == null)),
+                    Times.Never);
+
+        }
+
 
         private static bool VerifyTokens(IDictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
         {
