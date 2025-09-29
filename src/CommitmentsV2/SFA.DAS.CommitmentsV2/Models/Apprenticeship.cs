@@ -803,7 +803,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             AppliedOn = currentDate.UtcNow,
             ApprenticeshipId = Id,
             StopDate = stopDate,
-            IsWithDrawnFromStart = StartDate == stopDate,
+            IsWithDrawnAtStartOfCourse = StartDate == stopDate,
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId
         });
