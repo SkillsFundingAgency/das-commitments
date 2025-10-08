@@ -29,5 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public bool? EmployerHasEditedCost { get; set; }
         public bool? EmailAddressConfirmed { get; set; }
         public int? DurationReducedByHours { get; set; }
+        public long? LearnerDataId { get; set; }
     }
 }
