@@ -54,6 +54,9 @@ public abstract class ApprenticeshipBase : Aggregate
     public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
 
     public virtual ICollection<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
+    
+    public bool HasLearnerDataChanges { get; set; }
+    public DateTime? LastLearnerDataSync { get; set; }
 
     public bool IsContinuation => ContinuationOfId.HasValue;
     public virtual Apprenticeship PreviousApprenticeship { get; set; }
