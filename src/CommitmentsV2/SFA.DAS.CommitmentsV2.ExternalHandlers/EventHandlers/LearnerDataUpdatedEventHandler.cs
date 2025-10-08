@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
+using SFA.DAS.LearnerData.Messages;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;

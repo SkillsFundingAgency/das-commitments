@@ -10,7 +10,7 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.Messages;
+using SFA.DAS.LearnerData.Messages;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
