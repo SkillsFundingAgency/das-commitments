@@ -69,3 +69,13 @@ Get configuration from das-employer-config repo das-commitments/SFA.DAS.Commitme
         AccountApi.ApiBaseUrl:                                  <If running stubs project use -> http://localhost:3999/accounts-api/>
         LevyTransferMatchingInnerApiConfiguration.BaseUrl:      <If running stubs project use -> http://localhost:3999/levy-transfer-matching-api/>
 ```
+
+## Design time debugging for Entity Framework queries ##
+
+In Commitments V2 using the LinqPad tool (https://www.linqpad.net/GetFile.aspx?LINQPad8Setup.exe) EF queries can be developed directly against a database, however the database model in Commitments V2 is configured with differences from the SQL tables. 
+
+To make it easier to develop queries against an Azure database the ```AzureAdTokenInterceptor``` and ```ProviderCommitmentsDesignTimeDbContext``` classes have been added. 
+
+Using LinqPad a connection can be established using the ```ProviderCommitmentsDesignTimeDbContext``` and by specifying a connection string in the format ```Server=tcp:your.database.windows.net,1433;Database=your-db;Encrypt=True```, the ```AzureAdTokenInterceptor``` will attach a windows token from the current users ```az login``` configuration.
+
+EF queries can be written and debugged which can be directly used in Commitments V2 code.
