@@ -58,7 +58,10 @@
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
 GO
-CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId] ON [dbo].[Apprenticeship] ([CommitmentId]) INCLUDE ([AgreedOn], [AgreementStatus], [Cost], [CreatedOn], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [LastName], [NINumber], [PaymentOrder], [PaymentStatus], [ProviderRef], [StartDate], [TrainingCode], [TrainingName], [TrainingType], [ULN], [StopDate], [PauseDate], [HasHadDataLockSuccess], [PendingUpdateOriginator]) WITH (ONLINE = ON)
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId_Optimized] ON [dbo].[Apprenticeship] ([CommitmentId]) 
+    INCLUDE ([AgreedOn], [AgreementStatus], [Cost], [CreatedOn], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [LastName],  
+        [PaymentOrder], [PaymentStatus], [ProviderRef], [StartDate], [TrainingCode], [TrainingName], [TrainingType], [ULN], [StopDate], [PauseDate], 
+        [HasHadDataLockSuccess], [PendingUpdateOriginator],[ReservationId]) WITH (ONLINE = ON)
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_Statuses] ON [dbo].[Apprenticeship] ([ULN], [AgreementStatus], [PaymentStatus])
 GO
@@ -70,21 +73,11 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_LastName] ON [dbo].[Apprenticeship] ([LastName]) WITH (ONLINE = ON)
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId2] ON [dbo].[Apprenticeship] ([CommitmentId])
-INCLUDE ([AgreementStatus], [Cost], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [HasHadDataLockSuccess], [LastName], [NINumber], [PauseDate], [PaymentStatus], [PendingUpdateOriginator], [ProviderRef], [ReservationId], [StartDate], [StopDate], [TrainingCode], [TrainingName], [TrainingType], [ULN])
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedTrainingName_Filter] ON [dbo].[Apprenticeship] ([IsApproved]) INCLUDE ([CommitmentId],[TrainingName]) WITH (ONLINE = ON)
-GO
-CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedStartDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved],[StartDate]) INCLUDE ([CommitmentId]) WITH (ONLINE=ON)
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedStartDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved], [StartDate]) INCLUDE ([CommitmentId],[FirstName],[LastName],[TrainingName]) WITH (ONLINE=ON)
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedEndDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved],[EndDate]) INCLUDE ([CommitmentId]) WITH (ONLINE=ON)
 GO
-CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedNameSearch] ON [dbo].[Apprenticeship] ([IsApproved]) INCLUDE ([CommitmentId],[FirstName],[LastName])
-GO
-CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedContinuationOf] ON [dbo].[Apprenticeship] ([IsApproved], [ContinuationOfId]) INCLUDE ([CommitmentId])
-GO
-CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ContinuationOf] ON [dbo].[Apprenticeship] ([ContinuationOfId]) WITH (ONLINE = ON)
+CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedContinuationOf] ON [dbo].[Apprenticeship] ([ContinuationOfId], [IsApproved]) INCLUDE ([CommitmentId])
 GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_Email] ON [dbo].[Apprenticeship] ([Email])
 GO
