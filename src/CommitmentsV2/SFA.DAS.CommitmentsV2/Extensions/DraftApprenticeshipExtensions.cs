@@ -15,6 +15,7 @@ public static class DraftApprenticeshipExtensions
         var errors = new List<DomainError>();
         errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
+        errors.AddRange(BuildTnp1AndTnp2ValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildFlexibleEmploymentValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
@@ -64,6 +65,34 @@ public static class DraftApprenticeshipExtensions
         if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+        }
+    }
+
+    private static IEnumerable<DomainError> BuildTnp1AndTnp2ValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+    {
+        if (draftApprenticeshipDetails.LearnerDataId != null)
+        {
+            if (draftApprenticeshipDetails.TrainingPrice.HasValue &&
+                draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue)
+            {
+                if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() +
+                    draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() !=
+                    draftApprenticeshipDetails.Cost)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost),
+                        "Total price for training and end-point assessment doesn't match Cost");
+                }
+            }
+
+            if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "The Training Price must be in the range of 1-100000");
+            }
+
+            if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "The End-Point Assessment Price must be in the range of 1-100000");
+            }
         }
     }
 
