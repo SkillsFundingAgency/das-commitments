@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             // Act
             await _fixture.SendEmployerAlertSummaryNotifications();
-            
+
             // Assert
             _fixture.VerifyAccountReponses(outputs);
         }
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         public class DataCases : IEnumerable
-        {            
+        {
             public IEnumerator GetEnumerator()
             {
                 #region no notifications
@@ -331,7 +331,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     }
                 };
                 #endregion
-                
+
                 #region multiple notifications
                 yield return new object[]
                 {
@@ -524,7 +524,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     }
                 };
                 #endregion
-                
+
                 #region multiple notifications for same employer account
                 yield return new object[]
                 {
@@ -548,7 +548,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         }
                     },
                     new List<Output>
-                    { 
+                    {
                         new Output
                         {
                             AccountId = 1006,
@@ -727,14 +727,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IMessageSession> _messageSession;
             private Mock<IApprovalsOuterApiClient> _approvalsOuterApiClient;
             private Mock<IApprenticeshipDomainService> _apprenticeshipDomainService;
-            private static CommitmentsV2Configuration commitmentsV2Configuration;           
+            private static CommitmentsV2Configuration commitmentsV2Configuration;
 
             public EmployerAlertSummaryEmailServiceTestsFixture()
             {
                 _apprenticeshipDomainService = new Mock<IApprenticeshipDomainService>();
                 _messageSession = new Mock<IMessageSession>();
                 _approvalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
-                commitmentsV2Configuration = new CommitmentsV2Configuration() 
+                commitmentsV2Configuration = new CommitmentsV2Configuration()
                 {
                     EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl
                 };

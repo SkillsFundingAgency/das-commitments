@@ -6,7 +6,7 @@ public class EmployerAlertSummaryNotificationJob(IEmployerAlertSummaryEmailServi
 {
     public async Task Notify([TimerTrigger("0 7 * * 1-5", RunOnStartup = false)] TimerInfo timer)
     {
-        logger.LogInformation("EmployerAlertSummaryNotificationJob - Started {Time}",(timer?.IsPastDue ?? false ? " later than expected" : string.Empty));
+        logger.LogInformation("EmployerAlertSummaryNotificationJob - Started {Time}", (timer?.IsPastDue ?? false ? " later than expected" : string.Empty));
 
         await alertSummaryService.SendEmployerAlertSummaryNotifications();
 
