@@ -123,6 +123,9 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
             PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
         }
 
+        HasLearnerDataChanges = source.HasLearnerDataChanges;
+        LastLearnerDataSync = source.LastLearnerDataSync;
+
         ClearPriorLearningWhenStartDateBeforeAug2022();
     }
 

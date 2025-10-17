@@ -185,6 +185,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             });
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenHasLearnerDataChangesIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).WithLearnerDataChanges().ApplyUpdate();
+            Assert.That(result.HasLearnerDataChanges, Is.EqualTo(_fixture.DraftApprenticeshipDetails.HasLearnerDataChanges));
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenLastLearnerDataSyncIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).WithLearnerDataSync().ApplyUpdate();
+            Assert.That(result.LastLearnerDataSync, Is.EqualTo(_fixture.DraftApprenticeshipDetails.LastLearnerDataSync));
+        }
+
         private class DraftApprenticeshipUpdateTestFixture
         {
             private readonly Fixture _autoFixture;
@@ -235,7 +251,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                 DraftApprenticeshipDetails.EmploymentEndDate = flexibleEmployment.EmploymentEndDate;
                 DraftApprenticeshipDetails.EmploymentPrice = flexibleEmployment.EmploymentPrice;
                 return this;
-            }          
+            }
+
+            public DraftApprenticeshipUpdateTestFixture WithLearnerDataChanges()
+            {
+                DraftApprenticeshipDetails = CreateUpdateFromOriginal();
+                DraftApprenticeshipDetails.HasLearnerDataChanges = true;
+                return this;
+            }
+
+            public DraftApprenticeshipUpdateTestFixture WithLearnerDataSync()
+            {
+                DraftApprenticeshipDetails = CreateUpdateFromOriginal();
+                DraftApprenticeshipDetails.LastLearnerDataSync = DateTime.UtcNow;
+                return this;
+            }
 
             public DraftApprenticeshipUpdateTestFixture WithModifyingParty(Party party)
             {
@@ -279,7 +309,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                     StartDate = _draftApprenticeship.StartDate,
                     EndDate = _draftApprenticeship.EndDate,
                     Id = _draftApprenticeship.Id,
-                    Reference = _modifyingParty == Party.Employer ? _draftApprenticeship.EmployerRef : _draftApprenticeship.ProviderRef
+                    Reference = _modifyingParty == Party.Employer ? _draftApprenticeship.EmployerRef : _draftApprenticeship.ProviderRef,
+                    HasLearnerDataChanges = _draftApprenticeship.HasLearnerDataChanges,
+                    LastLearnerDataSync = _draftApprenticeship.LastLearnerDataSync
                 };
             }
         }
