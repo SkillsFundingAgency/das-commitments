@@ -31,5 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public int? DurationReducedByHours { get; set; }
         public bool HasLearnerDataChanges { get; set; }
         public DateTime? LastLearnerDataSync { get; set; }
+        public long? LearnerDataId { get; set; }
     }
 }

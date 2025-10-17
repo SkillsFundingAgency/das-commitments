@@ -71,8 +71,8 @@ public class ProviderAlertSummaryEmailsFixture
     public ProviderCommitmentsDbContext Db { get; set; }
     private Mock<IMessageSession> _mockNserviceBusContext;
     private static CommitmentsV2Configuration commitmentsV2Configuration;
-    private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";        
-
+    private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
+    private readonly string ProviderApprenticeshipServiceBaseUrl = "https://ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
     public ProviderAlertSummaryEmailsFixture()
     {
         JobId = Fixture.Create<string>();
@@ -93,7 +93,11 @@ public class ProviderAlertSummaryEmailsFixture
 
         commitmentsV2Configuration = new CommitmentsV2Configuration()
         {
-            ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl
+            ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl,
+             ProviderUrl = new ProviderUrlConfiguration()
+             {
+                 ProviderApprenticeshipServiceBaseUrl = ProviderApprenticeshipServiceBaseUrl
+             }
         };
 
         Sut = new ProviderAlertSummaryEmailService(Db, Mock.Of<ILogger<ProviderAlertSummaryEmailService>>(), commitmentsV2Configuration, _mockNserviceBusContext.Object);
@@ -124,7 +128,8 @@ public class ProviderAlertSummaryEmailsFixture
             .Set(c => c.EmployerAccountId, AccountId)
             .Set(c => c.ProviderId, ukprn)
             .Set(c => c.AccountLegalEntity, accountLegalEntity)
-            .Set(c => c.Provider, provider);
+            .Set(c => c.Provider, provider)
+            .Set(c => c.WithParty, Party.Provider);
 
         var apprenticeship = Fixture.Build<Apprenticeship>()
             .With(s => s.Id, Fixture.Create<long>())
