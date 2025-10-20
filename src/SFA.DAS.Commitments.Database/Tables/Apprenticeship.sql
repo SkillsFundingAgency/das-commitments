@@ -52,6 +52,8 @@
     [TrainingTotalHours] INT NULL, 
     [EmployerHasEditedCost] BIT NULL, 
     [LearnerDataId] BIGINT NULL, 
+    [HasLearnerDataChanges] BIT NOT NULL DEFAULT 0,
+    [LastLearnerDataSync] DATETIME NULL,
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
@@ -112,7 +114,10 @@ ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
 	[EPAOrgId],
 	[FirstName],
 	[HasHadDataLockSuccess],
+	[HasLearnerDataChanges],
 	[LastName],
+	[LastLearnerDataSync],
+	[LearnerDataId],
 	[MadeRedundant],
 	[NINumber],
 	[OriginalStartDate],
@@ -138,4 +143,11 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Validate]
 ON [dbo].[Apprenticeship] ([FirstName],[LastName],[DateOfBirth])
 INCLUDE ([Id],[ULN],[TrainingCode],[StandardUId],[PaymentStatus],[StartDate],[EndDate],[StopDate])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_LearnerDataId] 
+ON [dbo].[Apprenticeship] ([LearnerDataId]) 
+INCLUDE ([HasLearnerDataChanges], [LastLearnerDataSync])
+WHERE [LearnerDataId] IS NOT NULL
+WITH (ONLINE = ON)
 GO
