@@ -44,5 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool? IsDurationReducedByRpl { get; set; }
         public int? TrainingTotalHours { get; set; }
         public long? LearnerDataId { get; set; }
+        public bool HasLearnerDataChanges { get; set; }
+        public DateTime? LastLearnerDataSync { get; set; }
     }
 }

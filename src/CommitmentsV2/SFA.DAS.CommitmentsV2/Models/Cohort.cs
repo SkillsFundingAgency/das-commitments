@@ -352,22 +352,41 @@ public class Cohort : Aggregate, ITrackableEntity
         return null;
     }
 
+    private void SetTargetPartyAndEditStatus(Party modifyingParty)
+    {
+        (WithParty, EditStatus) = modifyingParty switch
+        {
+            Party.Employer => (Party.Provider, EditStatus.ProviderOnly),
+            Party.Provider => (Party.Employer, EditStatus.EmployerOnly),
+            Party.TransferSender => (Party.Provider, EditStatus.ProviderOnly),
+            _ => throw new ArgumentOutOfRangeException(nameof(modifyingParty))
+        };
+    }
+
     public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
     {
-        CheckIsEmployerOrProvider(modifyingParty);
+        CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
         CheckIsWithParty(modifyingParty);
 
         StartTrackingSession(UserAction.SendCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
         ChangeTrackingSession.TrackUpdate(this);
 
         IsDraft = false;
-        EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
-        WithParty = modifyingParty.GetOtherParty();
+        
+        SetTargetPartyAndEditStatus(modifyingParty);
         LastAction = LastAction.Amend;
         CommitmentStatus = CommitmentStatus.Active;
         TransferApprovalStatus = null;
-        AddMessage(message, modifyingParty, userInfo);
-        UpdatedBy(modifyingParty, userInfo);
+        
+        if (modifyingParty == Party.Employer || modifyingParty == Party.Provider)
+        {
+            AddMessage(message, modifyingParty, userInfo);
+            
+            if (!string.IsNullOrEmpty(userInfo.UserEmail))
+            {
+                UpdatedBy(modifyingParty, userInfo);
+            }
+        }
         LastUpdatedOn = DateTime.UtcNow;
 
         switch (WithParty)
