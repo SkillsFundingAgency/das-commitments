@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -33,53 +34,56 @@ public class LearnerDataUpdatedEventHandler(
     {
         logger.LogInformation("Processing learner data changes for learner {LearnerId}", message.LearnerId);
 
-        var draftApprenticeship = await dbContext.Value.DraftApprenticeships
+        var draftApprenticeships = await dbContext.Value.DraftApprenticeships
             .Include(da => da.Cohort)
-            .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
+            .Where(da => da.LearnerDataId == message.LearnerId)
+            .ToListAsync();
 
-        if (draftApprenticeship == null)
+        if (draftApprenticeships.Count == 0)
         {
             logger.LogInformation("No draft apprenticeship found for learner {LearnerId}", message.LearnerId);
             return;
         }
 
-        draftApprenticeship.HasLearnerDataChanges = true;
+        foreach (var draftApprenticeship in draftApprenticeships)
+        {
+            draftApprenticeship.HasLearnerDataChanges = true;
         
-        logger.LogInformation("Flagged draft apprenticeship {ApprenticeshipId} for learner data changes", draftApprenticeship.Id);
+            logger.LogInformation("Flagged draft apprenticeship {ApprenticeshipId} for learner data changes", draftApprenticeship.Id);
 
-        var cohort = draftApprenticeship.Cohort;
-        if (cohort.WithParty == Party.Employer)
-        {
-            logger.LogInformation("Cohort {CohortId} is WithEmployer, transitioning back to WithProvider due to learner data changes", cohort.Id);
-            
-            var systemUserInfo = new UserInfo
+            var cohort = draftApprenticeship.Cohort;
+            if (cohort.WithParty == Party.Employer)
             {
-                UserId = "System",
-                UserDisplayName = "System",
-                UserEmail = null
-            };
+                logger.LogInformation("Cohort {CohortId} is WithEmployer, transitioning back to WithProvider due to learner data changes", cohort.Id);
+            
+                var systemUserInfo = new UserInfo
+                {
+                    UserId = "System",
+                    UserDisplayName = "System",
+                    UserEmail = null
+                };
 
-            cohort.SendToOtherParty(Party.Employer, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+                cohort.SendToOtherParty(Party.Employer, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
             
-            logger.LogInformation("Successfully transitioned cohort {CohortId} from WithEmployer to WithProvider", cohort.Id);
-        }
-        else if (cohort.WithParty == Party.TransferSender)
-        {
-            logger.LogInformation("Cohort {CohortId} is WithTransferSender, transitioning back to WithProvider due to learner data changes", cohort.Id);
-            
-            var systemUserInfo = new UserInfo
+                logger.LogInformation("Successfully transitioned cohort {CohortId} from WithEmployer to WithProvider", cohort.Id);
+            }
+            else if (cohort.WithParty == Party.TransferSender)
             {
-                UserId = "System",
-                UserDisplayName = "System",
-                UserEmail = null
-            };
-
-            cohort.SendToOtherParty(Party.TransferSender, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+                logger.LogInformation("Cohort {CohortId} is WithTransferSender, transitioning back to WithProvider due to learner data changes", cohort.Id);
             
-            logger.LogInformation("Successfully transitioned cohort {CohortId} from WithTransferSender to WithProvider", cohort.Id);
+                var systemUserInfo = new UserInfo
+                {
+                    UserId = "System",
+                    UserDisplayName = "System",
+                    UserEmail = null
+                };
+
+                cohort.SendToOtherParty(Party.TransferSender, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+            
+                logger.LogInformation("Successfully transitioned cohort {CohortId} from WithTransferSender to WithProvider", cohort.Id);
+            }
         }
 
         await dbContext.Value.SaveChangesAsync();
-        logger.LogInformation("Successfully updated draft apprenticeship {ApprenticeshipId} for learner {LearnerId}", draftApprenticeship.Id, message.LearnerId);
     }
 } 

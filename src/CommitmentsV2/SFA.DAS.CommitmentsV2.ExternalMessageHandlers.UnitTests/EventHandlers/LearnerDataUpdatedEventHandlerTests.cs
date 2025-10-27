@@ -51,13 +51,9 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task Handle_WhenLearnerDataUpdatedEventReceived_LogsInformation()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
-        // Act
         await _handler.Handle(message, _mockContext.Object);
-
-        // Assert
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -71,13 +67,9 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task Handle_WhenNoDraftApprenticeshipsFound_LogsWarning()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
-        // Act
         await _handler.Handle(message, _mockContext.Object);
-
-        // Assert
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -91,7 +83,6 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task ProcessLearnerDataChanges_WhenDraftApprenticeshipFound_FlagsItCorrectly()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var cohort = new Cohort
         {
@@ -116,10 +107,8 @@ public class LearnerDataUpdatedEventHandlerTests
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         var updatedApprenticeship = await _dbContext.DraftApprenticeships
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
@@ -137,9 +126,8 @@ public class LearnerDataUpdatedEventHandlerTests
     }
 
     [Test]
-    public async Task ProcessLearnerDataChanges_WhenMultipleDraftApprenticeshipsFound_FlagsFirstOneCorrectly()
+    public async Task ProcessLearnerDataChanges_WhenMultipleDraftApprenticeshipsFound_FlagsAllCorrectly()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var cohort1 = new Cohort
         {
@@ -181,31 +169,36 @@ public class LearnerDataUpdatedEventHandlerTests
         _dbContext.DraftApprenticeships.AddRange(draftApprenticeship1, draftApprenticeship2);
         await _dbContext.SaveChangesAsync();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         var updatedApprenticeships = await _dbContext.DraftApprenticeships
             .Where(da => da.LearnerDataId == message.LearnerId)
             .ToListAsync();
 
         updatedApprenticeships.Should().HaveCount(2);
-        
-        var updatedApprenticeship = updatedApprenticeships.FirstOrDefault(da => da.HasLearnerDataChanges);
-        var unchangedApprenticeship = updatedApprenticeships.FirstOrDefault(da => !da.HasLearnerDataChanges);
-        
-        updatedApprenticeship.Should().NotBeNull();
-        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
-        
-        unchangedApprenticeship.Should().NotBeNull();
-        unchangedApprenticeship.HasLearnerDataChanges.Should().BeFalse();
-        unchangedApprenticeship.LastLearnerDataSync.Should().BeNull();
+        updatedApprenticeships.Should().AllSatisfy(da => da.HasLearnerDataChanges.Should().BeTrue());
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Flagged draft apprenticeship {draftApprenticeship1.Id} for learner data changes")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Flagged draft apprenticeship {draftApprenticeship2.Id} for learner data changes")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     [Test]
     public async Task ProcessLearnerDataChanges_WhenAlreadyFlagged_UpdatesChangeDate()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var cohort = new Cohort
         {
@@ -231,10 +224,8 @@ public class LearnerDataUpdatedEventHandlerTests
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         var updatedApprenticeship = await _dbContext.DraftApprenticeships
             .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
 
@@ -245,13 +236,10 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task ProcessLearnerDataChanges_WhenNoDraftApprenticeshipsFound_LogsWarning()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -265,7 +253,6 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task ProcessLearnerDataChanges_WhenCohortWithEmployer_TransitionsBackToProvider()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var cohort = new Cohort
         {
@@ -290,10 +277,8 @@ public class LearnerDataUpdatedEventHandlerTests
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         var updatedCohort = await _dbContext.Cohorts
             .FirstOrDefaultAsync(c => c.Id == cohort.Id);
 
@@ -322,7 +307,6 @@ public class LearnerDataUpdatedEventHandlerTests
     [Test]
     public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_TransitionsBackToProvider()
     {
-        // Arrange
         var message = _fixture.Create<LearnerDataUpdatedEvent>();
         var cohort = new Cohort
         {
@@ -347,10 +331,8 @@ public class LearnerDataUpdatedEventHandlerTests
         _dbContext.DraftApprenticeships.Add(draftApprenticeship);
         await _dbContext.SaveChangesAsync();
 
-        // Act
         await _handler.ProcessLearnerDataChanges(message);
 
-        // Assert
         var updatedCohort = await _dbContext.Cohorts
             .FirstOrDefaultAsync(c => c.Id == cohort.Id);
 
@@ -374,5 +356,78 @@ public class LearnerDataUpdatedEventHandlerTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+    }
+
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_CallsSaveChangesAsync()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Provider,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var updatedApprenticeship = await _dbContext.DraftApprenticeships
+            .FirstOrDefaultAsync(da => da.LearnerDataId == message.LearnerId);
+
+        updatedApprenticeship.Should().NotBeNull();
+        updatedApprenticeship.HasLearnerDataChanges.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithEmployer_CreatesSystemUserInfo()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.Employer,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var updatedCohort = await _dbContext.Cohorts
+            .FirstOrDefaultAsync(c => c.Id == cohort.Id);
+
+        updatedCohort.Should().NotBeNull();
+        updatedCohort.WithParty.Should().Be(Party.Provider);
     }
 } 
