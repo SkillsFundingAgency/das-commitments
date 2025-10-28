@@ -378,7 +378,7 @@ public class Cohort : Aggregate, ITrackableEntity
         CommitmentStatus = CommitmentStatus.Active;
         TransferApprovalStatus = null;
         
-        if (modifyingParty == Party.Employer || modifyingParty == Party.Provider)
+        if (modifyingParty == Party.Employer || modifyingParty == Party.Provider || modifyingParty == Party.TransferSender)
         {
             AddMessage(message, modifyingParty, userInfo);
             

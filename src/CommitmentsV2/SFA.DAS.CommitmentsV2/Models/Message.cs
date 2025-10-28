@@ -29,7 +29,8 @@ public class Message
     {
         switch (sendingParty)
         {
-            case Party.Employer: return 0;
+            case Party.Employer:
+            case Party.TransferSender: return 0;
             case Party.Provider: return 1;
             default:
                 throw new ArgumentException($"Cannot create message from {sendingParty}");

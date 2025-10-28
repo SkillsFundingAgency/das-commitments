@@ -430,4 +430,43 @@ public class LearnerDataUpdatedEventHandlerTests
         updatedCohort.Should().NotBeNull();
         updatedCohort.WithParty.Should().Be(Party.Provider);
     }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_CreatesSystemMessage()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.TransferSender,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var messages = await _dbContext.Messages
+            .Where(m => m.CommitmentId == cohort.Id)
+            .ToListAsync();
+
+        messages.Should().HaveCount(1);
+        messages.First().CreatedBy.Should().Be(0);
+        messages.First().Author.Should().Be("System");
+        messages.First().Text.Should().Be("Cohort returned to provider due to learner data changes requiring updates");
+    }
 } 
