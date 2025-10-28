@@ -73,7 +73,7 @@ public class ApprenticeshipDomainService(
         {
             logger.LogInformation("Retrieved Alert Summaries for employer accounts");
         }
-        
+
         return results;
     }
 }

@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
@@ -48,6 +49,25 @@ public class AccountController(IMediator mediator, IModelMapper modelMapper) : C
         });
     }
 
+    [HttpGet]
+    [Route("status")]
+    public async Task<IActionResult> GetAccountStatus(long accountId, int completionLag, int startLag, int newStartWindow)
+    {
+        var accountStatus = await mediator.Send(new GetAccountStatusQuery
+        {
+            AccountId = accountId,
+            CompletionLag = completionLag,
+            StartLag = startLag,
+            NewStartWindow = newStartWindow
+        });
+
+        return Ok(new AccountStatusResponse
+        {
+            Active = accountStatus.Active,
+            Completed = accountStatus.Completed,
+            NewStart = accountStatus.NewStart
+        });
+    }
 
     [HttpGet]
     [Route("providers/approved")]
