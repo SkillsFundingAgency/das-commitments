@@ -17,7 +17,7 @@ public class Message
     {
     }
 
-    public Message(Cohort cohort, Party sendingParty, string author, string text)
+    public Message(Party sendingParty, string author, string text)
     {
         Author = author;
         CreatedBy = ConvertSendingPartyToCreatedBy(sendingParty);

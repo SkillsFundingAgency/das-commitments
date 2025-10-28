@@ -571,7 +571,7 @@ public class Cohort : Aggregate, ITrackableEntity
 
     private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
     {
-        Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
+        Messages.Add(new Message(sendingParty, userInfo.UserDisplayName, text ?? ""));
     }
 
     private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
