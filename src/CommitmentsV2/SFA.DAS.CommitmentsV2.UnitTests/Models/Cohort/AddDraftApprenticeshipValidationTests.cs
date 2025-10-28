@@ -55,52 +55,59 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
-        [TestCase(null, true)]
-        [TestCase(-1, false)]
-        [TestCase(0, false)]
-        [TestCase(10000, true)]
-        public void TrainingPriceCheck_CheckValidation(int? price, bool passes)
+        [TestCase(null, null, null, true)]
+        [TestCase(-1, 0, 0, false)]
+        [TestCase(0, 0, 0, false)]
+        [TestCase(100000, 50000, 50000, true)]
+        [TestCase(100001, 50000, 50000, false)]
+        [TestCase(3001, 50000, 50000, false)]
+        public void CostTrainingPriceEpaoPrice_CheckValidation_For_ILR_Record(int? cost, int? trainingPrice, int? epaoPrice, bool passes)
         {
-            var epaoPrice = 10;
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epaoPrice;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.Cost),
+                passes);
+        }
 
-            _fixture.AssertValidationForProperty(() => _fixture.WithLearnerDataId(11234).WithTrainingPrice(price).WithEpaoPrice(epaoPrice).WithCost(price.GetValueOrDefault() + epaoPrice),
+        [TestCase(null, null, true)]
+        [TestCase(0, 100, false)]
+        [TestCase(1000, 10, true)]
+        [TestCase(99990, 10, true)]
+        public void TrainingPrice_CheckValidation_For_ILR_Record(int? trainingPrice, int? epao, bool passes)
+        {
+            int? cost = trainingPrice + epao;
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epao;
+                },
                 nameof(_fixture.DraftApprenticeshipDetails.TrainingPrice),
                 passes);
         }
 
-        [TestCase(null, true)]
-        [TestCase(-1, false)]
-        [TestCase(0, false)]
-        [TestCase(10000, true)]
-        public void EndpointAssessmentPriceCheck_CheckValidation(int? price, bool passes)
+        [TestCase(null, null, true)]
+        [TestCase(10, 0, false)]
+        [TestCase(1000, 10, true)]
+        [TestCase(99990, 10, true)]
+        public void EndPointAssessmentPrice_CheckValidation_For_ILR_Record(int? trainingPrice, int? epao, bool passes)
         {
-            var trainingPrice = 10;
-
-            _fixture.AssertValidationForProperty(() => _fixture.WithLearnerDataId(11234).WithTrainingPrice(trainingPrice).WithEpaoPrice(price).WithCost(price.GetValueOrDefault() + trainingPrice),
+            int? cost = trainingPrice + epao;
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epao;
+                },
                 nameof(_fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice),
                 passes);
-        }
-
-        [Test]
-        public void TrainingAndEndpointAssessmentPriceMatchCost()
-        {
-            var epaoPrice = 10;
-            var trainingPrice = 110;
-            var cost = epaoPrice + trainingPrice;
-
-            _fixture.AssertValidationForProperty(() => _fixture.WithLearnerDataId(11234).WithTrainingPrice(trainingPrice).WithEpaoPrice(epaoPrice).WithCost(cost),
-                nameof(_fixture.DraftApprenticeshipDetails.Cost), true);
-        }
-
-        [Test]
-        public void TrainingAndEndpointAssessmentPriceNotMatchCost_ValidationError()
-        {
-            var epaoPrice = 10;
-            var trainingPrice = 110;
-            var cost = trainingPrice;
-
-            _fixture.AssertValidationForProperty(() => _fixture.WithLearnerDataId(11234).WithTrainingPrice(trainingPrice).WithEpaoPrice(epaoPrice).WithCost(cost),
-                nameof(_fixture.DraftApprenticeshipDetails.Cost), false);
         }
 
         [TestCase("2019-04-01", null, true, Description = "DoB not specified")]
@@ -589,24 +596,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         internal AddDraftApprenticeshipValidationTestsFixture WithCost(int? cost)
         {
             DraftApprenticeshipDetails.Cost = cost;
-            return this;
-        }
-
-        internal AddDraftApprenticeshipValidationTestsFixture WithTrainingPrice(int? price)
-        {
-            DraftApprenticeshipDetails.TrainingPrice = price;
-            return this;
-        }
-
-        internal AddDraftApprenticeshipValidationTestsFixture WithEpaoPrice(int? price)
-        {
-            DraftApprenticeshipDetails.EndPointAssessmentPrice = price;
-            return this;
-        }
-
-        internal AddDraftApprenticeshipValidationTestsFixture WithLearnerDataId(long id)
-        {
-            DraftApprenticeshipDetails.LearnerDataId = id;
             return this;
         }
     }
