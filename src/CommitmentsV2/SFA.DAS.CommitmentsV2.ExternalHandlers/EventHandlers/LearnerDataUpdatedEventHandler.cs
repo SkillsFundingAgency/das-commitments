@@ -36,6 +36,7 @@ public class LearnerDataUpdatedEventHandler(
 
         var draftApprenticeships = await dbContext.Value.DraftApprenticeships
             .Include(da => da.Cohort)
+                .ThenInclude(c => c.TransferRequests)
             .Where(da => da.LearnerDataId == message.LearnerId)
             .ToListAsync();
 
@@ -78,7 +79,20 @@ public class LearnerDataUpdatedEventHandler(
                     UserEmail = null
                 };
 
-                cohort.SendToOtherParty(Party.TransferSender, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, DateTime.UtcNow);
+                var now = DateTime.UtcNow;
+
+                var pendingTransferRequests = cohort.TransferRequests
+                    .Where(tr => tr.Status == TransferApprovalStatus.Pending)
+                    .ToList();
+                
+                foreach (var transferRequest in pendingTransferRequests)
+                {
+                    logger.LogInformation("Silently rejecting TransferRequest {TransferRequestId} for cohort {CohortId} due to learner data changes", 
+                        transferRequest.Id, cohort.Id);
+                    transferRequest.Reject(systemUserInfo, now, publishEvent: false);
+                }
+
+                cohort.SendToOtherParty(Party.TransferSender, "Cohort returned to provider due to learner data changes requiring updates", systemUserInfo, now);
             
                 logger.LogInformation("Successfully transitioned cohort {CohortId} from WithTransferSender to WithProvider", cohort.Id);
             }

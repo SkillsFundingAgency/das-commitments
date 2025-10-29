@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.LearnerData.Messages;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
@@ -25,6 +26,7 @@ public class LearnerDataUpdatedEventHandlerTests
     private Mock<ILogger<LearnerDataUpdatedEventHandler>> _mockLogger;
     private Mock<IMessageHandlerContext> _mockContext;
     private LearnerDataUpdatedEventHandler _handler;
+    private UnitOfWorkContext _unitOfWorkContext;
 
     [SetUp]
     public void Setup()
@@ -32,7 +34,7 @@ public class LearnerDataUpdatedEventHandlerTests
         _fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearnerDataUpdatedEventHandler>>();
         _mockContext = new Mock<IMessageHandlerContext>();
-        _ = new UnitOfWorkContext();
+        _unitOfWorkContext = new UnitOfWorkContext();
 
         var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -468,5 +470,197 @@ public class LearnerDataUpdatedEventHandlerTests
         messages.First().CreatedBy.Should().Be(0);
         messages.First().Author.Should().Be("System");
         messages.First().Text.Should().Be("Cohort returned to provider due to learner data changes requiring updates");
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_RejectsPendingTransferRequestsSilently()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.TransferSender,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var transferRequest = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Pending,
+            Cost = 1000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.TransferRequests.Add(transferRequest);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var updatedTransferRequest = await _dbContext.TransferRequests
+            .FirstOrDefaultAsync(tr => tr.Id == transferRequest.Id);
+
+        updatedTransferRequest.Should().NotBeNull();
+        updatedTransferRequest.Status.Should().Be(TransferApprovalStatus.Rejected);
+        updatedTransferRequest.TransferApprovalActionedByEmployerName.Should().Be("System");
+        updatedTransferRequest.TransferApprovalActionedOn.Should().NotBeNull();
+
+        var rejectedEvents = _unitOfWorkContext.GetEvents().OfType<TransferRequestRejectedEvent>().ToList();
+        rejectedEvents.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_RejectsMultiplePendingTransferRequests()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.TransferSender,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var transferRequest1 = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Pending,
+            Cost = 1000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var transferRequest2 = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Pending,
+            Cost = 2000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.TransferRequests.AddRange(transferRequest1, transferRequest2);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var updatedTransferRequests = await _dbContext.TransferRequests
+            .Where(tr => tr.Cohort.Id == cohort.Id)
+            .ToListAsync();
+
+        updatedTransferRequests.Should().HaveCount(2);
+        updatedTransferRequests.Should().AllSatisfy(tr => tr.Status.Should().Be(TransferApprovalStatus.Rejected));
+        
+        var rejectedEvents = _unitOfWorkContext.GetEvents().OfType<TransferRequestRejectedEvent>().ToList();
+        rejectedEvents.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task ProcessLearnerDataChanges_WhenCohortWithTransferSender_OnlyRejectsPendingTransferRequests()
+    {
+        var message = _fixture.Create<LearnerDataUpdatedEvent>();
+        var cohort = new Cohort
+        {
+            Id = _fixture.Create<long>(),
+            WithParty = Party.TransferSender,
+            Reference = _fixture.Create<string>()
+        };
+        
+        var pendingTransferRequest = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Pending,
+            Cost = 1000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var approvedTransferRequest = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Approved,
+            Cost = 2000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var rejectedTransferRequest = new TransferRequest
+        {
+            Id = _fixture.Create<long>(),
+            Status = TransferApprovalStatus.Rejected,
+            Cost = 3000,
+            TrainingCourses = "[]",
+            CommitmentId = cohort.Id,
+            CreatedOn = DateTime.UtcNow,
+            Cohort = cohort
+        };
+
+        var draftApprenticeship = new DraftApprenticeship
+        {
+            Id = _fixture.Create<long>(),
+            LearnerDataId = message.LearnerId,
+            HasLearnerDataChanges = false,
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
+            Uln = _fixture.Create<long>().ToString(),
+            Cohort = cohort
+        };
+
+        _dbContext.Cohorts.Add(cohort);
+        _dbContext.TransferRequests.AddRange(pendingTransferRequest, approvedTransferRequest, rejectedTransferRequest);
+        _dbContext.DraftApprenticeships.Add(draftApprenticeship);
+        await _dbContext.SaveChangesAsync();
+
+        await _handler.ProcessLearnerDataChanges(message);
+
+        var updatedPendingTransferRequest = await _dbContext.TransferRequests
+            .FirstOrDefaultAsync(tr => tr.Id == pendingTransferRequest.Id);
+        updatedPendingTransferRequest.Status.Should().Be(TransferApprovalStatus.Rejected);
+
+        var updatedApprovedTransferRequest = await _dbContext.TransferRequests
+            .FirstOrDefaultAsync(tr => tr.Id == approvedTransferRequest.Id);
+        updatedApprovedTransferRequest.Status.Should().Be(TransferApprovalStatus.Approved);
+
+        var updatedRejectedTransferRequest = await _dbContext.TransferRequests
+            .FirstOrDefaultAsync(tr => tr.Id == rejectedTransferRequest.Id);
+        updatedRejectedTransferRequest.Status.Should().Be(TransferApprovalStatus.Rejected);
     }
 } 
