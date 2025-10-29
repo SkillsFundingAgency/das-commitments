@@ -58,4 +58,6 @@ public class DraftApprenticeshipDetails
     public bool? IsDurationReducedByRPL { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
     public long? LearnerDataId { get; set; }
+    public bool HasLearnerDataChanges { get; set; }
+    public DateTime? LastLearnerDataSync { get; set; }
 }
