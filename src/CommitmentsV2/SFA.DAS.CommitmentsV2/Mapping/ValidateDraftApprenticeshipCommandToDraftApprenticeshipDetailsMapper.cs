@@ -25,6 +25,8 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
             TrainingProgramme = trainingProgramme,
             DeliveryModel = source.DeliveryModel,
             Cost = source.Cost,
+            TrainingPrice = source.TrainingPrice,
+            EndPointAssessmentPrice = source.EndPointAssessmentPrice,
             StartDate = source.StartDate,
             EndDate = source.EndDate,
             DateOfBirth = source.DateOfBirth,
@@ -32,7 +34,8 @@ public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMappe
             ReservationId = source.ReservationId,
             EmploymentEndDate = source.EmploymentEndDate,
             EmploymentPrice = source.EmploymentPrice,
-            ActualStartDate = source.ActualStartDate
+            ActualStartDate = source.ActualStartDate,
+            LearnerDataId = source.LearnerDataId
         };
 
         // Only populate standard version specific items if start is specified.

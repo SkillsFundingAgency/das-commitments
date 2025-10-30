@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmailValidationService;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Extensions;
 
@@ -67,18 +66,64 @@ public static class DraftApprenticeshipExtensions
         }
     }
 
-    private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+    private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draft)
     {
-        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+        if (IsAnOldLearnerRecordOrIsManualEntry())
         {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
-            yield break;
-        }
+            if (draft.Cost.HasValue && draft.Cost <= 0)
+            {
+                yield return new DomainError(nameof(draft.Cost),
+                    "Enter the total agreed training cost");
+                yield break;
+            }
 
-        if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
-        {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
+            if (draft.Cost.HasValue &&
+                draft.Cost > Constants.MaximumApprenticeshipCost)
+            {
+                yield return new DomainError(nameof(draft.Cost),
+                    "The total cost must be £100,000 or less");
+            }
         }
+        else
+        {
+            if (draft.Cost.GetValueOrDefault() <= 0)
+            {
+                yield return new DomainError(nameof(draft.Cost),
+                    "Total agreed apprenticeship price cannot be 0 - re-submit your ILR file with correct training price (TNP1) and end-point assessment price (TNP2)");
+                yield break;
+            }
+
+            if (draft.TrainingPrice == 0 && draft.Cost > 0)
+            {
+                yield return new DomainError(nameof(draft.TrainingPrice),
+                    "Training price (TNP1) must be in the range of 1-100000 - re-submit your ILR file with correct training price");
+            }
+
+            if (draft.EndPointAssessmentPrice == 0 && draft.Cost > 0)
+            {
+                yield return new DomainError(nameof(draft.EndPointAssessmentPrice),
+                    "End-point assessment price (TNP2) should be in the range of 1-100000 - re-submit your ILR file with correct end-point assessment price");
+            }
+
+            if (draft.Cost.HasValue &&
+                draft.Cost > Constants.MaximumApprenticeshipCost)
+            {
+                yield return new DomainError(nameof(draft.Cost),
+                    "Total agreed apprenticeship price must be 100000 or less - re-submit your ILR file with correct training price (TNP1) and end-point assessment price (TNP2)");
+            }
+
+            if (draft.Cost.GetValueOrDefault() != draft.TrainingPrice.GetValueOrDefault() +
+                draft.EndPointAssessmentPrice.GetValueOrDefault())
+            {
+                yield return new DomainError(nameof(draft.Cost),
+                    "The agreed apprenticeship price must equal training price (TNP1) + end-point assessment price (TNP2) - re-submit your ILR file with correct data");
+            }
+        }
+        yield break;
+
+        bool IsAnOldLearnerRecordOrIsManualEntry() => draft.LearnerDataId == null ||
+                                                      (draft.TrainingPrice == null &&
+                                                       draft.EndPointAssessmentPrice == null);
     }
 
     private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
