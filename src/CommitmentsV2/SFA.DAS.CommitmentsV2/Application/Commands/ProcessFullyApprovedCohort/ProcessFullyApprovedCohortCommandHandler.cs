@@ -60,8 +60,8 @@ public class ProcessFullyApprovedCohortCommandHandler(
                         FromDate = p.FromDate,
                         ToDate = p.ToDate,
                         Cost = p.Cost,
-                        EndPointAssessmentPrice = null,
-                        TrainingPrice = null
+                        EndPointAssessmentPrice = p.AssessmentPrice,
+                        TrainingPrice = p.TrainingPrice
                     })
                     .ToArray(),
                 ContinuationOfId = a.ContinuationOfId,
