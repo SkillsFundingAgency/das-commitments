@@ -337,7 +337,7 @@ public class CohortDomainServiceTests
     public async Task CreateCohort_OverlapOnActualStartDate_Validation(Party party, string otherPartyInMessage)
     {
         await _fixture.WithParty(party).WithUlnOverlapOnActualStartDate().CreateCohort();
-        _fixture.VerifyOverlapExceptionOnActualStartDate(otherPartyInMessage);
+        _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
     }
 
     [TestCase(Party.Provider)]
