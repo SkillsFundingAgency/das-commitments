@@ -367,11 +367,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 cohort.Apprenticeships.Add(app);
             }
 
-            cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "NotLast"));
-            cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "NotLast"));
+            cohort.Messages.Add(new Message(Party.Employer, "XXX", "NotLast"));
+            cohort.Messages.Add(new Message(Party.Provider, "XXX", "NotLast"));
 
-            cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "EmployerLast"));
-            cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "ProviderLast"));
+            cohort.Messages.Add(new Message(Party.Employer, "XXX", "EmployerLast"));
+            cohort.Messages.Add(new Message(Party.Provider, "XXX", "ProviderLast"));
 
             SeedCohorts.Add(cohort);
             return this;

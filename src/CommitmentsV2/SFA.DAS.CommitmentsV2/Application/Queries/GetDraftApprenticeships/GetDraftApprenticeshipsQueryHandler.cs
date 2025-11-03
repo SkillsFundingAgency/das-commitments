@@ -45,6 +45,9 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 EmployerHasEditedCost = a.EmployerHasEditedCost,
                 EmailAddressConfirmed = a.EmailAddressConfirmed,
                 DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
+                HasLearnerDataChanges = a.HasLearnerDataChanges,
+                LastLearnerDataSync = a.LastLearnerDataSync,
+                LearnerDataId = a.LearnerDataId
             }).ToList()
         });
     }

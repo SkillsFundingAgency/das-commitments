@@ -352,22 +352,41 @@ public class Cohort : Aggregate, ITrackableEntity
         return null;
     }
 
+    private void SetTargetPartyAndEditStatus(Party modifyingParty)
+    {
+        (WithParty, EditStatus) = modifyingParty switch
+        {
+            Party.Employer => (Party.Provider, EditStatus.ProviderOnly),
+            Party.Provider => (Party.Employer, EditStatus.EmployerOnly),
+            Party.TransferSender => (Party.Provider, EditStatus.ProviderOnly),
+            _ => throw new ArgumentOutOfRangeException(nameof(modifyingParty))
+        };
+    }
+
     public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
     {
-        CheckIsEmployerOrProvider(modifyingParty);
+        CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
         CheckIsWithParty(modifyingParty);
 
         StartTrackingSession(UserAction.SendCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
         ChangeTrackingSession.TrackUpdate(this);
 
         IsDraft = false;
-        EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
-        WithParty = modifyingParty.GetOtherParty();
+        
+        SetTargetPartyAndEditStatus(modifyingParty);
         LastAction = LastAction.Amend;
         CommitmentStatus = CommitmentStatus.Active;
         TransferApprovalStatus = null;
-        AddMessage(message, modifyingParty, userInfo);
-        UpdatedBy(modifyingParty, userInfo);
+        
+        if (modifyingParty == Party.Employer || modifyingParty == Party.Provider || modifyingParty == Party.TransferSender)
+        {
+            AddMessage(message, modifyingParty, userInfo);
+            
+            if (!string.IsNullOrEmpty(userInfo.UserEmail))
+            {
+                UpdatedBy(modifyingParty, userInfo);
+            }
+        }
         LastUpdatedOn = DateTime.UtcNow;
 
         switch (WithParty)
@@ -552,7 +571,7 @@ public class Cohort : Aggregate, ITrackableEntity
 
     private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
     {
-        Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
+        Messages.Add(new Message(sendingParty, userInfo.UserDisplayName, text ?? ""));
     }
 
     private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
