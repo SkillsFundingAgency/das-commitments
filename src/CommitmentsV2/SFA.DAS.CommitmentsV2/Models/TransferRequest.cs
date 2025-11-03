@@ -50,7 +50,7 @@ public class TransferRequest : Aggregate, ITrackableEntity
         Publish(() => new TransferRequestApprovedEvent(Id, Cohort.Id, now, userInfo, Cohort.DraftApprenticeshipCount, FundingCap, Cohort.PledgeApplicationId));
     }
 
-    public void Reject(UserInfo userInfo, DateTime rejectedOn)
+    public void Reject(UserInfo userInfo, DateTime rejectedOn, bool publishEvent = true)
     {
         if (Status != TransferApprovalStatus.Pending)
         {
@@ -65,6 +65,9 @@ public class TransferRequest : Aggregate, ITrackableEntity
         TransferApprovalActionedOn = rejectedOn;
         ChangeTrackingSession.CompleteTrackingSession();
 
-        Publish( () => new TransferRequestRejectedEvent(Id, Cohort.Id, rejectedOn, userInfo));
+        if (publishEvent)
+        {
+            Publish(() => new TransferRequestRejectedEvent(Id, Cohort.Id, rejectedOn, userInfo));
+        }
     }
 }
