@@ -17,7 +17,7 @@ public class Message
     {
     }
 
-    public Message(Cohort cohort, Party sendingParty, string author, string text)
+    public Message(Party sendingParty, string author, string text)
     {
         Author = author;
         CreatedBy = ConvertSendingPartyToCreatedBy(sendingParty);
@@ -29,7 +29,8 @@ public class Message
     {
         switch (sendingParty)
         {
-            case Party.Employer: return 0;
+            case Party.Employer:
+            case Party.TransferSender: return 0;
             case Party.Provider: return 1;
             default:
                 throw new ArgumentException($"Cannot create message from {sendingParty}");
