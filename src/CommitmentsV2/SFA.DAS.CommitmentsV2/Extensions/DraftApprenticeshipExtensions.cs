@@ -89,7 +89,7 @@ public static class DraftApprenticeshipExtensions
             if (draft.Cost.GetValueOrDefault() <= 0)
             {
                 yield return new DomainError(nameof(draft.Cost),
-                    "Total agreed apprenticeship price cannot be 0 - re-submit your ILR file with correct training price (TNP1) and end-point assessment price (TNP2)");
+                    "Total agreed apprenticeship price cannot be £0 - re-submit your ILR file with correct training price (TNP1) and end-point assessment price (TNP2)");
                 yield break;
             }
 
