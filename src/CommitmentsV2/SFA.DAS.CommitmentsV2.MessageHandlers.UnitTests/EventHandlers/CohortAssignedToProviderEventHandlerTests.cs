@@ -72,11 +72,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         private CommitmentsV2Configuration commitmentsV2Configuration;
 
+
+        private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
+        private readonly string ProviderApprenticeshipServiceBaseUrl = "https://ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
+
         public CohortAssignedToProviderEventHandlerTestsFixture() : base((m) => null)
         {
             ApprovalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
             Logger = new Mock<ILogger<CohortAssignedToProviderEventHandler>>();
-            commitmentsV2Configuration = new CommitmentsV2Configuration();
+            commitmentsV2Configuration = new CommitmentsV2Configuration()
+            {
+                ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl,
+                ProviderUrl = new ProviderUrlConfiguration()
+                {
+                    ProviderApprenticeshipServiceBaseUrl = ProviderApprenticeshipServiceBaseUrl
+                }
+            };
 
             Handler = new CohortAssignedToProviderEventHandler(Mediator.Object, ApprovalsOuterApiClient.Object, Logger.Object, commitmentsV2Configuration);
         }
@@ -121,7 +132,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Data.TemplateId == "ProviderCommitmentNotification" &&
                     p.Data.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
                     p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
-                    p.Data.Tokens["type"] == actionType
+                    p.Data.Tokens["type"] == actionType &&
+                    p.Data.Tokens["environment"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
                 ), false));
         }
 
@@ -135,7 +147,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Data.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
                     p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Data.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
-                    p.Data.Tokens["type"] == actionType
+                    p.Data.Tokens["type"] == actionType &&
+                    p.Data.Tokens["environment"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
                 ), false));
         }
 
