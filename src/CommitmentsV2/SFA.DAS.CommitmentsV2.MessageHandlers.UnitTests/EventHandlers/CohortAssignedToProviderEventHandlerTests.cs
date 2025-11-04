@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Data.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
                     p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Data.Tokens["type"] == actionType &&
-                    p.Data.Tokens["environment"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
+                    p.Data.Tokens["pas_base_url"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
                 ), false));
         }
 
@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Data.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
                     p.Data.Tokens["type"] == actionType &&
-                    p.Data.Tokens["environment"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
+                    p.Data.Tokens["pas_base_url"] == commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl
                 ), false));
         }
 

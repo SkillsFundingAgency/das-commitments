@@ -59,7 +59,7 @@ public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovals
 
         request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
         request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
-        request.Tokens.Add("environment", providerBaseUrl);
+        request.Tokens.Add("pas_base_url", providerBaseUrl);
 
 
         if (cohortSummary.IsFundedByTransfer)
