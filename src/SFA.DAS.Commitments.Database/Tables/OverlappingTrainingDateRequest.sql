@@ -25,3 +25,9 @@ CREATE NONCLUSTERED INDEX [IX_OverlappingTrainingDateRequest_PreviousApprentices
      [RowVersion]) 
 WITH (ONLINE = ON)
 GO
+
+CREATE NONCLUSTERED INDEX [IX_OverlappingTrainingDateRequest_DraftApprenticeshipId_Status] 
+ON [dbo].[OverlappingTrainingDateRequest] ([DraftApprenticeshipId], [Status]) INCLUDE (
+     [PreviousApprenticeshipId]) 
+WITH (ONLINE = ON)
+GO
