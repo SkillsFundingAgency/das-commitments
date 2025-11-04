@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
@@ -18,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupNonTransferCohort();
             await fixture.Handle();
 
-            fixture.Mediator.Verify(x=>x.Send(It.Is<GetCohortSummaryQuery>(c=>c.CohortId == fixture.Message.CohortId), It.IsAny<CancellationToken>()));
+            fixture.Mediator.Verify(x => x.Send(It.Is<GetCohortSummaryQuery>(c => c.CohortId == fixture.Message.CohortId), It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -68,12 +69,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public GetCohortSummaryQueryResult GetCohortSummaryQueryResult { get; private set; }
 
+
+        private CommitmentsV2Configuration commitmentsV2Configuration;
+
         public CohortAssignedToProviderEventHandlerTestsFixture() : base((m) => null)
         {
             ApprovalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
             Logger = new Mock<ILogger<CohortAssignedToProviderEventHandler>>();
+            commitmentsV2Configuration = new CommitmentsV2Configuration();
 
-            Handler = new CohortAssignedToProviderEventHandler(Mediator.Object, ApprovalsOuterApiClient.Object, Logger.Object);
+            Handler = new CohortAssignedToProviderEventHandler(Mediator.Object, ApprovalsOuterApiClient.Object, Logger.Object, commitmentsV2Configuration);
         }
 
         public CohortAssignedToProviderEventHandlerTestsFixture SetupNonTransferCohort()

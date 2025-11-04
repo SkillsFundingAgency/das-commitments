@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -6,7 +7,8 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovalsOuterApiClient outerApiClient, ILogger<CohortAssignedToProviderEventHandler> logger)
+public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovalsOuterApiClient outerApiClient, ILogger<CohortAssignedToProviderEventHandler> logger, 
+    CommitmentsV2Configuration commitmentsV2Configuration)
     : IHandleMessages<CohortAssignedToProviderEvent>
 {
     public async Task Handle(CohortAssignedToProviderEvent message, IMessageHandlerContext context)
@@ -26,7 +28,7 @@ public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovals
 
                 if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
 
-                var emailRequest = BuildEmailRequest(cohortSummary);
+                var emailRequest = BuildEmailRequest(cohortSummary, commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl);
                 await SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest);
             }
         }
@@ -42,7 +44,7 @@ public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovals
         await outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
     }
 
-    private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
+    private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary, string providerBaseUrl)
     {
         var request = new ProviderEmailRequest
         {
@@ -57,6 +59,8 @@ public class CohortAssignedToProviderEventHandler(IMediator mediator, IApprovals
 
         request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
         request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
+        request.Tokens.Add("environment", providerBaseUrl);
+
 
         if (cohortSummary.IsFundedByTransfer)
         {
