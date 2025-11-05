@@ -886,7 +886,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             StopDate = command.StopDate,
             ApprenticeshipId = command.ApprenticeshipId,
-            ChangedOn = currentDate.UtcNow
+            ChangedOn = currentDate.UtcNow,
+            IsWithDrawnAtStartOfCourse = StartDate.Value.Date == command.StopDate.Date,
+            LearnerDataId = LearnerDataId,
+            ProviderId = Cohort.ProviderId,
         });
     }
 
