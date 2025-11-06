@@ -120,6 +120,9 @@ components:
         learningKey:
           type: string
           format: uuid
+        learningType:
+          type: string
+          format: uuid
         approvedUri:
           type: string
           format: uri
