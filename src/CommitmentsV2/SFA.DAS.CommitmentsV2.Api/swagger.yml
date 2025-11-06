@@ -105,22 +105,17 @@ components:
     change:
       type: object
       properties:
-        approved:
+        old:
           type: string
-        unapproved:
+        new:
           type: string
-      required:
-        - approved
-        - unapproved
 
     learningRequest:
       type: object
       properties:
         ukprn:
           type: string
-        apprenticeshipId:
-          type: integer
-        employerId:
+        agreementId:
           type: integer
         learningKey:
           type: string
