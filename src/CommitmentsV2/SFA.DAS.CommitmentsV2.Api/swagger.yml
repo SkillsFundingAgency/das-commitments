@@ -26,9 +26,9 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/learningChangesRequestBody'
       responses:
-        '200':
-          description: An approval for these changes is not required
         '201':
+          description: An approval for these changes is not required
+        '202':
           description: An approval for these changes is required and we have accepted this request
     
 components:  
