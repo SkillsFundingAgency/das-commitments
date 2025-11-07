@@ -126,9 +126,6 @@ components:
         approvedUri:
           type: string
           format: uri
-        unapprovedUri:
-          type: string
-          format: uri
         changes:
           $ref: "#/components/schemas/learningChanges"
           
