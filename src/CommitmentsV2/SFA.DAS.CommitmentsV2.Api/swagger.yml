@@ -20,7 +20,37 @@ paths:
         '503':
           $ref: '#/components/responses/healthCheckResponse'
 
-  /approval:
+  /approvals/{learningKey}:
+    put:
+      summary: Request to update a current approval for a learning record
+      requestBody:
+        $ref: '#/components/requestBodies/learningChangesRequestBody'
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '201':
+          description: An approval for these changes is not required
+        '202':
+          description: An approval for these changes is required and we have accepted this request
+    delete:
+      summary: Request to delete approvals on this record
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: An approval was deleted
+
+  /approvals:
     post:
       summary: Request approval for the changes sent across
       requestBody:
@@ -30,7 +60,13 @@ paths:
           description: An approval for these changes is not required
         '202':
           description: An approval for these changes is required and we have accepted this request
-    
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units          
+
 components:  
   requestBodies:
     learningChangesRequestBody:
