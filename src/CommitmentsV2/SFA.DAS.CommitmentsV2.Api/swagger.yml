@@ -21,38 +21,15 @@ paths:
           $ref: '#/components/responses/healthCheckResponse'
 
   /approvals/{learningKey}:
-    put:
-      summary: Request to update a current approval for a learning record
-      requestBody:
-        $ref: '#/components/requestBodies/learningChangesRequestBody'
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '201':
-          description: An approval for these changes is not required
-        '202':
-          description: An approval for these changes is required and we have accepted this request
-    delete:
-      summary: Request to delete approvals on this record
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: An approval was deleted
-
-  /approvals:
     post:
-      summary: Request approval for the changes sent across
+      summary: Request an approval on changes to a record. This will apply the approval business logic
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
       requestBody:
         $ref: '#/components/requestBodies/learningChangesRequestBody'
       responses:
@@ -66,7 +43,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
           description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units          
-
+    delete:
+      summary: Request to delete approvals on this record
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: An approval was deleted
 components:  
   requestBodies:
     learningChangesRequestBody:
