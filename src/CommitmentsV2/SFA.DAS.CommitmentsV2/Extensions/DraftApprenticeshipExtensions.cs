@@ -93,13 +93,13 @@ public static class DraftApprenticeshipExtensions
                 yield break;
             }
 
-            if (draft.TrainingPrice == 0 && draft.Cost > 0)
+            if (draft.TrainingPrice == 0 && draft.Cost > 0 || draft.TrainingPrice < 0)
             {
                 yield return new DomainError(nameof(draft.TrainingPrice),
                     "Training price (TNP1) must be in the range of 1-100000 - re-submit your ILR file with correct training price");
             }
 
-            if (draft.EndPointAssessmentPrice == 0 && draft.Cost > 0)
+            if (draft.EndPointAssessmentPrice < 0)
             {
                 yield return new DomainError(nameof(draft.EndPointAssessmentPrice),
                     "End-point assessment price (TNP2) should be in the range of 1-100000 - re-submit your ILR file with correct end-point assessment price");
