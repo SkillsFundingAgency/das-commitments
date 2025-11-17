@@ -65,6 +65,21 @@ public class BulkUploadController(IMediator mediator, IModelMapper modelMapper, 
     }
 
     [HttpPost]
+    [Route("/api/providers/{providerId}/learners/{id}/validate")]
+    public async Task<IActionResult> Validate(long providerId, long id, ValidateLearnerRequest request, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Received Validate request for Provider : {providerId} and Learner : {id}", providerId, id);
+
+        //var command = await modelMapper.Map<BulkUploadValidateCommand>(request);
+        //var result = await mediator.Send(command, cancellationToken);
+
+        //result.BulkUploadValidationErrors.ThrowIfAny();
+
+        return Ok();
+    }
+
+
+    [HttpPost]
     [Route("logs")]
     public async Task<IActionResult> AddLog([FromBody] AddFileUploadLogRequest request, CancellationToken cancellationToken = default)
     {
