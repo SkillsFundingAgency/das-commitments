@@ -1,62 +1,53 @@
-﻿//using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-//using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-//using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 
-//namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateLearner;
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateLearner;
 
-//public partial class ValidateLearnerCommandHandler
-//{
-//    private IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
-//    {
-//        var domainErrors = new List<Error>();
+public partial class ValidateLearnerCommandHandler
+{
+    private IEnumerable<LearnerError> ValidateUln(LearnerData record)
+    {
+        var domainErrors = new List<LearnerError>();
 
-//        var checkResult = ulnValidator.Validate(csvRecord.Uln);
+        var checkResult = ulnValidator.Validate(record.Uln.ToString());
 
-//        if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
-//        {
-//            domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
-//        }
-//        else
-//        {
-//            if (checkResult == UlnValidationResult.IsInValidTenDigitUlnNumber)
-//            {
-//                domainErrors.Add(new Error("Uln", "Enter a 10-digit <b>unique learner number</b>"));
-//            }
-//            else if (checkResult == UlnValidationResult.IsInvalidUln)
-//            {
-//                domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> of {csvRecord.Uln} isn't valid"));
-//            }
-//            else
-//            {
-//                var overlapResult = OverlapCheck(csvRecord);
-//                if (overlapResult.HasOverlappingStartDate)
-//                {
-//                    domainErrors.Add(new Error("Uln", $"The <b>start date</b> overlaps with existing training dates for the same apprentice"));
-//                }
-//                if (overlapResult.HasOverlappingEndDate)
-//                {
-//                    domainErrors.Add(new Error("Uln", $"The <b>end date</b> overlaps with existing training dates for the same apprentice"));
-//                }
-//            }
+        if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
+        {
+            domainErrors.Add(new LearnerError("Uln", "Enter a 10-digit unique learner number"));
+        }
+        else
+        {
+            if (checkResult == UlnValidationResult.IsInValidTenDigitUlnNumber)
+            {
+                domainErrors.Add(new LearnerError("Uln", "Enter a 10-digit unique learner number"));
+            }
+            else if (checkResult == UlnValidationResult.IsInvalidUln)
+            {
+                domainErrors.Add(new LearnerError("Uln", $"The unique learner number of {record.Uln} isn't valid"));
+            }
+            else
+            {
+                var overlapResult = OverlapCheck(record);
+                if (overlapResult.HasOverlappingStartDate)
+                {
+                    domainErrors.Add(new LearnerError("Uln", $"The start date overlaps with existing training dates for the same apprentice"));
+                }
+                if (overlapResult.HasOverlappingEndDate)
+                {
+                    domainErrors.Add(new LearnerError("Uln", $"The end date overlaps with existing training dates for the same apprentice"));
+                }
+            }
 
-//            if (_csvRecords.Any(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
-//            {
-//                domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> has already been used for an apprentice in this file"));
-//            }
-//        }
-//        return domainErrors;
-//    }
+        }
+        return domainErrors;
+    }
 
-//    private OverlapCheckResult OverlapCheck(BulkUploadAddDraftApprenticeshipRequest csvRecord)
-//    {
-//        var learnerStartDate = csvRecord.StartDate;
-//        var learnerEndDate = csvRecord.EndDate;
-        
-//        if (learnerStartDate.HasValue && learnerEndDate.HasValue)
-//        {
-//            return overlapService.CheckForOverlaps(csvRecord.Uln, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, CancellationToken.None).Result;
-//        }
+    private OverlapCheckResult OverlapCheck(LearnerData record)
+    {
+        var learnerStartDate = record.StartDate;
+        var learnerEndDate = record.PlannedEndDate;
 
-//        return new OverlapCheckResult(false, false);
-//    }
-//}
+        return overlapService.CheckForOverlaps(record.Uln.ToString(), new DateRange(learnerStartDate, learnerEndDate), null, CancellationToken.None).Result;
+    }
+}

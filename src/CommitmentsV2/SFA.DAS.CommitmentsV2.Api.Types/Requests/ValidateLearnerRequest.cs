@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     {
         public long ProviderId { get; set; }
         public long LearnerDataId { get; set; }
-        public LearnerData LearnerData { get; set; }
+        public LearnerData Learner { get; set; }
         public ProviderStandardResults ProviderStandardsData { get; set; }
         public Dictionary<string, int?> OtjTrainingHours { get; set; }
     }

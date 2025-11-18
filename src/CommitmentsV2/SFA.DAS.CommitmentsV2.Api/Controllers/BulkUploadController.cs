@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateLearner;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
@@ -70,12 +71,16 @@ public class BulkUploadController(IMediator mediator, IModelMapper modelMapper, 
     {
         logger.LogInformation("Received Validate request for Provider : {providerId} and Learner : {id}", providerId, id);
 
-        //var command = await modelMapper.Map<BulkUploadValidateCommand>(request);
-        //var result = await mediator.Send(command, cancellationToken);
+        var command = new ValidateLearnerCommand {
+            ProviderId = providerId,
+            LearnerDataId = id,
+            LearnerData = request.Learner,
+            ProviderStandardsData = request.ProviderStandardsData,
+            OtjTrainingHours = null 
+        };
+        var result = await mediator.Send(command, cancellationToken);
 
-        //result.BulkUploadValidationErrors.ThrowIfAny();
-
-        return Ok();
+        return Ok(result);
     }
 
 
