@@ -12,7 +12,7 @@ public static class DatabaseExtensions
     
     // Take advantage of ChainedTokenCredential's built-in caching
     private static readonly ChainedTokenCredential AzureServiceTokenProvider = new(
-        new ManagedIdentityCredential(),
+        // new ManagedIdentityCredential(),
         new AzureCliCredential(),
         new VisualStudioCodeCredential(),
         new VisualStudioCredential());
