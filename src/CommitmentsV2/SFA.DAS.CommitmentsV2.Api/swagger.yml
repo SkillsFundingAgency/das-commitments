@@ -21,8 +21,8 @@ paths:
           $ref: '#/components/responses/healthCheckResponse'
 
   /approvals/{learningKey}:
-    post:
-      summary: Request an approval on changes to a record. This will apply the approval business logic
+    put:
+      summary: changes from the consumer have been superseded and this endpoint initiates a supersede of the original approval request
       parameters:
       - in: path
         name: learningKey
@@ -42,7 +42,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units          
+          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units 
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+          description: An approval for these changes does not exist in pending state so cannot be overidden
+    post:
+      summary: Start an approval on a recoerd that current has no changes for approval
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        $ref: '#/components/requestBodies/learningChangesRequestBody'
+      responses:
+        '201':
+          description: An approval for these changes is not required
+        '202':
+          description: An approval for these changes is required and we have accepted this request
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units  
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+          description: An approval for these changes already exists in pending state so cannot be started
     delete:
       summary: Request to delete approvals on this record
       parameters:
