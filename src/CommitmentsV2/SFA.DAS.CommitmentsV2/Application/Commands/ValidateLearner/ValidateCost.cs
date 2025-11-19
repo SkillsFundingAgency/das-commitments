@@ -1,33 +1,27 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Domain;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateLearner;
 
 public partial class ValidateLearnerCommandHandler
 {
-    private static IEnumerable<Error> ValidateCost(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<LearnerError> ValidateCost(LearnerDataEnhanced record)
     {
-        var domainErrors = new List<Error>();
-        if (string.IsNullOrEmpty(csvRecord.CostAsString))
+        var domainErrors = new List<LearnerError>();
+        if (record.Cost <= 0 || record.Cost > Constants.MaximumApprenticeshipCost)
         {
-            domainErrors.Add(new Error("TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only"));
+            domainErrors.Add(new LearnerError("Cost", "Total agreed apprenticeship price cannot be £0 - re-submit your ILR file with correct training price (TNP1) and end-point assessment price (TNP2)"));
         }
-        else if (csvRecord.Cost == null)
+        
+        if ((record.TrainingPrice <= 0 || record.TrainingPrice > Constants.MaximumApprenticeshipCost) && record.Cost > 0)
         {
-            domainErrors.Add(new Error("TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only"));
+            domainErrors.Add(new LearnerError("TrainingPrice", "Training price (TNP1) must be in the range of 1-100000 - re-submit your ILR file with correct training price"));
         }
-        else if (csvRecord.Cost.Value == 0)
+
+        if ((record.EpaoPrice < 0 || record.EpaoPrice > Constants.MaximumApprenticeshipCost) && record.Cost > 0)
         {
-            domainErrors.Add(new Error("TotalPrice", "The <b>total cost</b> must be more than £0"));
-        }
-        else if (csvRecord.Cost.Value > 100000)
-        {
-            domainErrors.Add(new Error("TotalPrice", "The <b>total cost</b> must be £100,000 or less"));
-        }
-        else if (!Regex.IsMatch(csvRecord.CostAsString, "^([1-9]{1}([0-9]{1,2})?)+(,[0-9]{3})*$|^[1-9]{1}[0-9]*$", RegexOptions.None, new TimeSpan(0, 0, 0, 1)))
-        {
-            domainErrors.Add(new Error("TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only"));
+            domainErrors.Add(new LearnerError("EpaoPrice", "Endpoint assessment price (TNP2) must be in the range of 1-100000 - re-submit your ILR file with the correct price"));
         }
 
         return domainErrors;

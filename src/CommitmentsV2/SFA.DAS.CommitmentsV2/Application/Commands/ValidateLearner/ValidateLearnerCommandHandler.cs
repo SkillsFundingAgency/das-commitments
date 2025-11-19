@@ -165,7 +165,7 @@ public partial class ValidateLearnerCommandHandler(
         errors.AddRange(ValidateCourseCode(learner, providerStandardResults));
         errors.AddRange(ValidateStartDate(learner));
         errors.AddRange(ValidateEndDate(learner));
-        errors.AddRange(ValidateCost(csvRecord));
+        errors.AddRange(ValidateCost(learner));
         //domainErrors.AddRange(ValidateProviderRef(csvRecord));
         //domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
         //domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
