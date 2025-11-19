@@ -30,9 +30,7 @@ public partial class ValidateLearnerCommandHandler(
     {
         ProviderId = command.ProviderId;
 
-        var errors = new List<Error>();
-
-        await Validate(command.LearnerData, command.ProviderId, command.LearnerDataId, command.ProviderStandardsData, command.OtjTrainingHours);
+        var errors = await Validate(command.LearnerData, command.ProviderId, command.LearnerDataId, command.ProviderStandardsData, command.OtjTrainingHours);
 
         return new LearnerValidateApiResponse
         {
@@ -144,7 +142,7 @@ public partial class ValidateLearnerCommandHandler(
     //    return cohortDetails.TransferSenderId.HasValue;
     //}
 
-    private async Task<List<LearnerError>> Validate(LearnerData learner, long providerId, long learnerDataId, ProviderStandardResults providerStandardResults, int? otjTrainingHours)
+    private async Task<List<LearnerError>> Validate(LearnerDataEnhanced learner, long providerId, long learnerDataId, ProviderStandardResults providerStandardResults, int? otjTrainingHours)
     {
         var errors = new List<LearnerError>();
 
@@ -159,15 +157,15 @@ public partial class ValidateLearnerCommandHandler(
         //    }
         //}
 
-        errors.AddRange(ValidateUln(learner));
-        //domainErrors.AddRange(ValidateFamilyName(csvRecord));
-        //domainErrors.AddRange(ValidateGivenName(csvRecord));
-        //domainErrors.AddRange(ValidateDateOfBirth(csvRecord));
-        //domainErrors.AddRange(ValidateEmailAddress(csvRecord));
-        //domainErrors.AddRange(ValidateCourseCode(csvRecord, providerStandardResults));
-        //domainErrors.AddRange(ValidateStartDate(csvRecord));
-        //domainErrors.AddRange(ValidateEndDate(csvRecord));
-        //domainErrors.AddRange(ValidateCost(csvRecord));
+        errors.AddRange(await ValidateUln(learner));
+        errors.AddRange(ValidateFamilyName(learner));
+        errors.AddRange(ValidateGivenName(learner));
+        errors.AddRange(ValidateDateOfBirth(learner));
+        errors.AddRange(ValidateEmailAddress(learner));
+        errors.AddRange(ValidateCourseCode(learner, providerStandardResults));
+        errors.AddRange(ValidateStartDate(learner));
+        errors.AddRange(ValidateEndDate(learner));
+        errors.AddRange(ValidateCost(csvRecord));
         //domainErrors.AddRange(ValidateProviderRef(csvRecord));
         //domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
         //domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
@@ -247,13 +245,13 @@ public partial class ValidateLearnerCommandHandler(
     //    return cohort;
     //}
 
-    //private Standard GetStandardDetails(string stdCode)
-    //{
-    //    if (string.IsNullOrWhiteSpace(stdCode))
-    //    {
-    //        return null;
-    //    }
+    private Standard GetStandardDetails(string stdCode)
+    {
+        if (string.IsNullOrWhiteSpace(stdCode))
+        {
+            return null;
+        }
 
-    //    return int.TryParse(stdCode, out var result) ? dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
-    //}
+        return int.TryParse(stdCode, out var result) ? dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
+    }
 }

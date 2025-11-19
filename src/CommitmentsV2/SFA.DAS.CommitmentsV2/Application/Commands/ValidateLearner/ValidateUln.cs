@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateLearner;
 
 public partial class ValidateLearnerCommandHandler
 {
-    private IEnumerable<LearnerError> ValidateUln(LearnerData record)
+    private async Task<IEnumerable<LearnerError>> ValidateUln(LearnerDataEnhanced record)
     {
         var domainErrors = new List<LearnerError>();
 
@@ -14,13 +14,13 @@ public partial class ValidateLearnerCommandHandler
 
         if (checkResult == UlnValidationResult.IsEmptyUlnNumber)
         {
-            domainErrors.Add(new LearnerError("Uln", "Enter a 10-digit unique learner number"));
+            domainErrors.Add(new LearnerError("Uln", "The 10-digit unique learner number is missing"));
         }
         else
         {
             if (checkResult == UlnValidationResult.IsInValidTenDigitUlnNumber)
             {
-                domainErrors.Add(new LearnerError("Uln", "Enter a 10-digit unique learner number"));
+                domainErrors.Add(new LearnerError("Uln", "The 10-digit unique learner number is invalid"));
             }
             else if (checkResult == UlnValidationResult.IsInvalidUln)
             {
@@ -28,7 +28,7 @@ public partial class ValidateLearnerCommandHandler
             }
             else
             {
-                var overlapResult = OverlapCheck(record);
+                var overlapResult = await OverlapCheck(record);
                 if (overlapResult.HasOverlappingStartDate)
                 {
                     domainErrors.Add(new LearnerError("Uln", $"The start date overlaps with existing training dates for the same apprentice"));
@@ -43,11 +43,11 @@ public partial class ValidateLearnerCommandHandler
         return domainErrors;
     }
 
-    private OverlapCheckResult OverlapCheck(LearnerData record)
+    private Task<OverlapCheckResult> OverlapCheck(LearnerDataEnhanced record)
     {
         var learnerStartDate = record.StartDate;
         var learnerEndDate = record.PlannedEndDate;
 
-        return overlapService.CheckForOverlaps(record.Uln.ToString(), new DateRange(learnerStartDate, learnerEndDate), null, CancellationToken.None).Result;
+        return overlapService.CheckForOverlaps(record.Uln.ToString(), new DateRange(learnerStartDate, learnerEndDate), null, CancellationToken.None);
     }
 }

@@ -9,14 +9,14 @@ public class LearnerValidateApiResponse
 
 public class LearnerValidation
 {
-    public LearnerValidation(long learnerDataId, List<Error> errors)
+    public LearnerValidation(long learnerDataId, List<LearnerError> errors)
     {
         LearnerDataId = learnerDataId;
         Errors = errors;
     }
 
     public long LearnerDataId { get; set; }
-    public List<Error>  Errors { get; set; }
+    public List<LearnerError>  Errors { get; set; }
 }
 
 public class LearnerError
