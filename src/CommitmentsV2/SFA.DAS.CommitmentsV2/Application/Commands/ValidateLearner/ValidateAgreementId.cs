@@ -7,35 +7,31 @@ public partial class ValidateLearnerCommandHandler
 {
     private const string LegalAgreementIdIssue = "LegalAgreementId";
 
-    private async Task<List<Error>> ValidateAgreementIdValidFormat(LearnerDataEnhanced record)
+    private async Task<List<LearnerError>> ValidateAgreementIdValidFormat(LearnerDataEnhanced record)
     {
-        var errors = new List<Error>();
+        var errors = new List<LearnerError>();
         if (string.IsNullOrEmpty(record.AgreementId))
         {
-            errors.Add(new Error("AgreementId", "Agreement ID must be entered"));
+            errors.Add(new LearnerError("AgreementId", "Agreement ID must be entered"));
         }
-        else if (!record.AgreementId.All(char.IsLetterOrDigit))
+        else if (!record.AgreementId.All(char.IsLetterOrDigit) || (record.AgreementId.Length > 6))
         {
-            errors.Add(new Error("AgreementId", $"Enter a valid Agreement ID"));
-        }
-        else if (record.AgreementId.Length > 6)
-        {
-            errors.Add(new Error("AgreementId", $"Enter a valid Agreement ID"));
+            errors.Add(new LearnerError("AgreementId", $"Invalid Agreement ID"));
         }
         else if (string.IsNullOrWhiteSpace(await GetEmployerName(record.AgreementId)))
         {
-            errors.Add(new Error("AgreementId", $"Enter a valid <b>Agreement ID</b>"));
+            errors.Add(new LearnerError("AgreementId", $"Invalid Agreement ID"));
         }
 
         return errors;
     }
 
-    private async Task<List<Error>> ValidateAgreementIdIsSigned(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private async Task<List<LearnerError>> ValidateAgreementIdIsSigned(LearnerDataEnhanced record)
     {
-        var errors = new List<Error>();
-        if (!(await IsSigned(csvRecord.AgreementId)).GetValueOrDefault(false))
+        var errors = new List<LearnerError>();
+        if (!(await IsSigned(record.AgreementId)).GetValueOrDefault(false))
         {
-            errors.Add(new Error(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the DfE."));
+            errors.Add(new LearnerError(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to accept the agreement with the DfE."));
         }
 
         return errors;
