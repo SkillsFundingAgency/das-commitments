@@ -35,7 +35,7 @@ ON [dbo].[DataLockStatus] ([ApprenticeshipId], [IsExpired], [IsResolved], [Event
 INCLUDE ([DataLockEventId], [ErrorCode], [TriageStatus])
 GO
 
-CREATE NONCLUSTERED INDEX [IDX_DataLockStatus_StatusEventStatusResolvedSearch] ON [dbo].[DataLockStatus] ([Status],[IsResolved],[EventStatus]) INCLUDE ([ApprenticeshipId])
+CREATE NONCLUSTERED INDEX [IDX_DataLockStatus_StatusEventStatusResolvedSearch] ON [dbo].[DataLockStatus] ([Status],[IsResolved],[EventStatus],[IsExpired]) INCLUDE ([ApprenticeshipId])
 GO
 
 CREATE NONCLUSTERED INDEX [IX_DataLockStatus_IlrEffectiveExpired] ON [dbo].[DataLockStatus] ([IsExpired], [IlrEffectiveFromDate]) WITH (ONLINE = ON)

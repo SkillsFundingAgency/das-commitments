@@ -244,6 +244,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 changedPriceHistory.FromDate = priceHistory.FromDate;
                 changedPriceHistory.ToDate = priceHistory.ToDate;
                 changedPriceHistory.Cost = priceHistory.Cost;
+                changedPriceHistory.TrainingPrice = null;
+                changedPriceHistory.AssessmentPrice = null;
             }
             else
             {
@@ -463,11 +465,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         if (update.StartDate.HasValue)
         {
             StartDate = update.StartDate;
-        }
-
-        if (update.ActualStartDate.HasValue)
-        {
-            ActualStartDate = update.ActualStartDate;
+            ActualStartDate = null;
         }
 
         if (update.EndDate.HasValue)
@@ -486,13 +484,13 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
             Cost = update.Cost.Value;
+            TrainingPrice = null;
+            EndPointAssessmentPrice = null;
+
             var priceHistoryEpisode = PriceHistory.First();
             priceHistoryEpisode.Cost = update.Cost.Value;
-            if(update.TrainingPrice.HasValue && update.EndPointAssessmentPrice.HasValue)
-            {
-                priceHistoryEpisode.TrainingPrice = update.TrainingPrice.Value;
-                priceHistoryEpisode.AssessmentPrice = update.EndPointAssessmentPrice.Value;
-            }
+            priceHistoryEpisode.TrainingPrice = null;
+            priceHistoryEpisode.AssessmentPrice = null;
         }
 
         if (!update.StartDate.HasValue)

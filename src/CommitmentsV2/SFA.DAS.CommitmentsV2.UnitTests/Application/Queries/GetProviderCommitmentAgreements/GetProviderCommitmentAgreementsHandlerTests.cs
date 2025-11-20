@@ -144,11 +144,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             cohort.Apprenticeships.Add(new DraftApprenticeship { Id = _autoFixture.Create<long>() });
             cohort.Apprenticeships.Add(new DraftApprenticeship { Id = _autoFixture.Create<long>() });
 
-            cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "NotLast"));
-            cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "NotLast"));
+            cohort.Messages.Add(new Message(Party.Employer, "XXX", "NotLast"));
+            cohort.Messages.Add(new Message(Party.Provider, "XXX", "NotLast"));
 
-            cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "EmployerLast"));
-            cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "ProviderLast"));
+            cohort.Messages.Add(new Message(Party.Employer, "XXX", "EmployerLast"));
+            cohort.Messages.Add(new Message(Party.Provider, "XXX", "ProviderLast"));
 
             SeedCohorts.Add(cohort);
             return this;
