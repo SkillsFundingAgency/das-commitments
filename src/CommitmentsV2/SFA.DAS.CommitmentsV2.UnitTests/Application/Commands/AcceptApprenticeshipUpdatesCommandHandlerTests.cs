@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenCommandIsHandled_StartDateIsUpdated()
+        public async Task Handle_WhenCommandIsHandled_StartDateIsUpdatedAndActualStartDateIsBlankedOut()
         {
             _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
             _fixture.ApprenticeshipUpdate.StartDate = new DateTime(2000, 1, 1);
@@ -83,11 +83,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(_fixture.ApprenticeshipFromDb.StartDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.StartDate));
-                Assert.That(_fixture.PriceHistoryFromDb.FromDate, Is.EqualTo(_fixture.ApprenticeshipUpdate.StartDate));
-            });
+            _fixture.ApprenticeshipFromDb.StartDate.Should().Be(_fixture.ApprenticeshipUpdate.StartDate);
+            _fixture.ApprenticeshipFromDb.ActualStartDate.Should().BeNull();
+            _fixture.PriceHistoryFromDb.FromDate.Should().Be(_fixture.ApprenticeshipUpdate.StartDate);
         }
 
         [Test]
@@ -166,11 +164,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(_fixture.ApprenticeshipFromDb.Cost, Is.EqualTo(195));
-                Assert.That(_fixture.PriceHistoryFromDb.Cost, Is.EqualTo(195));
-            });
+            _fixture.ApprenticeshipFromDb.Cost.Should().Be(195);
+            _fixture.ApprenticeshipFromDb.TrainingPrice.Should().BeNull();
+            _fixture.ApprenticeshipFromDb.EndPointAssessmentPrice.Should().BeNull();
+            _fixture.PriceHistoryFromDb.Cost.Should().Be(195);
+            _fixture.PriceHistoryFromDb.TrainingPrice.Should().BeNull();
+            _fixture.PriceHistoryFromDb.AssessmentPrice.Should().BeNull();
         }
 
         [TestCase("Option")]

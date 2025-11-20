@@ -167,9 +167,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     .Without(d => d.DateOfBirth)
                     .Without(d=>d.Email)
                     .Without(d => d.Uln)
-                    .Without(d => d.TrainingPrice)
-                    .Without(d => d.EndPointAssessmentPrice)
-                    .Without(d => d.LearnerDataId)
+                    .With(d=> d.Cost, 1000)
+                    .With(d=> d.TrainingPrice, 900)
+                    .With(d=> d.EndPointAssessmentPrice, 100)
                     .Create();
 
                 ExistingApprenticeshipDetails = new DraftApprenticeship(Fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
