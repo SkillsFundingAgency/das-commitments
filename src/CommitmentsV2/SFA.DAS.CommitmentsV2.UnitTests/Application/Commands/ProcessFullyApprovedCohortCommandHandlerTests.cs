@@ -254,6 +254,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                       apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
                       apprenticeshipCreatedEvent.LearnerDataId == apprenticeship.LearnerDataId;
 
+
         for (var index = 0; index < apprenticeship.PriceHistory.Count; index++)
         {
             var priceHistory = apprenticeship.PriceHistory.ElementAt(index);
@@ -262,7 +263,9 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             isValid = isValid &&
                       priceEpisode?.FromDate == priceHistory.FromDate &
                       priceEpisode?.ToDate == priceHistory.ToDate &
-                      priceEpisode?.Cost == priceHistory.Cost;
+                      priceEpisode?.Cost == priceHistory.Cost &
+                      priceEpisode?.TrainingPrice == priceHistory.TrainingPrice &
+                      priceEpisode.EndPointAssessmentPrice == priceHistory.AssessmentPrice;
         }
             
         return isValid;
