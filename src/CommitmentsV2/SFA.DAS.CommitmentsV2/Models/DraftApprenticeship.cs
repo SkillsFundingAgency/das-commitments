@@ -389,4 +389,14 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         return false;
     }
+
+    public void SetEmail(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new DomainException("Email", "Email doesn't have any value");
+        }
+
+        Email = email;
+    }
 }

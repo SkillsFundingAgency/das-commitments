@@ -3,9 +3,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -159,4 +161,19 @@ public class DraftApprenticeshipController(
 
         return Ok();
     }
+
+
+    [HttpPost]
+    [Route("{apprenticeshipId: long}/email")]
+    public async Task<IActionResult> AddApprenticeshipEmail(long cohortId, long apprenticeshipId, [FromBody] AddApprenticeshipEmailRequest request)
+    {
+        await mediator.Send(new ApprenticeshipEmailCommand()
+        {
+            CohortId = cohortId,
+            Email = request.Email,
+            ApprenticeshipId = apprenticeshipId
+        });
+
+        return Ok();
+    }   
 }
