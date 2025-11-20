@@ -4,6 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 public class LearnerValidateApiResponse
 {
+    public List<LearnerError> CriticalErrors { get; set; }
     public LearnerValidation LearnerValidation { get; set; }
 }
 

@@ -29,6 +29,27 @@ public partial class ValidateLearnerCommandHandler(
     public async Task<LearnerValidateApiResponse> Handle(ValidateLearnerCommand command, CancellationToken cancellationToken)
     {
         ProviderId = command.ProviderId;
+        LearnerDataId = command.LearnerDataId;
+        var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
+
+        var standardsError = ValidateDeclaredStandards(command.ProviderStandardsData);
+
+        if (standardsError.Count != 0)
+        {
+            return new LearnerValidateApiResponse
+            {
+                CriticalErrors = standardsError
+            };
+        }
+
+        var criticalDomainError = await ValidateCriticalErrors(command.Learner, command.ProviderId);
+        await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
+
+        if (criticalDomainError.Count != 0)
+        {
+            continue;
+        }
+
 
         var errors = await Validate(command.LearnerData, command.ProviderId, command.LearnerDataId, command.ProviderStandardsData, command.OtjTrainingHours);
 
@@ -37,25 +58,9 @@ public partial class ValidateLearnerCommandHandler(
             LearnerValidation = new LearnerValidation(command.LearnerDataId, errors)
         };
 
-        //var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
-
-        //if (standardsError.Count != 0)
-        //{
-        //    return new BulkUploadValidateApiResponse
-        //    {
-        //        BulkUploadValidationErrors = standardsError
-        //    };
-        //}
 
         //foreach (var csvRecord in command.CsvRecords)
         //{
-        //    var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
-        //    await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
-
-        //    if (criticalDomainError.Count != 0)
-        //    {
-        //        continue;
-        //    }
 
         //    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
 
@@ -82,48 +87,30 @@ public partial class ValidateLearnerCommandHandler(
     //    }
     //}
 
-    //private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
-    //{
-    //    var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
-    //    if (domainErrors.Count == 0)
-    //    {
-    //        domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+    private async Task<List<Error>> ValidateCriticalErrors(LearnerDataEnhanced record, long providerId)
+    {
+        var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
+        if (domainErrors.Count == 0)
+        {
+            domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
 
-    //        // when a valid agreement has not been signed validation will stop
-    //        if (domainErrors.Count != 0)
-    //        {
-    //            return domainErrors;
-    //        }
-    //    }
+            // when a valid agreement has not been signed validation will stop
+            if (domainErrors.Count != 0)
+            {
+                return domainErrors;
+            }
+        }
 
-    //    var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-    //    if ((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value || string.IsNullOrEmpty(csvRecord.CohortRef))
-    //        && !IsFundedByTransfer(csvRecord.CohortRef) && !await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
-    //    {
-    //        // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
-    //        return domainErrors;
-    //    }
+        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        if ((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value || string.IsNullOrEmpty(csvRecord.CohortRef))
+            && !IsFundedByTransfer(csvRecord.CohortRef) && !await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+        {
+            // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
+            return domainErrors;
+        }
 
-    //    return domainErrors;
-    //}
-
-    //private static List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
-    //{
-    //    var domainErrors = ValidateDeclaredStandards(providerStandardResults);
-
-    //    if (domainErrors.Count != 0)
-    //    {
-    //        bulkUploadValidationErrors.Add(new BulkUploadValidationError(
-    //            0,
-    //            null,
-    //            null,
-    //            null,
-    //            domainErrors
-    //        ));
-    //    }
-
-    //    return bulkUploadValidationErrors;
-    //}
+        return domainErrors;
+    }
 
     /// <summary>
     /// If it is funded by Transfer - non-levy employer doesn't need to check for the permission to create cohort.
@@ -166,13 +153,12 @@ public partial class ValidateLearnerCommandHandler(
         errors.AddRange(ValidateStartDate(learner));
         errors.AddRange(ValidateEndDate(learner));
         errors.AddRange(ValidateCost(learner));
-        //domainErrors.AddRange(ValidateProviderRef(csvRecord));
-        //domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
-        //domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
+        //errors.AddRange(ValidateProviderRef(csvRecord));
+        //errors.AddRange(ValidateEPAOrgId(csvRecord));
 
-        //domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
+        //wrrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
 
-        //var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
+        //var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(record.StandardCode, otjTrainingHours);
         //domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
         //domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
         //domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
@@ -191,43 +177,43 @@ public partial class ValidateLearnerCommandHandler(
     //    return 187;
     //}
 
-    //private async Task<string> GetEmployerName(string agreementId)
-    //{
-    //    var employerDetails = await GetEmployerDetails(agreementId);
-    //    return employerDetails.Name;
-    //}
+    private async Task<string> GetEmployerName(string agreementId)
+    {
+        var employerDetails = await GetEmployerDetails(agreementId);
+        return employerDetails.Name;
+    }
 
-    //private async Task<EmployerSummary> GetEmployerDetails(string agreementId)
-    //{
-    //    if (string.IsNullOrEmpty(agreementId))
-    //    {
-    //        return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
-    //    }
+    private async Task<EmployerSummary> GetEmployerDetails(string agreementId)
+    {
+        if (string.IsNullOrEmpty(agreementId))
+        {
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
 
-    //    if (_employerSummaries.ContainsKey(agreementId))
-    //    {
-    //        var result = _employerSummaries.GetValueOrDefault(agreementId);
-    //        return result;
-    //    }
+        if (_employerSummaries.ContainsKey(agreementId))
+        {
+            var result = _employerSummaries.GetValueOrDefault(agreementId);
+            return result;
+        }
 
-    //    var accountLegalEntity = dbContext.Value.AccountLegalEntities
-    //        .Include(x => x.Account)
-    //        .FirstOrDefault(x => x.PublicHashedId == agreementId);
+        var accountLegalEntity = dbContext.Value.AccountLegalEntities
+            .Include(x => x.Account)
+            .FirstOrDefault(x => x.PublicHashedId == agreementId);
 
-    //    if (accountLegalEntity == null)
-    //    {
-    //        return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
-    //    }
+        if (accountLegalEntity == null)
+        {
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
 
-    //    var employerName = accountLegalEntity.Account.Name;
-    //    var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-    //    var isSigned = await employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
-    //    var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
+        var employerName = accountLegalEntity.Account.Name;
+        var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
+        var isSigned = await employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+        var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
 
-    //    _employerSummaries.Add(employerSummary);
+        _employerSummaries.Add(employerSummary);
 
-    //    return employerSummary;
-    //}
+        return employerSummary;
+    }
 
     //private Cohort GetCohortDetails(string cohortRef)
     //{

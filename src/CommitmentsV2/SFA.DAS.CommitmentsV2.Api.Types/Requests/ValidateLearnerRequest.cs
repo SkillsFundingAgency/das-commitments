@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 
     public record LearnerDataEnhanced
     {
+        public string AgreementId { get; set; }
         public long Uln { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
