@@ -55,6 +55,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
+        [TestCase(null, null, null, true)]
+        [TestCase(-1, 0, 0, false)]
+        [TestCase(0, 0, 0, false)]
+        [TestCase(100000, 50000, 50000, true)]
+        [TestCase(100001, 50000, 50000, false)]
+        [TestCase(3001, 50000, 50000, false)]
+        public void CostTrainingPriceEpaoPrice_CheckValidation_For_ILR_Record(int? cost, int? trainingPrice, int? epaoPrice, bool passes)
+        {
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epaoPrice;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.Cost),
+                passes);
+        }
+
+        [TestCase(null, null, true)]
+        [TestCase(0, 100, false)]
+        [TestCase(1000, 10, true)]
+        [TestCase(99990, 10, true)]
+        public void TrainingPrice_CheckValidation_For_ILR_Record(int? trainingPrice, int? epao, bool passes)
+        {
+            int? cost = trainingPrice + epao;
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epao;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.TrainingPrice),
+                passes);
+        }
+
+        [TestCase(null, null, true)]
+        [TestCase(10, 0, false)]
+        [TestCase(1000, 10, true)]
+        [TestCase(99990, 10, true)]
+        public void EndPointAssessmentPrice_CheckValidation_For_ILR_Record(int? trainingPrice, int? epao, bool passes)
+        {
+            int? cost = trainingPrice + epao;
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.Cost = cost;
+                    _fixture.DraftApprenticeshipDetails.TrainingPrice = trainingPrice;
+                    _fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice = epao;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndPointAssessmentPrice),
+                passes);
+        }
+
         [TestCase("2019-04-01", null, true, Description = "DoB not specified")]
         [TestCase("2019-04-01", "2004-04-01", true, Description = "Exactly 15 years old")]
         [TestCase("2019-04-01", "2004-04-02", false, Description = "One day prior to 15 years old")]
