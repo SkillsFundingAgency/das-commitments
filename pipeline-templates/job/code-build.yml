@@ -25,16 +25,6 @@ jobs:
           sonar.log.level=DEBUG
 
     - task: DotNetCoreCLI@2
-      displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Web
-      inputs:
-        command: publish
-        publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-        projects: src/${{ parameters.SolutionBaseName }}.Support.SubSite/${{ parameters.SolutionBaseName }}.Support.SubSite.csproj
-        arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
-        modifyOutputPath: true
-        zipAfterPublish: true
-
-    - task: DotNetCoreCLI@2
       displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}.Api
       inputs:
         command: publish

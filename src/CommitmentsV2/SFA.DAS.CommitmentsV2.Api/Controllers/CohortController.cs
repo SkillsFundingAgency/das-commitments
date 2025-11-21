@@ -147,21 +147,6 @@ public class CohortController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    [Route("{cohortId}/support-status")]
-    public async Task<IActionResult> GetSupportStatus(long cohortId)
-    {
-        var query = new GetCohortSupportStatusQuery(cohortId);
-        var result = await mediator.Send(query);
-
-        if (result == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(result);
-    }
-
-    [HttpGet]
     [Route("{cohortId:long}/email-overlaps")]
     public async Task<IActionResult> GetEmailOverlapChecks(long cohortId)
     {
@@ -217,6 +202,21 @@ public class CohortController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(query);
 
         return Ok(new GetCohortPriorLearningErrorResponse { DraftApprenticeshipIds = result.DraftApprenticeshipIds });
+    }
+
+    [HttpGet]
+    [Route("{cohortId}/support-status")]
+    public async Task<IActionResult> GetSupportStatus(long cohortId)
+    {
+        var query = new GetCohortSupportStatusQuery(cohortId);
+        var result = await mediator.Send(query);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
 
     [HttpGet]
