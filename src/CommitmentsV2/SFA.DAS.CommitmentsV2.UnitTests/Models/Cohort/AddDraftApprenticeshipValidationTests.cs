@@ -77,6 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(null, null, true)]
         [TestCase(0, 100, false)]
         [TestCase(-10, 0, false)]
+        [TestCase(-10, 1000, false)]
         [TestCase(1000, 10, true)]
         [TestCase(99990, 10, true)]
         public void TrainingPrice_CheckValidation_For_ILR_Record(int? trainingPrice, int? epao, bool passes)
