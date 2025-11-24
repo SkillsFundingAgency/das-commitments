@@ -1,0 +1,59 @@
+{
+	"info": {
+		"_postman_id": "f9e72a08-21f3-4a14-bfcf-b9a7c947daea",
+		"name": "Inner API Tests For Commitments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21174429"
+	},
+	"item": [
+		{
+			"name": "Account-GetAccountStatus",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-commitments-api.apprenticeships.education.gov.uk/api/accounts/1/status?completionLag=1&startLag=1&newStartWindow=1",
+					"protocol": "https",
+					"host": [
+						"at-commitments-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"1",
+						"status"
+					],
+					"query": [
+						{
+							"key": "completionLag",
+							"value": "1"
+						},
+						{
+							"key": "startLag",
+							"value": "1"
+						},
+						{
+							"key": "newStartWindow",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
