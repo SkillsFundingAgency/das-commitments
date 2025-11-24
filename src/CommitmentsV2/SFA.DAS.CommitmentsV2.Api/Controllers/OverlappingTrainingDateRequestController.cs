@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRe
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOverlap;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;
@@ -106,5 +107,15 @@ public class OverlappingTrainingDateRequestController(IMediator mediator, IModel
         });
 
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("{draftApprenticeshipId:long}/validateEmailOverlap")]
+    public async Task<IActionResult> ValidateEmailOverlap(long draftApprenticeshipId, long cohortId, string Email, string startDate, string endDate)
+    {
+        var query = new ValidateEmailOverlapQuery { DraftApprenticeshipId = draftApprenticeshipId, Email = Email, StartDate = startDate, EndDate = endDate, CohortId = cohortId };
+        var result = await mediator.Send(query);
+
+        return Ok(result.OverlapStatus == Domain.Entities.OverlapStatus.None);
     }
 }

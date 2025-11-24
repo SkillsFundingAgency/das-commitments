@@ -164,12 +164,12 @@ public class DraftApprenticeshipController(
 
 
     [HttpPost]
-    [Route("{apprenticeshipId: long}/email")]
-    public async Task<IActionResult> AddApprenticeshipEmail(long cohortId, long apprenticeshipId, [FromBody] AddApprenticeshipEmailRequest request)
+    [Route("{apprenticeshipId:long}/email")]
+    public async Task<IActionResult> AddApprenticeshipEmail(long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
     {
-        await mediator.Send(new ApprenticeshipEmailCommand()
+        await mediator.Send(new DraftApprenticeshipAddEmailCommand()
         {
-            CohortId = cohortId,
+            CohortId = request.CohortId,
             Email = request.Email,
             ApprenticeshipId = apprenticeshipId
         });

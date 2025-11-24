@@ -1,6 +1,8 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
-public class AddApprenticeshipEmailRequest
+public class DraftApprenticeshipAddEmailRequest
 {
     public string Email { get; set; }
+
+    public long CohortId {  get; set; }
 }
