@@ -399,4 +399,19 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         Email = email;
     }
+
+    public void SetReference(string reference, Party party)
+    {
+        if (string.IsNullOrEmpty(reference))
+        {
+            throw new DomainException("Email", "Email doesn't have any value");
+        }
+
+        if (party == Party.Employer)
+        {
+            EmployerRef = reference;
+        }
+        else { ProviderRef = reference; }
+
+    }
 }

@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
@@ -175,5 +176,20 @@ public class DraftApprenticeshipController(
         });
 
         return Ok();
-    }   
+    }
+
+    [HttpPost]
+    [Route("{draftApprenticeshipId:long}/reference")]
+    public async Task<IActionResult> SetApprenticeshipReference(long apprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
+    {
+        await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
+        {
+            CohortId = request.CohortId,
+            Reference = request.Reference,
+            ApprenticeshipId = apprenticeshipId,
+            Party = request.Party            
+        });
+
+        return Ok();
+    }
 }

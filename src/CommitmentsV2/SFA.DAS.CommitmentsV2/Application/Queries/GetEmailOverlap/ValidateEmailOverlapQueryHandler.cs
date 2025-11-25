@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using System.Globalization;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOverlap;
 
@@ -7,12 +8,12 @@ public class ValidateEmailOverlapQueryHandler(IOverlapCheckService overlapCheckS
 {
     public async Task<ValidateEmailOverlapQueryResult> Handle(ValidateEmailOverlapQuery request, CancellationToken cancellationToken)
     {
-        var startDate = DateTime.ParseExact(request.StartDate, "dd-MM-yyyy", null);
-        var endDate = DateTime.ParseExact(request.EndDate, "dd-MM-yyyy", null);
+        var startDate = DateTime.ParseExact(request.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+        var endDate = DateTime.ParseExact(request.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
         var apprenticeshipWithOverlap = await overlapCheckService.CheckForEmailOverlaps(request.Email, new Domain.Entities.DateRange(startDate, endDate), request.DraftApprenticeshipId, request.CohortId, cancellationToken);
 
-        var result = new ValidateEmailOverlapQueryResult { OverlapStatus =  apprenticeshipWithOverlap.OverlapStatus };
+        var result = apprenticeshipWithOverlap is not null ? new ValidateEmailOverlapQueryResult { OverlapStatus = apprenticeshipWithOverlap.OverlapStatus } : new ValidateEmailOverlapQueryResult();
 
         return await Task.FromResult(result);
     }
