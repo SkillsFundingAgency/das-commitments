@@ -245,11 +245,7 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
         int maximumTrainingTimeReduction, 
         int minimumOffTheJobTrainingHoursRequired)
     {
-
-        if (RecognisePriorLearning != true)
-        {
-            throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
-        }
+        RecognisePriorLearning = true;
 
         var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction, maximumTrainingTimeReduction, minimumOffTheJobTrainingHoursRequired);
         errors.ThrowIfAny();
