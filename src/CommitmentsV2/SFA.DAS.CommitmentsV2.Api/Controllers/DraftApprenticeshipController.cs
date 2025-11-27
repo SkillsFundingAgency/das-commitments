@@ -180,13 +180,13 @@ public class DraftApprenticeshipController(
 
     [HttpPost]
     [Route("{draftApprenticeshipId:long}/reference")]
-    public async Task<IActionResult> SetApprenticeshipReference(long apprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
+    public async Task<IActionResult> SetApprenticeshipReference(long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
     {
         await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
         {
             CohortId = request.CohortId,
             Reference = request.Reference,
-            ApprenticeshipId = apprenticeshipId,
+            ApprenticeshipId = draftApprenticeshipId,
             Party = request.Party            
         });
 

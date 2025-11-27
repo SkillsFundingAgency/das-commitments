@@ -116,6 +116,6 @@ public class OverlappingTrainingDateRequestController(IMediator mediator, IModel
         var query = new ValidateEmailOverlapQuery { DraftApprenticeshipId = draftApprenticeshipId, Email = Email, StartDate = startDate, EndDate = endDate, CohortId = cohortId };
         var result = await mediator.Send(query);
 
-        return Ok(result.OverlapStatus == Domain.Entities.OverlapStatus.None);
+        return Ok(result);
     }
 }
