@@ -8,8 +8,8 @@ public class ValidateEmailOverlapQueryHandler(IOverlapCheckService overlapCheckS
 {
     public async Task<ValidateEmailOverlapQueryResult> Handle(ValidateEmailOverlapQuery request, CancellationToken cancellationToken)
     {
-        var startDate = DateTime.ParseExact(request.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-        var endDate = DateTime.ParseExact(request.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+        var startDate = DateTime.Parse(request.StartDate).Date;
+        var endDate = DateTime.Parse(request.EndDate).Date;
 
         var apprenticeshipWithOverlap = await overlapCheckService.CheckForEmailOverlaps(request.Email, new Domain.Entities.DateRange(startDate, endDate), request.DraftApprenticeshipId, request.CohortId, cancellationToken);
 
