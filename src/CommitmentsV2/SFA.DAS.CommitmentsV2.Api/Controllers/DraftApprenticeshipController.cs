@@ -3,9 +3,12 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -156,6 +159,36 @@ public class DraftApprenticeshipController(
         command.ApprenticeshipId = apprenticeshipId;
 
         await mediator.Send(command);
+
+        return Ok();
+    }
+
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/email")]
+    public async Task<IActionResult> AddApprenticeshipEmail(long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
+    {
+        await mediator.Send(new DraftApprenticeshipAddEmailCommand()
+        {
+            CohortId = request.CohortId,
+            Email = request.Email,
+            ApprenticeshipId = apprenticeshipId
+        });
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{draftApprenticeshipId:long}/reference")]
+    public async Task<IActionResult> SetApprenticeshipReference(long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
+    {
+        await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
+        {
+            CohortId = request.CohortId,
+            Reference = request.Reference,
+            ApprenticeshipId = draftApprenticeshipId,
+            Party = request.Party            
+        });
 
         return Ok();
     }
