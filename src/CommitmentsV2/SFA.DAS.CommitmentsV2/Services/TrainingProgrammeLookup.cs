@@ -24,7 +24,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
                 throw new Exception($"The course code {standardId} was not found");
             }
 
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, 
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Level);
         }
 
         var framework = await dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
@@ -109,7 +110,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         }
 
         return new TrainingProgramme(selectedVersion.LarsCode.ToString(), GetTitle(selectedVersion.Title, selectedVersion.Level), selectedVersion.Version, selectedVersion.StandardUId,
-            ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList(), selectedVersion.VersionEarliestStartDate, selectedVersion.VersionLatestStartDate);
+            ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods),
+            selectedVersion.Options?.Select(o => o.Option).ToList(), selectedVersion.VersionEarliestStartDate, selectedVersion.VersionLatestStartDate, selectedVersion.Level);
     }
 
     public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)
@@ -122,7 +124,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         }
 
         return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
-            standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), standard.VersionEarliestStartDate, standard.VersionLatestStartDate);
+            standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), 
+            standard.VersionEarliestStartDate, standard.VersionLatestStartDate, standard.Level);
     }
 
     public async Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version)
@@ -140,7 +143,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         }
 
         return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
-            standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), standard.VersionEarliestStartDate, standard.VersionLatestStartDate);
+            standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList(), 
+            standard.VersionEarliestStartDate, standard.VersionLatestStartDate, standard.Level);
     }
 
     public async Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode)
@@ -174,7 +178,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
                 new List<IFundingPeriod>(version.FundingPeriods),
                 version.Options?.Select(o => o.Option).ToList(),
                 version.VersionEarliestStartDate,
-                version.VersionLatestStartDate)
+                version.VersionLatestStartDate, 
+                version.Level)
         );
 
         return trainingProgrammes;
@@ -210,7 +215,8 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
                 new List<IFundingPeriod>(version.FundingPeriods),
                 version.Options?.Select(o => o.Option).ToList(),
                 version.VersionEarliestStartDate,
-                version.VersionLatestStartDate)
+                version.VersionLatestStartDate, 
+                version.Level)
         );
 
         return newTrainingProgrammeVersions;
@@ -242,7 +248,7 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         trainingProgrammes.AddRange(standards.Select(standard =>
             new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                 standard.Version, standard.StandardUId, standard.StandardPageUrl, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
-                new List<IFundingPeriod>(standard.FundingPeriods))));
+                new List<IFundingPeriod>(standard.FundingPeriods), standard.Level)));
 
         return trainingProgrammes.OrderBy(c => c.Name);
     }
@@ -255,7 +261,7 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         trainingProgrammes.AddRange(standards.Select(standard =>
             new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                 standard.Version, standard.StandardUId, standard.StandardPageUrl, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
-                new List<IFundingPeriod>(standard.FundingPeriods))));
+                new List<IFundingPeriod>(standard.FundingPeriods), standard.Level)));
 
         return trainingProgrammes.OrderBy(c => c.Name);
     }

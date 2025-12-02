@@ -25,6 +25,7 @@ public class GetCalculatedTrainingProgrammeVersionQueryHandler(ITrainingProgramm
                 CourseCode = result.CourseCode,
                 StandardUId = result.StandardUId,
                 Version = result.Version,
+                Level = result.Level,
                 StandardPageUrl = result.StandardPageUrl,
                 EffectiveFrom = result.EffectiveFrom,
                 EffectiveTo = result.EffectiveTo,

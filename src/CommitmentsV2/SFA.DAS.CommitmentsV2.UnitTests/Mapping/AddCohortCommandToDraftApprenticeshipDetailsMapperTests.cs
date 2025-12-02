@@ -164,7 +164,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
           
         TrainingProgrammeStandard = new TrainingProgramme(AutoFixture.Create<long>().ToString(), AutoFixture.Create<string>(), 
             AutoFixture.Create<string>(), AutoFixture.Create<string>(), ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>(),
-            new List<IFundingPeriod>(AutoFixture.CreateMany<StandardFundingPeriod>()));
+            new List<IFundingPeriod>(AutoFixture.CreateMany<StandardFundingPeriod>()), AutoFixture.Create<int>());
 
         TrainingProgrammeFramework = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
             ProgrammeType.Framework, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());

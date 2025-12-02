@@ -750,13 +750,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode100, It.IsAny<DateTime>()))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, TrainingCourseVersion100, TrainingCourseStandardUId100,
-                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>(), 3));
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode200, It.IsAny<DateTime>()))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, TrainingCourseVersion200, TrainingCourseStandardUId200,
-                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>(), 3));
             TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode300, It.IsAny<DateTime>()))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode300, TrainingCourseName300, TrainingCourseVersion300, TrainingCourseStandardUId300,
-                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>()));
+                    ProgrammeType.Standard, DateTime.Now, DateTime.Now, new List<IFundingPeriod>(), 3));
 
             UserInfo = AutoFixture.Create<UserInfo>();
             Command = new AcceptDataLocksRequestChangesCommand(ApprenticeshipId, UserInfo);

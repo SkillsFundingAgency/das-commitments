@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Types
         public string Name { get; set;}
         public string StandardUId { get; set; }
         public string Version { get; set; }
+        public int? Level { get; set; }
         public ProgrammeType ProgrammeType { get; set;} 
         public DateTime? EffectiveFrom { get; set;}
         public DateTime? EffectiveTo { get; set;}
