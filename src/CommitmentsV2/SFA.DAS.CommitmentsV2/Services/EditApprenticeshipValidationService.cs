@@ -400,6 +400,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
+        var maximumAgeAtApprenticeshipStart = request.MaximumAgeAtApprenticeshipStart;
+
         if (request.DateOfBirth.HasValue)
         {
             if (request.DateOfBirth < Constants.MinimumDateOfBirth)
@@ -410,6 +412,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
             if (request.StartDate.HasValue)
             {
+
+
                 var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
                 if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
                 {
@@ -417,9 +421,18 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                     yield break;
                 }
 
-                if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
+                //if (apprenticeshipDetails.StartDate >= new DateTime(2026, 01, 01) && apprenticeshipDetails.StandardUId != null) 
+                //{
+                //    var standard = _context.Standards.FirstOrDefault(tp => tp.StandardUId == apprenticeshipDetails.StandardUId);
+                //    if (standard != null && standard.Level == 7)
+                //    {
+                //        maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
+                //    }
+                //}
+
+                if (ageOnStartDate.HasValue && ageOnStartDate >= maximumAgeAtApprenticeshipStart)
                 {
-                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {maximumAgeAtApprenticeshipStart} years old at the start of their training");
                 }
             }
         }
