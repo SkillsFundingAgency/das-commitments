@@ -22,6 +22,7 @@ public class TrainingProgramme
     public List<string> Options { get; set; } = new List<string> ();
     public DateTime? VersionEarliestStartDate { get; set; }
     public DateTime? VersionLatestStartDate { get; set; }
+    public int? Level { get; set; }
 
     public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
     {
@@ -42,7 +43,8 @@ public class TrainingProgramme
         FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
     }
 
-    public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
+    public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, 
+        DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, int level)
     {
         CourseCode = courseCode;
         Name = name;
@@ -52,9 +54,11 @@ public class TrainingProgramme
         EffectiveFrom = effectiveFrom;
         EffectiveTo = effectiveTo;
         FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
+        Level = level;
     }
 
-    public TrainingProgramme(string courseCode, string name, string version, string standardUId, string standardPageUrl, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
+    public TrainingProgramme(string courseCode, string name, string version, string standardUId, string standardPageUrl, ProgrammeType programmeType, 
+        DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, int level)
     {
         CourseCode = courseCode;
         Name = name;
@@ -65,12 +69,13 @@ public class TrainingProgramme
         EffectiveFrom = effectiveFrom;
         EffectiveTo = effectiveTo;
         FundingPeriods = fundingPeriods.Select(c => TrainingProgrammeFundingPeriod.Map(c)).ToList();
+        Level = level;
     }
 
     public TrainingProgramme(string courseCode, string name, string version, string standardUId,
         ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo,
         List<IFundingPeriod> fundingPeriods, List<string> options, DateTime? versionEarliestStartDate,
-        DateTime? versionLatestStartDate)
+        DateTime? versionLatestStartDate, int level)
     {
         CourseCode = courseCode;
         Name = name;
@@ -84,6 +89,7 @@ public class TrainingProgramme
         Options = options;
         VersionEarliestStartDate = versionEarliestStartDate;
         VersionLatestStartDate = versionLatestStartDate;
+        Level = level;
     }
     public bool IsActiveOn(DateTime date)
     {
