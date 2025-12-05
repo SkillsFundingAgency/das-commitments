@@ -412,8 +412,6 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
             if (request.StartDate.HasValue)
             {
-
-
                 var ageOnStartDate = AgeOnStartDate(request.DateOfBirth, request.StartDate);
                 if (ageOnStartDate.HasValue && ageOnStartDate.Value < request.MinimumAgeAtApprenticeshipStart)
                 {
@@ -421,14 +419,14 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                     yield break;
                 }
 
-                //if (apprenticeshipDetails.StartDate >= new DateTime(2026, 01, 01) && apprenticeshipDetails.StandardUId != null) 
-                //{
-                //    var standard = _context.Standards.FirstOrDefault(tp => tp.StandardUId == apprenticeshipDetails.StandardUId);
-                //    if (standard != null && standard.Level == 7)
-                //    {
-                //        maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
-                //    }
-                //}
+                if (request.StartDate >= new DateTime(2026, 01, 01) && request.CourseCode != null)
+                {
+                    var standard = _context.Standards.FirstOrDefault(tp => tp.LarsCode.ToString() == request.CourseCode);
+                    if (standard != null && standard.Level == 7)
+                    {
+                        maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
+                    }
+                }
 
                 if (ageOnStartDate.HasValue && ageOnStartDate >= maximumAgeAtApprenticeshipStart)
                 {
