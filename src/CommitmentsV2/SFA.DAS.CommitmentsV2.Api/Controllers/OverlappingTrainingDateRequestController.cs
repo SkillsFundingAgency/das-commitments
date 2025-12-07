@@ -107,15 +107,5 @@ public class OverlappingTrainingDateRequestController(IMediator mediator, IModel
         });
 
         return Ok();
-    }
-
-    [HttpGet]
-    [Route("{draftApprenticeshipId:long}/validateEmailOverlap")]
-    public async Task<IActionResult> ValidateEmailOverlap(long draftApprenticeshipId, long cohortId, string Email, string startDate, string endDate)
-    {
-        var query = new ValidateEmailOverlapQuery { DraftApprenticeshipId = draftApprenticeshipId, Email = Email, StartDate = startDate, EndDate = endDate, CohortId = cohortId };
-        var result = await mediator.Send(query);
-
-        return Ok(result);
-    }
+    }    
 }
