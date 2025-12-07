@@ -168,21 +168,27 @@ public class DraftApprenticeshipController(
     [Route("{apprenticeshipId:long}/email")]
     public async Task<IActionResult> AddApprenticeshipEmail(long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
     {
-        await mediator.Send(new DraftApprenticeshipAddEmailCommand()
+       var result = await mediator.Send(new DraftApprenticeshipAddEmailCommand()
         {
             CohortId = request.CohortId,
             Email = request.Email,
-            ApprenticeshipId = apprenticeshipId
+            ApprenticeshipId = apprenticeshipId,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate
         });
 
-        return Ok();
+        return Ok(
+            new DraftApprenticeshipAddEmailResponse()
+            {
+                DraftApprenticeshipId = result.DraftApprenticeshipId
+            });
     }
 
     [HttpPost]
     [Route("{draftApprenticeshipId:long}/reference")]
     public async Task<IActionResult> SetApprenticeshipReference(long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
     {
-        await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
+       var result=  await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
         {
             CohortId = request.CohortId,
             Reference = request.Reference,
@@ -190,6 +196,9 @@ public class DraftApprenticeshipController(
             Party = request.Party            
         });
 
-        return Ok();
+        return Ok(new DraftApprenticeshipSetReferenceResponse()
+        {
+            DraftApprenticeshipId = result.DraftApprenticeshipId
+        });
     }
 }

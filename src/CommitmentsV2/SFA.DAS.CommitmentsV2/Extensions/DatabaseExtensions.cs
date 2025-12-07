@@ -9,10 +9,12 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 public static class DatabaseExtensions
 {
     private const string AzureResource = "https://database.windows.net/";
-
+    
     // Take advantage of ChainedTokenCredential's built-in caching
     private static readonly ChainedTokenCredential AzureServiceTokenProvider = new(
+#if !DEBUG
         new ManagedIdentityCredential(),
+#endif
         new AzureCliCredential(),
         new VisualStudioCodeCredential(),
         new VisualStudioCredential());
