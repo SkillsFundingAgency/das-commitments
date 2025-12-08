@@ -34,7 +34,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
     public DraftApprenticeshipAddEmailCommand Command { get; set; }
     public DraftApprenticeshipAddEmailCommandHandler Handler { get; set; }
 
-    public  Mock<IViewEditDraftApprenticeshipEmailValidationService> service { get; set; }
+    public  Mock<IViewEditDraftApprenticeshipEmailValidationService> EmailValidationService { get; set; }
     public ProviderCommitmentsDbContext Db { get; set; }
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public Party Party { get; set; }
@@ -88,7 +88,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
         };
 
         Handler = new DraftApprenticeshipAddEmailCommandHandler(lazyProviderDbContext,
-            Mock.Of<ILogger<DraftApprenticeshipAddEmailCommandHandler>>(), service.Object);
+            Mock.Of<ILogger<DraftApprenticeshipAddEmailCommandHandler>>(), EmailValidationService.Object);
     }
     public async Task Handle()
     {

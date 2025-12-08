@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
+using System.Security.Cryptography.Xml;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -26,7 +27,9 @@ public class DraftApprenticeshipController(
     IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
     IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper,
     IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
-    IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper)
+    IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper,
+    IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand> draftApprenticeshipAddEmailMapper,
+    IOldMapper<DraftApprenticeshipSetReferenceRequest, DraftApprenticeshipSetReferenceCommand> draftApprenticeshipSetReferenceMapper)
     : ControllerBase
 {
     [HttpGet]
@@ -168,14 +171,10 @@ public class DraftApprenticeshipController(
     [Route("{apprenticeshipId:long}/email")]
     public async Task<IActionResult> AddApprenticeshipEmail(long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
     {
-       var result = await mediator.Send(new DraftApprenticeshipAddEmailCommand()
-        {
-            CohortId = request.CohortId,
-            Email = request.Email,
-            ApprenticeshipId = apprenticeshipId,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate
-        });
+        var command = await draftApprenticeshipAddEmailMapper.Map(request);
+        command.ApprenticeshipId = apprenticeshipId;
+
+        var result = await mediator.Send(command);
 
         return Ok(
             new DraftApprenticeshipAddEmailResponse()
@@ -188,13 +187,10 @@ public class DraftApprenticeshipController(
     [Route("{draftApprenticeshipId:long}/reference")]
     public async Task<IActionResult> SetApprenticeshipReference(long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
     {
-       var result=  await mediator.Send(new DraftApprenticeshipSetReferenceCommand()
-        {
-            CohortId = request.CohortId,
-            Reference = request.Reference,
-            ApprenticeshipId = draftApprenticeshipId,
-            Party = request.Party            
-        });
+        var command = await draftApprenticeshipSetReferenceMapper.Map(request);
+        command.ApprenticeshipId = draftApprenticeshipId;
+
+        var result = await mediator.Send(command);
 
         return Ok(new DraftApprenticeshipSetReferenceResponse()
         {

@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRe
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOverlap;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;

@@ -33,11 +33,13 @@ public class DraftApprenticeshipSetReferenceCommandHandlerTests
 public class DraftApprenticeshipSetReferenceCommandHandlerTestsFixture : IDisposable
 {
     public DraftApprenticeshipSetReferenceCommand Command { get; set; }
-    public IRequestHandler<DraftApprenticeshipSetReferenceCommand> Handler { get; set; }
+    public DraftApprenticeshipSetReferenceCommandHandler Handler { get; set; }
     public ProviderCommitmentsDbContext Db { get; set; }
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public Party Party { get; set; }
     public long DraftApprenticeshipId { get; set; }
+
+    public Mock<IViewEditDraftApprenticeshipReferenceValidationService> ReferenceValidationService  { get; set; }
 
     public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
     public DraftApprenticeshipSetReferenceCommandHandlerTestsFixture(string reference)
@@ -88,7 +90,8 @@ public class DraftApprenticeshipSetReferenceCommandHandlerTestsFixture : IDispos
         };
 
         Handler = new DraftApprenticeshipSetReferenceCommandHandler(lazyProviderDbContext,
-            Mock.Of<ILogger<DraftApprenticeshipSetReferenceCommandHandler>>());
+            Mock.Of<ILogger<DraftApprenticeshipSetReferenceCommandHandler>>(), 
+            ReferenceValidationService.Object);
     }
     public async Task Handle()
     {
