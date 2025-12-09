@@ -159,7 +159,7 @@ public partial class BulkUploadValidateCommandHandler(
         domainErrors.AddRange(ValidateUln(csvRecord));
         domainErrors.AddRange(ValidateFamilyName(csvRecord));
         domainErrors.AddRange(ValidateGivenName(csvRecord));
-        domainErrors.AddRange(ValidateDateOfBirth(csvRecord));
+        domainErrors.AddRange(ValidateDateOfBirth(csvRecord, providerStandardResults));
         domainErrors.AddRange(ValidateEmailAddress(csvRecord));
         domainErrors.AddRange(ValidateCourseCode(csvRecord, providerStandardResults));
         domainErrors.AddRange(ValidateStartDate(csvRecord));
