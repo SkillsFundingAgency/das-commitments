@@ -52,6 +52,8 @@ public class DraftApprenticeshipSetReferenceCommandHandlerTestsFixture : IDispos
         var fixture = new Fixture();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
+        ReferenceValidationService = new Mock<IViewEditDraftApprenticeshipReferenceValidationService>();
+
         var Cohort = new CommitmentsV2.Models.Cohort()
            .Set(c => c.Id, 111)
            .Set(c => c.ProviderId, 333)

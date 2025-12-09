@@ -48,6 +48,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
         Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                              .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                              .Options);
+        EmailValidationService = new Mock<IViewEditDraftApprenticeshipEmailValidationService>();
         var fixture = new Fixture();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
