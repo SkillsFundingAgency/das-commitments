@@ -127,7 +127,6 @@ public static class DraftApprenticeshipExtensions
 
     private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
-
         if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < minimumAgeAtApprenticeshipStart)
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {minimumAgeAtApprenticeshipStart} years old at the start of their training");
