@@ -18,9 +18,6 @@ public static class DraftApprenticeshipExtensions
         errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
-
-
-
         errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart));
         if (!isContinuation)
         {
