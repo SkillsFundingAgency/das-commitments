@@ -421,6 +421,13 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         return this;
     }
 
+    internal BulkUploadValidateCommandHandlerTestsFixture SetStandards(string courseCode, string name, int? level)
+    {
+        Command.ProviderStandardResults.Standards = [new ProviderStandard(courseCode,name, level)];
+
+        return this;
+    }
+
     internal BulkUploadValidateCommandHandlerTestsFixture SetGivenNames(string givenName)
     {
         CsvRecords[0].FirstName = givenName;

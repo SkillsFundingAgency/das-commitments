@@ -28,7 +28,7 @@ public partial class BulkUploadValidateCommandHandler
 
             if (!string.IsNullOrEmpty(courseCode))
             {
-                courseLevel = providerStandardResults?.Standards.SingleOrDefault(x => x.CourseCode == courseCode)?.Level;
+                courseLevel = providerStandardResults?.Standards.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
             }
 
             if (dateOfBirth == null)
