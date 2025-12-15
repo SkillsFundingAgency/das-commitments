@@ -131,6 +131,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     passes);
         }
 
+        [TestCase("2026-01-01", "2001-01-01", false, Description = "Exactly 25 years old")]
+        [TestCase("2026-01-01", "2001-12-31", true, Description = "Nearly 25 years old")]
+        [TestCase("2026-01-01", "2000-11-01", false, Description = "Over 25 years old")]
+        [TestCase("2026-01-01", "2009-11-01", true, Description = "Under 25 years old")]
+        public void DateOfBirth_Validation_For_Level7(DateTime? courseStartDate, DateTime? dateOfBirth, bool passes)
+        {
+            var utcDateOfBirth = dateOfBirth.HasValue
+                ? DateTime.SpecifyKind(dateOfBirth.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture.WithStartDate(courseStartDate)
+                .AssertValidationForProperty(() => { 
+                    _fixture.DraftApprenticeshipDetails.DateOfBirth = utcDateOfBirth;
+                    _fixture.DraftApprenticeshipDetails.TrainingProgramme.Level = 7; } ,
+                    nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
+                    passes);
+        }
+
         [TestCase(null, true)]
         [TestCase("2017-04-30", false)]
         [TestCase("2017-05-01", true)]
