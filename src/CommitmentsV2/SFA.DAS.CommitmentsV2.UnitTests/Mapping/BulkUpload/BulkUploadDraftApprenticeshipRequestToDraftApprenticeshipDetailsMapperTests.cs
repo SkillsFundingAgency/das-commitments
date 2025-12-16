@@ -28,7 +28,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.UserInfo.UserId = Guid.NewGuid().ToString();
             _source.BulkUploadDraftApprenticeships.ForEach(x => { x.CourseCode = "2"; x.ReservationId = null; });
 
-            _trainingProgramme = new TrainingProgramme("2", "TrainingProgramme", "1.0", "1.1", Types.ProgrammeType.Standard, new DateTime(2050, 1, 1), new DateTime(2060, 1, 1), new System.Collections.Generic.List<CommitmentsV2.Models.IFundingPeriod>());
+            _trainingProgramme = new TrainingProgramme("2", "TrainingProgramme", "1.0", "1.1", Types.ProgrammeType.Standard, 
+                new DateTime(2050, 1, 1), new DateTime(2060, 1, 1), new List<CommitmentsV2.Models.IFundingPeriod>(), 2);
             _trainingLookup = new Mock<ITrainingProgrammeLookup>();
             _trainingLookup.Setup(s => s.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(() => _trainingProgramme);
 

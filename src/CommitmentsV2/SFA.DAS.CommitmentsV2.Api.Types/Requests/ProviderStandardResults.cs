@@ -10,12 +10,14 @@ public class ProviderStandardResults
 
 public class ProviderStandard
 {
-    public ProviderStandard(string courseCode, string name)
+    public ProviderStandard(string courseCode, string name, int? level = null)
     {
         CourseCode = courseCode;
         Name = name;
+        Level = level;
     }
 
     public string CourseCode { get; }
     public string Name { get; }
+    public int? Level { get; }
 }

@@ -39,6 +39,7 @@ public class GetTrainingProgrammeQueryHandler(ITrainingProgrammeLookup service, 
                     }).ToList(),
                     StandardUId = result.StandardUId,
                     Version = result.Version,
+                    Level = result.Level,
                     Options = result.Options,
                     VersionEarliestStartDate = result.VersionEarliestStartDate,
                     VersionLatestStartDate = result.VersionLatestStartDate

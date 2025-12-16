@@ -131,6 +131,37 @@
         }
 
         [Test]
+        public async Task DateOfBirth_Must_Be_Younger_Than_25_At_start_of_training_When_Course_Is_Level_7()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship().SetupStandardCourseAndLevel(12,7).WithStartDateBeginningOf2026();
+
+            var request = fixture.CreateValidationRequest(dobYear: 1990, dobMonth: 1, dobDay: 1, maximumAgeAtApprenticeshipStart: 115);
+
+            var result = await fixture.Validate(request);
+
+
+            result.Errors.Count.Should().Be(1);
+
+            result.Errors[0].ErrorMessage.Should().Be("The apprentice must be younger than 25 years old at the start of their training");
+            result.Errors[0].PropertyName.Should().Be("DateOfBirth");
+        }
+
+        [Test]
+        public async Task DateOfBirth_Can_Be_Older_Than_25_At_start_of_training_When_Course_Is_Level_3()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship().SetupStandardCourseAndLevel(12, 3).WithStartDateBeginningOf2026();
+
+            var request = fixture.CreateValidationRequest(dobYear: 1990, dobMonth: 1, dobDay: 1, maximumAgeAtApprenticeshipStart: 115);
+
+            var result = await fixture.Validate(request);
+
+
+            result.Errors.Count.Should().Be(0);
+        }
+
+        [Test]
         public async Task DateOfBirth_Must_Be_Younger_Than_30_At_start_of_training_When_Maximum_Age_Is_30()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();

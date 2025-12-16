@@ -122,6 +122,13 @@ public class EditApprenticeshipValidationServiceTestsFixture
         Apprenticeship.EndDate = _currentDateTime.Object.UtcNow.AddYears(1);
     }
 
+    public EditApprenticeshipValidationServiceTestsFixture WithStartDateBeginningOf2026()
+    {
+        Apprenticeship.StartDate = new DateTime(2026,01,01);
+        Apprenticeship.EndDate = Apprenticeship.StartDate.Value.AddYears(1);
+        return this;
+    }
+
     private EditApprenticeshipValidationServiceTestsFixture WithInFundingPeriod()
     {
         _academicYearDateProvider.Setup(t => t.CurrentAcademicYearStartDate).Returns(Apprenticeship.StartDate.Value.AddMonths(-1));
@@ -166,6 +173,21 @@ public class EditApprenticeshipValidationServiceTestsFixture
         WithPriceHistoryWithStartDate(cost);
 
         CreateMockApprenticeshipContext();
+        return this;
+    }
+
+    public EditApprenticeshipValidationServiceTestsFixture SetupStandardCourseAndLevel(int larsCode, int level)
+    {
+        var standards = new List<Standard> { 
+            new Standard
+            {
+                StandardUId = "ABCD",
+                Title = "Title",
+                LarsCode = larsCode,
+                Level = level
+            }
+        };
+        _dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
         return this;
     }
 

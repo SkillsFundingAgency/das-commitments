@@ -133,6 +133,11 @@ public static class DraftApprenticeshipExtensions
             yield break;
         }
 
+        if (draftApprenticeshipDetails.StartDate >= new DateTime(2026,01,01) && draftApprenticeshipDetails.TrainingProgramme?.Level == 7 )
+        {
+            maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
+        }
+
         if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value >= maximumAgeAtApprenticeshipStart)
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be {maximumAgeAtApprenticeshipStart-1} years or under at the start of their training");
