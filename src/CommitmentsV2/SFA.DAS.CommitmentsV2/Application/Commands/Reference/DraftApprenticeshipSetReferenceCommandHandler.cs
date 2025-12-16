@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 
@@ -13,31 +14,22 @@ public class DraftApprenticeshipSetReferenceCommandHandler(
 {
     public async Task<DraftApprenticeshipSetReferenceResult> Handle(DraftApprenticeshipSetReferenceCommand command, CancellationToken cancellationToken)
     {
+        var apprenticeship = await dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
-        try
+        var validationResult = await service.Validate(new Domain.Entities.ViewEditDraftApprenticeshipReferenceValidationRequest()
         {
-            var apprenticeship = await dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
+            CohortId = command.CohortId,
+            DraftApprenticeshipId = command.ApprenticeshipId,
+            Party = command.Party,
+            Reference = command.Reference,
+        }, cancellationToken);
 
-           await service.Validate(new Domain.Entities.ViewEditDraftApprenticeshipReferenceValidationRequest()
-            {
-                CohortId = command.CohortId,
-                DraftApprenticeshipId = command.ApprenticeshipId,
-                Party = command.Party,
-                Reference = command.Reference,
-            }, cancellationToken);
+        validationResult.Errors.ThrowIfAny();
 
-            apprenticeship.SetReference(command.Reference, command.Party);
+        apprenticeship.SetReference(command.Reference, command.Party);
 
+        logger.LogInformation("Set reference for draft Apprenticeship:{ApprenticeshipId}", command.ApprenticeshipId);
 
-            logger.LogInformation("Set reference for draft Apprenticeship:{ApprenticeshipId}", command.ApprenticeshipId);
-
-            return new DraftApprenticeshipSetReferenceResult() { DraftApprenticeshipId = command.ApprenticeshipId };
-        }
-
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error Adding Transfer Request");
-            throw;
-        }
+        return new DraftApprenticeshipSetReferenceResult() { DraftApprenticeshipId = command.ApprenticeshipId };
     }
 }
