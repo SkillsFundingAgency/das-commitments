@@ -8,12 +8,10 @@ using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
-using System.Security.Cryptography.Xml;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -28,8 +26,7 @@ public class DraftApprenticeshipController(
     IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper,
     IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
     IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper,
-    IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand> draftApprenticeshipAddEmailMapper,
-    IOldMapper<DraftApprenticeshipSetReferenceRequest, DraftApprenticeshipSetReferenceCommand> draftApprenticeshipSetReferenceMapper)
+    IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand> draftApprenticeshipAddEmailMapper)
     : ControllerBase
 {
     [HttpGet]
@@ -185,10 +182,15 @@ public class DraftApprenticeshipController(
 
     [HttpPost]
     [Route("{draftApprenticeshipId:long}/reference")]
-    public async Task<IActionResult> SetApprenticeshipReference(long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
+    public async Task<IActionResult> SetApprenticeshipReference(long cohortId, long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
     {
-        var command = await draftApprenticeshipSetReferenceMapper.Map(request);
-        command.ApprenticeshipId = draftApprenticeshipId;
+        var command =  new DraftApprenticeshipSetReferenceCommand
+        {
+            CohortId = cohortId,
+            Reference = request.Reference,
+            Party = request.Party,
+            ApprenticeshipId = draftApprenticeshipId
+        };
 
         var result = await mediator.Send(command);
 

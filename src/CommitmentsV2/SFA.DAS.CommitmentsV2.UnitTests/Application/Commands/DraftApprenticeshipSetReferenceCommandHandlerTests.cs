@@ -2,24 +2,27 @@
 using NUnit.Framework.Internal;
 using SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using IAuthenticationService = SFA.DAS.CommitmentsV2.Authentication.IAuthenticationService;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
 public class DraftApprenticeshipSetReferenceCommandHandlerTests
 {
     [Test]
-    public void WhenHandlingCommand_IfReferenceIsEmpty_Then_ThrowDomainException()
+    public async Task WhenHandlingCommand_IfDomainExceptionIsReturned_Then_ThrowDomainException()
     {
-        using var fixture = new DraftApprenticeshipSetReferenceCommandHandlerTestsFixture(string.Empty);
+        using var fixture = new DraftApprenticeshipSetReferenceCommandHandlerTestsFixture("ZZZ").WithReferenceValidationErrors();
 
-        Assert.ThrowsAsync<DomainException>(async () => await fixture.Handle());
+        var action = async () => await fixture.Handle();
+
+        await action.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.Count() == 1);
     }
 
     [Test]
@@ -53,6 +56,8 @@ public class DraftApprenticeshipSetReferenceCommandHandlerTestsFixture : IDispos
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         ReferenceValidationService = new Mock<IViewEditDraftApprenticeshipReferenceValidationService>();
+        ReferenceValidationService.Setup(x => x.Validate(It.IsAny<ViewEditDraftApprenticeshipReferenceValidationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ViewEditDraftApprenticeshipReferenceValidationResult());
 
         var Cohort = new CommitmentsV2.Models.Cohort()
            .Set(c => c.Id, 111)
@@ -95,11 +100,26 @@ public class DraftApprenticeshipSetReferenceCommandHandlerTestsFixture : IDispos
             Mock.Of<ILogger<DraftApprenticeshipSetReferenceCommandHandler>>(), 
             ReferenceValidationService.Object);
     }
+
     public async Task Handle()
     {
         await Handler.Handle(Command, CancellationToken.None);
         await Db.SaveChangesAsync();
     }
+
+    public DraftApprenticeshipSetReferenceCommandHandlerTestsFixture WithReferenceValidationErrors()
+    {
+        ReferenceValidationService.Setup(x => x.Validate(It.IsAny<ViewEditDraftApprenticeshipReferenceValidationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ViewEditDraftApprenticeshipReferenceValidationResult
+            {
+                Errors = new List<DomainError>
+                {
+                    new DomainError("Reference", "Reference is invalid")
+                }
+            });
+        return this;
+    }
+
     internal void VerifyReferenceUpdated()
     {
         Assert.That(Db.DraftApprenticeships.First(x => x.Id == DraftApprenticeshipId).ProviderRef, Is.EqualTo(Command.Reference));

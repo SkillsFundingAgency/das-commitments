@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 
@@ -20,7 +21,6 @@ public class DraftApprenticeshipSetReferenceCommandHandler(
         {
             CohortId = command.CohortId,
             DraftApprenticeshipId = command.ApprenticeshipId,
-            Party = command.Party,
             Reference = command.Reference,
         }, cancellationToken);
 
