@@ -5,7 +5,4 @@ public class DraftApprenticeshipAddEmailCommand : IRequest<DraftApprenticeshipAd
     public long CohortId { get; set; }
     public long ApprenticeshipId { get; set; }
     public string Email { get; set; }
-    public string StartDate { get; set; }
-    public string EndDate { get; set; }
-
 }

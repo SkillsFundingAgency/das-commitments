@@ -226,8 +226,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var draftApprenticeshipAddEmailResponse = okObjectResult?.Value as DraftApprenticeshipAddEmailResponse;
 
             //Assert
-            Assert.That(draftApprenticeshipAddEmailResponse?.DraftApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
-
+            draftApprenticeshipAddEmailResponse?.DraftApprenticeshipId.Should().Be(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId);
+            fixture.VerifyDraftApprenticeshipAddEmailCommandIsMappedCorrectly();
         }
 
         [Test]
@@ -267,8 +267,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public DraftApprenticeshipAddEmailCommand DraftApprenticeshipAddEmailCommand { get; set; }
         public DraftApprenticeshipSetReferenceCommand draftApprenticeshipSetReferenceCommand { get; set; }
 
-        public Mock<IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand>> DraftApprenticeshipAddEmailMapper { get; set; }
-
         public Mock<IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> UpdateDraftApprenticeshipMapper { get; set; }
 
         public Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>> AddDraftApprenticeshipMapper { get; set; }
@@ -291,7 +289,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AddDraftApprenticeshipMapper = new Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
             GetDraftApprenticeshipsMapper = new Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>>();
             DeleteDraftApprenticeshipMapper = new Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>>();
-            DraftApprenticeshipAddEmailMapper = new Mock<IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand>>();
 
             GetDraftApprenticeshipPriorLearningSummaryQuery = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, DraftApprenticeshipId);
             GetDraftApprenticeshipPriorLearningSummaryQueryResult = new GetDraftApprenticeshipPriorLearningSummaryQueryResult
@@ -312,8 +309,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 GetDraftApprenticeshipMapper.Object,
                 AddDraftApprenticeshipMapper.Object,
                 GetDraftApprenticeshipsMapper.Object,
-                DeleteDraftApprenticeshipMapper.Object,
-                DraftApprenticeshipAddEmailMapper.Object
+                DeleteDraftApprenticeshipMapper.Object
                 );
         }
 
@@ -364,6 +360,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Mediator.Verify(x => x.Send(It.Is<DraftApprenticeshipSetReferenceCommand>(p =>
             p.CohortId == CohortId && p.ApprenticeshipId == DraftApprenticeshipId &&
                 p.Party == DraftApprenticeshipSetReferenceRequest.Party && p.Reference == DraftApprenticeshipSetReferenceRequest.Reference), It.IsAny<CancellationToken>()));
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture VerifyDraftApprenticeshipAddEmailCommandIsMappedCorrectly()
+        {
+            Mediator.Verify(x => x.Send(It.Is<DraftApprenticeshipAddEmailCommand>(p =>
+            p.CohortId == CohortId && p.ApprenticeshipId == DraftApprenticeshipId && p.Email == DraftApprenticeshipAddEmailRequest.Email), It.IsAny<CancellationToken>()));
             return this;
         }
 
@@ -457,17 +460,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             DraftApprenticeshipAddEmailRequest = new DraftApprenticeshipAddEmailRequest()
             {
-                CohortId = 1,
                 Email = "Test@test.com",
-                EndDate = DateTime.Now.AddYears(1).ToShortDateString(),
-                StartDate = DateTime.Now.ToShortDateString()
             };
-            DraftApprenticeshipAddEmailCommand command =
-                new DraftApprenticeshipAddEmailCommand() { StartDate = DraftApprenticeshipAddEmailRequest.StartDate, EndDate = DraftApprenticeshipAddEmailRequest.EndDate, Email = DraftApprenticeshipAddEmailRequest.Email, CohortId = DraftApprenticeshipAddEmailRequest.CohortId, ApprenticeshipId = DraftApprenticeshipId };
 
-            DraftApprenticeshipAddEmailMapper.Setup(m => m.Map(DraftApprenticeshipAddEmailRequest)).ReturnsAsync(command);
-
-            Mediator.Setup(m => m.Send(command, CancellationToken.None)).
+            Mediator.Setup(m => m.Send(It.IsAny<DraftApprenticeshipAddEmailCommand>(), CancellationToken.None)).
                 ReturnsAsync(new DraftApprenticeshipAddEmailResult { DraftApprenticeshipId = DraftApprenticeshipId });
 
             return this;
@@ -475,7 +471,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public Task<IActionResult> AddEmail()
         {
-            return Controller.AddApprenticeshipEmail(DraftApprenticeshipId, DraftApprenticeshipAddEmailRequest);
+            return Controller.AddApprenticeshipEmail(CohortId, DraftApprenticeshipId, DraftApprenticeshipAddEmailRequest);
         }
 
         public DraftApprenticeshipControllerTestsFixture WithDraftApprenticeshipSetReferenceCommandRequest()

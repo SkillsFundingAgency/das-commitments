@@ -13,14 +13,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 public class DraftApprenticeshipAddEmailCommandHandlerTests
 {
     [Test]
-    public void WhenHandlingCommand_IfEmailIsEmpty_Then_ThrowDomainException()
-    {
-        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture(string.Empty);
-
-        Assert.ThrowsAsync<DomainException>(async () => await fixture.Handle());
-    }
-
-    [Test]
     public async Task WhenHandlingCommand_ShouldUpdateTheReference()
     {
         var email = "Test@email.com";

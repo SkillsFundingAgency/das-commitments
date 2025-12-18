@@ -28,11 +28,11 @@ public class ViewEditDraftApprenticeshipEmailValidationService : IViewEditDraftA
         var apprenticeship = _context.DraftApprenticeships
             .Include(y => y.Cohort)
             .FirstOrDefault(x => x.Id == request.DraftApprenticeshipId);
+
         if (apprenticeship == null)
         {
             return null;
         }
-
 
         if (errors.Count == 0)
         {
@@ -56,24 +56,18 @@ public class ViewEditDraftApprenticeshipEmailValidationService : IViewEditDraftA
     }
     private async Task<DomainError> EmailOverlapValidationFailures(ViewEditDraftApprenticeshipEmailValidationRequest request, DraftApprenticeship apprenticeshipDetails)
     {
-        var emailMatches = request.Email == apprenticeshipDetails.Email;
-        var startDateMatches = request.StartDate == apprenticeshipDetails.StartDate.Value.ToShortDateString();
-        var endDateMatches = request.EndDate == apprenticeshipDetails.EndDate.Value.ToShortDateString();
-
-        bool NoChangesRequested() => (emailMatches && startDateMatches && endDateMatches);
-
         if (string.IsNullOrWhiteSpace(request.Email))
             return null;
 
-        if (NoChangesRequested())
+        if(apprenticeshipDetails.StartDate == null || apprenticeshipDetails.EndDate == null)
             return null;
 
-        var startDate = DateTime.Parse(request.StartDate).Date;
-        var endDate = DateTime.Parse(request.EndDate).Date;
+        var startDate = apprenticeshipDetails.StartDate.Value.Date;
+        var endDate = apprenticeshipDetails.EndDate.Value.Date;
 
         var range = startDate.To(endDate);
 
-        var overlap = await _overlapCheckService.CheckForEmailOverlaps(request.Email, range, request.DraftApprenticeshipId, null, CancellationToken.None);
+        var overlap = await _overlapCheckService.CheckForEmailOverlaps(request.Email, range, request.DraftApprenticeshipId, request.CohortId, CancellationToken.None);
 
         if (overlap != null)
         {
@@ -85,10 +79,6 @@ public class ViewEditDraftApprenticeshipEmailValidationService : IViewEditDraftA
 
     private IEnumerable<DomainError> BuildEmailValidationFailures(ViewEditDraftApprenticeshipEmailValidationRequest request, DraftApprenticeship apprenticeshipDetails)
     {
-        if (apprenticeshipDetails.Email != null && string.IsNullOrWhiteSpace(request.Email))
-        {
-            yield return new DomainError(nameof(request.Email), "Email address cannot be blank");
-        }
 
         if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021, 09, 10))
         {

@@ -25,13 +25,10 @@ public class DraftApprenticeshipAddEmailCommandHandler(
             {
                 DraftApprenticeshipId = command.ApprenticeshipId,
                 CohortId = command.CohortId,
-                Email = command.Email,
-                EndDate = command.EndDate,
-                StartDate = command.StartDate,
-
+                Email = command.Email
             }, cancellationToken);
 
-        response?.Errors?.ThrowIfAny();
+        response?.Errors.ThrowIfAny();
 
         apprenticeship?.SetEmail(command.Email);
 

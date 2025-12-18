@@ -141,7 +141,6 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IOldMapper<ReservationValidationRequest, ReservationValidationMessage>, ReservationValidationRequestToValidationReservationMessageMapper>();
         services.AddTransient<IOldMapper<Reservations.Api.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult>, ValidationResultToReservationValidationErrorMapper>();
         services.AddTransient<IOldMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>, UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper>();
-        services.AddTransient<IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand>, DraftApprenticeshipAddEmailRequestToCommandMapper>();
 
         services.AddMappers();
 

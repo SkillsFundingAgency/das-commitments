@@ -25,8 +25,7 @@ public class DraftApprenticeshipController(
     IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
     IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper,
     IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
-    IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper,
-    IOldMapper<DraftApprenticeshipAddEmailRequest, DraftApprenticeshipAddEmailCommand> draftApprenticeshipAddEmailMapper)
+    IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper)
     : ControllerBase
 {
     [HttpGet]
@@ -166,10 +165,14 @@ public class DraftApprenticeshipController(
 
     [HttpPost]
     [Route("{apprenticeshipId:long}/email")]
-    public async Task<IActionResult> AddApprenticeshipEmail(long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
+    public async Task<IActionResult> AddApprenticeshipEmail(long cohortId, long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
     {
-        var command = await draftApprenticeshipAddEmailMapper.Map(request);
-        command.ApprenticeshipId = apprenticeshipId;
+        var command = new DraftApprenticeshipAddEmailCommand
+        {
+            CohortId = cohortId,
+            ApprenticeshipId = apprenticeshipId,
+            Email = request.Email,
+        };
 
         var result = await mediator.Send(command);
 
