@@ -3,8 +3,10 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
@@ -158,5 +160,46 @@ public class DraftApprenticeshipController(
         await mediator.Send(command);
 
         return Ok();
+    }
+
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/email")]
+    public async Task<IActionResult> AddApprenticeshipEmail(long cohortId, long apprenticeshipId, [FromBody] DraftApprenticeshipAddEmailRequest request)
+    {
+        var command = new DraftApprenticeshipAddEmailCommand
+        {
+            CohortId = cohortId,
+            ApprenticeshipId = apprenticeshipId,
+            Email = request.Email,
+        };
+
+        var result = await mediator.Send(command);
+
+        return Ok(
+            new DraftApprenticeshipAddEmailResponse()
+            {
+                DraftApprenticeshipId = result.DraftApprenticeshipId
+            });
+    }
+
+    [HttpPost]
+    [Route("{draftApprenticeshipId:long}/reference")]
+    public async Task<IActionResult> SetApprenticeshipReference(long cohortId, long draftApprenticeshipId, [FromBody] DraftApprenticeshipSetReferenceRequest request)
+    {
+        var command =  new DraftApprenticeshipSetReferenceCommand
+        {
+            CohortId = cohortId,
+            Reference = request.Reference,
+            Party = request.Party,
+            ApprenticeshipId = draftApprenticeshipId
+        };
+
+        var result = await mediator.Send(command);
+
+        return Ok(new DraftApprenticeshipSetReferenceResponse()
+        {
+            DraftApprenticeshipId = result.DraftApprenticeshipId
+        });
     }
 }
