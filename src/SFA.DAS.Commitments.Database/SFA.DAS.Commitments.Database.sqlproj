@@ -175,6 +175,9 @@
     <Build Include="Tables\FileUploadLog.sql" />
     <Build Include="Tables\DataLockUpdaterJobHistory.sql" />
     <None Include="AdhocScripts\Manual\FLP-1355-Remove-Duplicate-Price-History-Rows.sql" />
+    <Build Include="Tables\ChangeType.sql" />
+    <Build Include="Tables\ChangeLog.sql" />
+    <Build Include="Tables\Change.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

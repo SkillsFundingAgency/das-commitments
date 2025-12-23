@@ -21,6 +21,7 @@ public class GetAllTrainingProgrammeStandardsQueryHandler(ITrainingProgrammeLook
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = c.ProgrammeType,
                 StandardUId = c.StandardUId,
+                Level = c.Level,
                 StandardPageUrl = c.StandardPageUrl,
                 FundingPeriods = c.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
                 {

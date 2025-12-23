@@ -91,5 +91,17 @@
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 115 years old at the start of their training");
         }
 
+        [Test]
+        public async Task Validate_Apprentice_Age_Less_Than_MaxAgeForLevel7_After20260101_On_Start_Of_Course()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("1990-05-01");
+            fixture.SetStandards("59", "59", 7);
+            fixture.SetStartDate("2026-02-05");
+            fixture.SetEndDate("2027-02");
+            fixture.SetAfterAcademicYearEndDate();
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 25 years old at the start of their training");
+        }
     }
 }

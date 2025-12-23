@@ -400,6 +400,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
+        var maximumAgeAtApprenticeshipStart = request.MaximumAgeAtApprenticeshipStart;
+
         if (request.DateOfBirth.HasValue)
         {
             if (request.DateOfBirth < Constants.MinimumDateOfBirth)
@@ -417,9 +419,18 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                     yield break;
                 }
 
-                if (ageOnStartDate.HasValue && ageOnStartDate >= request.MaximumAgeAtApprenticeshipStart)
+                if (request.StartDate >= new DateTime(2026, 01, 01) && request.CourseCode != null)
                 {
-                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+                    var standard = _context.Standards.FirstOrDefault(tp => tp.LarsCode.ToString() == request.CourseCode);
+                    if (standard != null && standard.Level == 7)
+                    {
+                        maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
+                    }
+                }
+
+                if (ageOnStartDate.HasValue && ageOnStartDate >= maximumAgeAtApprenticeshipStart)
+                {
+                    yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {maximumAgeAtApprenticeshipStart} years old at the start of their training");
                 }
             }
         }

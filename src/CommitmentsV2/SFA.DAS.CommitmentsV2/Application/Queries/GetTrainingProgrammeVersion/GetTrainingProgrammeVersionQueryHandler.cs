@@ -39,6 +39,7 @@ public class GetTrainingProgrammeVersionQueryHandler(ITrainingProgrammeLookup se
                     CourseCode = result.CourseCode,
                     StandardUId = result.StandardUId,
                     Version = result.Version,
+                    Level = result.Level,
                     StandardPageUrl = result.StandardPageUrl,
                     EffectiveFrom = result.EffectiveFrom,
                     EffectiveTo = result.EffectiveTo,
