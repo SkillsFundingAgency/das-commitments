@@ -203,7 +203,7 @@ components:
       properties:
         changeType:
           type: string
-          enum: [TMP1, TMP2] # this will expand greatly
+          enum: [TNP1, TNP2] # this will expand greatly
         data:
           $ref: "#/components/schemas/change"
           
