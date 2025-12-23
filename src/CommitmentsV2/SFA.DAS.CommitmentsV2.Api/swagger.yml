@@ -22,7 +22,7 @@ paths:
 
   /approvals/{learningKey}:
     put:
-      summary: changes from the consumer have been superseded and this endpoint initiates a supersede of the original approval request
+      summary: This endpoint will be consumed by learning when there ARE PENDING CHANGES from the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
@@ -36,11 +36,11 @@ paths:
         "201":
           $ref: "#/components/responses/approvalResponse"
         "404":
-          $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/notFound"
         "400":
-          $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/badRequest"
     post:
-      summary: Start an approval on a recoerd that current has no changes for approval
+      summary: This endpoint will be consumed by learning when there ARE NO PENDING CHANGES from the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
@@ -54,9 +54,9 @@ paths:
         "201":
           $ref: "#/components/responses/approvalResponse"          
         "404":
-          $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/notFound"
         "400":
-          $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/badRequest"
     delete:
       summary: Request to delete approvals on this record
       parameters:
@@ -82,7 +82,7 @@ components:
             $ref: "#/components/schemas/approvalRequest"
   responses:
     approvalResponse:
-      description: A response to an approval request 
+      description: A response to an approval request containiung each fields and the status of approval
       content:
         application/json:
           schema:
@@ -105,12 +105,13 @@ components:
             items:
               $ref: "#/components/schemas/error"
 
-    unauthorized:
-      description: Unauthorized
+    notFound:
+      description: Not found response
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/error"
+
 
     healthCheckResponse:
       description: Results of a health check
@@ -146,8 +147,10 @@ components:
         - new
       properties:
         old:
+          description: The old value of the field being changed
           type: string
         new:
+          description: The new value to be applied
           type: string
 
     approvalsResult:
@@ -156,16 +159,22 @@ components:
         type: object
         properties: 
           changeType:
+            description: The field being changed. An enumerated type to be agreed across the service for each field
             type: string
             enum: [TNP1, TNP2] # this will expand greatly
           approvalStatus:
+            description: The status of an approval request on an individual piece of data
             type: string
             enum: 
               - autoApproved
               - autoRejected
-              - employerApproved
-              - employerRejected 
-
+              - employerApprovalRequired
+          reason:
+            type: string
+            description: A reason for the approval result
+        required:
+          - changeType
+          - approvalStatus
     
     approvalRequest:
       type: object
@@ -184,9 +193,9 @@ components:
             - foundation
             - shortCourse
         approvedUri:
+          description: This is the uri to fetch the current record that has been approved
           type: string
           format: uri
-          description: This is the uri to fetch the current record that has been approved
         changes:
           $ref: "#/components/schemas/learningChangeArray"
           
