@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: '1.0'
+  version: "1.0"
   title: Start an approval endpoint
   description: Approval endpoint to allow consumers to start an approval by sending changes on approved learning. Approvals will calculate whether approval is required and start the process
 paths:
@@ -8,17 +8,17 @@ paths:
     get:
       description: information regarding this API. The version will be returned
       responses:
-        '200':
-          $ref: '#/components/responses/infoResponse'
+        "200":
+          $ref: "#/components/responses/infoResponse"
   
   /health:
     get:
       description: The system is fully ready to accept requests and all the dependencies are healthy
       responses:
-        '200':
-          $ref: '#/components/responses/healthCheckResponse'
-        '503':
-          $ref: '#/components/responses/healthCheckResponse'
+        "200":
+          $ref: "#/components/responses/healthCheckResponse"
+        "503":
+          $ref: "#/components/responses/healthCheckResponse"
 
   /approvals/{learningKey}:
     put:
@@ -31,24 +31,14 @@ paths:
           type: string
           format: uuid
       requestBody:
-        $ref: '#/components/requestBodies/learningChangesRequestBody'
+        $ref: "#/components/requestBodies/approvalRequest"
       responses:
-        '201':
-          description: An approval for these changes is not required
-        '202':
-          description: An approval for these changes is required and we have accepted this request
-        '409':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units 
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-          description: An approval for these changes does not exist in pending state so cannot be overidden
+        "201":
+          $ref: "#/components/responses/approvalResponse"
+        "404":
+          $ref: "#/components/schemas/error"
+        "400":
+          $ref: "#/components/schemas/error"
     post:
       summary: Start an approval on a recoerd that current has no changes for approval
       parameters:
@@ -59,24 +49,14 @@ paths:
           type: string
           format: uuid
       requestBody:
-        $ref: '#/components/requestBodies/learningChangesRequestBody'
+        $ref: "#/components/requestBodies/approvalRequest"
       responses:
-        '201':
-          description: An approval for these changes is not required
-        '202':
-          description: An approval for these changes is required and we have accepted this request
-        '409':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-          description: An approval for these changes is automatically rejected, for example due to change of provider for apprenticeship units  
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-          description: An approval for these changes already exists in pending state so cannot be started
+        "201":
+          $ref: "#/components/responses/approvalResponse"          
+        "404":
+          $ref: "#/components/schemas/error"
+        "400":
+          $ref: "#/components/schemas/error"
     delete:
       summary: Request to delete approvals on this record
       parameters:
@@ -87,27 +67,26 @@ paths:
           type: string
           format: uuid
       responses:
-        '200':
+        "200":
           description: An approval was deleted
+        "400":
+          description: An approval was not found in pending state for this learningkey
 components:  
   requestBodies:
-    learningChangesRequestBody:
-      description: Details changes to training records to be avaluated
+    approvalRequest:
+      description: Details changes to training records to be evaluated
       required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/learningRequest"
+            $ref: "#/components/schemas/approvalRequest"
   responses:
-    acceptedResponse:
-      description: A resource has been accepted on the platform    
+    approvalResponse:
+      description: A response to an approval request 
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              correlationId:
-                type: string
+            $ref: "#/components/schemas/approvalsResult"
     
     okResponse:
       description: OK
@@ -124,21 +103,21 @@ components:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/error'
+              $ref: "#/components/schemas/error"
 
     unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/error'
+            $ref: "#/components/schemas/error"
 
     healthCheckResponse:
       description: Results of a health check
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/healthcheckResults'
+            $ref: "#/components/schemas/healthcheckResults"
 
     infoResponse:
       description: Information response
@@ -162,13 +141,33 @@ components:
     
     change:
       type: object
+      required:
+        - old
+        - new
       properties:
         old:
           type: string
         new:
           type: string
 
-    learningRequest:
+    approvalsResult:
+      type: array
+      items:
+        type: object
+        properties: 
+          changeType:
+            type: string
+            enum: [TNP1, TNP2] # this will expand greatly
+          approvalStatus:
+            type: string
+            enum: 
+              - autoApproved
+              - autoRejected
+              - employerApproved
+              - employerRejected 
+
+    
+    approvalRequest:
       type: object
       properties:
         ukprn:
@@ -180,19 +179,23 @@ components:
           format: uuid
         learningType:
           type: string
-          format: uuid
+          enum:
+            - apprenticeship
+            - foundation
+            - shortCourse
         approvedUri:
           type: string
           format: uri
+          description: This is the uri to fetch the current record that has been approved
         changes:
-          $ref: "#/components/schemas/learningChanges"
+          $ref: "#/components/schemas/learningChangeArray"
           
-    learningChanges:
+    learningChangeArray:
       type: array
       description: >
         A list of key/value pairs, where the key is a change enum and the value is a data object.
       items:
-        $ref: '#/components/schemas/learningChange'
+        $ref: "#/components/schemas/learningChange"
 
     learningChange:
       type: object
@@ -200,14 +203,14 @@ components:
       properties:
         changeType:
           type: string
-          enum: [PriceChangeUp, PriceChangeDown, DOB, Name] # this will expand greatly
+          enum: [TMP1, TMP2] # this will expand greatly
         data:
-          $ref: '#/components/schemas/change'
+          $ref: "#/components/schemas/change"
           
     healthcheckResults:
       type: array
       items:
-        $ref: '#/components/schemas/healthcheck' 
+        $ref: "#/components/schemas/healthcheck" 
   
     healthcheck:
       type: object
