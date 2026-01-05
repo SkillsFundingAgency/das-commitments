@@ -13,12 +13,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 public class DraftApprenticeshipAddEmailCommandHandlerTests
 {
     [Test]
-    public async Task WhenHandlingCommand_ShouldUpdateTheReference()
+    public async Task WhenHandlingCommand_ShouldUpdateTheEmail()
     {
         var email = "Test@email.com";
         using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture(email);
         await fixture.Handle();
         fixture.VerifyEmailUpdated();
+    }
+
+
+    [Test]
+    public async Task WhenHandlingDraftApprenticeshipAddEmailCommand_IfDomainExceptionIsReturned_Then_ThrowDomainException()
+    {        
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("test");
+        var action = async () => await fixture.Handle();
+
+        await action.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.Count() == 1);
     }
 }
 public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
@@ -26,7 +36,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
     public DraftApprenticeshipAddEmailCommand Command { get; set; }
     public DraftApprenticeshipAddEmailCommandHandler Handler { get; set; }
 
-    public  Mock<IViewEditDraftApprenticeshipEmailValidationService> EmailValidationService { get; set; }
+    public  Mock<IOverlapCheckService> OverlapCheckService { get; set; }
     public ProviderCommitmentsDbContext Db { get; set; }
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public Party Party { get; set; }
@@ -40,7 +50,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
         Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                              .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                              .Options);
-        EmailValidationService = new Mock<IViewEditDraftApprenticeshipEmailValidationService>();
+        OverlapCheckService = new Mock<IOverlapCheckService>();
         var fixture = new Fixture();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
@@ -81,7 +91,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
         };
 
         Handler = new DraftApprenticeshipAddEmailCommandHandler(lazyProviderDbContext,
-            Mock.Of<ILogger<DraftApprenticeshipAddEmailCommandHandler>>(), EmailValidationService.Object);
+            Mock.Of<ILogger<DraftApprenticeshipAddEmailCommandHandler>>(), OverlapCheckService.Object);
     }
     public async Task Handle()
     {
