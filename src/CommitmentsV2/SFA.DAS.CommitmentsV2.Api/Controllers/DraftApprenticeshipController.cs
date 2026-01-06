@@ -192,7 +192,7 @@ public class DraftApprenticeshipController(
             ApprenticeshipId = draftApprenticeshipId
         };
 
-        var result = await mediator.Send(command);
+        await mediator.Send(command);
 
         return Ok();
     }

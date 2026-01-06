@@ -217,12 +217,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var fixture = new DraftApprenticeshipControllerTestsFixture().WithDraftApprenticeshipAddEmailCommandRequest();
 
             //Act
-            var response = await fixture.AddEmail(); ;
-            var okObjectResult = response as OkObjectResult;
-            var draftApprenticeshipAddEmailResponse = okObjectResult?.Value as DraftApprenticeshipAddEmailResponse;
-
+            var response = await fixture.AddEmail();
             //Assert
-            draftApprenticeshipAddEmailResponse?.DraftApprenticeshipId.Should().Be(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId);
+            response.Should().BeOfType<OkResult>();
             fixture.VerifyDraftApprenticeshipAddEmailCommandIsMappedCorrectly();
         }
 
@@ -232,12 +229,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             //Arrange
             var fixture = new DraftApprenticeshipControllerTestsFixture().WithDraftApprenticeshipSetReferenceCommandRequest();
 
-            var response = await fixture.SetReference(); ;
-            var okObjectResult = response as OkObjectResult;
-            var draftApprenticeshipSetReferenceResponse = okObjectResult?.Value as DraftApprenticeshipSetReferenceResponse;
+            var response = await fixture.SetReference();
 
             //Assert
-            draftApprenticeshipSetReferenceResponse.DraftApprenticeshipId.Should().Be(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId);
+            response.Should().BeOfType<OkResult>();
             fixture.VerifyDraftApprenticeshipSetReferenceCommandIsMappedCorrectly();
         }
     }
