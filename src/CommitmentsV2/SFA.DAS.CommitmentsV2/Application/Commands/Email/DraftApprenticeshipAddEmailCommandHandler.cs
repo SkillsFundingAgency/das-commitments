@@ -33,16 +33,11 @@ public class DraftApprenticeshipAddEmailCommandHandler(
     {
         var errors = new List<DomainError>();
 
-        var cohort = dbContext.Value.Cohorts.FirstOrDefault(x => x.Id == command.CohortId);
-
-        if (cohort == null)
-        {
-            throw new ApplicationException($"CohortId {command.CohortId} not found");
-        }
-
+        var cohort = dbContext.Value.Cohorts.FirstOrDefault(x => x.Id == command.CohortId) ?? throw new ApplicationException($"CohortId {command.CohortId} not found");
+       
         if (apprenticeship == null)
         {
-            throw new ApplicationException($"ApprenticeshipId {apprenticeship.Id} not found");
+            throw new ApplicationException($"ApprenticeshipId {command.ApprenticeshipId} not found");
         }
 
         if (errors.Count == 0)
