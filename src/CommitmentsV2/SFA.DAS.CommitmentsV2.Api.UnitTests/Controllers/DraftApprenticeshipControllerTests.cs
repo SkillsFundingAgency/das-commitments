@@ -1,6 +1,4 @@
-﻿using FluentAssertions.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -15,9 +13,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
-using System.Threading.Tasks;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -461,10 +457,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             DraftApprenticeshipAddEmailRequest = new DraftApprenticeshipAddEmailRequest()
             {
                 Email = "Test@test.com",
-            };
-
-            Mediator.Setup(m => m.Send(It.IsAny<DraftApprenticeshipAddEmailCommand>(), CancellationToken.None)).
-                ReturnsAsync(new DraftApprenticeshipAddEmailResult { DraftApprenticeshipId = DraftApprenticeshipId });
+            };           
 
             return this;
         }

@@ -14,9 +14,9 @@ public class DraftApprenticeshipAddEmailCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ILogger<DraftApprenticeshipAddEmailCommandHandler> logger,
     IOverlapCheckService overlapCheckService)
-    : IRequestHandler<DraftApprenticeshipAddEmailCommand, DraftApprenticeshipAddEmailResult>
+    : IRequestHandler<DraftApprenticeshipAddEmailCommand>
 {
-    public async Task<DraftApprenticeshipAddEmailResult> Handle(DraftApprenticeshipAddEmailCommand command, CancellationToken cancellationToken)
+    public async Task Handle(DraftApprenticeshipAddEmailCommand command, CancellationToken cancellationToken)
     {
         var apprenticeship = await dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
@@ -27,25 +27,27 @@ public class DraftApprenticeshipAddEmailCommandHandler(
         apprenticeship?.SetEmail(command.Email);
 
         logger.LogInformation("Set Email  for draft Apprenticeship:{ApprenticeshipId}", command.ApprenticeshipId);
-
-        return new DraftApprenticeshipAddEmailResult
-        {
-            DraftApprenticeshipId = command.ApprenticeshipId
-        };
     }
 
     public async Task<ViewEditDraftApprenticeshipEmailValidationResult> Validate(DraftApprenticeshipAddEmailCommand command, DraftApprenticeship apprenticeship, CancellationToken cancellationToken)
     {
-        var errors = new List<DomainError>();        
+        var errors = new List<DomainError>();
+
+        var cohort = dbContext.Value.Cohorts.FirstOrDefault(x => x.Id == command.CohortId);
+
+        if (cohort == null)
+        {
+            throw new ApplicationException($"CohortId {command.CohortId} not found");
+        }
 
         if (apprenticeship == null)
         {
-            return null;
+            throw new ApplicationException($"ApprenticeshipId {apprenticeship.Id} not found");
         }
 
         if (errors.Count == 0)
         {
-            errors.AddRange(BuildEmailValidationFailures(command, apprenticeship));
+            errors.AddRange(BuildEmailValidationFailures(command, apprenticeship, cohort));
         }
 
         if (errors.Count == 0)
@@ -86,8 +88,13 @@ public class DraftApprenticeshipAddEmailCommandHandler(
         return null;
     }
 
-    private IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipAddEmailCommand command, DraftApprenticeship apprenticeshipDetails)
+    private IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipAddEmailCommand command, DraftApprenticeship apprenticeshipDetails, Cohort cohort)
     {
+
+        if (cohort.WithParty != command.Party)
+        {
+            yield return new DomainError(nameof(command.Email), "You cannot update the Email value as the cohort is not assigned to you");
+        }
 
         if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(command.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021, 09, 10))
         {
@@ -102,7 +109,4 @@ public class DraftApprenticeshipAddEmailCommandHandler(
             }
         }
     }
-
-
-
 }
