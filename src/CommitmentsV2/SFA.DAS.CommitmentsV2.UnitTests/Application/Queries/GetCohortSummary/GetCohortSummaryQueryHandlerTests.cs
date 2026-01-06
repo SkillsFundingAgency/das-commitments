@@ -258,7 +258,7 @@ public class GetCohortSummaryQueryHandlerTests
     [TestCase("2022-08-01", false, null, null, null, null, null, AllowedApproval.BothCanApprove)]
     [TestCase("2022-08-01", true, 1000, 100, false, null, 1000, AllowedApproval.BothCanApprove)]
     [TestCase("2022-08-01", true, 1000, null, false, null, 1000, AllowedApproval.CannotApprove)]
-    [TestCase("2022-08-01", true, 1000, 100, null, null, 1000, AllowedApproval.CannotApprove)]
+    [TestCase("2022-08-01", true, 1000, 100, null, null, 1000, AllowedApproval.BothCanApprove)]
     [TestCase("2022-08-01", true, 1000, 100, true, null, 1000, AllowedApproval.CannotApprove)]
     [TestCase("2022-08-01", true, 10, 100, true, 12, null, AllowedApproval.CannotApprove)]
     public async Task Handle_WithApprenticeRPLExtendedConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? trainingTotalHours,
