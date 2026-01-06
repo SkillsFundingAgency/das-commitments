@@ -190,6 +190,8 @@ components:
       properties:
         ukprn:
           type: string
+        uln:
+          type: string
         agreementId:
           type: integer
         learningKey:
