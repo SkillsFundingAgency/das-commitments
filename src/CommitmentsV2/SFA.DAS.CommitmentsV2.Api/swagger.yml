@@ -22,7 +22,7 @@ paths:
 
   /approvals/{learningKey}:
     put:
-      summary: This endpoint will be consumed by learning when there ARE PENDING CHANGES from the record on learning. This allows metrics on whether we are synchronised between systems
+      summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
@@ -38,9 +38,9 @@ paths:
         "404":
           $ref: "#/components/responses/notFound"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/errorNoPendingChangeResponse"
     post:
-      summary: This endpoint will be consumed by learning when there ARE NO PENDING CHANGES from the record on learning. This allows metrics on whether we are synchronised between systems
+      summary: Request to start a new approval for the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
@@ -56,9 +56,9 @@ paths:
         "404":
           $ref: "#/components/responses/notFound"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/errorPendingChangeExistsResponse"
     delete:
-      summary: Request to delete approvals on this record
+      summary: Request to delete the current pending approval on this record
       parameters:
       - in: path
         name: learningKey
@@ -96,8 +96,8 @@ components:
             type: string
             example: OK
 
-    badRequest:
-      description: A bad request was sent and validation of the payload failed
+    errorNoPendingChangeResponse:
+      description: There is no pending change to override
       content:
         application/json:
           schema:
@@ -105,6 +105,15 @@ components:
             items:
               $ref: "#/components/schemas/error"
 
+    errorPendingChangeExistsResponse:
+      description: There is a pending change and the caller has asked to create a new one
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/error"
+    
     notFound:
       description: Not found response
       content:
