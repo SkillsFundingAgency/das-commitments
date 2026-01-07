@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using Moq;
 using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
@@ -24,7 +27,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTests
 
     [Test]
     public async Task WhenHandlingDraftApprenticeshipAddEmailCommand_IfDomainExceptionIsReturned_Then_ThrowDomainException()
-    {        
+    {
         using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("test", Party.Provider);
         var action = async () => await fixture.Handle();
 
@@ -41,6 +44,38 @@ public class DraftApprenticeshipAddEmailCommandHandlerTests
         await action.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("cohort is not assigned to you"));
     }
 
+    [Test]
+    public async Task WhenValidatingApprenticeship_Is_Null()
+    {
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("Test1@email.com", Party.Provider);
+        var action = async () => await fixture.Validate_DraftAppreticeship_Null();
+        await action.Should().ThrowAsync<ApplicationException>().Where(ex => ex.Message.Contains("not found"));
+    }
+
+    [Test]
+    public async Task WhenValidatingCohort_Is_Null()
+    {
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("Test1@email.com", Party.Provider);
+        var action = async () => await fixture.Validate_Cohort_Null();
+        await action.Should().ThrowAsync<ApplicationException>().Where(ex => ex.Message.Contains("not found"));
+    }
+
+    [Test]
+    public async Task WhenValidatingEmail_Is_Empty()
+    {
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("", Party.Provider);
+        var action = await fixture.Validate();
+        action.Errors.Count.Should().Be(1);
+    }
+   
+    [Test]
+    public async Task WhenValidatingEmailOverlap()
+    {
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("Test1@email.com", Party.Provider);
+        var action = await fixture.ValidateOverlap();
+        action.Errors.Count.Should().Be(1);
+    }
+
 }
 public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
 {
@@ -52,6 +87,8 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public Party Party { get; set; }
     public long DraftApprenticeshipId { get; set; }
+
+    public DraftApprenticeship draftApprenticeship { get; set; }
     public DraftApprenticeshipAddEmailCommandHandlerTestsFixture(string email, Party party)
     {        
         UnitOfWorkContext = new UnitOfWorkContext();
@@ -67,7 +104,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
            .Set(c => c.ProviderId, 333)
            .Set(c => c.WithParty, party);
 
-        var DraftApprenticeship = fixture.Build<CommitmentsV2.Models.DraftApprenticeship>()
+        draftApprenticeship = fixture.Build<CommitmentsV2.Models.DraftApprenticeship>()
          .With(s => s.Cohort, Cohort)
          .With(s => s.PaymentStatus, PaymentStatus.Active)
          .With(s => s.EndDate, DateTime.UtcNow)
@@ -80,11 +117,11 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
          .Without(s => s.ApprenticeshipConfirmationStatus)
          .Create();
 
-        Db.DraftApprenticeships.Add(DraftApprenticeship);
+        Db.DraftApprenticeships.Add(draftApprenticeship);
 
         Db.SaveChanges();
 
-        DraftApprenticeshipId = DraftApprenticeship.Id;
+        DraftApprenticeshipId = draftApprenticeship.Id;
 
         var authenticationService = new Mock<IAuthenticationService>();
         authenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
@@ -93,7 +130,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
 
         Command = new DraftApprenticeshipAddEmailCommand
         {
-            ApprenticeshipId = DraftApprenticeship.Id,
+            ApprenticeshipId = draftApprenticeship.Id,
             CohortId = Cohort.Id,
             Email = email,
             Party = Party.Provider
@@ -107,6 +144,30 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
         await Handler.Handle(Command, CancellationToken.None);
         await Db.SaveChangesAsync();
     }
+
+    public async Task Validate_DraftAppreticeship_Null()
+    {
+        await Handler.Validate(Command, null, CancellationToken.None);
+    }
+
+    public async Task Validate_Cohort_Null()
+    {
+        Command.CohortId = 123;
+        await Handler.Validate(Command, draftApprenticeship, CancellationToken.None);
+    }
+
+    public async Task<ViewEditDraftApprenticeshipEmailValidationResult> Validate()
+    {        
+      return  await Handler.Validate(Command, draftApprenticeship, CancellationToken.None);
+    }
+
+    public async Task<ViewEditDraftApprenticeshipEmailValidationResult> ValidateOverlap()
+    {
+        OverlapCheckService.Setup(t => t.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), It.IsAny<long>(), CancellationToken.None)).
+            ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, false));
+        return await Handler.Validate(Command, draftApprenticeship, CancellationToken.None);
+    }
+
     internal void VerifyEmailUpdated()
     {
         Db.DraftApprenticeships.First(x => x.Id == DraftApprenticeshipId).Email.Should().Be(Command.Email);

@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 
-public class DraftApprenticeshipSetReferenceCommand : IRequest<DraftApprenticeshipSetReferenceResult>
+public class DraftApprenticeshipSetReferenceCommand : IRequest
 {
     public long CohortId { get; set; }
     public long ApprenticeshipId { get; set; }

@@ -10,9 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.Reference;
 public class DraftApprenticeshipSetReferenceCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ILogger<DraftApprenticeshipSetReferenceCommandHandler> logger)
-    : IRequestHandler<DraftApprenticeshipSetReferenceCommand, DraftApprenticeshipSetReferenceResult>
+    : IRequestHandler<DraftApprenticeshipSetReferenceCommand>
 {
-    public async Task<DraftApprenticeshipSetReferenceResult> Handle(DraftApprenticeshipSetReferenceCommand command, CancellationToken cancellationToken)
+    public async Task Handle(DraftApprenticeshipSetReferenceCommand command, CancellationToken cancellationToken)
     {
         var apprenticeship = await dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
@@ -23,8 +23,6 @@ public class DraftApprenticeshipSetReferenceCommandHandler(
         apprenticeship.SetReference(command.Reference, command.Party);
 
         logger.LogInformation("Set reference for draft Apprenticeship:{ApprenticeshipId}", command.ApprenticeshipId);
-
-        return new DraftApprenticeshipSetReferenceResult() { DraftApprenticeshipId = command.ApprenticeshipId };
     }
 
     public ViewEditDraftApprenticeshipReferenceValidationResult Validate(DraftApprenticeshipSetReferenceCommand command, DraftApprenticeship draftApprenticeship, CancellationToken cancellationToken)

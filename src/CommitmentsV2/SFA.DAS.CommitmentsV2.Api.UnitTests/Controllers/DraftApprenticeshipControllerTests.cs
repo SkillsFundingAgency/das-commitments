@@ -464,10 +464,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public DraftApprenticeshipControllerTestsFixture WithDraftApprenticeshipSetReferenceCommandRequest()
         {
-            DraftApprenticeshipSetReferenceRequest = new DraftApprenticeshipSetReferenceRequest() { Party = CommitmentsV2.Types.Party.Provider, Reference = Reference };
-
-            Mediator.Setup(m => m.Send(It.IsAny<DraftApprenticeshipSetReferenceCommand>(), CancellationToken.None)).
-                 ReturnsAsync(new DraftApprenticeshipSetReferenceResult { DraftApprenticeshipId = DraftApprenticeshipId });
+            DraftApprenticeshipSetReferenceRequest = new DraftApprenticeshipSetReferenceRequest() 
+            { Party = CommitmentsV2.Types.Party.Provider, Reference = Reference };
 
             return this;
         }

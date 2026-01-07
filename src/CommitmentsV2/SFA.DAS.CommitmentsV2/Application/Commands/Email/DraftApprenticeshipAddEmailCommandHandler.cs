@@ -63,7 +63,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
     private async Task<DomainError> EmailOverlapValidationFailures(DraftApprenticeshipAddEmailCommand command, DraftApprenticeship apprenticeshipDetails)
     {
         if (string.IsNullOrWhiteSpace(command.Email))
-            return null;
+            return new DomainError(nameof(command.Email), "Please enter a valid email address");
 
         if (apprenticeshipDetails.StartDate == null || apprenticeshipDetails.EndDate == null)
             return null;
@@ -89,12 +89,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
         if (cohort.WithParty != command.Party)
         {
             yield return new DomainError(nameof(command.Email), "You cannot update the Email value as the cohort is not assigned to you");
-        }
-
-        if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(command.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021, 09, 10))
-        {
-            yield return new DomainError(nameof(command.Email), "Email update cannot be requested");
-        }
+        }       
 
         if (command.Email != apprenticeshipDetails.Email && !string.IsNullOrWhiteSpace(command.Email))
         {
