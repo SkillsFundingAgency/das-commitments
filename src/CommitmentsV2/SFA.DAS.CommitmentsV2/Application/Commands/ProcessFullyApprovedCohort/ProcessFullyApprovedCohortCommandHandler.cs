@@ -33,28 +33,29 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         var events = await db.Value.Apprenticeships
             .Where(a => a.Cohort.Id == request.CohortId)
-            .Select(a => new ApprenticeshipCreatedEvent
+            .Join(db.Value.Standards, a => a.StandardUId,s=> s.StandardUId, (a, s) => new { a, s })
+            .Select(x => new ApprenticeshipCreatedEvent
             {
-                ApprenticeshipId = a.Id,
+                ApprenticeshipId = x.a.Id,
                 CreatedOn = creationDate,
-                AgreedOn = a.Cohort.EmployerAndProviderApprovedOn.Value,
-                AccountId = a.Cohort.EmployerAccountId,
-                AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntity.PublicHashedId,
-                AccountLegalEntityId = a.Cohort.AccountLegalEntity.Id,
-                LegalEntityName = a.Cohort.AccountLegalEntity.Name,
-                ProviderId = a.Cohort.ProviderId,
-                TransferSenderId = a.Cohort.TransferSenderId,
+                AgreedOn = x.a.Cohort.EmployerAndProviderApprovedOn.Value,
+                AccountId = x.a.Cohort.EmployerAccountId,
+                AccountLegalEntityPublicHashedId = x.a.Cohort.AccountLegalEntity.PublicHashedId,
+                AccountLegalEntityId = x.a.Cohort.AccountLegalEntity.Id,
+                LegalEntityName = x.a.Cohort.AccountLegalEntity.Name,
+                ProviderId = x.a.Cohort.ProviderId,
+                TransferSenderId = x.a.Cohort.TransferSenderId,
                 ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType,
-                Uln = a.Uln,
-                DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
-                TrainingType = a.ProgrammeType.Value,
-                TrainingCode = a.CourseCode,
-                StandardUId = a.StandardUId,
-                TrainingCourseOption = a.TrainingCourseOption,
-                TrainingCourseVersion = a.TrainingCourseVersion,
-                StartDate = a.StartDate.GetValueOrDefault(),
-                EndDate = a.EndDate.Value,
-                PriceEpisodes = a.PriceHistory
+                Uln = x.a.Uln,
+                DeliveryModel = x.a.DeliveryModel ?? DeliveryModel.Regular,
+                TrainingType = x.a.ProgrammeType.Value,
+                TrainingCode = x.a.CourseCode,
+                StandardUId = x.a.StandardUId,
+                TrainingCourseOption = x.a.TrainingCourseOption,
+                TrainingCourseVersion = x.a.TrainingCourseVersion,
+                StartDate = x.a.StartDate.GetValueOrDefault(),
+                EndDate = x.a.EndDate.Value,
+                PriceEpisodes = x.a.PriceHistory
                     .Select(p => new PriceEpisode
                     {
                         FromDate = p.FromDate,
@@ -64,13 +65,14 @@ public class ProcessFullyApprovedCohortCommandHandler(
                         TrainingPrice = p.TrainingPrice
                     })
                     .ToArray(),
-                ContinuationOfId = a.ContinuationOfId,
-                DateOfBirth = a.DateOfBirth.Value,
-                ActualStartDate = a.ActualStartDate,
-                FirstName = a.FirstName,
-                LastName = a.LastName,
-                ApprenticeshipHashedId = encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
-                LearnerDataId = a.LearnerDataId
+                ContinuationOfId = x.a.ContinuationOfId,
+                DateOfBirth = x.a.DateOfBirth.Value,
+                ActualStartDate = x.a.ActualStartDate,
+                FirstName = x.a.FirstName,
+                LastName = x.a.LastName,
+                ApprenticeshipHashedId = encodingService.Encode(x.a.Id, EncodingType.ApprenticeshipId),
+                LearnerDataId = x.a.LearnerDataId,
+                LearningType = x.s.ApprenticeshipType
             })
             .ToListAsync(cancellationToken);
 
