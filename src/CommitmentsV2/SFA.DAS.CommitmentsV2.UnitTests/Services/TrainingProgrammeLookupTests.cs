@@ -282,6 +282,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .With(s => s.VersionEarliestStartDate, baseDate)
                     .With(s => s.VersionLatestStartDate, baseDate.AddYears(1).AddDays(1))
                     .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                    .With(s => s.ApprenticeshipType, "Apprenticeship")
                 .Create());
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
@@ -420,6 +421,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         .With(s => s.VersionEarliestStartDate, baseDate.AddYears(-1))
                         .With(s => s.VersionLatestStartDate, baseDate)
                         .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                        .With(s => s.ApprenticeshipType, "Apprenticeship")
                     .Create(),
                 _fixture.Build<Standard>()
                         .With(s => s.LarsCode, 1)
@@ -433,6 +435,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         .With(s => s.VersionEarliestStartDate, baseDate)
                         .With(s => s.VersionLatestStartDate, baseDate.AddYears(1))
                         .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                        .With(s => s.ApprenticeshipType, "FoundationApprenticeship")
                     .Create()
             };
 
@@ -454,7 +457,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Excluding(x => x.Options)
                 .Excluding(x => x.VersionEarliestStartDate)
                 .Excluding(x => x.VersionLatestStartDate)
-                .Excluding(x => x.Route);
+                .Excluding(x => x.Route)
+                .Excluding(x => x.ApprenticeshipType);
+
         }
     }
 }
