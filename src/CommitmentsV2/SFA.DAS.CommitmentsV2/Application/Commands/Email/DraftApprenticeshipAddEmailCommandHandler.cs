@@ -77,7 +77,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
 
         if (overlap != null)
         {
-            return new DomainError(nameof(command.Email), overlap.BuildErrorMessage());
+            return new DomainError(nameof(command.Email), "This email address is already used for another apprenticeship in the same training period - use a different email address");
         }
 
         return null;
