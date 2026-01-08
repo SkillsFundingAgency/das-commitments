@@ -24,7 +24,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
 
         response?.Errors.ThrowIfAny();
 
-        apprenticeship?.SetEmail(command.Email);
+        apprenticeship?.SetEmail(string.IsNullOrWhiteSpace(command.Email) ? null : command.Email);
 
         logger.LogInformation("Set Email  for draft Apprenticeship:{ApprenticeshipId}", command.ApprenticeshipId);
     }
@@ -63,7 +63,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
     private async Task<DomainError> EmailOverlapValidationFailures(DraftApprenticeshipAddEmailCommand command, DraftApprenticeship apprenticeshipDetails)
     {
         if (string.IsNullOrWhiteSpace(command.Email))
-            return new DomainError(nameof(command.Email), "Please enter a valid email address");
+            return null;
 
         if (apprenticeshipDetails.StartDate == null || apprenticeshipDetails.EndDate == null)
             return null;

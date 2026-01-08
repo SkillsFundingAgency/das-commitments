@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.CommitmentsV2.Application.Commands.Email;
 using SFA.DAS.CommitmentsV2.Authentication;
@@ -53,6 +54,14 @@ public class DraftApprenticeshipAddEmailCommandHandlerTests
     }
 
     [Test]
+    public async Task WhenHandlingDraftApprenticeshipAddEmailCommand_Email_Is_Whitespace()
+    {
+        using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture(" ", Party.Provider);
+        await fixture.Handle();
+        fixture.VerifyEmailIfWhiteSpaceUpdated();
+    }
+
+    [Test]
     public async Task WhenValidatingCohort_Is_Null()
     {
         using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("Test1@email.com", Party.Provider);
@@ -65,7 +74,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTests
     {
         using var fixture = new DraftApprenticeshipAddEmailCommandHandlerTestsFixture("", Party.Provider);
         var action = await fixture.Validate();
-        action.Errors.Count.Should().Be(1);
+        action.Errors.Count.Should().Be(0);
     }
    
     [Test]
@@ -171,6 +180,11 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
     internal void VerifyEmailUpdated()
     {
         Db.DraftApprenticeships.First(x => x.Id == DraftApprenticeshipId).Email.Should().Be(Command.Email);
+    }
+
+    internal void VerifyEmailIfWhiteSpaceUpdated()
+    {
+        Db.DraftApprenticeships.First(x => x.Id == DraftApprenticeshipId).Email.Should().BeNull();
     }
 
     public void Dispose()
