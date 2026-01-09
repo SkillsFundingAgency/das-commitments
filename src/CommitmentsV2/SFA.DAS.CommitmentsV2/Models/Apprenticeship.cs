@@ -258,7 +258,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         PriceHistory = updatedPriceHistory;
     }
 
-    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
+    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn, string learningType)
     {
         StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
         ChangeTrackingSession.TrackUpdate(this);
@@ -284,7 +284,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 ApprovedOn = approvedOn,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln
+                Uln = Uln, 
+                LearningType = learningType
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
@@ -631,7 +632,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         };
     }
 
-    public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo)
+    public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo, string learningType)
     {
         if (PaymentStatus != PaymentStatus.Completed)
         {
@@ -670,6 +671,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             TrainingCourseOption = TrainingCourseOption,
             Uln = Uln,
             DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
+            LearningType = learningType
         });
     }
 
