@@ -22,8 +22,9 @@ public class EditEndDateRequestCommandHandler(
         CheckPartyIsValid(party);
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
-
-        apprenticeship.EditEndDateOfCompletedRecord(command.EndDate.Value, currentDate, party, command.UserInfo);
+        
+        var standard = dbContext.Value.Standards.FirstOrDefault(x => x.StandardUId == apprenticeship.StandardUId);
+        apprenticeship.EditEndDateOfCompletedRecord(command.EndDate.Value, currentDate, party, command.UserInfo, standard?.ApprenticeshipType);
 
         await resolveOverlappingTrainingDateRequestService.Resolve(
             command.ApprenticeshipId,

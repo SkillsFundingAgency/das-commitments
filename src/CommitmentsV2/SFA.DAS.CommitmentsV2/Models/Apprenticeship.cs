@@ -1,5 +1,4 @@
-﻿
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -111,7 +110,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
     }
 
-    public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo, ICurrentDateTime currentDateTime)
+    public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo, ICurrentDateTime currentDateTime, string learningType)
     {
         StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
@@ -148,7 +147,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 Uln = Uln,
                 DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
                 EmploymentEndDate = FlexibleEmployment?.EmploymentEndDate,
-                EmploymentPrice = FlexibleEmployment?.EmploymentPrice
+                EmploymentPrice = FlexibleEmployment?.EmploymentPrice,
+                LearningType = learningType
             });
     }
 
@@ -258,7 +258,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         PriceHistory = updatedPriceHistory;
     }
 
-    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn)
+    public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn, string learningType)
     {
         StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
         ChangeTrackingSession.TrackUpdate(this);
@@ -284,7 +284,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 ApprovedOn = approvedOn,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln
+                Uln = Uln, 
+                LearningType = learningType
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
@@ -631,7 +632,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         };
     }
 
-    public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo)
+    public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo, string learningType)
     {
         if (PaymentStatus != PaymentStatus.Completed)
         {
@@ -670,6 +671,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             TrainingCourseOption = TrainingCourseOption,
             Uln = Uln,
             DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
+            LearningType = learningType
         });
     }
 

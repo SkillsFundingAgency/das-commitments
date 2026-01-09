@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         public void ThenShouldPublishApprenticeshipUpdatedApprovedEvent()
         {
             var newEndDate = _fixture.EndDate.AddDays(1);
-            _fixture.UpdateEndDate(newEndDate);
+            _fixture.UpdateEndDate(newEndDate, "Apprenticeship");
 
             _fixture.UnitOfWorkContext.GetEvents()
                 .OfType<ApprenticeshipUpdatedApprovedEvent>()
@@ -43,14 +43,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         {
             _fixture.SetPaymentStatus(status);
             var newEndDate = _fixture.EndDate.AddDays(1);
-            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate));
+            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate, "Apprenticeship"));
         }
 
         [Test]
         public void ThenEndDateShouldBeUpdated()
         {
             var newEndDate = _fixture.EndDate.AddDays(1); 
-            _fixture.UpdateEndDate(newEndDate);
+            _fixture.UpdateEndDate(newEndDate, "Apprenticeship");
             _fixture.Apprenticeship.EndDate.Should().Be(newEndDate);
         }
 
@@ -58,20 +58,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         public void AndEndDate_IsAfter_CompletionDate_ThenShouldThrowDomainException()
         {
             var newEndDate = _fixture.CompletionDate.AddDays(1);
-            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate));
+            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate, "Apprenticeship"));
         }
 
         [Test]
         public void AndEndDate_IsBefore_StartDate_ThenShouldThrowDomainException()
         {
             var newEndDate = _fixture.StartDate.AddDays(-1);
-            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate));
+            Assert.Throws<DomainException>(() => _fixture.UpdateEndDate(newEndDate, "Apprenticeship"));
         }
 
         [Test]
         public void ThenVerifyTracking()
         {
-            _fixture.UpdateEndDate(_fixture.EndDate);
+            _fixture.UpdateEndDate(_fixture.EndDate, "Apprenticeship");
             _fixture.VerifyApprenticeshipTracking(); 
         }
     }
@@ -145,9 +145,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                                                                                 && @event.EmployerAccountId == Apprenticeship.Cohort.EmployerAccountId), Is.Not.Null);
         }
 
-        public void UpdateEndDate(DateTime date)
+        public void UpdateEndDate(DateTime date, string learningType)
         {
-            Apprenticeship.EditEndDateOfCompletedRecord(date, CurrentDateTime.Object, Party, UserInfo);
+            Apprenticeship.EditEndDateOfCompletedRecord(date, CurrentDateTime.Object, Party, UserInfo, learningType);
         }
     }
 }

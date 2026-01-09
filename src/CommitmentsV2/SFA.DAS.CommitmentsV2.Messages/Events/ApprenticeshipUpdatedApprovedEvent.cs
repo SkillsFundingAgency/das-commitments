@@ -22,5 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DeliveryModel DeliveryModel { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public int? EmploymentPrice { get; set; }
+        public string LearningType { get; set; }
     }
 }

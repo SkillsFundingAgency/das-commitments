@@ -35,5 +35,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string LastName { get; set; }
         public string ApprenticeshipHashedId { get; set; }
         public long? LearnerDataId { get; set; }
+        public string LearningType { get; set; }
     }
 }

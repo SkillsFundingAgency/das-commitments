@@ -44,10 +44,11 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
 
             await CheckEmailOverlap(command, apprenticeship, apprenticeshipUpdate, cancellationToken);
         }
-        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, dateTimeService);
+        var standard = dbContext.Value.Standards.FirstOrDefault(x => x.StandardUId == apprenticeship.StandardUId);
+        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, dateTimeService, standard?.ApprenticeshipType);
     }
 
-		private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
+    private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
         {
             return authenticationService.AuthenticationServiceType == AuthenticationServiceType.MessageHandler 
                 ? command.Party 
