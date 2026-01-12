@@ -18,7 +18,7 @@
     [VersionEarliestStartDate] DATETIME NULL,
     [VersionLatestStartDate] DATETIME NULL,
     [Route] NVARCHAR(500) NULL, 
-    [ApprenticeshipType] VARCHAR(50) NULL
+    [ApprenticeshipType] VARCHAR(50) NOT NULL
     CONSTRAINT [PK_Standards] PRIMARY KEY CLUSTERED (StandardUId ASC)
 )
 GO
