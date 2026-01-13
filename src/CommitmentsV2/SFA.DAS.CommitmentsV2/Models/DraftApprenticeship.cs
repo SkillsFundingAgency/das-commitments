@@ -46,6 +46,10 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         ReservationId = source.ReservationId;
         LearnerDataId = source.LearnerDataId;
+        if (source.LearnerDataId != null && source.RecognisePriorLearning == null)
+        {
+            RecognisePriorLearning = false;
+        }
     }
 
     public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)

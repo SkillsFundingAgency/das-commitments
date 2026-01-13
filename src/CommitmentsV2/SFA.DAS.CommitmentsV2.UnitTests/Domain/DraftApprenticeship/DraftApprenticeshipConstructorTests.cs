@@ -102,13 +102,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.That(result.ReservationId, Is.EqualTo(_source.ReservationId));
         }
 
-        [TestCase(null)]
-        [TestCase(33434)]
-        public void ThenLearnerDataIdIsMappedCorrectly(long? id)
+        [TestCase(null, null, null)]
+        [TestCase(null, true, true)]
+        [TestCase(null, false, false)]
+        [TestCase(33434, null, false)]
+        [TestCase(33434, false, false)]
+        [TestCase(33434, true, true)]
+        public void ThenLearnerDataIdIsMappedCorrectly(long? id, bool? initialRplValue, bool? rplNeeded)
         {
             _source.LearnerDataId = id;
+            _source.RecognisePriorLearning = initialRplValue;
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Provider);
             result.LearnerDataId.Should().Be(_source.LearnerDataId);
+            result.RecognisePriorLearning.Should().Be(rplNeeded);
         }
     }
 }
