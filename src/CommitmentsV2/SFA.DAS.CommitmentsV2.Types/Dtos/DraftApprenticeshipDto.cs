@@ -33,5 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public DateTime? LastLearnerDataSync { get; set; }
         public long? LearnerDataId { get; set; }
         public int? TrainingTotalHours { get; set; }
+        public string ApprenticeshipType { get; set; }
     }
 }
