@@ -21,6 +21,7 @@ public class Standard
     public DateTime? VersionEarliestStartDate { get; set; }
     public DateTime? VersionLatestStartDate { get; set; }
     public string Route { get; set; }
+    public string ApprenticeshipType { get; set; }
 }
 
 public class StandardFundingPeriod : IFundingPeriod
