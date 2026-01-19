@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
@@ -57,7 +58,8 @@ public class AcceptDataLocksRequestChangesCommandHandler(
                 if (training != null)
                 {
                     logger.LogInformation("Updating course for apprenticeship {ApprenticeshipId} from training code {CourseCode} to {IlrTrainingCourseCode}", apprenticeship.Id, apprenticeship.CourseCode, dataLockWithUpdatedTraining.IlrTrainingCourseCode);
-                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, training.Version, currentDateTime.UtcNow);
+                    var standard = db.Value.Standards.FirstOrDefault(x => x.StandardUId == apprenticeship.StandardUId);
+                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, training.Version, currentDateTime.UtcNow, standard?.ApprenticeshipType);
                 }
             }
         }

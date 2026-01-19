@@ -171,18 +171,24 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
 
         var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
         var cohort2 = cohortBuilder.Create();
-            
-        var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create(); 
+
+        var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
         var apprenticeship2 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
         var apprenticeship3 = apprenticeshipBuilder.With(a => a.Cohort, cohort2).Create();
-            
+
         var apprenticeships1 = new[] { apprenticeship1, apprenticeship2 };
         var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
-            
+
+        var standardBuilder = AutoFixture.Build<Standard>();
+        var standard1 = standardBuilder.With(s => s.StandardUId, apprenticeship1.StandardUId).Create();
+        var standard2 = standardBuilder.With(s => s.StandardUId, apprenticeship2.StandardUId).Create();
+        var standard3 = standardBuilder.With(s => s.StandardUId, apprenticeship3.StandardUId).Create();
+
         Apprenticeships.AddRange(apprenticeships1);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships2);
+        Db.Object.Standards.AddRange(new[] { standard1, standard2, standard3 });
 
         Db.Object.SaveChanges();
             
