@@ -190,6 +190,8 @@ components:
       properties:
         ukprn:
           type: string
+        apprenticeshipId:
+          type: string
         uln:
           type: string
         agreementId:
