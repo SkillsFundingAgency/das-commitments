@@ -39,7 +39,20 @@ paths:
           $ref: '#/components/responses/okResponse'
         '400':
           $ref: '#/components/responses/badRequest'
-
+    get:
+      summary: fetches record based on the apprenticeshipId
+      parameters:
+        - name: apprenticeshipId
+          in: path
+          required: true
+          description: the id of the apprenticeship
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/evsIndexResponse'
+        '404':
+          $ref: '#/components/responses/notFound'
   /api/evs:
     post:
       summary: ECreates a new record to be indexed for a potential check
@@ -153,6 +166,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/evsIndexArray'
+      
+    evsIndexResponse:
+      description: RArray of results
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/evsIndex'
   schemas:
     error:
       type: object
