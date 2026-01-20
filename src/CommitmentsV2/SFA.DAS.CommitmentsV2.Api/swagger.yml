@@ -60,6 +60,12 @@ paths:
           schema:
             type: string
             format: date
+        - name: onlyFailed
+          in: query
+          required: true
+          description: only return those that have not passed
+          schema:
+            type: boolean
       responses:
         '200':
           $ref: '#/components/responses/evsIndexArrayResponse'
