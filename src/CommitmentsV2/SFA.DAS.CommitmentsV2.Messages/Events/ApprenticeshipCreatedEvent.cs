@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
@@ -27,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DeliveryModel DeliveryModel { get; set; }
         public string TrainingCode { get; set; }
         public long? TransferSenderId { get; set; }
-        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public Types.ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public long? ContinuationOfId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime? ActualStartDate { get; set; }
@@ -35,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string LastName { get; set; }
         public string ApprenticeshipHashedId { get; set; }
         public long? LearnerDataId { get; set; }
-        public string LearningType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public LearningType LearningType { get; set; }
     }
 }

@@ -4,9 +4,11 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
+using ApprenticeshipEmployerType = SFA.DAS.CommitmentsV2.Types.ApprenticeshipEmployerType;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 
@@ -72,7 +74,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 LastName = x.apprenticeship.LastName,
                 ApprenticeshipHashedId = encodingService.Encode(x.apprenticeship.Id, EncodingType.ApprenticeshipId),
                 LearnerDataId = x.apprenticeship.LearnerDataId,
-                LearningType = x.standard.ApprenticeshipType
+                LearningType = Enum.Parse<LearningType>(x.standard.ApprenticeshipType, true)
             })
             .ToListAsync(cancellationToken);
 
