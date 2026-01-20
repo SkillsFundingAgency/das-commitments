@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: EVS check endpoints for storage update and indexing of evs check data
+  description: 'This service supports the storage of EVS check data and the fetching of records that need to be checked'
+
+paths:
+  /info:
+    get:
+      description: information regarding this API. The version will be returned
+      responses:
+        '200':
+          $ref: '#/components/responses/infoResponse'  
+  /health:
+    get:
+      description: The system is fully ready to accept requests and all the dependencies are healthy
+      responses:
+        '200':
+          description: All health checks have passed
+          $ref: '#/components/responses/healthCheckResponse'
+        '503':
+          description: A health check has failed
+          $ref: '#/components/responses/healthCheckResponse'
+   
+  /api/evs/{apprenticeshipId}:
+    put:
+      summary: updates a record with the result of a checked
+      parameters:
+        - name: apprenticeshipId
+          in: path
+          required: true
+          description: the id of the apprenticeship
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/evsResultRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/okResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+
+  /api/evs:
+    post:
+      summary: ECreates a new record to be indexed for a potential check
+      requestBody:
+        $ref: '#/components/requestBodies/evsIndexRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/createdResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+    get:
+      summary: fetches records based on the query
+      parameters:
+        - name: daysFromLastCheck
+          in: query
+          required: true
+          description: the number of days that have elasped since the last check
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          $ref: '#/components/responses/evsIndexArrayResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+
+components:  
+
+  requestBodies:
+    evsResultRequest:
+      description: The result payload to be stored in approvals
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/evsResult'
+    evsIndexRequest:
+      description: index a new record for a check
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/evsIndex'
+
+  responses:
+    createdResponse:
+      description: A resource has been created or updated through the service 
+      headers:
+        Location:
+          description: URI of the newly created resource
+          schema:
+            type: string
+            format: uri
+            example: /employment-verifications/a3f1c2d4-9b7c-4e2b-8f2d-9c1234567890    
+                
+    notFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    okResponse:
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: OK
+
+    unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    badRequest:
+      description: A bad request was sent and validation of the payload failed
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/error'
+    
+    healthCheckResponse:
+      description: Results of a health check
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/healthcheckResults'
+
+    infoResponse:
+      description: Information response
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Leaner data APIM for the apprenticeship service - Version 3.0.2
+    
+    evsIndexArrayResponse:
+      description: RArray of results
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/evsIndexArray'
+  schemas:
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    
+    healthcheckResults:
+      type: array
+      items:
+        $ref: '#/components/schemas/healthcheck' 
+  
+    healthcheck:
+      type: object
+      properties:
+        description: 
+          type: string
+        result: 
+          type: string    
+    
+    evsIndex:
+      type: object
+      properties:
+        apprenticeshipId:
+          type: integer
+          format: int64
+
+    evsIndexArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/evsIndex' 
+      
+    evsResult:
+      type: object
+      properties:
+        lastCheckedDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: integer
+        notes:
+          type: string
+          nullable: true
+          example: "Initial verification requested"
+        apprenticeshipId:
+          type: integer
+          format: int64
