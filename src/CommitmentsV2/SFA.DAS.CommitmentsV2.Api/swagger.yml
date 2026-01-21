@@ -223,6 +223,3 @@ components:
           type: string
           nullable: true
           example: "Initial verification requested"
-        apprenticeshipId:
-          type: integer
-          format: int64
