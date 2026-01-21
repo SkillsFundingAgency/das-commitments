@@ -1,12 +1,13 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
-using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models;
 
@@ -148,7 +149,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
                 EmploymentEndDate = FlexibleEmployment?.EmploymentEndDate,
                 EmploymentPrice = FlexibleEmployment?.EmploymentPrice,
-                LearningType = learningType
+                LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
             });
     }
 
@@ -285,7 +286,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln, 
-                LearningType = learningType
+                LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
@@ -671,7 +672,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             TrainingCourseOption = TrainingCourseOption,
             Uln = Uln,
             DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
-            LearningType = learningType
+            LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
         });
     }
 
