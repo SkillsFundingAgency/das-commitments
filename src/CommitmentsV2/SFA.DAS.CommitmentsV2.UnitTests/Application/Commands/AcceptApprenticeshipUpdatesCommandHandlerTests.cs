@@ -384,6 +384,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Exception Exception { get; set; }
 
         public DateTime ProxyCurrentDateTime = new(2020, 1, 1);
+        public Standard Standard { get; set; }
 
         public AcceptApprenticeshipUpdatesCommandHandlerTestsFixture()
         {
@@ -413,6 +414,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     Cost = 10000,
                 }
             };
+            Standard = new Standard()
+                .Set(s => s.StandardUId, "ST0001")
+                .Set(s => s.ApprenticeshipType, "Apprenticeship");
 
             ApprenticeshipDetails = Fixture.Build<Apprenticeship>()
                 .With(s => s.Id, ApprenticeshipId)
@@ -422,6 +426,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
                 .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                 .With(s => s.PriceHistory, priceHistory)
+                .With(s => s.StandardUId, Standard.StandardUId)
                 .Without(s => s.ApprenticeshipUpdate)
                 .Without(s => s.DataLockStatus)
                 .Without(s => s.EpaOrg)
@@ -484,6 +489,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
+            Db.Standards.Add(Standard);
 
             await Db.SaveChangesAsync(CancellationToken);
             return this;

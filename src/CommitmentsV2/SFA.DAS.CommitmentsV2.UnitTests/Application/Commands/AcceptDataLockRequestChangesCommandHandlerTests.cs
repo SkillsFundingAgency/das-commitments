@@ -791,6 +791,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.Cohorts.Add(cohortDetails);
 
+            var standard = new Standard()
+                .Set(s => s.StandardUId, TrainingCourseStandardUId100)
+                .Set(s => s.ApprenticeshipType, "Apprenticeship");
+            Db.Standards.Add(standard);
 
 
             var apprenticeshipDetails = AutoFixture.Build<CommitmentsV2.Models.Apprenticeship>()
@@ -802,6 +806,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .With(s => s.StandardUId, standard.StandardUId)
              .Without(s => s.Cohort)
              .Without(s => s.PriceHistory)
              .Without(s => s.ApprenticeshipUpdate)
