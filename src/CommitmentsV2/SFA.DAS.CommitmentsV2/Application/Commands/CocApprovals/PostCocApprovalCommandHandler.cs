@@ -3,6 +3,9 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
@@ -22,37 +25,65 @@ public class PostCocApprovalCommandHandler(
         }
 
         var db = dbContext.Value;
-        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey); // && r.Status == Domain.Entities.CocApprovalRequestStatus.Pending);
+        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey && r.Status == CocApprovalRequestStatus.Pending);
 
         if (existingApprovalRequests.Any())
         {
             throw new DomainException("LearningKey", "An approval request for this learning key already exists.");
         }
-    
 
+        var approvalRequestStatus = cocApprovalService.DetermineAndSetCocApprovalStatuses(command.Changes, command.Apprenticeship);
 
-        //var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
+        var approvalRequest = new Models.ApprovalRequest
+        {
+            LearningKey = command.LearningKey,
+            ApprenticeshipId = command.ApprenticeshipId,
+            LearningType = command.LearningType,
+            UKPRN = command.ProviderId.ToString(),
+            ULN = command.ULN,
+            Status = approvalRequestStatus,
+            Items = command.ApprovalFieldChanges.Select(change => MapTo(change, command)).ToList()
+        };
 
+        db.ApprovalRequests.Add(approvalRequest);
 
-        //logger.LogInformation("ApprenticeshipId: {ApprenticeshipId}", command.ApprenticeshipId);
-
-        //if (command?.EditApprenticeshipRequest == null)
-        //{
-        //    throw new InvalidOperationException("Edit apprenticeship request is null");
-        //}
-
-        //logger.LogInformation("Determined Party: {Party}", party);
-        //logger.LogInformation("AuthenticationServiceType: {AuthServiceType}", authenticationService.AuthenticationServiceType);
-
-        //var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
-
-        //await Validate(command, apprenticeship, party, cancellationToken);
-
-        //CreateImmediateUpdate(command, party, apprenticeship);
-
-        //var immediateUpdateCreated = await CreateIntermediateUpdate(command, party, apprenticeship);
-
-        return new CocApprovalResult();
+        return CreateCocApprovalResult(approvalRequest);
     }
 
+    private CocApprovalResult CreateCocApprovalResult(ApprovalRequest approvalRequest)
+    {
+        return new CocApprovalResult
+        {
+            Status = approvalRequest.Status,
+            Items = approvalRequest.Items.Select(item => new CocApprovalItemResult
+            {
+                ChangeType = item.Field,
+                Status = item.Status.Value.GetEnumDescription()
+            }).ToList()
+        };
+    }
+
+    private ApprovalFieldRequest MapTo(CocApprovalFieldChange field, PostCocApprovalCommand command)
+    {
+        return new ApprovalFieldRequest
+        {
+            Field = field.ChangeType,
+            Old = field.Data.Old,
+            New = field.Data.New,
+            Status = GetStatusForChange(field.ChangeType, command.Changes)
+        };
+
+    }
+
+    private CocApprovalItemStatus? GetStatusForChange(object changeType, CocChanges changes)
+    {
+        switch (changeType)
+        {
+            case "TNP1":
+                return changes.TNP1.Status;
+            case "TNP2":
+                return changes.TNP2.Status;
+        }
+        return null;
+    }
 }

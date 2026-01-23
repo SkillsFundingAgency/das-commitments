@@ -1,6 +1,9 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Models;
+
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 public interface ICocApprovalService
 {
-    Task<bool> AutoApproveOrSomethingElse();
+    CocApprovalRequestStatus DetermineAndSetCocApprovalStatuses(CocChanges changes, Apprenticeship apprenticeship);
 }

@@ -9,7 +9,7 @@ public class CocApprovalResult
 public class CocApprovalItemResult
 {
     public string ChangeType { get; set; }
-    public CocApprovalItemStatus Status { get; set; }
+    public string Status { get; set; }
     public string Reason { get; set; }
 }
 

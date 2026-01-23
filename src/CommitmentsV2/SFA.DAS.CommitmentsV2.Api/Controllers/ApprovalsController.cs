@@ -17,6 +17,5 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
 
         return Ok(result.Items);
     }
-
 }
 

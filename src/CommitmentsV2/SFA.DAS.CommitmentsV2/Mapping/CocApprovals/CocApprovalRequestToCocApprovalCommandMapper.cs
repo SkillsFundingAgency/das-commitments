@@ -4,22 +4,30 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using FluentValidation;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Data;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
-public class CocApprovalRequestToCocApprovalCommandMapper : IMapper<CocApprovalRequest, PostCocApprovalCommand>
+public class CocApprovalRequestToCocApprovalCommandMapper(
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    ILogger<CocApprovalRequestToCocApprovalCommandMapper> logger) : IMapper<CocApprovalRequest, PostCocApprovalCommand>
 {
-    public Task<PostCocApprovalCommand> Map(CocApprovalRequest request)
+    public async Task<PostCocApprovalCommand> Map(CocApprovalRequest request)
     {
         var result = new PostCocApprovalCommand
         {
             LearningKey = request.LearningKey,
             ApprenticeshipId = request.ApprenticeshipId,
             LearningType = EnumExtensions.FromDescription<CocLearningType>(request.LearningType),
-            UKPRN = request.UKPRN,
+            ProviderId = ToLong(request.UKPRN),
             ULN = request.ULN,
             Changes = new CocChanges(),
-            ApprovalFieldChanges = request.Changes
+            ApprovalFieldChanges = request.Changes,
+            Apprenticeship = await GetApprenticeship(request.ApprenticeshipId)
         };
 
         foreach (var change in request.Changes)
@@ -45,7 +53,20 @@ public class CocApprovalRequestToCocApprovalCommandMapper : IMapper<CocApprovalR
                 }
             }
         }
-        return Task.FromResult(result);
+        return result;
+    }
+
+    public async Task<Apprenticeship> GetApprenticeship(long id)
+    {
+        try
+        {
+            return await dbContext.Value.GetApprenticeshipAggregate(id, CancellationToken.None);
+        }
+        catch (BadRequestException ex)
+        {
+            logger.LogError(ex, "ApprenticeshipId {ApprenticeshipId} not found, set it to null", id);
+            return null;
+        }
     }
 
     public static int ToInt(string value)
@@ -55,5 +76,15 @@ public class CocApprovalRequestToCocApprovalCommandMapper : IMapper<CocApprovalR
             return result;
         }
         throw new DomainException("Data", "String could not be converted to an integer");
-    } 
+    }
+
+    public static long ToLong(string value)
+    {
+        if (long.TryParse(value, out var result))
+        {
+            return result;
+        }
+        throw new DomainException("Data", "String could not be converted to an integer");
+    }
+
 }
