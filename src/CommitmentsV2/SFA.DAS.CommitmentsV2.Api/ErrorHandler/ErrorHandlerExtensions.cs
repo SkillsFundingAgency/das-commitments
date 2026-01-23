@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
@@ -23,21 +24,25 @@ public static class ErrorHandlerExtensions
             var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
             if (contextFeature != null)
             {
-                if (contextFeature.Error is DomainException modelException)
+                var exception = contextFeature.Error;
+                if (exception is TargetInvocationException || exception is AggregateException)
+                    exception = exception.InnerException;
+
+                if (exception is DomainException modelException)
                 {
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.DomainException);
                     logger.LogError("Model Error thrown: {modelException}", modelException);
                     await context.Response.WriteAsync(WriteErrorResponse(modelException));
                 }
-                if (contextFeature.Error is BulkUploadDomainException bulkUploadDomainException)
+                if (exception is BulkUploadDomainException bulkUploadDomainException)
                 {
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
                     logger.LogError("Model Error thrown: {bulkUploadDomainException}", bulkUploadDomainException);
                     await context.Response.WriteAsync(WriteErrorResponse(bulkUploadDomainException));
                 }
-                if (contextFeature.Error is ValidationException validationException)
+                if (exception is ValidationException validationException)
                 {
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.DomainException);
@@ -46,7 +51,7 @@ public static class ErrorHandlerExtensions
                 }
                 else
                 {
-                    logger.LogError("Something went wrong: {contextFeatureError}", contextFeature.Error);
+                    logger.LogError("Something went wrong: {contextFeatureError}", exception);
                 }
             }
         }

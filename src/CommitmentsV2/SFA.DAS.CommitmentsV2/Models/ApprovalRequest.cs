@@ -1,0 +1,36 @@
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+
+namespace SFA.DAS.CommitmentsV2.Models;
+
+public class ApprovalRequest
+{
+    public ApprovalRequest()
+    {
+        Items = new List<ApprovalFieldRequest>();
+    }
+    public Guid Id { get; set; }
+    public DateTime Created { get; }
+    public DateTime? Updated { get; set; }
+    public Guid LearningKey { get; set; } 
+    public long ApprenticeshipId { get; set; } 
+    public CocLearningType LearningType { get; set; } 
+    public string UKPRN { get; set; } 
+    public string ULN { get; set; } 
+    public CocApprovalRequestStatus Status { get; set; } 
+    public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
+}
+
+public class ApprovalFieldRequest
+{
+    public Guid Id { get; set; }
+    public DateTime Created { get; }
+    public DateTime? Updated { get; set; }
+    public string Field { get; set; }
+    public string Old { get; set; }
+    public string New { get; set; }
+    public Guid ApprovalRequestId { get; set; }
+    public ApprovalRequest ApprovalRequest { get; set; }
+    public CocApprovalItemStatus Status { get; set; }
+    public string ApproverId { get; set; }
+    public string Reason { get; set; }
+}

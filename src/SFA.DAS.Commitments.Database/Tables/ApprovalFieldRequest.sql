@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[ApprovalFieldRequest]
 (
-    [Id] UNIQUEIDENTIFIER NOT NULL,							
+    [Id] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),							
 	[Created] DATETIME2 NOT NULL DEFAULT GETDATE(),
 	[Field] [nvarchar](100) NOT NULL,
 	[Old] [nvarchar](255) NOT NULL,

@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using SFA.DAS.CommitmentsV2.Api.Authorization;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
-[Route("api/approvals")]
+[Route("approvals")]
 [ApiController]
 public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprovalsController> logger) : ControllerBase
 {
@@ -12,11 +12,10 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     [HttpPost("{learningKey}")]
     public async Task<ActionResult> PostApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
     {
+        var command = await modelMapper.Map<PostCocApprovalCommand>(request);
+        var result = await mediator.Send(command);
 
-
-
-        //logger.LogInformation("Reached provider endpoint");
-        return Ok();
+        return Ok(result.Items);
     }
 
 }

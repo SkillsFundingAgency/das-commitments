@@ -7,7 +7,7 @@ public class CocApprovalRequest
 {
     public Guid LearningKey { get; set; }
     public long ApprenticeshipId { get; set; }
-    public CocLearningType LearningType { get; set; }
+    public string LearningType { get; set; }
     public string UKPRN { get; set; }
     public string ULN { get; set; }
     public long AgreementId { get; set; }
@@ -17,7 +17,7 @@ public class CocApprovalRequest
 
 public class CocApprovalFieldChange
 {
-    public CocChangeField ChangeType { get; set; }
+    public string ChangeType { get; set; }
     public CocData Data { get; set; }
 }
 
@@ -27,15 +27,3 @@ public class CocData
     public string New { get; set; }
 }
 
-public enum CocLearningType
-{
-    Apprenticeship,
-    FoundationApprenticeship,
-    ApprenticeshipUnit
-}
-
-public enum CocChangeField
-{
-    TNP1,
-    TNP2
-}
