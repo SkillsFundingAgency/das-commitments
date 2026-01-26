@@ -12,7 +12,7 @@ public class CocApprovalRequest
     public string ULN { get; set; }
     public long AgreementId { get; set; }
     public string ApprovedUri { get; set; }
-    public List<CocApprovalFieldChange> Changes { get; set; }
+    public List<CocApprovalFieldChange> Changes { get; set; } = new();
 }
 
 public class CocApprovalFieldChange

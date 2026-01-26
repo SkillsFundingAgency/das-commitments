@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             // Arrange
             var request = _fixture.Create<CocApprovalRequest>();
-            var command = _fixture.Create<PostCocApprovalCommand>();
+            var command = _fixture.Build<PostCocApprovalCommand>().Without(m=>m.Apprenticeship).Create();
             var commandResult = _fixture.Create<CocApprovalResult>();
 
             _mapper.Setup(m => m.Map<PostCocApprovalCommand>(request)).ReturnsAsync(command);
