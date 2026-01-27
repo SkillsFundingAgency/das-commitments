@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             Mapper = new CocApprovalRequestToCocApprovalCommandMapper(new Lazy<ProviderCommitmentsDbContext>(Db), Mock.Of<ILogger<CocApprovalRequestToCocApprovalCommandMapper>>());
         }
 
-        public CocApprovalRequestToCocApprovalCommandMapperTestsFixture SeedData(bool withPriceHistory = true)
+        public CocApprovalRequestToCocApprovalCommandMapperTestsFixture SeedData()
         {
             var accountLegalEntityDetails = new AccountLegalEntity()
                 .Set(c => c.Id, 444);
@@ -165,6 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
 
             var apprenticeshipDetails = AutoFixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
+             .With(s => s.CommitmentId, cohortDetails.Id)
              .With(s => s.ProgrammeType, ProgrammeType.Standard)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)
              .With(s => s.EndDate, DateTime.UtcNow)
@@ -179,27 +180,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
              .Without(s => s.PreviousApprenticeship)
              .Create();
 
-            apprenticeshipDetails.CommitmentId = cohortDetails.Id;
-
             Db.Apprenticeships.Add(apprenticeshipDetails);
-            Db.SaveChanges();
-
-            if (withPriceHistory)
-            {
-                var priceHistoryDetails = new List<PriceHistory>()
-                {
-                    new PriceHistory
-                    {
-                        FromDate = DateTime.Now,
-                        ToDate = null,
-                        Cost = 10000,
-                        ApprenticeshipId = apprenticeshipDetails.Id
-                    }
-                };
-
-                Db.PriceHistory.AddRange(priceHistoryDetails);
-            }
-
             Db.SaveChanges();
 
             return this;
