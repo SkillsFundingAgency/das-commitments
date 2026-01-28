@@ -7,11 +7,13 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprovalService
 {
-    public CocApprovalRequestStatus DetermineAndSetCocApprovalStatuses(CocChanges changes, Apprenticeship apprenticeship)
+    public List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship)
     {
-        if(changes == null)
+        var updateResults = new List<CocUpdateResult>();
+
+        if (updates == null)
         {
-            throw new ArgumentNullException(nameof(changes));
+            throw new ArgumentNullException(nameof(updates));
         }
 
         if(apprenticeship == null)
@@ -19,19 +21,19 @@ public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprov
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
-        if(changes.TNP1 != null || changes.TNP2 != null)
+        if(updates.TNP1 != null || updates.TNP2 != null)
         {
             logger.LogInformation("Change of TNP1 or TNP2 detected");
-            SetCocApprovalStatusesForCosts(changes, apprenticeship);
+            updateResults.AddRange(DetermineApprovalStatusesForCostFields(updates, apprenticeship));
         }
 
-        return DetermineApprovalRequestStatus(changes);
+        return updateResults;
     }
 
-    private void SetCocApprovalStatusesForCosts(CocChanges changes, Apprenticeship apprenticeship)
+    private IEnumerable<CocUpdateResult> DetermineApprovalStatusesForCostFields(CocUpdates updates, Apprenticeship apprenticeship)
     {
-        var oldTotalCost = changes.TNP1?.Old ?? 0 + changes.TNP2?.Old ?? 0;
-        var newTotalCost = changes.TNP1?.New ?? 0 + changes.TNP2?.New ?? 0;
+        var oldTotalCost = updates.TNP1?.Old ?? 0 + updates.TNP2?.Old ?? 0;
+        var newTotalCost = updates.TNP1?.New ?? 0 + updates.TNP2?.New ?? 0;
 
         if (oldTotalCost != apprenticeship.Cost)
         {
@@ -40,36 +42,25 @@ public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprov
 
         if (newTotalCost <= oldTotalCost)
         {
-            if(changes.TNP1 != null)
+            if(updates.TNP1 != null)
             {
-                changes.TNP1.Status = CocApprovalItemStatus.AutoApproved;
+                yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoApproved };
             }
-            if (changes.TNP2 != null)
+            if (updates.TNP2 != null)
             {
-                changes.TNP2.Status = CocApprovalItemStatus.AutoApproved;
+                yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoApproved };
             }
         }
         else
         {
-            if (changes.TNP1 != null)
+            if (updates.TNP1 != null)
             {
-                changes.TNP1.Status = CocApprovalItemStatus.Pending;
+                yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.Pending };
             }
-            if (changes.TNP2 != null)
+            if (updates.TNP2 != null)
             {
-                changes.TNP2.Status = CocApprovalItemStatus.Pending;
+                yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
             }
-
         }
-    }
-
-    private CocApprovalRequestStatus DetermineApprovalRequestStatus(CocChanges changes)
-    {
-        if (changes.TNP1?.Status == CocApprovalItemStatus.Pending)
-            return CocApprovalRequestStatus.Pending;
-        if (changes.TNP2?.Status == CocApprovalItemStatus.Pending)
-            return CocApprovalRequestStatus.Pending;
-
-        return CocApprovalRequestStatus.Complete;
     }
 }

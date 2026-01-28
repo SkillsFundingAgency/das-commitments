@@ -12,11 +12,11 @@ public class PostCocApprovalCommand() : IRequest<CocApprovalResult>
     public CocLearningType LearningType { get; set; }
     public long ProviderId { get; set; }
     public string ULN { get; set; }
-    public CocChanges Changes { get; set; }
+    public CocUpdates Updates { get; set; }
     public List<CocApprovalFieldChange> ApprovalFieldChanges { get; set; }
 }
 
-public class CocChanges
+public class CocUpdates
 {
     public CocUpdate<int> TNP1 { get; set; }
     public CocUpdate<int> TNP2 { get; set; }
@@ -26,7 +26,6 @@ public class CocUpdate<T> where T : struct
 {
     public T? New { get; set; }
     public T? Old { get; set; }
-    public CocApprovalItemStatus? Status { get; set; }
 }
 
 public enum CocLearningType
@@ -40,11 +39,4 @@ public enum CocChangeField
 {
     TNP1,
     TNP2
-}
-
-public enum ApprovalRequestStatus
-{
-    Pending = 1,
-    Complete = 1,
-    ApprenticeshipUnit = 2
 }

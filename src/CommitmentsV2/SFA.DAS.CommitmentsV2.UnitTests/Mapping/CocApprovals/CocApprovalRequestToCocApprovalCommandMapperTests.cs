@@ -59,10 +59,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
 
             // Assert
             command.Should().NotBeNull();
-            command.Changes.TNP1.Old.ToString().Should().Be("100");
-            command.Changes.TNP1.New.ToString().Should().Be("15");
-            command.Changes.TNP2.Old.ToString().Should().Be("20");
-            command.Changes.TNP2.New.ToString().Should().Be("25");
+            command.Updates.TNP1.Old.ToString().Should().Be("100");
+            command.Updates.TNP1.New.ToString().Should().Be("15");
+            command.Updates.TNP2.Old.ToString().Should().Be("20");
+            command.Updates.TNP2.New.ToString().Should().Be("25");
             command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
         }
 

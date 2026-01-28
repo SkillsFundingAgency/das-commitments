@@ -16,6 +16,6 @@ public class ApprovalRequest
     public CocLearningType LearningType { get; set; } 
     public string UKPRN { get; set; } 
     public string ULN { get; set; } 
-    public CocApprovalRequestStatus Status { get; set; } 
+    public CocApprovalResultStatus Status { get; set; } 
     public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
 }

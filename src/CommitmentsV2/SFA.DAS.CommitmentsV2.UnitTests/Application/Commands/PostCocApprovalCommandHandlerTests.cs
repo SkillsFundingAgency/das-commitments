@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
@@ -20,10 +21,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var act = async () => await fixture.Handler.Handle(null, CancellationToken.None);
 
             await act.Should().ThrowAsync<ArgumentNullException>();
-            //fixture.ChangeOfPartyDomainService.Verify(s => s.CreateChangeOfPartyRequest(fixture.Command.ApprenticeshipId,
-            //    fixture.Command.ChangeOfPartyRequestType, fixture.Command.NewPartyId, fixture.Command.NewPrice,
-            //    fixture.Command.NewStartDate, fixture.Command.NewEndDate, fixture.Command.UserInfo, fixture.Command.NewEmploymentPrice,
-            //    fixture.Command.NewEmploymentEndDate, fixture.Command.DeliveryModel, fixture.Command.HasOverlappingTrainingDates, It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -43,14 +40,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
 
-
-
-            //fixture.ChangeOfPartyDomainService.Verify(s => s.CreateChangeOfPartyRequest(fixture.Command.ApprenticeshipId,
-            //    fixture.Command.ChangeOfPartyRequestType, fixture.Command.NewPartyId, fixture.Command.NewPrice,
-            //    fixture.Command.NewStartDate, fixture.Command.NewEndDate, fixture.Command.UserInfo, fixture.Command.NewEmploymentPrice,
-            //    fixture.Command.NewEmploymentEndDate, fixture.Command.DeliveryModel, fixture.Command.HasOverlappingTrainingDates, It.IsAny<CancellationToken>()));
+            result.Should().NotBeNull();
+            result.Status.Should().Be(CocApprovalResultStatus.Pending);
+            result.Items.Should().BeEquivalentTo(fixture.CocUpdateStatuses);
         }
-
     }
 
     public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
@@ -59,8 +52,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<ICocApprovalService> CocApprovalService { get; set; }
         public ProviderCommitmentsDbContext DbContext { get; set; }
         public IRequestHandler<PostCocApprovalCommand, CocApprovalResult> Handler { get; set; }
-        //public PostCocApprovalCommandHandler Handler { get; set; }
         public PostCocApprovalCommand Command { get; set; }
+        public List<CocUpdateResult> CocUpdateStatuses { get; set; }
+        public List<CocApprovalFieldChange> ApprovalFieldChanges { get; set; }
         public CancellationToken CancellationToken { get; set; }
 
         public PostCocApprovalCommandHandlerTestsFixture()
@@ -69,13 +63,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             AutoFixture.Customizations.Add(new ModelSpecimenBuilder());
 
+            CocUpdateStatuses = new List<CocUpdateResult>
+            {
+                new CocUpdateResult
+                {
+                    Field = CocChangeField.TNP1,
+                    Status = CocApprovalItemStatus.Pending
+                },
+                new CocUpdateResult
+                {
+                    Field = CocChangeField.TNP2,
+                    Status = CocApprovalItemStatus.Pending
+                }
+            };
+
+            ApprovalFieldChanges = new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange
+                {
+                    ChangeType = "TNP1",
+                    Data = new CocData
+                    {
+                        Old = "1000",
+                        New = "1500"
+                    }
+                },
+                new CocApprovalFieldChange
+                {
+                    ChangeType = "TNP2",
+                    Data = new CocData
+                    {
+                        Old = "2000",
+                        New = "1500"
+                    }
+                }
+            };
+
             DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
-            Command = AutoFixture.Build<PostCocApprovalCommand>().Without(c => c.Apprenticeship).Create();
+            Command = AutoFixture.Build<PostCocApprovalCommand>().Without(c => c.Apprenticeship).With(c=>c.ApprovalFieldChanges, ApprovalFieldChanges).Create();
             CocApprovalService = new Mock<ICocApprovalService>();
-            CocApprovalService.Setup(x => x.DetermineAndSetCocApprovalStatuses(Command.Changes, Command.Apprenticeship)).Returns(CocApprovalRequestStatus.Pending);
+            CocApprovalService.Setup(x => x.DetermineCocUpdateStatuses(Command.Updates, Command.Apprenticeship)).Returns(CocUpdateStatuses);
 
             Handler = new PostCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalService.Object, Mock.Of<ILogger<PostCocApprovalCommandHandler>>());
             CancellationToken = new CancellationToken();
@@ -86,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             DbContext.ApprovalRequests.Add(new ApprovalRequest
             {
                 LearningKey = Command.LearningKey,
-                Status = CocApprovalRequestStatus.Pending
+                Status = CocApprovalResultStatus.Pending
             });
             DbContext.SaveChanges();
             return this;

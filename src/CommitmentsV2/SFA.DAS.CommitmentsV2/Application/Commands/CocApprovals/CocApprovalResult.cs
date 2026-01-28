@@ -2,9 +2,19 @@
 
 public class CocApprovalResult
 {
-    public CocApprovalRequestStatus Status { get; set; }
-    public List<CocApprovalItemResult> Items { get; set; } = new();
+    public CocApprovalResultStatus Status { get; set; }
+    public List<CocUpdateResult> Items { get; set; }
 }
+
+public class CocUpdateResult
+{
+    public CocChangeField Field { get; set; }
+    public CocApprovalItemStatus Status { get; set; }
+    public string Reason { get; set; }
+
+}
+
+
 
 public class CocApprovalItemResult
 {
@@ -23,7 +33,7 @@ public enum CocApprovalItemStatus : byte
     EmployerRejected = 5
 }
 
-public enum CocApprovalRequestStatus : byte
+public enum CocApprovalResultStatus : byte
 {
     Pending = 1,
     Complete = 2,

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -44,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             result.Should().BeOfType<OkObjectResult>();
             var jsonResult = result as OkObjectResult;
             jsonResult.StatusCode.Should().Be(200);
-            jsonResult.Value.Should().BeEquivalentTo(commandResult.Items);
+            jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = x.Status.GetEnumDescription(), x.Reason}).ToList());
         }
     }
 }

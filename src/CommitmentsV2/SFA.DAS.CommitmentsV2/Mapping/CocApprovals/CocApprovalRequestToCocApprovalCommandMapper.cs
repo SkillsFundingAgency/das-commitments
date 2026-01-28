@@ -25,7 +25,7 @@ public class CocApprovalRequestToCocApprovalCommandMapper(
             LearningType = EnumExtensions.FromDescription<CocLearningType>(request.LearningType),
             ProviderId = ToLong(request.UKPRN),
             ULN = request.ULN,
-            Changes = new CocChanges(),
+            Updates = new CocUpdates(),
             ApprovalFieldChanges = request.Changes,
             Apprenticeship = await GetApprenticeship(request.ApprenticeshipId)
         };
@@ -45,10 +45,10 @@ public class CocApprovalRequestToCocApprovalCommandMapper(
                 switch (changeType) 
                 { 
                     case CocChangeField.TNP1: 
-                        result.Changes.TNP1 = update; 
+                        result.Updates.TNP1 = update; 
                         break; 
                     case CocChangeField.TNP2: 
-                        result.Changes.TNP2 = update; 
+                        result.Updates.TNP2 = update; 
                         break; 
                 }
             }

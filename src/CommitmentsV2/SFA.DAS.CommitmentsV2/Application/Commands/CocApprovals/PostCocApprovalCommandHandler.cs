@@ -25,14 +25,16 @@ public class PostCocApprovalCommandHandler(
         }
 
         var db = dbContext.Value;
-        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey && r.Status == CocApprovalRequestStatus.Pending);
+        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey && r.Status == CocApprovalResultStatus.Pending);
 
         if (existingApprovalRequests.Any())
         {
             throw new DomainException("LearningKey", "An approval request for this learning key already exists.");
         }
 
-        var approvalRequestStatus = cocApprovalService.DetermineAndSetCocApprovalStatuses(command.Changes, command.Apprenticeship);
+        var updateStatuses = cocApprovalService.DetermineCocUpdateStatuses(command.Updates, command.Apprenticeship);
+        var approvalRequestStatus = DetermineApprovalRequestStatus(updateStatuses);
+        IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(command, updateStatuses);
 
         var approvalRequest = new ApprovalRequest
         {
@@ -42,48 +44,40 @@ public class PostCocApprovalCommandHandler(
             UKPRN = command.ProviderId.ToString(),
             ULN = command.ULN,
             Status = approvalRequestStatus,
-            Items = command.ApprovalFieldChanges.Select(change => MapTo(change, command)).ToList()
+            Items = approvalFieldRequests.ToList()
         };
 
         db.ApprovalRequests.Add(approvalRequest);
 
-        return CreateCocApprovalResult(approvalRequest);
-    }
-
-    private CocApprovalResult CreateCocApprovalResult(ApprovalRequest approvalRequest)
-    {
         return new CocApprovalResult
         {
-            Status = approvalRequest.Status,
-            Items = approvalRequest.Items.Select(item => new CocApprovalItemResult
+            Status = approvalRequestStatus,
+            Items = updateStatuses
+        }; ;
+    }
+
+    private static IEnumerable<ApprovalFieldRequest> MapToApprovalFieldRequests(PostCocApprovalCommand command, List<CocUpdateResult> updateStatuses)
+    {
+        return command.ApprovalFieldChanges.Join(
+            updateStatuses,
+            change => change.ChangeType,
+            status => status.Field.GetEnumDescription(),
+            (change, status) => new ApprovalFieldRequest
             {
-                ChangeType = item.Field,
-                Status = item.Status?.GetEnumDescription()
-            }).ToList()
-        };
+                Field = change.ChangeType,
+                Old = change.Data.Old,
+                New = change.Data.New,
+                Status = status.Status,
+                Reason = status.Reason
+            }
+            );
     }
 
-    private ApprovalFieldRequest MapTo(CocApprovalFieldChange field, PostCocApprovalCommand command)
+    private CocApprovalResultStatus DetermineApprovalRequestStatus(List<CocUpdateResult> updateResults)
     {
-        return new ApprovalFieldRequest
-        {
-            Field = field.ChangeType,
-            Old = field.Data.Old,
-            New = field.Data.New,
-            Status = GetStatusForChange(field.ChangeType, command.Changes)
-        };
+        if (updateResults.Any(x => x.Status == CocApprovalItemStatus.Pending))
+            return CocApprovalResultStatus.Pending;
 
-    }
-
-    private CocApprovalItemStatus? GetStatusForChange(object changeType, CocChanges changes)
-    {
-        switch (changeType)
-        {
-            case "TNP1":
-                return changes.TNP1.Status;
-            case "TNP2":
-                return changes.TNP2.Status;
-        }
-        return null;
+        return CocApprovalResultStatus.Complete;
     }
 }
