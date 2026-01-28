@@ -34,7 +34,7 @@ public class PostCocApprovalCommandHandler(
 
         var approvalRequestStatus = cocApprovalService.DetermineAndSetCocApprovalStatuses(command.Changes, command.Apprenticeship);
 
-        var approvalRequest = new Models.ApprovalRequest
+        var approvalRequest = new ApprovalRequest
         {
             LearningKey = command.LearningKey,
             ApprenticeshipId = command.ApprenticeshipId,
@@ -58,7 +58,7 @@ public class PostCocApprovalCommandHandler(
             Items = approvalRequest.Items.Select(item => new CocApprovalItemResult
             {
                 ChangeType = item.Field,
-                Status = item.Status.Value.GetEnumDescription()
+                Status = item.Status?.GetEnumDescription()
             }).ToList()
         };
     }
