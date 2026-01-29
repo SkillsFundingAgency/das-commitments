@@ -42,9 +42,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<OkObjectResult>();
-            var jsonResult = result as OkObjectResult;
-            jsonResult.StatusCode.Should().Be(200);
+            result.Should().BeOfType<CreatedResult>();
+            var jsonResult = result as CreatedResult;
+            jsonResult.StatusCode.Should().Be(201);
             jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = x.Status.GetEnumDescription(), x.Reason}).ToList());
         }
     }

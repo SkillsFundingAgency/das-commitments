@@ -96,16 +96,20 @@ public class CocApprovalServiceTests
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 200 }
+            TNP1 = new CocUpdate<int> { Old = 100, New = 200 },
+            TNP2 = new CocUpdate<int> { Old = 102, New = 202 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 100 };
 
         var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
-        result.Should().HaveCount(1);
+        result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         result[0].Field.Should().Be(CocChangeField.TNP1);
+        result[1].Status.Should().Be(CocApprovalItemStatus.Pending);
+        result[1].Field.Should().Be(CocChangeField.TNP2);
+
     }
 
     [Test]

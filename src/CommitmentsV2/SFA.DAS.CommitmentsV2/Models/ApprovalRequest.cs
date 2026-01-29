@@ -1,5 +1,3 @@
-using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-
 namespace SFA.DAS.CommitmentsV2.Models;
 
 public class ApprovalRequest

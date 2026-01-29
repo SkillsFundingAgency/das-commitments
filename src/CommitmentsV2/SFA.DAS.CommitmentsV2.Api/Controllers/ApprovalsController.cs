@@ -17,11 +17,11 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         var command = await modelMapper.Map<PostCocApprovalCommand>(request);
         var result = await mediator.Send(command);
         logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PostApprovals completed === Returning status of {0}", result?.Status);
-        return Ok(result.Items.Select(x => new 
+        return Created("", result.Items.Select(x => new 
             { 
                 ChangeType = x.Field.GetEnumDescription(),
                 ApprovalStatus = x.Status.GetEnumDescription(),
-                Reason = x.Reason
+                x.Reason
         }).ToList());
     }
 }

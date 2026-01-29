@@ -27,16 +27,3 @@ public class CocUpdate<T> where T : struct
     public T? New { get; set; }
     public T? Old { get; set; }
 }
-
-public enum CocLearningType
-{
-    Apprenticeship = 0,
-    FoundationApprenticeship = 1,
-    ApprenticeshipUnit = 2
-}
-
-public enum CocChangeField
-{
-    TNP1,
-    TNP2
-}
