@@ -13,7 +13,4 @@
     CONSTRAINT [PK_ApprovalFieldRequest] PRIMARY KEY CLUSTERED ([Id] ASC),
 	CONSTRAINT [FK_ApprovalFieldRequest_ApprovalRequestId] FOREIGN KEY ([ApprovalRequestId]) REFERENCES [ApprovalRequest] ([Id]),
 	INDEX [IX_ApprovalRequest_ApprovalRequestId] NONCLUSTERED ([ApprovalRequestId] ASC)
-
-
 )
-

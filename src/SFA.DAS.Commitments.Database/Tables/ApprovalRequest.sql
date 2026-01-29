@@ -11,4 +11,3 @@
 	[ULN] [nvarchar](10) NOT NULL,
     CONSTRAINT [PK_ApprovalRequest] PRIMARY KEY CLUSTERED ([Id] ASC),
 )
-

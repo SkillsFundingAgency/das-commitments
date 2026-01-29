@@ -9,10 +9,5 @@ public class ApprovalFieldRequestConfiguration : IEntityTypeConfiguration<Approv
     {
         builder.ToTable("ApprovalFieldRequest")
             .HasKey("Id");
-
-        //builder   //.HasMany(d => d.Items)
-        //    .WithOne(x => x.ApprovalRequestId)
-        //    .HasForeignKey(x => x.ApprovalRequestId)
-        //    .OnDelete(DeleteBehavior.Cascade);
     }
 }
