@@ -1,14 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
-
-using NUnit.Framework;
-using Moq;
-using Microsoft.Extensions.Logging;
-using System;
-using FluentAssertions;
 
 [TestFixture]
 public class CocApprovalServiceTests
