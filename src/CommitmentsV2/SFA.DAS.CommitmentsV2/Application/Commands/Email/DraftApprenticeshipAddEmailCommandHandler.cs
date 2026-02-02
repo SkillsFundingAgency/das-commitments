@@ -95,7 +95,7 @@ public class DraftApprenticeshipAddEmailCommandHandler(
         {
             if (!command.Email.IsAValidEmailAddress())
             {
-                yield return new DomainError(nameof(command.Email), "Please enter a valid email address");
+                yield return new DomainError(nameof(command.Email), "Enter an email address in the correct format, like name@example.com.");
             }
         }
     }
