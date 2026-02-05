@@ -33,7 +33,7 @@ public partial class BulkUploadValidateCommandHandler
                 int? courseLevel = null;
                 if (!string.IsNullOrEmpty(courseCode))
                 {
-                    courseLevel = providerStandardResults?.Standards.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
+                    courseLevel = providerStandardResults?.Standards?.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
                 }
 
                 if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
