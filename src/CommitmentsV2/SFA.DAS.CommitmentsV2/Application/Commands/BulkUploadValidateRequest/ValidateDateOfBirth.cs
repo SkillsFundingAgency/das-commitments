@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private static IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    private IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
     {
         var domainErrors = new List<Error>();
 
@@ -29,12 +29,7 @@ public partial class BulkUploadValidateCommandHandler
             }
             else
             {
-                var courseCode = csvRecord.CourseCode;
-                int? courseLevel = null;
-                if (!string.IsNullOrEmpty(courseCode))
-                {
-                    courseLevel = providerStandardResults?.Standards?.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
-                }
+                var courseLevel = GetStandardDetails(csvRecord.CourseCode)?.Level;
 
                 if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
                 {
