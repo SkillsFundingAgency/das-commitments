@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -23,29 +23,31 @@ public partial class BulkUploadValidateCommandHandler
         else
         {
             var dateOfBirth = csvRecord.DateOfBirth;
-            var courseCode = csvRecord.CourseCode;
-            int? courseLevel = null;
-
-            if (!string.IsNullOrEmpty(courseCode))
-            {
-                courseLevel = providerStandardResults?.Standards.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
-            }
-
             if (dateOfBirth == null)
             {
                 domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
             }
-            else if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
+            else
             {
-                domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training"));
-            }
-            else if (courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
-            {
-                domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training"));
-            }
-            else if (!ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MaximumAgeAtApprenticeshipStart ?? Constants.MaximumAgeAtApprenticeshipStart))
-            {
-                domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {csvRecord.MaximumAgeAtApprenticeshipStart ?? Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training"));
+                var courseCode = csvRecord.CourseCode;
+                int? courseLevel = null;
+                if (!string.IsNullOrEmpty(courseCode))
+                {
+                    courseLevel = providerStandardResults?.Standards.FirstOrDefault(x => x.CourseCode == courseCode)?.Level;
+                }
+
+                if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
+                {
+                    domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training"));
+                }
+                else if (courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
+                {
+                    domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training"));
+                }
+                else if (!ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MaximumAgeAtApprenticeshipStart ?? Constants.MaximumAgeAtApprenticeshipStart))
+                {
+                    domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {csvRecord.MaximumAgeAtApprenticeshipStart ?? Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training"));
+                }
             }
         }
 
