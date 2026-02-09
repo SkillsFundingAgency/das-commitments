@@ -194,8 +194,6 @@ components:
           type: string
         uln:
           type: string
-        agreementId:
-          type: integer
         learningKey:
           type: string
           format: uuid
