@@ -44,16 +44,17 @@ public class EmployerVerificationStatusSyncServiceTests
     [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenNoPending_DoesNotCallApi()
     {
+        // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 
-        _apiClient.Verify(
-            x => x.Get<GetEmploymentChecksResponse>(It.IsAny<IGetApiRequest>()),
-            Times.Never);
+        // Assert
+        _apiClient.VerifyNoOtherCalls();
     }
 
     [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenPending_UpdatesFromEvsCheckResult()
     {
+        // Arrange
         const long apprenticeshipId = 100;
         SeedPendingRequest(apprenticeshipId);
 
@@ -72,8 +73,10 @@ public class EmployerVerificationStatusSyncServiceTests
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync(new GetEmploymentChecksResponse { Checks = checks });
 
+        // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 
+        // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
@@ -85,6 +88,7 @@ public class EmployerVerificationStatusSyncServiceTests
     [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenEmployedFalse_MapsToFailed()
     {
+        // Arrange
         const long apprenticeshipId = 101;
         SeedPendingRequest(apprenticeshipId);
 
@@ -102,8 +106,10 @@ public class EmployerVerificationStatusSyncServiceTests
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync(new GetEmploymentChecksResponse { Checks = checks });
 
+        // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 
+        // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Failed);
@@ -112,6 +118,7 @@ public class EmployerVerificationStatusSyncServiceTests
     [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenSkippedOrErrorCode_MapsToErrorAndNotes()
     {
+        // Arrange
         const long apprenticeshipId = 102;
         SeedPendingRequest(apprenticeshipId);
 
@@ -129,8 +136,10 @@ public class EmployerVerificationStatusSyncServiceTests
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync(new GetEmploymentChecksResponse { Checks = checks });
 
+        // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 
+        // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Error);
@@ -140,16 +149,42 @@ public class EmployerVerificationStatusSyncServiceTests
     [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenApiReturnsNull_DoesNotThrow()
     {
+        // Arrange
         SeedPendingRequest(200);
 
         _apiClient
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync((GetEmploymentChecksResponse)null);
 
-        await _sut.Invoking(s => s.SyncPendingEmploymentChecksAsync()).Should().NotThrowAsync();
+        // Act
+        var act = () => _sut.SyncPendingEmploymentChecksAsync();
 
+        // Assert
+        act.Should().NotThrowAsync();
         var request = await _db.EmployerVerificationRequests.FindAsync(200L);
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Pending);
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenMoreThan100Pending_MakesPagedApiCalls()
+    {
+        // Arrange
+        for (var i = 1; i <= 250; i++)
+        {
+            SeedPendingRequest(i);
+        }
+
+        _apiClient
+            .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
+            .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
+        
+        // Act
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        // Assert
+        _apiClient.Verify(
+            x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()),
+            Times.Exactly(3));
     }
 
     private void SeedPendingRequest(long apprenticeshipId)
