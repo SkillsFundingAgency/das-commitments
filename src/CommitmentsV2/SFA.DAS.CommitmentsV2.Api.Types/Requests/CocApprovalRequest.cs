@@ -10,7 +10,6 @@ public class CocApprovalRequest
     public string LearningType { get; set; }
     public string UKPRN { get; set; }
     public string ULN { get; set; }
-    public long AgreementId { get; set; }
     public string ApprovedUri { get; set; }
     public List<CocApprovalFieldChange> Changes { get; set; } = new();
 }

@@ -25,14 +25,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         }
 
         [Test]
-        public void Validate_AgreementId_ShouldNotBeZero()
-        {
-            var request = new CocApprovalRequest();
-
-            AssertValidationResult(r => r.AgreementId, request, false);
-        }
-
-        [Test]
         public void Validate_UKPRN_ShouldNotBeLongerThan10Chars()
         {
             var request = new CocApprovalRequest { UKPRN = "12345678901" };
@@ -94,6 +86,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             {
                 new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
                 new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
+            };
+            var request = new CocApprovalRequest { Changes = changes };
+
+            AssertValidationResult(r => r.Changes, request, false);
+        }
+
+        [Test]
+        public void Validate_ChangeType_ShouldNotAllowDataNewAndOldToBeIdentical()
+        {
+            var changes = new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
+                new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "Value2", Old = "Value2" } }
             };
             var request = new CocApprovalRequest { Changes = changes };
 

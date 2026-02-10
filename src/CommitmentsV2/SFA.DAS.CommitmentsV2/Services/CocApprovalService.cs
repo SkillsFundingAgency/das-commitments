@@ -32,8 +32,8 @@ public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprov
 
     private IEnumerable<CocUpdateResult> DetermineApprovalStatusesForCostFields(CocUpdates updates, Apprenticeship apprenticeship)
     {
-        var oldTotalCost = updates.TNP1?.Old ?? 0 + updates.TNP2?.Old ?? 0;
-        var newTotalCost = updates.TNP1?.New ?? 0 + updates.TNP2?.New ?? 0;
+        var oldTotalCost = (updates.TNP1?.Old ?? 0) + (updates.TNP2?.Old ?? 0);
+        var newTotalCost = (updates.TNP1?.New ?? 0) + (updates.TNP2?.New ?? 0);
 
         if (oldTotalCost != apprenticeship.Cost)
         {
