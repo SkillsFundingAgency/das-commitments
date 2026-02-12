@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
@@ -118,6 +118,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IResolveOverlappingTrainingDateRequestService, ResolveOverlappingTrainingDateRequestService>();
         services.AddTransient<IAddEpaToApprenticeshipService, AddEpaToApprenticeshipsService>();
         services.AddTransient<IDataLockUpdaterService, DataLockUpdaterService>();
+        services.AddTransient<IEmployerVerificationStatusSyncService, EmployerVerificationStatusSyncService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
