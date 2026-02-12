@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using FluentValidation;
@@ -143,6 +143,7 @@ public class Startup
             app.UseHsts();
         }
 
+        app.UseMiddleware<RequestTraceMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
 
         app.Use(async (context, next) =>
@@ -157,23 +158,6 @@ public class Startup
                 return Task.CompletedTask;
             });
             await next();
-        });
-
-        app.UseExceptionHandler(builder =>
-        {
-            builder.Run(context =>
-            {
-                var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-                var logger = context.RequestServices.GetService<ILogger<Startup>>();
-
-                if (exceptionHandlerPathFeature?.Error is UnauthorizedAccessException)
-                {
-                    logger.LogWarning("Unauthorized Access");
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                }
-
-                return Task.CompletedTask;
-            });
         });
 
         app.UseHttpsRedirection()

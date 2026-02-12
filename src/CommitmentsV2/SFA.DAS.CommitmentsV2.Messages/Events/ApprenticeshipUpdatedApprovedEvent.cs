@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
@@ -22,5 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DeliveryModel DeliveryModel { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public int? EmploymentPrice { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public LearningType LearningType { get; set; }
     }
 }

@@ -4,9 +4,11 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
+using ApprenticeshipEmployerType = SFA.DAS.CommitmentsV2.Types.ApprenticeshipEmployerType;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 
@@ -32,29 +34,30 @@ public class ProcessFullyApprovedCohortCommandHandler(
         await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
         var events = await db.Value.Apprenticeships
-            .Where(a => a.Cohort.Id == request.CohortId)
-            .Select(a => new ApprenticeshipCreatedEvent
+            .Where(apprenticeship => apprenticeship.Cohort.Id == request.CohortId)
+            .Join(db.Value.Standards, apprenticeship => apprenticeship.StandardUId, standard => standard.StandardUId, (apprenticeship, standard) => new { apprenticeship, standard })
+            .Select(x => new ApprenticeshipCreatedEvent
             {
-                ApprenticeshipId = a.Id,
+                ApprenticeshipId = x.apprenticeship.Id,
                 CreatedOn = creationDate,
-                AgreedOn = a.Cohort.EmployerAndProviderApprovedOn.Value,
-                AccountId = a.Cohort.EmployerAccountId,
-                AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntity.PublicHashedId,
-                AccountLegalEntityId = a.Cohort.AccountLegalEntity.Id,
-                LegalEntityName = a.Cohort.AccountLegalEntity.Name,
-                ProviderId = a.Cohort.ProviderId,
-                TransferSenderId = a.Cohort.TransferSenderId,
+                AgreedOn = x.apprenticeship.Cohort.EmployerAndProviderApprovedOn.Value,
+                AccountId = x.apprenticeship.Cohort.EmployerAccountId,
+                AccountLegalEntityPublicHashedId = x.apprenticeship.Cohort.AccountLegalEntity.PublicHashedId,
+                AccountLegalEntityId = x.apprenticeship.Cohort.AccountLegalEntity.Id,
+                LegalEntityName = x.apprenticeship.Cohort.AccountLegalEntity.Name,
+                ProviderId = x.apprenticeship.Cohort.ProviderId,
+                TransferSenderId = x.apprenticeship.Cohort.TransferSenderId,
                 ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType,
-                Uln = a.Uln,
-                DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
-                TrainingType = a.ProgrammeType.Value,
-                TrainingCode = a.CourseCode,
-                StandardUId = a.StandardUId,
-                TrainingCourseOption = a.TrainingCourseOption,
-                TrainingCourseVersion = a.TrainingCourseVersion,
-                StartDate = a.StartDate.GetValueOrDefault(),
-                EndDate = a.EndDate.Value,
-                PriceEpisodes = a.PriceHistory
+                Uln = x.apprenticeship.Uln,
+                DeliveryModel = x.apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
+                TrainingType = x.apprenticeship.ProgrammeType.Value,
+                TrainingCode = x.apprenticeship.CourseCode,
+                StandardUId = x.apprenticeship.StandardUId,
+                TrainingCourseOption = x.apprenticeship.TrainingCourseOption,
+                TrainingCourseVersion = x.apprenticeship.TrainingCourseVersion,
+                StartDate = x.apprenticeship.StartDate.GetValueOrDefault(),
+                EndDate = x.apprenticeship.EndDate.Value,
+                PriceEpisodes = x.apprenticeship.PriceHistory
                     .Select(p => new PriceEpisode
                     {
                         FromDate = p.FromDate,
@@ -64,13 +67,14 @@ public class ProcessFullyApprovedCohortCommandHandler(
                         TrainingPrice = p.TrainingPrice
                     })
                     .ToArray(),
-                ContinuationOfId = a.ContinuationOfId,
-                DateOfBirth = a.DateOfBirth.Value,
-                ActualStartDate = a.ActualStartDate,
-                FirstName = a.FirstName,
-                LastName = a.LastName,
-                ApprenticeshipHashedId = encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
-                LearnerDataId = a.LearnerDataId
+                ContinuationOfId = x.apprenticeship.ContinuationOfId,
+                DateOfBirth = x.apprenticeship.DateOfBirth.Value,
+                ActualStartDate = x.apprenticeship.ActualStartDate,
+                FirstName = x.apprenticeship.FirstName,
+                LastName = x.apprenticeship.LastName,
+                ApprenticeshipHashedId = encodingService.Encode(x.apprenticeship.Id, EncodingType.ApprenticeshipId),
+                LearnerDataId = x.apprenticeship.LearnerDataId,
+                LearningType = Enum.Parse<LearningType>(x.standard.ApprenticeshipType, true)
             })
             .ToListAsync(cancellationToken);
 

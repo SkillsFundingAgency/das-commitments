@@ -22,6 +22,7 @@ public class StandardConfiguration : IEntityTypeConfiguration<Standard>
         builder.Property(x => x.EffectiveTo).HasColumnName("EffectiveTo").HasColumnType("DateTime").IsRequired(false);
         builder.Property(x => x.StandardPageUrl).HasColumnName("StandardPageUrl").HasColumnType("varchar").HasMaxLength(500).IsRequired(false);
         builder.Property(x => x.IsLatestVersion).HasColumnName("IsLatestVersion").HasColumnType("bit");
+        builder.Property(x => x.ApprenticeshipType).HasColumnName("ApprenticeshipType").HasColumnType("varchar").HasMaxLength(50);
 
         builder.HasMany(c => c.FundingPeriods)
             .WithOne(c => c.Standard)
