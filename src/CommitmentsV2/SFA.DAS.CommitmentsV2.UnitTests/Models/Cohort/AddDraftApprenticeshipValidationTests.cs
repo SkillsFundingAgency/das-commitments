@@ -511,12 +511,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
-        public AddDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
-        {
-            Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Employer};
-            return this;
-        }
-
         public AddDraftApprenticeshipValidationTestsFixture SetupMinimumNameProperties()
         {
             DraftApprenticeshipDetails.FirstName = "TestFirstName";
