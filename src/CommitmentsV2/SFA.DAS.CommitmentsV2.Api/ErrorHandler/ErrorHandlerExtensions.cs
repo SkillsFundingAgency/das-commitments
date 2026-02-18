@@ -21,34 +21,48 @@ public static class ErrorHandlerExtensions
             context.Response.ContentType = "application/json";
 
             var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-            if (contextFeature != null)
+            if (contextFeature == null)
             {
-                if (contextFeature.Error is DomainException modelException)
-                {
+                return;
+            }
+
+            var exception = contextFeature.Error;
+            var traceId = context.TraceIdentifier;
+
+            switch (exception)
+            {
+                case UnauthorizedAccessException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    logger.LogWarning(exception, "Unauthorized access. TraceId={TraceId}", traceId);
+                    return;
+                case DomainException modelException:
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.DomainException);
-                    logger.LogError("Model Error thrown: {modelException}", modelException);
+                    logger.LogError(exception, "Model Error thrown. TraceId={TraceId}", traceId);
                     await context.Response.WriteAsync(WriteErrorResponse(modelException));
-                }
-                if (contextFeature.Error is BulkUploadDomainException bulkUploadDomainException)
-                {
+                    return;
+                case BulkUploadDomainException bulkUploadDomainException:
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
-                    logger.LogError("Model Error thrown: {bulkUploadDomainException}", bulkUploadDomainException);
+                    logger.LogError(exception, "Bulk upload domain error. TraceId={TraceId}", traceId);
                     await context.Response.WriteAsync(WriteErrorResponse(bulkUploadDomainException));
-                }
-                if (contextFeature.Error is ValidationException validationException)
-                {
+                    return;
+                case ValidationException validationException:
                     context.Response.SetStatusCode(HttpStatusCode.BadRequest);
                     context.Response.SetSubStatusCode(HttpSubStatusCode.DomainException);
-                    logger.LogError("Command/Query Validation Error thrown: {validationException}", validationException);
+                    logger.LogError(exception, "Command/Query Validation Error. TraceId={TraceId}", traceId);
                     await context.Response.WriteAsync(WriteErrorResponse(validationException));
-                }
-                else
-                {
-                    logger.LogError("Something went wrong: {contextFeatureError}", contextFeature.Error);
-                }
+                    return;
             }
+
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            logger.LogError(exception,
+                "Unhandled exception in pipeline. ExceptionType={ExceptionType} Message={Message} TraceId={TraceId} Path={Path}",
+                exception.GetType().FullName,
+                exception.Message,
+                traceId,
+                context.Request.Path.Value);
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new { error = "An unexpected error occurred.", traceId }));
         }
 
         app.UseExceptionHandler(appError =>

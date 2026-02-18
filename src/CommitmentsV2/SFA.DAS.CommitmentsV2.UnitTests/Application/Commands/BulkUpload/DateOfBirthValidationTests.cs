@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
@@ -102,6 +102,38 @@
             fixture.SetAfterAcademicYearEndDate();
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "DateOfBirth", "The apprentice's <b>date of birth</b> must show that they are not older than 25 years old at the start of their training");
+        }
+
+        [TestCase("2001-00-23")]
+        [TestCase("2000-02-30")]
+        [TestCase("1999-11-31")]
+        public async Task When_DateOfBirth_Parses_To_Null_Only_Format_Error_Returned_No_Exception(string invalidDateString)
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth(invalidDateString);
+            var errors = await fixture.Handle();
+
+            errors.Should().NotBeNull();
+            errors.BulkUploadValidationErrors.Should().ContainSingle();
+            errors.BulkUploadValidationErrors[0].Errors.Should().ContainSingle();
+            errors.BulkUploadValidationErrors[0].Errors.Should().ContainEquivalentOf(new { Property = "DateOfBirth", ErrorText = "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23" });
+        }
+
+        [Test]
+        public async Task When_DateOfBirth_Parses_To_Null_Level7_Age_Check_Not_Performed()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetDateOfBirth("2001-00-23");
+            fixture.SetStandards("59", "59", 7);
+            fixture.SetStartDate("2026-02-05");
+            fixture.SetEndDate("2027-02");
+            fixture.SetAfterAcademicYearEndDate();
+            var errors = await fixture.Handle();
+
+            errors.Should().NotBeNull();
+            errors.BulkUploadValidationErrors.Should().ContainSingle();
+            errors.BulkUploadValidationErrors[0].Errors.Should().ContainSingle();
+            errors.BulkUploadValidationErrors[0].Errors.Should().ContainEquivalentOf(new { Property = "DateOfBirth", ErrorText = "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23" });
         }
     }
 }

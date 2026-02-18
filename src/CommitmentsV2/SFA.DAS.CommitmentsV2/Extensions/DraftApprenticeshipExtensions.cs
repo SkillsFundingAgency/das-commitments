@@ -18,7 +18,7 @@ public static class DraftApprenticeshipExtensions
         errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
         errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
-        errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart));
+        errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, isContinuation, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart));
         if (!isContinuation)
         {
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, transferSenderId));
@@ -125,7 +125,7 @@ public static class DraftApprenticeshipExtensions
                                                        draft.EndPointAssessmentPrice == null);
     }
 
-    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
+    private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart)
     {
         if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < minimumAgeAtApprenticeshipStart)
         {
@@ -133,7 +133,7 @@ public static class DraftApprenticeshipExtensions
             yield break;
         }
 
-        if (draftApprenticeshipDetails.StartDate >= new DateTime(2026,01,01) && draftApprenticeshipDetails.TrainingProgramme?.Level == 7 )
+        if (!isContinuation && draftApprenticeshipDetails.StartDate >= new DateTime(2026,01,01) && draftApprenticeshipDetails.TrainingProgramme?.Level == 7 )
         {
             maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
         }
