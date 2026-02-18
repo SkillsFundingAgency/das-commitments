@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
@@ -185,6 +185,7 @@ public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
             .Without(s => s.PreviousApprenticeship)
             .Without(s => s.EmailAddressConfirmed)
             .Without(s => s.ApprenticeshipConfirmationStatus)
+            .Without(s => s.EmployerVerificationRequest)
             .Create();
         return apprenticeshipDetails1;
     }
