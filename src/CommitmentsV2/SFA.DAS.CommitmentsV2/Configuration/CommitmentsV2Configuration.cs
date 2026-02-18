@@ -25,4 +25,5 @@ public class CommitmentsV2Configuration
     public string ProviderCommitmentsBaseUrl { get; set; }
     public string EmployerCommitmentsBaseUrl { get; set; }
     public DateTime ExpireInactiveEmployerCohortImplementationDate { get; set; }
+    public bool IgnoreShortCourses { get; set; }
 }
