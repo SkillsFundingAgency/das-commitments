@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -419,10 +419,10 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                     yield break;
                 }
 
-                if (request.StartDate >= new DateTime(2026, 01, 01) && request.CourseCode != null)
+                if (!apprenticeshipDetails.ContinuationOfId.HasValue && request.StartDate >= new DateTime(2026, 01, 01) && request.CourseCode != null)
                 {
                     var standard = _context.Standards.FirstOrDefault(tp => tp.LarsCode.ToString() == request.CourseCode);
-                    if (standard != null && standard.Level == 7)
+                    if (standard is { Level: 7 })
                     {
                         maximumAgeAtApprenticeshipStart = Constants.MaximumAgeAtApprenticeshipStartForLevel7;
                     }
@@ -463,10 +463,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
             yield return new DomainError(nameof(apprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {request.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
         }
     }
-
-
-
-
+    
     private IEnumerable<DomainError> BuildStartDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         var requestedStartDate = request.StartDate;
