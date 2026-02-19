@@ -14,21 +14,14 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
 {
     public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
     {
-        if (!configuration.IgnoreShortCourses)
-        {
-            logger.LogInformation("ImportCoursesJob - Started");
+        logger.LogInformation("ImportCoursesJob - Started");
 
-            var response = await apiClient.Get<CourseResponse>(new GetCoursesRequest());
+        var response = await apiClient.Get<CourseResponse>(new GetCoursesRequest());
 
-            var courses = response.Courses.ToList();
-            await ProcessCourses(courses);
+        var courses = response.Courses.ToList();
+        await ProcessCourses(courses);
 
-            logger.LogInformation("ImportCoursesJob - Finished");
-        }
-        else
-        {
-            logger.LogInformation("ImportCoursesJob - Skipped by configuration");
-        }
+        logger.LogInformation("ImportCoursesJob - Finished");
     }
 
     private async Task ProcessCourses(IEnumerable<CourseSummary> courses)
@@ -45,7 +38,10 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
 
         foreach (var batch in batches)
         {
-            await ImportCourses(providerContext, batch);
+            if (!configuration.IgnoreShortCourses)
+            {
+                await ImportCourses(providerContext, batch);
+            }
         }
     }
 
