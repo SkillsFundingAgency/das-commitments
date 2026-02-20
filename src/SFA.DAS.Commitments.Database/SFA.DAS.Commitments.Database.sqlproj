@@ -179,6 +179,8 @@
     <Build Include="Tables\Course.sql" />
     <Build Include="UserDefinedTypes\Courses.sql" />
     <Build Include="StoredProcedures\ImportCourses.sql" />
+    <Build Include="Tables\ApprovalRequest.sql" />
+    <Build Include="Tables\ApprovalFieldRequest.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
