@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
@@ -424,6 +424,16 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     internal BulkUploadValidateCommandHandlerTestsFixture SetStandards(string courseCode, string name, int? level)
     {
         Command.ProviderStandardResults.Standards = [new ProviderStandard(courseCode,name, level)];
+
+        if (int.TryParse(courseCode, out var larsCode) && level.HasValue)
+        {
+            var dbStandard = Db.Standards.FirstOrDefault(x => x.LarsCode == larsCode);
+            if (dbStandard != null)
+            {
+                dbStandard.Level = level.Value;
+                Db.SaveChanges();
+            }
+        }
 
         return this;
     }

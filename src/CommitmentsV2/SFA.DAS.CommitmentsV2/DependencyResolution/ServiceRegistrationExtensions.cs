@@ -121,6 +121,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
+        services.AddTransient<ICocApprovalService, CocApprovalService>();
 
         return services;
     }
