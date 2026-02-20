@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +28,8 @@ public static class ErrorHandlerExtensions
             }
 
             var exception = contextFeature.Error;
+            if (exception is TargetInvocationException || exception is AggregateException)
+                exception = exception.InnerException;
             var traceId = context.TraceIdentifier;
 
             switch (exception)
