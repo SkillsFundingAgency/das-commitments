@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class DateOfBirthValidationTests
     {
@@ -157,6 +157,22 @@
 
             var result = await fixture.Validate(request);
 
+
+            result.Errors.Count.Should().Be(0);
+        }
+
+        [Test]
+        public async Task DateOfBirth_Can_Be_Older_Than_25_When_Apprenticeship_Is_Change_Of_Party_Continuation_And_Course_Is_Level_7()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship()
+                .SetupStandardCourseAndLevel(12, 7)
+                .WithStartDateBeginningOf2026()
+                .WithContinuationOfId(999);
+
+            var request = fixture.CreateValidationRequest(dobYear: 1990, dobMonth: 1, dobDay: 1, maximumAgeAtApprenticeshipStart: 115);
+
+            var result = await fixture.Validate(request);
 
             result.Errors.Count.Should().Be(0);
         }

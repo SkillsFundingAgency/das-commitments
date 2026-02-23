@@ -180,9 +180,18 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
 
         var standardBuilder = AutoFixture.Build<Standard>();
-        var standard1 = standardBuilder.With(s => s.StandardUId, apprenticeship1.StandardUId).Create();
-        var standard2 = standardBuilder.With(s => s.StandardUId, apprenticeship2.StandardUId).Create();
-        var standard3 = standardBuilder.With(s => s.StandardUId, apprenticeship3.StandardUId).Create();
+        var standard1 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship1.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
+        var standard2 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship2.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
+        var standard3 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship3.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
 
         Apprenticeships.AddRange(apprenticeships1);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);

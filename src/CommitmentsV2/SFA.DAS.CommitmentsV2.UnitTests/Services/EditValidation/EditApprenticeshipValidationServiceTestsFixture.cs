@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -126,6 +126,12 @@ public class EditApprenticeshipValidationServiceTestsFixture
     {
         Apprenticeship.StartDate = new DateTime(2026,01,01);
         Apprenticeship.EndDate = Apprenticeship.StartDate.Value.AddYears(1);
+        return this;
+    }
+
+    public EditApprenticeshipValidationServiceTestsFixture WithContinuationOfId(long continuationOfId)
+    {
+        Apprenticeship.ContinuationOfId = continuationOfId;
         return this;
     }
 
