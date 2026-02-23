@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -52,7 +52,9 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             PledgeApplicationId = source.Cohort.PledgeApplicationId,
             ActualStartDate = source.ActualStartDate,
             EmployerHasEditedCost = source.EmployerHasEditedCost,
-            TrainingCourseVersion = source.TrainingCourseVersion
+            TrainingCourseVersion = source.TrainingCourseVersion,
+            EmployerVerificationStatus = source.EmployerVerificationRequest?.Status,
+            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes
         });
     }
 }

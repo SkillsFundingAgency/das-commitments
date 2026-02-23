@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
@@ -44,5 +44,7 @@ public class GetApprenticeshipsQueryResult
         public DateTime? ActualStartDate { get; set; }
         public bool? EmployerHasEditedCost { get; set; }
         public string TrainingCourseVersion { get; set; }
+        public EmployerVerificationRequestStatus? EmployerVerificationStatus { get; set; }
+        public string EmployerVerificationNotes { get; set; }
     }
 }
