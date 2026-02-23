@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -43,6 +43,9 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
     public virtual DbSet<Learner> Learners { get; set; }
     public virtual DbSet<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
     public virtual DbSet<FileUploadLog> FileUploadLogs { get; set; }
+    public virtual DbSet<EmployerVerificationRequest> EmployerVerificationRequests { get; set; }
+    public virtual DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+    public virtual DbSet<ApprovalFieldRequest> ApprovalFieldRequests { get; set; }
     public virtual DbSet<Course> Courses { get; set; }
 
     public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
@@ -112,9 +115,12 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
         modelBuilder.ApplyConfiguration(new ApprenticeshipPriorLearningConfiguration());
         modelBuilder.ApplyConfiguration(new OverlappingTrainingDateRequestConfiguration());
         modelBuilder.ApplyConfiguration(new FileUploadLogConfiguration());
+        modelBuilder.ApplyConfiguration(new EmployerVerificationRequestConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprovalRequestConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprovalFieldRequestConfiguration());
         modelBuilder.ApplyConfiguration(new CourseConfiguration());
     }
-        
+
     public override void Dispose()
     {
         _connection?.Dispose();
