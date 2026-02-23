@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -17,6 +17,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
     public virtual ApprenticeshipBase Continuation { get; set; }
+    public virtual EmployerVerificationRequest EmployerVerificationRequest { get; set; }
 
     public DateTime? StopDate { get; set; }
     public DateTime? PauseDate { get; set; }
