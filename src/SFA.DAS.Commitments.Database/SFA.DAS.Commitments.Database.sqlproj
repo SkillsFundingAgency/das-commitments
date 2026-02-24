@@ -179,6 +179,8 @@
     <Build Include="Tables\ChangeType.sql" />
     <Build Include="Tables\ChangeLog.sql" />
     <Build Include="Tables\Change.sql" />
+    <Build Include="Tables\ApprovalRequest.sql" />
+    <Build Include="Tables\ApprovalFieldRequest.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
