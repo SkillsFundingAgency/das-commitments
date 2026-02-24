@@ -36,7 +36,7 @@ public class DraftApprenticeshipController(
         {
             return NotFound();
         }
-        
+
         return Ok(response);
     }
 
@@ -81,12 +81,13 @@ public class DraftApprenticeshipController(
             MinimumPriceReduction = response.MinimumPriceReduction,
             RplPriceReductionError = response.RplPriceReductionError,
             FundingBandMaximum = response.FundingBandMaximum
-        }); 
+        });
     }
-    
+
     [HttpPut]
     [Route("{apprenticeshipId:long}")]
-    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
+    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId,
+        [FromBody] UpdateDraftApprenticeshipRequest request)
     {
         var command = await updateDraftApprenticeshipMapper.Map(request);
         command.CohortId = cohortId;
@@ -99,22 +100,24 @@ public class DraftApprenticeshipController(
 
     [HttpPost]
     [Route("{apprenticeshipId:long}/recognise-prior-learning")]
-    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
+    public async Task<IActionResult> Update(long cohortId, long apprenticeshipId,
+        [FromBody] RecognisePriorLearningRequest request)
     {
         await mediator.Send(new RecognisePriorLearningCommand
         {
-            ApprenticeshipId = apprenticeshipId, 
+            ApprenticeshipId = apprenticeshipId,
             CohortId = cohortId,
-            RecognisePriorLearning = request.RecognisePriorLearning, 
+            RecognisePriorLearning = request.RecognisePriorLearning,
             UserInfo = request.UserInfo
         });
-        
+
         return Ok();
     }
 
     [HttpPost]
     [Route("{apprenticeshipId:long}/prior-learning-data")]
-    public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
+    public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId,
+        [FromBody] PriorLearningDataRequest request)
     {
         await mediator.Send(new PriorLearningDataCommand
         {
@@ -128,19 +131,19 @@ public class DraftApprenticeshipController(
             UserInfo = request.UserInfo,
             MinimumOffTheJobTrainingHoursRequired = request.MinimumOffTheJobTrainingHoursRequired
         });
-        
+
         return Ok();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
+    public async Task<IActionResult> Add(long cohortId, [FromBody] AddDraftApprenticeshipRequest request)
     {
         var command = await addDraftApprenticeshipMapper.Map(request);
 
         command.CohortId = cohortId;
-            
+
         var result = await mediator.Send(command);
-            
+
         return Ok(new AddDraftApprenticeshipResponse
         {
             DraftApprenticeshipId = result.Id
@@ -149,7 +152,8 @@ public class DraftApprenticeshipController(
 
     [HttpPost]
     [Route("{apprenticeshipId:long}")]
-    public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
+    public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId,
+        [FromBody] DeleteDraftApprenticeshipRequest request)
     {
         var command = await deleteDraftApprenticeshipsMapper.Map(request);
         command.CohortId = cohortId;
