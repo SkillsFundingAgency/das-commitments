@@ -46,6 +46,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
     public virtual DbSet<EmployerVerificationRequest> EmployerVerificationRequests { get; set; }
     public virtual DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public virtual DbSet<ApprovalFieldRequest> ApprovalFieldRequests { get; set; }
+    public virtual DbSet<Course> Courses { get; set; }
 
     public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
     {
@@ -117,6 +118,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
         modelBuilder.ApplyConfiguration(new EmployerVerificationRequestConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalRequestConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalFieldRequestConfiguration());
+        modelBuilder.ApplyConfiguration(new CourseConfiguration());
     }
 
     public override void Dispose()
