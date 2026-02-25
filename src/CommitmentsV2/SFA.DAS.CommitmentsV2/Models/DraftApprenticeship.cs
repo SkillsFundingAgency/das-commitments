@@ -389,4 +389,18 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         return false;
     }
+
+    public void SetEmail(string email)
+    {
+        Email = email;
+    }
+
+    public void SetReference(string reference, Party party)
+    {
+        if (party == Party.Employer)
+        {
+            EmployerRef = reference;
+        }
+        else { ProviderRef = reference; }
+    }
 }
