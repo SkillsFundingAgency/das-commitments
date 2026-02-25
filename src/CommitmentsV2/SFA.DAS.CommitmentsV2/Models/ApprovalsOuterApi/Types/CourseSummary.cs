@@ -13,7 +13,7 @@ public class CourseSummary
     public int CurrentFundingCap { get; set; }
     public DateTime? EffectiveFrom { get; set; }
     public DateTime? EffectiveTo { get; set; }
-    public int LearningTypeInt => (int)LearningType;
+    public byte LearningTypeByte => (byte)LearningType;
 }
 
 public class CourseResponse

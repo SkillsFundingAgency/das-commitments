@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.Testing.AutoFixture;
+using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs;
 
@@ -48,7 +49,7 @@ public class ImportCoursesJobTests
                     LarsCode = (string)r[0],
                     Title = (string)r[1],
                     Level = (int)r[2],
-                    LearningType = (string)r[3],
+                    LearningType = (LearningType)r[3],
                     CurrentFundingCap = (int)r[4],
                     EffectiveFrom = (DateTime?)r[5],
                     EffectiveTo = (DateTime?)r[6]
@@ -64,7 +65,7 @@ public class ImportCoursesJobTests
             course1.LarsCode,
             course1.Title,
             course1.Level,
-            course1.LearningType,
+            course1.LearningTypeByte,
             course1.CurrentFundingCap,
             course1.EffectiveFrom,
             course1.EffectiveTo
@@ -73,7 +74,7 @@ public class ImportCoursesJobTests
             course2.LarsCode,
             course2.Title,
             course2.Level,
-            course2.LearningType,
+            course2.LearningTypeByte,
             course2.CurrentFundingCap,
             course2.EffectiveFrom,
             course2.EffectiveTo
@@ -109,7 +110,7 @@ public class ImportCoursesJobTests
                     LarsCode = (string)r[0],
                     Title = (string)r[1],
                     Level = (int)r[2],
-                    LearningType = (string)r[3],
+                    LearningType = Enum.Parse<LearningType>((string)r[3]),
                     CurrentFundingCap = (int)r[4],
                     EffectiveFrom = (DateTime?)r[5],
                     EffectiveTo = (DateTime?)r[6]
