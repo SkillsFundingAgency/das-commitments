@@ -32,7 +32,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
             p => p.LarsCode,
             p => p.Title,
             p => p.Level,
-            p => p.LearningType,
+            p => p.LearningTypeInt,
             p => p.CurrentFundingCap,
             p => p.EffectiveFrom,
             p => p.EffectiveTo
