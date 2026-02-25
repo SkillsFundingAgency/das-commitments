@@ -7,16 +7,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
     : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
 {
-    public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
+    public async Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
     {
-        var cohort = dbContext.Value.Cohorts
-            .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
-            .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
-            .Where(x => x.Id == query.CohortId)
-            .Select(x => new { DraftApprenticeships = x.Apprenticeships })
-            .SingleOrDefault();
+        var db = dbContext.Value;
+        var cohortQuery = db.Cohorts
+        .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+        .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
+        .Where(x => x.Id == query.CohortId)
+        .Select(x => new { DraftApprenticeships = x.Apprenticeships });
+        
+        var cohort = await cohortQuery.SingleOrDefaultAsync();
 
-        return Task.FromResult(new GetDraftApprenticeshipsQueryResult
+        var courseIds = cohort?.DraftApprenticeships.Where(x => x.StandardUId != null).Select(x => x.StandardUId).Distinct().ToList();
+        var standards = db.Standards.Where(x => courseIds.Contains(x.StandardUId)).ToList();
+
+        return new GetDraftApprenticeshipsQueryResult
         {
             DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
             {
@@ -47,8 +52,22 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
                 HasLearnerDataChanges = a.HasLearnerDataChanges,
                 LastLearnerDataSync = a.LastLearnerDataSync,
-                LearnerDataId = a.LearnerDataId
+                LearnerDataId = a.LearnerDataId,
+                ApprenticeshipType = GetApprenticeshipType(a.StandardUId)
             }).ToList()
-        });
+        };
+
+        string GetApprenticeshipType(string standardUId)
+        {
+            string retVal = null;
+            if (string.IsNullOrEmpty(standardUId))
+                return retVal;
+
+            var standard = standards.FirstOrDefault(s => s.StandardUId == standardUId);
+            if(standard == null)
+                return retVal;
+            else
+                return standard.ApprenticeshipType ?? "Apprenticeship";
+        }
     }
 }

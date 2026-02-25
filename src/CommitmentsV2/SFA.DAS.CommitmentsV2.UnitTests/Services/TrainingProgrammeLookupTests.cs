@@ -459,7 +459,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Excluding(x => x.VersionLatestStartDate)
                 .Excluding(x => x.Route)
                 .Excluding(x => x.ApprenticeshipType);
-
         }
     }
 }

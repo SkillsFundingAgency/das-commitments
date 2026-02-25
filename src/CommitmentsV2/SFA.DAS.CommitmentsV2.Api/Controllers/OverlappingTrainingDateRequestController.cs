@@ -106,5 +106,5 @@ public class OverlappingTrainingDateRequestController(IMediator mediator, IModel
         });
 
         return Ok();
-    }
+    }    
 }
