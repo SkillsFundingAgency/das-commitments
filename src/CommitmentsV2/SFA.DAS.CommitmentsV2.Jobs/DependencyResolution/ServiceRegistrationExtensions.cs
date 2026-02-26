@@ -66,6 +66,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<ImportProvidersJobs>();
         services.AddTransient<ImportStandardsJob>();
         services.AddTransient<AcademicYearEndExpiryProcessorJob>();
+        services.AddTransient<LearningDataSyncJob>();
         services.AddTransient<IDbContextFactory, DbContextFactory>();
 
         return services;
