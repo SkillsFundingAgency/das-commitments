@@ -50,7 +50,7 @@ public class ImportCoursesJobTests
                     Title = (string)r[1],
                     Level = (int)r[2],
                     LearningType = (LearningType)r[3],
-                    CurrentFundingCap = (int)r[4],
+                    MaxFunding = (int)r[4],
                     EffectiveFrom = (DateTime?)r[5],
                     EffectiveTo = (DateTime?)r[6]
                 }));
@@ -66,7 +66,7 @@ public class ImportCoursesJobTests
             course1.Title,
             course1.Level,
             course1.LearningTypeByte,
-            course1.CurrentFundingCap,
+            course1.MaxFunding,
             course1.EffectiveFrom,
             course1.EffectiveTo
         },
@@ -75,7 +75,7 @@ public class ImportCoursesJobTests
             course2.Title,
             course2.Level,
             course2.LearningTypeByte,
-            course2.CurrentFundingCap,
+            course2.MaxFunding,
             course2.EffectiveFrom,
             course2.EffectiveTo
         }});
@@ -111,7 +111,7 @@ public class ImportCoursesJobTests
                     Title = (string)r[1],
                     Level = (int)r[2],
                     LearningType = Enum.Parse<LearningType>((string)r[3]),
-                    CurrentFundingCap = (int)r[4],
+                    MaxFunding = (int)r[4],
                     EffectiveFrom = (DateTime?)r[5],
                     EffectiveTo = (DateTime?)r[6]
                 }));

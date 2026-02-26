@@ -33,7 +33,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
             p => p.Title,
             p => p.Level,
             p => p.LearningTypeByte,
-            p => p.CurrentFundingCap,
+            p => p.MaxFunding,
             p => p.EffectiveFrom,
             p => p.EffectiveTo
         ));
