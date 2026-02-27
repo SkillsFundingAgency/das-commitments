@@ -10,7 +10,7 @@ using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 
-public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IMessageSession messageSession, ILogger<SyncLearningDataBatchCommandHandler> logger) : IHandleMessages<SyncLearningDataBatchCommand>
+public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<SyncLearningDataBatchCommandHandler> logger) : IHandleMessages<SyncLearningDataBatchCommand>
 {
     public async Task Handle(SyncLearningDataBatchCommand message, IMessageHandlerContext context)
     {
@@ -28,7 +28,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
                 var learningSyncEvent = new SyncLearningCommand(CreateEventFromApprenticeship(apprenticeship));
 
                 logger.LogInformation("Sending SyncLearningCommand for Apprenticeship Id {ApprenticeshipId}", apprenticeshipId);
-                //await messageSession.Send(learningSyncEvent); //disabled for early testing
+                //await context.Send(learningSyncEvent); //disabled for early testing
             }
             catch (BadRequestException ex)
             {
