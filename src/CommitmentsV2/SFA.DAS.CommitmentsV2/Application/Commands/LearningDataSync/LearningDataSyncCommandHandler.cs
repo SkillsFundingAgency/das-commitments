@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Client;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
 {
@@ -8,10 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
     {
     }
 
-    public class LearningDataSyncCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<LearningDataSyncCommandHandler> logger) : IRequestHandler<LearningDataSyncCommand>
+    public class LearningDataSyncCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IMessageSession messageSession, ILogger<LearningDataSyncCommandHandler> logger) : IRequestHandler<LearningDataSyncCommand>
     {
         public async Task Handle(LearningDataSyncCommand request, CancellationToken cancellationToken)
         {
+            var stopwatch = Stopwatch.StartNew();
+
             var academicYearStart = new DateTime(2025, 8, 1);
             var academicYearEnd = new DateTime(2026, 7, 31);
 
@@ -25,19 +29,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
 
             logger.LogInformation($"{ids.Count} Apprenticeship records found");
 
-            // Here is the batching logic
             foreach (var batch in ids.Chunk(100))
             {
-                // This 'batch' variable now contains up to 100 IDs in each iteration.
+                var syncBatchCommand = new SyncLearningDataBatchCommand
+                {
+                    Ids = batch
+                };
 
-                // Placeholder for sending an event/message with this batch of IDs:
-                // e.g., await SendBatchEventAsync(batch);
-
-                // For now, just log the size of each batch.
                 logger.LogInformation($"Sending batch of {batch.Length} Apprenticeships.");
+
+                await messageSession.Send(syncBatchCommand);
             }
 
-            logger.LogInformation($"{ids.Count} Apprenticeship records found");
+            stopwatch.Stop();
+            logger.LogInformation($"LearningDataSyncCommandHandler completed in {stopwatch.ElapsedMilliseconds}");
         }
     }
 }

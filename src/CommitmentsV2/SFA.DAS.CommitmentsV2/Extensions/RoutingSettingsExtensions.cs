@@ -10,6 +10,7 @@ public static class RoutingSettingsExtensions
     private const string CommitmentsV2MessageHandler = "SFA.DAS.CommitmentsV2.MessageHandlers";
     private const string NotificationsMessageHandler = "SFA.DAS.Notifications.MessageHandlers";
     private const string ApprenticeCommitmentsJobs = "SFA.DAS.ApprenticeCommitments.Apprenticeship";
+    private const string Learning = "SFA.DAS.Learning";
 
     public static void AddRouting(this RoutingSettings routingSettings)
     {
@@ -21,11 +22,13 @@ public static class RoutingSettingsExtensions
             typeof(RejectTransferRequestCommand),
             typeof(ApprenticeshipResendInvitationCommand),
             typeof(AutomaticallyStopOverlappingTrainingDateRequestCommand),
-            typeof(EmployerSendCohortCommand)
+            typeof(EmployerSendCohortCommand),
+            typeof(SyncLearningDataBatchCommand)
         ]);
 
         routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
         routingSettings.RouteToEndpoint(typeof(SendApprenticeshipInvitationCommand), ApprenticeCommitmentsJobs);
+        routingSettings.RouteToEndpoint(typeof(SyncLearningCommand), Learning);
     }
 
     private static void RouteToCommitmentsMessageHandlers(this RoutingSettings routingSettings, IEnumerable<Type> types)
