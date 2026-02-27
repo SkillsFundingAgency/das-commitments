@@ -28,7 +28,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
                 var learningSyncEvent = new SyncLearningCommand(CreateEventFromApprenticeship(apprenticeship));
 
                 logger.LogInformation("Sending SyncLearningCommand for Apprenticeship Id {ApprenticeshipId}", apprenticeshipId);
-                await messageSession.Send(learningSyncEvent);
+                //await messageSession.Send(learningSyncEvent); //disabled for early testing
             }
             catch (BadRequestException ex)
             {

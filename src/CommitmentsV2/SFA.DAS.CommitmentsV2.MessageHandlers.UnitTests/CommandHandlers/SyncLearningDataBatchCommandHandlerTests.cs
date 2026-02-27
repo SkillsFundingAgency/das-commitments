@@ -24,9 +24,9 @@ public class SyncLearningDataBatchCommandHandlerTests
             StandardUId = fixture.Create<string>(),
             TrainingCourseOption = fixture.Create<string>(),
             TrainingCourseVersion = fixture.Create<string>(),
-            StartDate = new DateTime(2024, 1, 1),
-            EndDate = new DateTime(2025, 1, 1),
-            DateOfBirth = new DateTime(2000, 5, 5),
+            StartDate = fixture.Create<DateTime>(),
+            EndDate = fixture.Create<DateTime>(),
+            DateOfBirth = fixture.Create<DateTime>(),
             ActualStartDate = new DateTime(2024, 1, 10),
             FirstName = fixture.Create<string>(),
             LastName = fixture.Create<string>(),
@@ -70,8 +70,8 @@ public class SyncLearningDataBatchCommandHandlerTests
             StandardUId = apprenticeship.StandardUId,
             TrainingCourseOption = apprenticeship.TrainingCourseOption,
             TrainingCourseVersion = apprenticeship.TrainingCourseVersion,
-            StartDate = new DateTime(2024, 1, 1),
-            EndDate = new DateTime(2025, 1, 1),
+            StartDate = apprenticeship.StartDate.Value,
+            EndDate = apprenticeship.EndDate.Value,
             PriceEpisodes =
             [
                 new PriceEpisode
@@ -84,7 +84,7 @@ public class SyncLearningDataBatchCommandHandlerTests
             }
             ],
             ContinuationOfId = 456,
-            DateOfBirth = new DateTime(2000, 5, 5),
+            DateOfBirth = apprenticeship.DateOfBirth.Value,
             ActualStartDate = new DateTime(2024, 1, 10),
             FirstName = apprenticeship.FirstName,
             LastName = apprenticeship.LastName,
