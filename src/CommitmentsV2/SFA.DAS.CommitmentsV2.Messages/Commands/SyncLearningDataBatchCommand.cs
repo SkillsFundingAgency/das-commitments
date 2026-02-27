@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Commands
     /// </summary>
     public class SyncLearningDataBatchCommand
     {
+        public int BatchNumber { get; set; }
         public long[] Ids { get; set; }
     }
 

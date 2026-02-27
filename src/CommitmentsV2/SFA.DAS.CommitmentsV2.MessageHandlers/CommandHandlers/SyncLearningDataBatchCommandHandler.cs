@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
+﻿using System.Diagnostics;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -14,7 +15,9 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
 {
     public async Task Handle(SyncLearningDataBatchCommand message, IMessageHandlerContext context)
     {
-        logger.LogInformation("SyncLearningDataBatchCommandHandler invoked for batch of {Count}", message.Ids.Count());
+        logger.LogInformation("SyncLearningDataBatchCommandHandler invoked for batch {BatchNumber} of {Count}", message.BatchNumber, message.Ids.Count());
+
+        var stopwatch = Stopwatch.StartNew();
 
         foreach (var apprenticeshipId in message.Ids)
         {
@@ -35,6 +38,10 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
                 logger.LogError(ex, "Error occurred processing Apprenticeship Id {ApprenticeshipId}", apprenticeshipId);
             }
         }
+
+        stopwatch.Stop();
+        logger.LogInformation($"SyncLearningDataBatchCommandHandler for batch {message.BatchNumber} completed in {stopwatch.ElapsedMilliseconds}ms");
+
     }
 
     public static ApprenticeshipCreatedEvent CreateEventFromApprenticeship(Apprenticeship apprenticeship)
