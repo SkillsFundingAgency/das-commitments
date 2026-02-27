@@ -23,7 +23,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
                 logger.LogInformation("Getting apprenticeship id {ApprenticeshipId}", apprenticeshipId);
 
                 var apprenticeship =
-                    await dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, CancellationToken.None);
+                    await dbContext.Value.GetApprenticeshipAggregateWithNoTracking(apprenticeshipId, CancellationToken.None);
 
                 var learningSyncEvent = new SyncLearningCommand(CreateEventFromApprenticeship(apprenticeship));
 
