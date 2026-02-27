@@ -23,7 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
                 .Where(x =>
                     x.IsApproved == true &&
                     x.StartDate <= academicYearEnd &&
-                    ((x.StopDate ?? x.EndDate) == null || (x.StopDate ?? x.EndDate) >= academicYearStart))
+                    x.EndDate >= academicYearStart &&
+                    (!x.StopDate.HasValue || x.StopDate >= academicYearStart))
+                .OrderBy(x => x.Id)
                 .Select(x => x.Id)
                 .ToListAsync();
 
@@ -39,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
                     Ids = batch
                 };
 
-                logger.LogInformation($"Sending batch of {batch.Length} Apprenticeships.");
+                logger.LogInformation($"Sending batch {i} containing {batch.Length} apprenticeships.");
 
                 await messageSession.Send(syncBatchCommand);
             }

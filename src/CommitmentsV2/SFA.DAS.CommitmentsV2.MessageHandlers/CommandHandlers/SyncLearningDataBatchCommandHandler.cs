@@ -15,7 +15,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
 {
     public async Task Handle(SyncLearningDataBatchCommand message, IMessageHandlerContext context)
     {
-        logger.LogInformation("SyncLearningDataBatchCommandHandler invoked for batch {BatchNumber} of {Count}", message.BatchNumber, message.Ids.Count());
+        logger.LogInformation("SyncLearningDataBatchCommandHandler invoked for batch {BatchNumber} containing {Count} apprenticeships", message.BatchNumber, message.Ids.Count());
 
         var stopwatch = Stopwatch.StartNew();
 
@@ -35,12 +35,21 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
             }
             catch (BadRequestException ex)
             {
-                logger.LogError(ex, "Error occurred processing Apprenticeship Id {ApprenticeshipId}", apprenticeshipId);
+                logger.LogError(ex, "Error occurred retrieving Apprenticeship Id {ApprenticeshipId}", apprenticeshipId);
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred processing batch {BatchNumber}, Apprenticeship Id {ApprenticeshipId}", message.BatchNumber, apprenticeshipId);
+                throw;
+            }
+
         }
 
         stopwatch.Stop();
-        logger.LogInformation($"SyncLearningDataBatchCommandHandler for batch {message.BatchNumber} completed in {stopwatch.ElapsedMilliseconds}ms");
+        logger.LogInformation(
+            "SyncLearningDataBatchCommandHandler for batch {BatchNumber} completed in {ElapsedMs}ms",
+            message.BatchNumber,
+            stopwatch.ElapsedMilliseconds);
 
     }
 
