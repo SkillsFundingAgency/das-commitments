@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
             logger.LogInformation($"{ids.Count} Apprenticeship records found");
 
             var i = 0;
-            foreach (var batch in ids.Chunk(20))
+            foreach (var batch in ids.Chunk(10))
             {
                 i++;
                 var syncBatchCommand = new SyncLearningDataBatchCommand
