@@ -303,13 +303,10 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
 
     public static void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
     {
-        Assert.Multiple(() =>
-        {
-            Assert.That(errors.BulkUploadValidationErrors, Has.Count.EqualTo(numberOfErrors));
-            Assert.That(errors.BulkUploadValidationErrors[0].Errors, Has.Count.EqualTo(numberOfErrors));
-            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo(errorText));
-            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo(property));
-        });
+        errors.BulkUploadValidationErrors.Should().HaveCount(numberOfErrors);
+        errors.BulkUploadValidationErrors[0].Errors.Should().HaveCount(numberOfErrors);
+        errors.BulkUploadValidationErrors[0].Errors[0].ErrorText.Should().Be(errorText);
+        errors.BulkUploadValidationErrors[0].Errors[0].Property.Should().Be(property);
     }
 
     public static void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)

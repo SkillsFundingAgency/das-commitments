@@ -14,7 +14,7 @@ public partial class BulkUploadValidateCommandHandler
         }
         else if (!csvRecord.CourseCode.All(char.IsDigit) && !int.TryParse(csvRecord.CourseCode, out _))
         {
-            domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
+            domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>. Apprenticeship units must be added by ILR upload"));
         }
         else if (csvRecord.CourseCode.Length > 5)
         {
