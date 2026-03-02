@@ -12,7 +12,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     IProviderCommitmentsDbContext providerContext,
     CommitmentsV2Configuration configuration)
 {
-    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
+    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
     {
         logger.LogInformation("ImportCoursesJob - Started");
 
