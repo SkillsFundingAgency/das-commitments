@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.LearningDataSync
             }
 
             stopwatch.Stop();
-            logger.LogInformation($"LearningDataSyncCommandHandler completed in {stopwatch.ElapsedMilliseconds}");
+            logger.LogInformation($"LearningDataSyncCommandHandler completed in {stopwatch.ElapsedMilliseconds}ms");
         }
     }
 }

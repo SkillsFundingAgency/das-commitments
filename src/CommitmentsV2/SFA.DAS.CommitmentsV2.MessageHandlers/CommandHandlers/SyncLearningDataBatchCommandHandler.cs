@@ -59,7 +59,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
         {
             ApprenticeshipId = apprenticeship.Id,
             CreatedOn = DateTime.UtcNow, // not used
-            AgreedOn = apprenticeship.Cohort.EmployerAndProviderApprovedOn.Value,
+            AgreedOn = apprenticeship.Cohort.EmployerAndProviderApprovedOn ?? DateTime.UtcNow, //not used
             AccountId = apprenticeship.Cohort.EmployerAccountId,
             AccountLegalEntityPublicHashedId = apprenticeship.Cohort.AccountLegalEntity.PublicHashedId,
             AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntity.Id,
@@ -69,7 +69,7 @@ public class SyncLearningDataBatchCommandHandler(Lazy<ProviderCommitmentsDbConte
             ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy, // not used
             Uln = apprenticeship.Uln,
             DeliveryModel = apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
-            TrainingType = apprenticeship.ProgrammeType.Value,
+            TrainingType = apprenticeship.ProgrammeType ?? 0,
             TrainingCode = apprenticeship.CourseCode,
             StandardUId = apprenticeship.StandardUId,
             TrainingCourseOption = apprenticeship.TrainingCourseOption,
