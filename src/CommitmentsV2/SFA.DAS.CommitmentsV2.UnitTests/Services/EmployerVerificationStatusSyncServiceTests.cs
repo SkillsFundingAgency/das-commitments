@@ -166,10 +166,10 @@ public class EmployerVerificationStatusSyncServiceTests
     }
 
     [Test]
-    public async Task SyncPendingEmploymentChecksAsync_WhenMoreThan100Pending_MakesPagedApiCalls()
+    public async Task SyncPendingEmploymentChecksAsync_WhenMoreThan50Pending_MakesPagedApiCalls()
     {
-        // Arrange
-        for (var i = 1; i <= 250; i++)
+        // Arrange: 150 pending, ApiPageSize 50 => 3 API calls
+        for (var i = 1; i <= 150; i++)
         {
             SeedPendingRequest(i);
         }
@@ -177,7 +177,7 @@ public class EmployerVerificationStatusSyncServiceTests
         _apiClient
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
-        
+
         // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 

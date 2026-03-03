@@ -13,7 +13,7 @@ public class EmployerVerificationStatusSyncService(
     ILogger<EmployerVerificationStatusSyncService> logger) : IEmployerVerificationStatusSyncService
 {
     private const int DbBatchSize = 1000;
-    private const int ApiPageSize = 100;
+    private const int ApiPageSize = 50;
     private const int CompletionStatusCompleted = 2;
 
     public async Task SyncPendingEmploymentChecksAsync()
