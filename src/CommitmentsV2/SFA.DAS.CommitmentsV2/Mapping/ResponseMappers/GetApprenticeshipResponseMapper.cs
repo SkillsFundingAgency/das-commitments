@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -59,7 +59,9 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             TransferSenderId = source.TransferSenderId,
             DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
             TrainingTotalHours = source.TrainingTotalHours,
-            IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl
+            IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
+            EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
+            EmployerVerificationNotes = source.EmployerVerificationNotes
         });
     }
 }

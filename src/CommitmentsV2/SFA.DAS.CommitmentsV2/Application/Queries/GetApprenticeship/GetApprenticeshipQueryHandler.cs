@@ -11,6 +11,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
             .Apprenticeships
             .Include(x => x.FlexibleEmployment)
             .Include(x => x.PriorLearning)
+            .Include(x => x.EmployerVerificationRequest)
             .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {
@@ -66,7 +67,9 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
                         TransferSenderId = apprenticeship.Cohort.TransferSenderId,
                         TrainingTotalHours = apprenticeship.TrainingTotalHours,
-                        EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost
+                        EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost,
+                        EmployerVerificationStatus = apprenticeship.EmployerVerificationRequest == null ? null : apprenticeship.EmployerVerificationRequest.Status,
+                        EmployerVerificationNotes = apprenticeship.EmployerVerificationRequest == null ? null : apprenticeship.EmployerVerificationRequest.Notes
                     },
                 cancellationToken);
 
