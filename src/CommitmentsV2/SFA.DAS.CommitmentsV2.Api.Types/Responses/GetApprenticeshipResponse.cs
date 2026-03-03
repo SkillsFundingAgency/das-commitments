@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -57,4 +57,6 @@ public class GetApprenticeshipResponse
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }
+    public int? EmployerVerificationStatus { get; set; }
+    public string EmployerVerificationNotes { get; set; }
 }
