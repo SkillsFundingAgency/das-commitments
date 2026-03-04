@@ -179,25 +179,25 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         var apprenticeships1 = new[] { apprenticeship1, apprenticeship2 };
         var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
 
-        var standardBuilder = AutoFixture.Build<Standard>();
-        var standard1 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship1.StandardUId)
-            .With(s => s.ApprenticeshipType, "Apprenticeship")
+        var courseBuilder = AutoFixture.Build<Course>();
+        var course1 = courseBuilder
+            .With(s => s.LarsCode, apprenticeship1.CourseCode)
+            .With(s => s.LearningType, LearningType.Apprenticeship)
             .Create();
-        var standard2 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship2.StandardUId)
-            .With(s => s.ApprenticeshipType, "Apprenticeship")
+        var course2 = courseBuilder
+            .With(s => s.LarsCode, apprenticeship2.CourseCode)
+            .With(s => s.LearningType, LearningType.Apprenticeship)
             .Create();
-        var standard3 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship3.StandardUId)
-            .With(s => s.ApprenticeshipType, "Apprenticeship")
+        var course3 = courseBuilder
+            .With(s => s.LarsCode, apprenticeship3.CourseCode)
+            .With(s => s.LearningType, LearningType.Apprenticeship)
             .Create();
 
         Apprenticeships.AddRange(apprenticeships1);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships2);
-        Db.Object.Standards.AddRange(new[] { standard1, standard2, standard3 });
+        Db.Object.Courses.AddRange(new[] { course1, course2, course3 });
 
         Db.Object.SaveChanges();
             

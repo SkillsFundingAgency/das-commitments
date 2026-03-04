@@ -28,8 +28,14 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
                 standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Level);
         }
 
-        var framework = await dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
+        var course = await dbContext.Courses.FirstOrDefaultAsync(c => c.LarsCode.Equals(courseCode));
+        if (course != null)
+        {
+            return new TrainingProgramme(course.LarsCode.ToString(), GetTitle(course.Title, course.Level), null, null, ProgrammeType.Standard,
+                course.EffectiveFrom, course.EffectiveTo, new List<IFundingPeriod> { new CourseFundingPeriod { EffectiveFrom = course.EffectiveFrom, EffectiveTo = course.EffectiveTo, FundingCap = course.MaxFunding } }, 0);
+        }
 
+        var framework = await dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
         if (framework == null)
         {
             throw new Exception($"The course code {courseCode} was not found");
@@ -226,6 +232,12 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
     {
         return $"{title}, Level: {level}";
     }
+
+    private static string GetTitle(string title, string level)
+    {
+        return $"{title}, Level: {level}";
+    }
+
 
     public async Task<IEnumerable<TrainingProgramme>> GetAll()
     {
