@@ -18,33 +18,39 @@ public class EmployerVerificationStatusSyncService(
 
     public async Task SyncPendingEmploymentChecksAsync()
     {
-        logger.LogInformation("EmployerVerificationStatusSyncService: starting sync of pending employment checks (DB batch {DbBatchSize}, API page {ApiPageSize})", DbBatchSize, ApiPageSize);
+        logger.LogInformation("EmployerVerificationStatusSyncService: starting sync (DB batch {DbBatchSize}, API page {ApiPageSize})", DbBatchSize, ApiPageSize);
 
         var dbContext = db.Value;
+        var now = DateTime.UtcNow;
+        var oneDayAgo = now.AddDays(-1);
+        var fiveMonthsAgo = now.AddMonths(-5);
 
-        var pendingIds = await dbContext.EmployerVerificationRequests
-            .Where(x => x.Status == EmployerVerificationRequestStatus.Pending)
+        var idsToSync = await dbContext.EmployerVerificationRequests
+            .Where(x => x.Created >= fiveMonthsAgo
+                && (
+                    (x.Updated == null && x.Created <= oneDayAgo)
+                    || (x.Updated != null && x.Updated <= oneDayAgo && x.Status != EmployerVerificationRequestStatus.Passed)
+                ))
             .OrderBy(x => x.ApprenticeshipId)
             .Take(DbBatchSize)
             .Select(x => x.ApprenticeshipId)
             .ToListAsync();
 
-        if (pendingIds.Count == 0)
+        if (idsToSync.Count == 0)
         {
-            logger.LogInformation("EmployerVerificationStatusSyncService: no pending requests");
+            logger.LogInformation("EmployerVerificationStatusSyncService: no records to sync");
             return;
         }
 
         var requestsByApprenticeshipId = await dbContext.EmployerVerificationRequests
-            .Where(x => pendingIds.Contains(x.ApprenticeshipId))
+            .Where(x => idsToSync.Contains(x.ApprenticeshipId))
             .ToDictionaryAsync(x => x.ApprenticeshipId);
 
-        var now = DateTime.UtcNow;
         var totalUpdated = 0;
 
-        for (var offset = 0; offset < pendingIds.Count; offset += ApiPageSize)
+        for (var offset = 0; offset < idsToSync.Count; offset += ApiPageSize)
         {
-            var pageIds = pendingIds.Skip(offset).Take(ApiPageSize).ToList();
+            var pageIds = idsToSync.Skip(offset).Take(ApiPageSize).ToList();
             if (pageIds.Count == 0)
                 break;
 
@@ -67,7 +73,7 @@ public class EmployerVerificationStatusSyncService(
         }
 
         await dbContext.SaveChangesAsync();
-        logger.LogInformation("EmployerVerificationStatusSyncService: updated {Updated} employer verification requests from {PageCount} API page(s)", totalUpdated, (pendingIds.Count + ApiPageSize - 1) / ApiPageSize);
+        logger.LogInformation("EmployerVerificationStatusSyncService: updated {Updated} employer verification requests from {PageCount} API page(s)", totalUpdated, (idsToSync.Count + ApiPageSize - 1) / ApiPageSize);
     }
 
     private static EmployerVerificationRequestStatus MapStatus(EvsCheckResponse check)
