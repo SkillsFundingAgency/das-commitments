@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
@@ -54,7 +54,9 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             PledgeApplicationId = source.PledgeApplicationId,
             ActualStartDate = source.ActualStartDate,
             EmployerHasEditedCost = source.EmployerHasEditedCost,
-            TrainingCourseVersion = source.TrainingCourseVersion
+            TrainingCourseVersion = source.TrainingCourseVersion,
+            EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
+            EmployerVerificationNotes = source.EmployerVerificationNotes
         };
     }
 }

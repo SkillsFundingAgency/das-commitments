@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -46,5 +46,7 @@ public class GetApprenticeshipsResponse
         public DateTime? ActualStartDate { get; set; }
         public bool? EmployerHasEditedCost { get; set; }
         public string TrainingCourseVersion { get; set; }
+        public int? EmployerVerificationStatus { get; set; }
+        public string EmployerVerificationNotes { get; set; }
     }
 }
