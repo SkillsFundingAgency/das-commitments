@@ -186,11 +186,11 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .Create();
         var course2 = courseBuilder
             .With(s => s.LarsCode, apprenticeship2.CourseCode)
-            .With(s => s.LearningType, LearningType.Apprenticeship)
+            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
             .Create();
         var course3 = courseBuilder
             .With(s => s.LarsCode, apprenticeship3.CourseCode)
-            .With(s => s.LearningType, LearningType.Apprenticeship)
+            .With(s => s.LearningType, LearningType.ApprenticeshipUnit)
             .Create();
 
         Apprenticeships.AddRange(apprenticeships1);

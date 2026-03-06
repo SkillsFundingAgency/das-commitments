@@ -135,10 +135,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.EffectiveFrom.Should().Be(course.EffectiveFrom);
             actual.EffectiveTo.Should().Be(course.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.FundingPeriods.Count.Should().Be(1);
+            actual.FundingPeriods[0].EffectiveFrom.Should().Be(course.EffectiveFrom);
+            actual.FundingPeriods[0].EffectiveTo.Should().Be(course.EffectiveTo);
+            actual.FundingPeriods[0].FundingCap.Should().Be(course.MaxFunding);
             dbContext.Verify(x => x.Standards.FindAsync(It.IsAny<int>()), Times.Never);
             dbContext.Verify(x => x.Frameworks.FindAsync(It.IsAny<string>()), Times.Never);
         }
-
 
         [Test, RecursiveMoqAutoData]
         public void Then_If_Find_Standard_Returns_Null_An_Exception_Is_Thrown(

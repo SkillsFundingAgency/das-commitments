@@ -238,7 +238,6 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         return $"{title}, Level: {level}";
     }
 
-
     public async Task<IEnumerable<TrainingProgramme>> GetAll()
     {
         var frameworks = await dbContext.Frameworks.Include(c => c.FundingPeriods).ToListAsync();
