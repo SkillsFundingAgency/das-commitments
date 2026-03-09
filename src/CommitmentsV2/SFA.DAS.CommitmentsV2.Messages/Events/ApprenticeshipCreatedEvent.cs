@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Common.Domain.Types;
+using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DeliveryModel DeliveryModel { get; set; }
         public string TrainingCode { get; set; }
         public long? TransferSenderId { get; set; }
-        public Types.ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public long? ContinuationOfId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime? ActualStartDate { get; set; }
