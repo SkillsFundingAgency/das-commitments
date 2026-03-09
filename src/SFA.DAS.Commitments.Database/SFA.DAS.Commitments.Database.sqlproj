@@ -10,8 +10,7 @@
     <ProjectGuid>{0df27e29-35fd-4ce1-90ca-01c2a55361cd}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
-    <RootPath>
-    </RootPath>
+    <RootPath />
     <RootNamespace>SFA.DAS.Commitments.Database</RootNamespace>
     <AssemblyName>SFA.DAS.Commitments.Database</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
@@ -52,7 +51,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
     <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
     <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
   </PropertyGroup>
@@ -181,6 +179,9 @@
     <Build Include="Tables\Change.sql" />
     <Build Include="Tables\ApprovalRequest.sql" />
     <Build Include="Tables\ApprovalFieldRequest.sql" />
+    <Build Include="Tables\Course.sql" />
+    <Build Include="UserDefinedTypes\Courses.sql" />
+    <Build Include="StoredProcedures\ImportCourses.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

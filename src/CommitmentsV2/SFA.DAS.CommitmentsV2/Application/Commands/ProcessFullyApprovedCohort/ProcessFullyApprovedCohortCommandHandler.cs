@@ -74,7 +74,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 LastName = x.apprenticeship.LastName,
                 ApprenticeshipHashedId = encodingService.Encode(x.apprenticeship.Id, EncodingType.ApprenticeshipId),
                 LearnerDataId = x.apprenticeship.LearnerDataId,
-                LearningType = Enum.Parse<LearningType>(x.standard.ApprenticeshipType, true)
+                LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.standard.ApprenticeshipType, true)
             })
             .ToListAsync(cancellationToken);
 

@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Common.Domain.Types;
+using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Models;
 
@@ -287,7 +288,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln, 
-                LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
+                LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(learningType, ignoreCase: true)
             });
 
         ChangeTrackingSession.CompleteTrackingSession();
@@ -673,7 +674,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             TrainingCourseOption = TrainingCourseOption,
             Uln = Uln,
             DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
-            LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
+            LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(learningType, ignoreCase: true)
         });
     }
 
