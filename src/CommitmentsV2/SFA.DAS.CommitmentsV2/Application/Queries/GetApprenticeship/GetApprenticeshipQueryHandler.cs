@@ -1,5 +1,7 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 
@@ -7,8 +9,9 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 {
     public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
     {
-        var result = await dbContext.Value
-            .Apprenticeships
+
+        var db = dbContext.Value;
+        var result = await db.Apprenticeships
             .Include(x => x.FlexibleEmployment)
             .Include(x => x.PriorLearning)
             .GetById(request.ApprenticeshipId, apprenticeship =>
@@ -70,6 +73,10 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
+            var learningType = db.Courses.Where(c => c.LarsCode == result.CourseCode).Select(c => c.LearningType).FirstOrDefault();
+            result.LearningType = learningType ?? LearningType.Apprenticeship;
+
         return result;
     }
+
 }

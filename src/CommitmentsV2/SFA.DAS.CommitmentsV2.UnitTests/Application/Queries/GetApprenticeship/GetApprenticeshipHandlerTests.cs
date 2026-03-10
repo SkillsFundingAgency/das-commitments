@@ -29,6 +29,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             _fixture.VerifyResultMapping();
         }
 
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        public async Task Handle_ThenShouldMapLearningType(LearningType learningType)
+        {
+            await _fixture.SetCourseLearningType(learningType);
+
+            var result = await _fixture.Handle();
+            result.LearningType.Should().Be(learningType);
+        }
+
         private class GetApprenticeshipHandlerTestsFixture : IDisposable
         {
             private Fixture _autoFixture;
@@ -41,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             public AccountLegalEntity PreviousAccountLegalEntity { get; private set; }
             public AssessmentOrganisation EndpointAssessmentOrganisation { get; private set; }
             public Apprenticeship PreviousApprenticeship { get; private set; }
+            public Course Course { get; private set; }
             private readonly ProviderCommitmentsDbContext _db;
             private readonly GetApprenticeshipQueryHandler _handler;
             private readonly GetApprenticeshipQuery _query;
@@ -131,13 +143,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Id = _autoFixture.Create<long>()
                 };
 
+                var courseCode = _autoFixture.Create<string>();
+
                 Apprenticeship = new Apprenticeship
                 {
                     Id = ApprenticeshipId,
                     CommitmentId = Cohort.Id,
                     Cohort = Cohort,
                     AgreedOn = _autoFixture.Create<DateTime>(),
-                    CourseCode = _autoFixture.Create<string>(),
+                    CourseCode = courseCode,
                     StandardUId = "ST0001_1.0",
                     TrainingCourseVersion = "1.0",
                     CourseName = _autoFixture.Create<string>(),
@@ -175,59 +189,68 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 }
 
                 _db.Apprenticeships.Add(Apprenticeship);
+
+                Course = _autoFixture.Build<Course>().With(c => c.LarsCode, courseCode).Create();
+                _db.Courses.Add(Course);
+
                 _db.SaveChanges();
             }
+            public async Task SetCourseLearningType(LearningType learningType)
+            {
+                Course.LearningType = learningType;
+                _db.Courses.Update(Course);
+                await _db.SaveChangesAsync();
+            }
 
-            public async Task Handle()
+
+            public async Task<GetApprenticeshipQueryResult> Handle()
             {
                 _result = await _handler.Handle(_query, new CancellationToken());
+                return _result;
             }
 
             public void VerifyResultMapping()
             {
-                Assert.Multiple(() =>
-                {
-                    Assert.That(_result.Id, Is.EqualTo(Apprenticeship.Id));
-                    Assert.That(_result.CohortId, Is.EqualTo(Apprenticeship.CommitmentId));
-                    Assert.That(_result.FirstName, Is.EqualTo(Apprenticeship.FirstName));
-                    Assert.That(_result.LastName, Is.EqualTo(Apprenticeship.LastName));
-                    Assert.That(_result.Uln, Is.EqualTo(Apprenticeship.Uln));
-                    Assert.That(_result.StartDate, Is.EqualTo(Apprenticeship.StartDate));
-                    Assert.That(_result.ActualStartDate, Is.EqualTo(Apprenticeship.ActualStartDate));
-                    Assert.That(_result.EndDate, Is.EqualTo(Apprenticeship.EndDate));
-                    Assert.That(_result.CourseName, Is.EqualTo(Apprenticeship.CourseName));
-                    Assert.That(_result.EndpointAssessorName, Is.EqualTo(Apprenticeship.EpaOrg.Name));
-                    Assert.That(_result.Status, Is.EqualTo(Apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow)));
-                    Assert.That(_result.StopDate, Is.EqualTo(Apprenticeship.StopDate));
-                    Assert.That(_result.PauseDate, Is.EqualTo(Apprenticeship.PauseDate));
-                    Assert.That(_result.CompletionDate, Is.EqualTo(Apprenticeship.CompletionDate));
-                    Assert.That(_result.HasHadDataLockSuccess, Is.EqualTo(Apprenticeship.HasHadDataLockSuccess));
-                    Assert.That(_result.CourseCode, Is.EqualTo(Apprenticeship.CourseCode));
-                    Assert.That(_result.StandardUId, Is.EqualTo(Apprenticeship.StandardUId));
-                    Assert.That(_result.Version, Is.EqualTo(Apprenticeship.TrainingCourseVersion));
-                    Assert.That(_result.Option, Is.EqualTo(Apprenticeship.TrainingCourseOption));
-                    Assert.That(_result.DeliveryModel, Is.EqualTo(Apprenticeship.DeliveryModel));
-                    Assert.That(_result.AccountLegalEntityId, Is.EqualTo(AccountLegalEntityId));
-                    Assert.That(_result.EmployerReference, Is.EqualTo(Apprenticeship.EmployerRef));
-                    Assert.That(_result.ProviderId, Is.EqualTo(Apprenticeship.Cohort.ProviderId));
-                    Assert.That(_result.ProviderName, Is.EqualTo(Apprenticeship.Cohort.Provider.Name));
-                    Assert.That(_result.EmployerName, Is.EqualTo(Apprenticeship.Cohort.AccountLegalEntity.Name));
-                    Assert.That(_result.EmployerAccountId, Is.EqualTo(Apprenticeship.Cohort.EmployerAccountId));
-                    Assert.That(_result.ApprenticeshipEmployerTypeOnApproval, Is.EqualTo(Apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval));
-                    Assert.That(_result.ContinuationOfId, Is.EqualTo(PreviousApprenticeship.Id));
-                    Assert.That(_result.PreviousProviderId, Is.EqualTo(PreviousApprenticeship.Cohort.ProviderId));
-                    Assert.That(_result.ContinuedById, Is.EqualTo(Apprenticeship.Continuation?.Id));
-                    Assert.That(_result.MadeRedundant, Is.EqualTo(Apprenticeship.MadeRedundant));
-                    Assert.That(_result.FlexibleEmployment.EmploymentPrice, Is.EqualTo(Apprenticeship.FlexibleEmployment.EmploymentPrice));
-                    Assert.That(_result.FlexibleEmployment.EmploymentEndDate, Is.EqualTo(Apprenticeship.FlexibleEmployment.EmploymentEndDate));
-                    Assert.That(_result.RecognisePriorLearning, Is.EqualTo(Apprenticeship.RecognisePriorLearning));
-                    Assert.That(_result.ApprenticeshipPriorLearning.DurationReducedBy, Is.EqualTo(Apprenticeship.PriorLearning.DurationReducedBy));
-                    Assert.That(_result.ApprenticeshipPriorLearning.PriceReducedBy, Is.EqualTo(Apprenticeship.PriorLearning.PriceReducedBy));
-                    Assert.That(_result.TransferSenderId, Is.EqualTo(Apprenticeship.Cohort.TransferSenderId));
-                    Assert.That(_result.TrainingTotalHours, Is.EqualTo(Apprenticeship.TrainingTotalHours));
-                    Assert.That(_result.EmployerHasEditedCost, Is.EqualTo(Apprenticeship.EmployerHasEditedCost));
-                    Assert.That(_result.ApprenticeshipPriorLearning.IsDurationReducedByRpl, Is.EqualTo(Apprenticeship.PriorLearning.IsDurationReducedByRpl));
-                });
+                _result.Id.Should().Be(Apprenticeship.Id);
+                _result.CohortId.Should().Be(Apprenticeship.CommitmentId);           
+                _result.FirstName.Should().Be(Apprenticeship.FirstName);
+                _result.LastName.Should().Be(Apprenticeship.LastName);
+                _result.Uln.Should().Be(Apprenticeship.Uln);
+                _result.StartDate.Should().Be(Apprenticeship.StartDate);
+                _result.ActualStartDate.Should().Be(Apprenticeship.ActualStartDate);
+                _result.EndDate.Should().Be(Apprenticeship.EndDate);
+                _result.CourseName.Should().Be(Apprenticeship.CourseName);
+                _result.EndpointAssessorName.Should().Be(Apprenticeship.EpaOrg.Name);
+                _result.Status.Should().Be(Apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow));
+                _result.StopDate.Should().Be(Apprenticeship.StopDate);
+                _result.PauseDate.Should().Be(Apprenticeship.PauseDate);
+                _result.CompletionDate.Should().Be(Apprenticeship.CompletionDate);
+                _result.HasHadDataLockSuccess.Should().Be(Apprenticeship.HasHadDataLockSuccess);
+                _result.CourseCode.Should().Be(Apprenticeship.CourseCode);
+                _result.StandardUId.Should().Be(Apprenticeship.StandardUId);
+                _result.Version.Should().Be(Apprenticeship.TrainingCourseVersion);
+                _result.Option.Should().Be(Apprenticeship.TrainingCourseOption);
+                _result.DeliveryModel.Should().Be(Apprenticeship.DeliveryModel);
+                _result.AccountLegalEntityId.Should().Be(AccountLegalEntityId);
+                _result.EmployerReference.Should().Be(Apprenticeship.EmployerRef);
+                _result.ProviderId.Should().Be(Apprenticeship.Cohort.ProviderId);
+                _result.ProviderName.Should().Be(Apprenticeship.Cohort.Provider.Name);
+                _result.EmployerName.Should().Be(Apprenticeship.Cohort.AccountLegalEntity.Name);
+                _result.EmployerAccountId.Should().Be(Apprenticeship.Cohort.EmployerAccountId);
+                _result.ApprenticeshipEmployerTypeOnApproval.Should().Be(Apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval);
+                _result.ContinuationOfId.Should().Be(PreviousApprenticeship.Id);
+                _result.PreviousProviderId.Should().Be(PreviousApprenticeship.Cohort.ProviderId);
+                _result.ContinuedById.Should().Be(Apprenticeship.Continuation?.Id);
+                _result.MadeRedundant.Should().Be(Apprenticeship.MadeRedundant);
+                _result.FlexibleEmployment.EmploymentPrice.Should().Be(Apprenticeship.FlexibleEmployment.EmploymentPrice);
+                _result.FlexibleEmployment.EmploymentEndDate.Should().Be(Apprenticeship.FlexibleEmployment.EmploymentEndDate);
+                _result.RecognisePriorLearning.Should().Be(Apprenticeship.RecognisePriorLearning);
+                _result.ApprenticeshipPriorLearning.DurationReducedBy.Should().Be(Apprenticeship.PriorLearning.DurationReducedBy);
+                _result.ApprenticeshipPriorLearning.PriceReducedBy.Should().Be(Apprenticeship.PriorLearning.PriceReducedBy);
+                _result.TransferSenderId.Should().Be(Apprenticeship.Cohort.TransferSenderId);
+                _result.TrainingTotalHours.Should().Be(Apprenticeship.TrainingTotalHours);
+                _result.EmployerHasEditedCost.Should().Be(Apprenticeship.EmployerHasEditedCost);
+                _result.ApprenticeshipPriorLearning.IsDurationReducedByRpl.Should().Be(Apprenticeship.PriorLearning.IsDurationReducedByRpl);
             }
 
             public void Dispose()
