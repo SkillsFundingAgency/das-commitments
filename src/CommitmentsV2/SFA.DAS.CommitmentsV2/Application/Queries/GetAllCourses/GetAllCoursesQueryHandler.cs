@@ -8,7 +8,7 @@ public class GetAllCoursesQueryHandler(ProviderCommitmentsDbContext dbContext) :
 {
     public async Task<GetAllCoursesQueryResult> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
     {
-        var courses = dbContext.Courses.ToList();
+        var courses = await dbContext.Courses.ToListAsync();
 
         return new GetAllCoursesQueryResult()
         {
