@@ -71,7 +71,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
-        var learnerType = await GetLearnerType(result.StandardUId);
+        var learnerType = await GetLearnerType(result.CourseCode);
         MapLearnerType(result, learnerType);
         return result;
     }
@@ -81,19 +81,13 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
         result.LearnerType = learnerType;
     }
 
-    private async Task<LearningType?> GetLearnerType(string standardUId)
+    private async Task<LearningType?> GetLearnerType(string courseCode)
     {
         LearningType? retVal = null;
-        if (string.IsNullOrEmpty(standardUId))
-            return retVal;
+        if (string.IsNullOrEmpty(courseCode))
+            return retVal;    
+        var course = await dbContext.Value.Courses.FirstOrDefaultAsync(c => c.LarsCode == courseCode);
 
-        var larsCode = dbContext.Value
-        .Standards.
-        Where(s => s.StandardUId == standardUId).Select(t => t.LarsCode).FirstOrDefault();
-
-        if (larsCode == default)
-            return retVal;
-
-        return dbContext.Value.Courses.FirstOrDefault(c => c.LarsCode == larsCode.ToString())?.LearningType;
+        return course?.LearningType;
     }
 }

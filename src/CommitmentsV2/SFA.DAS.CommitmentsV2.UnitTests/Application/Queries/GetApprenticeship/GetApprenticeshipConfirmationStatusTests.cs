@@ -231,13 +231,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .With(x => x.ConfirmationOverdueOn, overdueDate)
                 .Create();
 
-            var standards = _fixture.Build<Standard>().
-                With(x => x.StandardUId, appr.StandardUId)
-               .With(x => x.LarsCode).
-               Create();
-
+           
             var courses = _fixture.Build<Course>()
-                .With(x => x.LarsCode, standards.LarsCode.ToString())
+                .With(x => x.LarsCode, appr.CourseCode)
                 .With(x => x.LearningType, learningType)
                 .Create();
 
@@ -254,7 +250,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
             if (isWithCourses != null && isWithCourses == true)
             {
-                _db.Standards.Add(standards);
                 _db.Courses.Add(courses);
             }
 
