@@ -258,6 +258,8 @@ public class DataLockUpdaterServiceTests
     [TestCase(80, DataLockErrorCode.Dlock08, false)]
     [TestCase(90, DataLockErrorCode.Dlock09, false)]
     [TestCase(100, DataLockErrorCode.Dlock10, false)]
+    [TestCase(110, DataLockErrorCode.Dlock11, false)]
+    [TestCase(120, DataLockErrorCode.Dlock12, false)]
     public async Task ThenDataLocksAreSkippedIfNotOnTheWhitelist(long datalockEventId, DataLockErrorCode errorCode, bool expectUpdate)
     {
         //Arrange

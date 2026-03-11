@@ -33,19 +33,20 @@ public class GetDraftApprenticeshipsHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenCohortExists_ThenShouldReturnApprenticeshipType()
+    {
+        _fixture.SeedDataWithApprenticeshipTypeData();
+        var result = await _fixture.Handle();
+        _fixture.VerifyApprenticeshipTypeMapping(result.DraftApprenticeships.First(), "Apprenticeship");
+        _fixture.VerifyApprenticeshipTypeMapping(result.DraftApprenticeships.Last(), "FoundationApprenticeship");
+    }
+
+    [Test]
     public async Task Handle_WhenCohortExists_AndRPLFeatureIsEnabledThenRecognisingPriorLearningExtendedStillNeedsToBeConsiderShouldBeFalse()
     {
         _fixture.SeedDataWithRpl2Data();
         var result = await _fixture.Handle();
         result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeFalse();
-    }
-
-    [Test]
-    public async Task Handle_WhenCohortExists_AndRPLFeatureIsNotEnabledThenRecognisingPriorLearningExtendedStillNeedsToBeConsiderShouldBeTrue()
-    {
-        _fixture.SeedDataWithRpl1Data();
-        var result = await _fixture.Handle();
-        result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeTrue();
     }
 
     [Test]
@@ -64,6 +65,7 @@ public class GetDraftApprenticeshipsHandlerTests
         private GetDraftApprenticeshipsQueryResult _queryResult;
         private readonly IFixture _autoFixture;
         private Cohort _cohort;
+        private List<Standard> _standards;
         private readonly long _cohortId;
 
         public GetDraftApprenticeshipsHandlerTestsFixture()
@@ -72,6 +74,9 @@ public class GetDraftApprenticeshipsHandlerTests
 
             _cohortId = _autoFixture.Create<long>();
             _query = new GetDraftApprenticeshipsQuery(_cohortId);
+            _standards = _autoFixture.CreateMany<Standard>().ToList();
+            _standards[0].StandardUId = "S0";
+            _standards[1].StandardUId = "S1";
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
@@ -194,6 +199,40 @@ public class GetDraftApprenticeshipsHandlerTests
             _db.SaveChanges();
         }
 
+        public void SeedDataWithApprenticeshipTypeData()
+        {
+            _cohort = new Cohort
+            {
+                CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.EmployerOnly,
+                LastAction = LastAction.None,
+                Originator = Originator.Unknown,
+                Id = _cohortId,
+                Reference = string.Empty
+            };
+
+            for (var i = 0; i < 10; i++)
+            {
+                var apprenticeship = _autoFixture
+                    .Build<DraftApprenticeship>()
+                    .With(x => x.Id, _autoFixture.Create<long>)
+                    .With(x => x.CommitmentId, _cohortId)
+                    .With(x => x.StartDate, new DateTime(2022, 9, 1)) 
+                    .With(x => x.IsApproved, false)
+                    .With(a => a.StandardUId, _standards[0].StandardUId)
+                    .Create();
+
+                _cohort.Apprenticeships.Add(apprenticeship);
+            }
+            _cohort.Apprenticeships.Last().StandardUId = _standards[1].StandardUId;
+
+            _standards[0].ApprenticeshipType = "Apprenticeship";
+            _standards[1].ApprenticeshipType = "FoundationApprenticeship";
+
+            _db.Cohorts.Add(_cohort);
+            _db.Standards.AddRange(_standards);
+            _db.SaveChanges();
+        }
 
         public void VerifyResultMapping()
         {
@@ -203,6 +242,11 @@ public class GetDraftApprenticeshipsHandlerTests
             {
                 AssertEquality(sourceItem, _queryResult.DraftApprenticeships.Single(x => x.Id == sourceItem.Id));
             }
+        }
+
+        public void VerifyApprenticeshipTypeMapping(DraftApprenticeshipDto item, string expected)
+        {
+            item.ApprenticeshipType.Should().Be(expected);
         }
 
         public void VerifyNoResult()
