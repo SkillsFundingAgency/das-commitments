@@ -138,7 +138,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             Assert.That(response.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Overdue));
         }
 
-        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null)
+        [Test]
+        public async Task WhenStandardUidIsNotNull_ThenLearnerTypeShouldBeReturned()
+        {
+            // Arrange
+            Setup("test@test.com", null, null, isWithCourses: true, learningType: LearningType.ApprenticeshipUnit);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            response.LearnerType.Should().Be(LearningType.ApprenticeshipUnit);
+        }
+
+        [Test]
+        public async Task WhenStandardUidIsNull_ThenLearnerTypeShouldBeNull()
+        {
+            // Arrange
+            Setup("test@test.com", null, null, isWithCourses: false, learningType: LearningType.ApprenticeshipUnit);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            response.LearnerType.Should().BeNull();
+        }
+
+        [Test]
+        public async Task WhenStandardUidIsNotNull_ThenLearnerTypeApprenticeShouldBeReturned()
+        {
+            // Arrange
+            Setup("test@test.com", null, null, isWithCourses: true, learningType: LearningType.Apprenticeship);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            response.LearnerType.Should().Be(LearningType.Apprenticeship);
+        }
+
+        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null, bool? isWithCourses = null, LearningType? learningType = null)
         {
             var approvedOnDate = newApprovedOnDate ?? new DateTime(2021, 9, 10);
 
@@ -183,12 +222,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Without(x => x.DataLockStatus)
                 .Without(x => x.PreviousApprenticeship)
                 .Without(x => x.ApprenticeshipConfirmationStatus)
+                .With(x => x.StandardUId)
                 .Create();
 
             var conf = _fixture.Build<ApprenticeshipConfirmationStatus>()
                 .With(x => x.Apprenticeship, appr)
                 .With(x => x.ApprenticeshipConfirmedOn, confirmedOnDate)
                 .With(x => x.ConfirmationOverdueOn, overdueDate)
+                .Create();
+
+            var standards = _fixture.Build<Standard>().
+                With(x => x.StandardUId, appr.StandardUId)
+               .With(x => x.LarsCode).
+               Create();
+
+            var courses = _fixture.Build<Course>()
+                .With(x => x.LarsCode, standards.LarsCode.ToString())
+                .With(x => x.LearningType, learningType)
                 .Create();
 
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
@@ -200,6 +250,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             if (email != null)
             {
                 _db.ApprenticeshipConfirmationStatus.Add(conf);
+            }
+
+            if (isWithCourses != null && isWithCourses == true)
+            {
+                _db.Standards.Add(standards);
+                _db.Courses.Add(courses);
             }
 
             _db.SaveChanges();

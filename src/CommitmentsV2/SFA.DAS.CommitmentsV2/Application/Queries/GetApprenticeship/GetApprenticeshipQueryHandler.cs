@@ -1,5 +1,6 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 
@@ -55,7 +56,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
                         MadeRedundant = apprenticeship.MadeRedundant,
                         EmailAddressConfirmedByApprentice = apprenticeship.EmailAddressConfirmed == true,
-                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null,
+                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021, 9, 10) && apprenticeship.ContinuationOfId == null,
                         ConfirmationStatus = Models.Apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
@@ -70,6 +71,29 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
+        var learnerType = await GetLearnerType(result.StandardUId);
+        MapLearnerType(result, learnerType);
         return result;
+    }
+
+    private static void MapLearnerType(GetApprenticeshipQueryResult result, LearningType? learnerType)
+    {
+        result.LearnerType = learnerType;
+    }
+
+    private async Task<LearningType?> GetLearnerType(string standardUId)
+    {
+        LearningType? retVal = null;
+        if (string.IsNullOrEmpty(standardUId))
+            return retVal;
+
+        var larsCode = dbContext.Value
+        .Standards.
+        Where(s => s.StandardUId == standardUId).Select(t => t.LarsCode).FirstOrDefault();
+
+        if (larsCode == default)
+            return retVal;
+
+        return dbContext.Value.Courses.FirstOrDefault(c => c.LarsCode == larsCode.ToString())?.LearningType;
     }
 }

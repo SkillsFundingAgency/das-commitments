@@ -26,7 +26,7 @@ public class GetApprenticeshipResponse
     public DateTime? StartDate { get; set; }
     public DateTime? ActualStartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public DateTime DateOfBirth { get; set; }        
+    public DateTime DateOfBirth { get; set; }
     public string EmployerReference { get; set; }
     public string ProviderReference { get; set; }
     public ApprenticeshipStatus Status { get; set; }
@@ -57,4 +57,5 @@ public class GetApprenticeshipResponse
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }
+    public LearningType? LearningType { get; set; }
 }
