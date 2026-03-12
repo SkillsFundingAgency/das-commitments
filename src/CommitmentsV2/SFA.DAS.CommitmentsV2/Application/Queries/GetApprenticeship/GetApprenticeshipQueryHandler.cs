@@ -78,7 +78,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 
     private static void MapLearnerType(GetApprenticeshipQueryResult result, LearningType? learnerType)
     {
-        result.LearnerType = learnerType;
+        result.LearnerType = LearningType.ApprenticeshipUnit; //learnerType;
     }
 
     private async Task<LearningType?> GetLearnerType(string courseCode)

@@ -1,4 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Models;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
@@ -51,5 +53,7 @@ public class GetApprenticeshipQueryResult
     public long? TransferSenderId { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
+
+    [JsonConverter(typeof(StringEnumConverter))]
     public LearningType? LearnerType { get; set; }
 }
