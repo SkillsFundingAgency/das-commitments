@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
+using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
@@ -346,6 +346,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             //Arrange
             dataLockStatus.Status = Status.Fail;
+            dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Restart;
             dataLockStatus.IsResolved = false;
             source.IsProviderSearch = true;

@@ -46,6 +46,10 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         ReservationId = source.ReservationId;
         LearnerDataId = source.LearnerDataId;
+        if (source.LearnerDataId != null && source.RecognisePriorLearning == null)
+        {
+            RecognisePriorLearning = false;
+        }
     }
 
     public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
@@ -245,11 +249,7 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
         int maximumTrainingTimeReduction, 
         int minimumOffTheJobTrainingHoursRequired)
     {
-
-        if (RecognisePriorLearning != true)
-        {
-            throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
-        }
+        RecognisePriorLearning = true;
 
         var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction, maximumTrainingTimeReduction, minimumOffTheJobTrainingHoursRequired);
         errors.ThrowIfAny();
@@ -388,5 +388,19 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
             return false;
 
         return false;
+    }
+
+    public void SetEmail(string email)
+    {
+        Email = email;
+    }
+
+    public void SetReference(string reference, Party party)
+    {
+        if (party == Party.Employer)
+        {
+            EmployerRef = reference;
+        }
+        else { ProviderRef = reference; }
     }
 }
