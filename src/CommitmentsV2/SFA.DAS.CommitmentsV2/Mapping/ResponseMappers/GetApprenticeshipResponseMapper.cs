@@ -59,7 +59,8 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             TransferSenderId = source.TransferSenderId,
             DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
             TrainingTotalHours = source.TrainingTotalHours,
-            IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl
+            IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
+            LearningType = source.LearningType
         });
     }
 }
