@@ -17,9 +17,9 @@
         public async Task Validate_Is_Number_Only()
         {
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetStdCode("59ab");
+            fixture.SetStdCode("ZSC00002");
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code</b>");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code</b>. Apprenticeship units must be added by ILR upload");
         }
 
         [Test]
@@ -69,7 +69,7 @@
             fixture.SetMainProvider(false);
             fixture.SetStandardsEmpty();
             var errors = await fixture.Handle();
-            Assert.That(errors.BulkUploadValidationErrors, Is.Empty);
+            errors.BulkUploadValidationErrors.Should().BeEmpty();
         }
     }
 }
