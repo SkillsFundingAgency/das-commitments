@@ -8,8 +8,8 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 {
     public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
     {
-        var result = await dbContext.Value
-            .Apprenticeships
+        var db = dbContext.Value;
+        var result = await db.Apprenticeships           
             .Include(x => x.FlexibleEmployment)
             .Include(x => x.PriorLearning)
             .GetById(request.ApprenticeshipId, apprenticeship =>
@@ -71,23 +71,9 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
-        var learnerType = await GetLearnerType(result.CourseCode);
-        MapLearnerType(result, learnerType);
+        var learningType = db.Courses.Where(c => c.LarsCode == result.CourseCode).Select(c => c.LearningType).FirstOrDefault();
+        result.LearningType = learningType ?? LearningType.Apprenticeship;
+
         return result;
-    }
-
-    private static void MapLearnerType(GetApprenticeshipQueryResult result, LearningType? learnerType)
-    {
-        result.LearnerType = LearningType.ApprenticeshipUnit; //learnerType;
-    }
-
-    private async Task<LearningType?> GetLearnerType(string courseCode)
-    {
-        LearningType? retVal = null;
-        if (string.IsNullOrEmpty(courseCode))
-            return retVal;    
-        var course = await dbContext.Value.Courses.FirstOrDefaultAsync(c => c.LarsCode == courseCode);
-
-        return course?.LearningType;
-    }
+    }   
 }

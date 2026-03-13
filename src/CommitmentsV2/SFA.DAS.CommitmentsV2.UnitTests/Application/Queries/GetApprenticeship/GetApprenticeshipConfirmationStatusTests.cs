@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            response.LearnerType.Should().Be(LearningType.ApprenticeshipUnit);
+            response.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            response.LearnerType.Should().BeNull();
+            response.LearningType.Should().Be(LearningType.Apprenticeship);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            response.LearnerType.Should().Be(LearningType.Apprenticeship);
+            response.LearningType.Should().Be(LearningType.Apprenticeship);
         }
 
         private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null, bool? isWithCourses = null, LearningType? learningType = null)

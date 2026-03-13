@@ -55,5 +55,5 @@ public class GetApprenticeshipQueryResult
     public bool? EmployerHasEditedCost { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public LearningType? LearnerType { get; set; }
+    public LearningType? LearningType { get; set; }
 }
