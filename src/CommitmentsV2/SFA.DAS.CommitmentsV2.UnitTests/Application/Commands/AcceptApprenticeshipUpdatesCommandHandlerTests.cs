@@ -156,6 +156,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task Handle_WhenCommandIsHandled_ShortCourseCodeIsUpdated()
+        {
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCode = "ZSC0002";
+            _fixture.ApprenticeshipUpdate.TrainingName = "Short2";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
+
+            await _fixture.Handle();
+
+            _fixture.ApprenticeshipFromDb.CourseCode.Should().Be("ZSC0002");
+            _fixture.ApprenticeshipFromDb.CourseName.Should().Be("Short2");
+        }
+
+        [Test]
         public async Task Handle_WhenCommandIsHandled_CostIsUpdated()
         {
             _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
@@ -385,6 +399,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public DateTime ProxyCurrentDateTime = new(2020, 1, 1);
         public Standard Standard { get; set; }
+        public Course ExistingCourse { get; set; }
+        public Course NewCourse { get; set; }
 
         public AcceptApprenticeshipUpdatesCommandHandlerTestsFixture()
         {
@@ -414,9 +430,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     Cost = 10000,
                 }
             };
+
             Standard = new Standard()
                 .Set(s => s.StandardUId, "ST0001")
                 .Set(s => s.ApprenticeshipType, "Apprenticeship");
+
+            ExistingCourse = new Course()
+                .Set(c => c.LarsCode, "ZSC0001")
+                .Set(c => c.LearningType, LearningType.ApprenticeshipUnit);
+
+            NewCourse = new Course()
+                .Set(c => c.LarsCode, "ZSC0002")
+                .Set(c => c.LearningType, LearningType.ApprenticeshipUnit);
 
             ApprenticeshipDetails = Fixture.Build<Apprenticeship>()
                 .With(s => s.Id, ApprenticeshipId)
@@ -426,7 +451,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
                 .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                 .With(s => s.PriceHistory, priceHistory)
-                .With(s => s.StandardUId, Standard.StandardUId)
+                .With(s => s.CourseCode, ExistingCourse.LarsCode)
                 .Without(s => s.ApprenticeshipUpdate)
                 .Without(s => s.DataLockStatus)
                 .Without(s => s.EpaOrg)
