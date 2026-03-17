@@ -99,14 +99,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             _result.IsDurationReducedByRpl.Should().Be(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl);
         }
 
-        [TestCase(LearningType.Apprenticeship, "Apprenticeship")]
-        [TestCase(LearningType.FoundationApprenticeship, "FoundationApprenticeship")]
-        [TestCase(LearningType.ApprenticeshipUnit, "ApprenticeshipUnit")]
-        public async Task LearningTypeIsMappedCorrectly(LearningType learningType, string expected)
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        public async Task LearningTypeIsMappedCorrectly(LearningType learningType)
         {
             _source.LearningType = learningType;
             _result = await _mapper.Map(TestHelper.Clone(_source));
-            _result.LearningType.Should().Be(expected);
+            _result.LearningType.Should().Be(learningType);
         }
     }
 }
