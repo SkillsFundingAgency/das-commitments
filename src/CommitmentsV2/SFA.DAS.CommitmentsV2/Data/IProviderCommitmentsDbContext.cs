@@ -30,5 +30,6 @@ public interface ICommitmentsDbContext
     DbSet<Standard> Standards { get; set; }
     DbSet<StandardOption> StandardOptions { get; set; }
     DbSet<Framework> Frameworks { get; set; }
+    DbSet<Course> Courses { get; set; }
     Task ExecuteSqlCommandAsync(string sql, params object[] parameters);
 }
