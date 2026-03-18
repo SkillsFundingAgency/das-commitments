@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
@@ -68,6 +68,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<ImportCoursesJob>();
         services.AddTransient<AcademicYearEndExpiryProcessorJob>();
         services.AddTransient<EmployerVerificationStatusSyncJob>();
+        services.AddTransient<LearningDataSyncJob>();
         services.AddTransient<IDbContextFactory, DbContextFactory>();
 
         return services;

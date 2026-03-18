@@ -84,6 +84,28 @@ public static class CommitmentsDbContextExtensions
         return apprenticeship;
     }
 
+    public static async Task<Apprenticeship> GetApprenticeshipAggregateWithNoTracking(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
+    {
+        var apprenticeship = await db.Apprenticeships
+            .AsNoTracking()
+            .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
+            .Include(a => a.DataLockStatus)
+            .Include(a => a.PriceHistory)
+            .Include(a => a.ApprenticeshipUpdate)
+            .Include(a => a.ChangeOfPartyRequests)
+            .Include(a => a.ApprenticeshipConfirmationStatus)
+            .Include(a => a.PriorLearning)
+            .Include(a => a.FlexibleEmployment)
+            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
+
+        if (apprenticeship == null)
+        {
+            throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");
+        }
+
+        return apprenticeship;
+    }
+
     public static async Task<ChangeOfPartyRequest> GetChangeOfPartyRequestAggregate(this ProviderCommitmentsDbContext db, long changeOfPartyId, CancellationToken cancellationToken)
     {
         var result = await db.GetChangeOfPartyRequestAggregateSafely(changeOfPartyId, cancellationToken);
