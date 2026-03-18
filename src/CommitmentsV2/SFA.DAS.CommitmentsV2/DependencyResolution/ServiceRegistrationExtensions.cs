@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -120,6 +120,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IResolveOverlappingTrainingDateRequestService, ResolveOverlappingTrainingDateRequestService>();
         services.AddTransient<IAddEpaToApprenticeshipService, AddEpaToApprenticeshipsService>();
         services.AddTransient<IDataLockUpdaterService, DataLockUpdaterService>();
+        services.AddTransient<IEmployerVerificationStatusSyncService, EmployerVerificationStatusSyncService>();
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
