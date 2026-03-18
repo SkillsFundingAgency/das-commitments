@@ -326,6 +326,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             });
         }
 
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        public async Task Handle_WhenCommandIsHandled_LearningType_On_ApprenticeshipUpdatedApprovedEvent_IsEmitted(LearningType learningType)
+        {
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
+            await _fixture.AddCourse(new Course
+            {
+                LarsCode = _fixture.ApprenticeshipDetails.CourseCode,
+                LearningType = learningType
+            });
+
+            await _fixture.Handle();
+
+            var list = _fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedApprovedEvent>().ToList();
+
+            var apprenticeship = _fixture.ApprenticeshipFromDb;
+
+            ((int)list[0].LearningType).Should().Be((int)learningType);
+        }
+
         [Test]
         public async Task Handle_WhenCommandIsHandled_AndEmailIsUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsEmitted()
         {
@@ -527,6 +550,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             apprenticeship.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeship.ApprenticeshipUpdate.Add(update);
 
+            await Db.SaveChangesAsync(CancellationToken);
+            return this;
+        }
+
+        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> AddCourse(Course course)
+        {
+            var apprenticeship = Db.Courses.Add(course);
             await Db.SaveChangesAsync(CancellationToken);
             return this;
         }
