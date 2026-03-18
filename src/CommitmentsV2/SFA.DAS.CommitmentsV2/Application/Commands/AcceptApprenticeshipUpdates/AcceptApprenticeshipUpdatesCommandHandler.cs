@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -44,8 +45,8 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
 
             await CheckEmailOverlap(command, apprenticeship, apprenticeshipUpdate, cancellationToken);
         }
-        var standard = dbContext.Value.Standards.FirstOrDefault(x => x.StandardUId == apprenticeship.StandardUId);
-        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, dateTimeService, standard?.ApprenticeshipType);
+        var course = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == apprenticeship.CourseCode);
+        apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, dateTimeService, course?.LearningType.ToCommonLearningType());
     }
 
     private Party GetParty(AcceptApprenticeshipUpdatesCommand command)
