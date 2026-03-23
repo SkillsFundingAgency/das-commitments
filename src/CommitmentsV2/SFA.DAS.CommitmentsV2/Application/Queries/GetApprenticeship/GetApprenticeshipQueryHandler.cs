@@ -71,7 +71,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
-        var learningType = db.Courses.Where(c => c.LarsCode == result.CourseCode).Select(c => c.LearningType).FirstOrDefault();
+        var learningType = db.Courses.FirstOrDefaultAsync(c => c.LarsCode == result.CourseCode, cancellationToken: cancellationToken).Result?.LearningType;
         result.LearningType = learningType ?? LearningType.Apprenticeship;
 
         return result;
