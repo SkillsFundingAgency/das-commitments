@@ -29,7 +29,7 @@ public class EmployerVerificationStatusSyncService(
             .Where(x => x.Created >= fiveMonthsAgo
                 && (
                     (x.Updated == null && x.Created <= oneDayAgo)
-                    || (x.Updated != null && x.Updated <= oneDayAgo && x.Status != EmployerVerificationRequestStatus.Passed)
+                    || (x.Updated != null && x.Updated <= oneDayAgo && x.Employed != true)
                 ))
             .OrderBy(x => x.ApprenticeshipId)
             .Take(DbBatchSize)
@@ -64,6 +64,7 @@ public class EmployerVerificationStatusSyncService(
                 if (!requestsByApprenticeshipId.TryGetValue(check.ApprenticeshipId, out var request))
                     continue;
 
+                request.Employed = check.Result?.Employed;
                 request.Status = MapStatus(check);
                 request.Notes = MapNotes(check);
                 request.LastCheckedDate = check.DateOfCheck;

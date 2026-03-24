@@ -79,6 +79,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeTrue();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
         request.LastCheckedDate.Should().Be(dateOfCheck);
         request.Updated.Should().NotBeNull();
@@ -112,6 +113,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeFalse();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Failed);
     }
 
@@ -142,6 +144,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeNull();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Error);
         request.Notes.Should().Be("NinoNotFound");
     }
@@ -221,13 +224,14 @@ public class EmployerVerificationStatusSyncServiceTests
     }
 
     [Test]
-    public async Task SyncPendingEmploymentChecksAsync_WhenStatusPassedAndUpdatedOverOneDayAgo_DoesNotSelectForPeriodicRecheck()
+    public async Task SyncPendingEmploymentChecksAsync_WhenEmployedTrueAndUpdatedOverOneDayAgo_DoesNotSelectForPeriodicRecheck()
     {
         _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
         {
             ApprenticeshipId = 302,
             Created = DateTime.UtcNow.AddMonths(-1),
             Updated = DateTime.UtcNow.AddDays(-2),
+            Employed = true,
             Status = EmployerVerificationRequestStatus.Passed
         });
         _db.SaveChanges();
@@ -247,6 +251,28 @@ public class EmployerVerificationStatusSyncServiceTests
             Created = DateTime.UtcNow.AddMonths(-1),
             Updated = DateTime.UtcNow.AddDays(-2),
             Status = EmployerVerificationRequestStatus.Failed
+        });
+        _db.SaveChanges();
+
+        _apiClient
+            .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
+            .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.Verify(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenStatusPassedButEmployedUnknownAndUpdatedOverOneDayAgo_SelectsForPeriodicRecheck()
+    {
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = 304,
+            Created = DateTime.UtcNow.AddMonths(-1),
+            Updated = DateTime.UtcNow.AddDays(-2),
+            Employed = null,
+            Status = EmployerVerificationRequestStatus.Passed
         });
         _db.SaveChanges();
 
