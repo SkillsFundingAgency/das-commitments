@@ -53,7 +53,6 @@ public class GetApprenticeshipQueryResult
     public long? TransferSenderId { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
+    public LearningType LearningType { get; set; }
 
-    [JsonConverter(typeof(StringEnumConverter))]
-    public LearningType? LearningType { get; set; }
 }

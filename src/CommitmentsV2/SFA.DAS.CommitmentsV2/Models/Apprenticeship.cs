@@ -113,7 +113,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
     }
 
-    public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo, ICurrentDateTime currentDateTime, string learningType)
+    public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo, ICurrentDateTime currentDateTime, LearningType? learningType)
     {
         StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
@@ -121,7 +121,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         ChangeTrackingSession.TrackUpdate(update);
         ChangeTrackingSession.TrackUpdate(this);
 
-        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow);
+        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow, learningType);
         PendingUpdateOriginator = null;
         update.Status = ApprenticeshipUpdateStatus.Approved;
 
@@ -151,7 +151,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
                 EmploymentEndDate = FlexibleEmployment?.EmploymentEndDate,
                 EmploymentPrice = FlexibleEmployment?.EmploymentPrice,
-                LearningType = Enum.Parse<LearningType>(learningType, ignoreCase: true)
+                LearningType = learningType ?? LearningType.Apprenticeship
             });
     }
 
@@ -369,7 +369,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         return newPriceHistory.ToList();
     }
 
-    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn)
+    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn, LearningType? learningType)
     {
         if (!string.IsNullOrEmpty(update.FirstName))
         {
@@ -418,7 +418,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             ProgrammeType = update.TrainingType;
 
-            if (update.TrainingType.Value == Types.ProgrammeType.Framework)
+            if (update.TrainingType.Value == Types.ProgrammeType.Framework || learningType == LearningType.ApprenticeshipUnit)
             {
                 TrainingCourseVersion = null;
                 TrainingCourseVersionConfirmed = false;

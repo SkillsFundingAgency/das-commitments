@@ -28,4 +28,7 @@ BEGIN
     FROM [dbo].[Apprenticeship]
     WHERE CommitmentId = @cohortId
 
+    UPDATE [dbo].[Apprenticeship] 
+	SET HasHadDataLockSuccess = 1 
+    WHERE CommitmentId = @cohortId AND TrainingCode IN (SELECT LarsCode FROM Course WHERE LearningType = 2)
 END
