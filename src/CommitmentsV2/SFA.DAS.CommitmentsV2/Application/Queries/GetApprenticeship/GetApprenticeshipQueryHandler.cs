@@ -58,7 +58,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
                         MadeRedundant = apprenticeship.MadeRedundant,
                         EmailAddressConfirmedByApprentice = apprenticeship.EmailAddressConfirmed == true,
-                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null,
+                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021, 9, 10) && apprenticeship.ContinuationOfId == null,
                         ConfirmationStatus = Models.Apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
@@ -73,10 +73,9 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                     },
                 cancellationToken);
 
-            var learningType = db.Courses.Where(c => c.LarsCode == result.CourseCode).Select(c => c.LearningType).FirstOrDefault();
-            result.LearningType = learningType ?? LearningType.Apprenticeship;
+        var learningType = db.Courses.FirstOrDefaultAsync(c => c.LarsCode == result.CourseCode, cancellationToken: cancellationToken).Result?.LearningType;
+        result.LearningType = learningType ?? LearningType.Apprenticeship;
 
         return result;
-    }
-
+    }   
 }
