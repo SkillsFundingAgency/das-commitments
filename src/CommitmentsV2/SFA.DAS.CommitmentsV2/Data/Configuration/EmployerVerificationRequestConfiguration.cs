@@ -13,6 +13,7 @@ public class EmployerVerificationRequestConfiguration : IEntityTypeConfiguration
         builder.Property(e => e.Created).HasColumnType("datetime2");
         builder.Property(e => e.Updated).HasColumnType("datetime2");
         builder.Property(e => e.LastCheckedDate).HasColumnType("datetime2");
+        builder.Property(e => e.Employed).HasColumnType("bit");
         builder.Property(e => e.Status).HasColumnType("smallint");
         builder.Property(e => e.Notes).HasMaxLength(1000);
 

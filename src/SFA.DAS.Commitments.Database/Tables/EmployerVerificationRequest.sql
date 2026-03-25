@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[EmployerVerificationRequest]
     [Created] DATETIME2 NOT NULL DEFAULT GETDATE(),
     [Updated] DATETIME2 NULL,
     [LastCheckedDate] DATETIME2 NULL,
+    [Employed] BIT NULL,
     [Status] SMALLINT NOT NULL,
     [Notes] NVARCHAR(1000) NULL,
     CONSTRAINT [PK_EmployerVerificationRequest] PRIMARY KEY ([ApprenticeshipId]),
@@ -14,6 +15,6 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_EmployerVerificationRequest_Status_Updated]
     ON [dbo].[EmployerVerificationRequest] ([Status], [Updated])
-    INCLUDE ([ApprenticeshipId], [Created], [LastCheckedDate], [Notes])
+    INCLUDE ([ApprenticeshipId], [Created], [LastCheckedDate], [Employed], [Notes])
     WITH (ONLINE = ON)
 GO
