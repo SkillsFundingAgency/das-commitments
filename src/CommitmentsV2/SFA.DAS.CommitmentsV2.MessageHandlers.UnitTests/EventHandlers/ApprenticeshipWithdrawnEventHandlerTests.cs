@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             // Arrange
             var message = new ApprenticeshipWithdrawnEvent { ApprovalsApprenticeshipId = 1, Reason = reason, EmployerAccountId = 2, LearningKey = Guid.NewGuid(), LastDayOfLearning = new DateTime(2022, 7, 12)};
             var context = new Mock<IMessageHandlerContext>();
-            var apprenticeship = new Apprenticeship { Id = 1 };
+            var apprenticeship = new Apprenticeship { Id = 1, StartDate= new DateTime(2022, 7, 12) };
             var mockDbContext = GetMockDbContext(apprenticeship);
             var handler = new ApprenticeshipWithdrawnEventHandler(_loggerMock.Object, new Lazy<ProviderCommitmentsDbContext>(() => mockDbContext.Object), _mediatorMock.Object);
 
