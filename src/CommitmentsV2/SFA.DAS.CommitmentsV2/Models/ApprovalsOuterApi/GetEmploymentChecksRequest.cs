@@ -4,5 +4,5 @@ public class GetEmploymentChecksRequest(IReadOnlyList<long> apprenticeshipIds) :
 {
     private IReadOnlyList<long> ApprenticeshipIds { get; } = apprenticeshipIds;
 
-    public string GetUrl => "EmploymentChecks?apprenticeshipIds=" + Uri.EscapeDataString(string.Join(",", ApprenticeshipIds));
+    public string GetUrl => "EmploymentChecks?" + string.Join("&", ApprenticeshipIds.Select(id => $"apprenticeshipIds={id}"));
 }
