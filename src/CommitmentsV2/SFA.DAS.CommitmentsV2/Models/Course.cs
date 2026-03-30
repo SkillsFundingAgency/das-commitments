@@ -12,3 +12,10 @@ public class Course
     public DateTime? EffectiveFrom { get; set; }
     public DateTime? EffectiveTo { get; set; }
 }
+
+public class CourseFundingPeriod : IFundingPeriod
+{
+    public DateTime? EffectiveFrom { get; set; }
+    public DateTime? EffectiveTo { get; set; }
+    public int FundingCap { get; set; }
+}

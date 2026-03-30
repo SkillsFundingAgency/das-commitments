@@ -60,6 +60,7 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
             TrainingTotalHours = source.TrainingTotalHours,
             IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
+            LearningType = source.LearningType,
             EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
             EmployerVerificationNotes = source.EmployerVerificationNotes
         });

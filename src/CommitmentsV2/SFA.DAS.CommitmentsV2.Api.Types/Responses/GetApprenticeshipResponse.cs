@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -26,7 +28,7 @@ public class GetApprenticeshipResponse
     public DateTime? StartDate { get; set; }
     public DateTime? ActualStartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public DateTime DateOfBirth { get; set; }        
+    public DateTime DateOfBirth { get; set; }
     public string EmployerReference { get; set; }
     public string ProviderReference { get; set; }
     public ApprenticeshipStatus Status { get; set; }
@@ -57,6 +59,8 @@ public class GetApprenticeshipResponse
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }
+    [JsonConverter(typeof(StringEnumConverter))] 
+    public LearningType LearningType { get; set; }
     public int? EmployerVerificationStatus { get; set; }
     public string EmployerVerificationNotes { get; set; }
 }

@@ -99,6 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             //Arrange
             frameworks.Add(framework);
+            dbContext.Setup(x => x.Courses).ReturnsDbSet(new List<Course>());
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(frameworks);
 
             //Act
@@ -111,6 +112,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.EffectiveTo.Should().Be(framework.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Framework);
             dbContext.Verify(x => x.Standards.FindAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_If_It_Is_Not_Numeric_And_Course_Found_Then_Course_Is_Returned(
+            Course course,
+            List<Course> courses,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service
+            )
+        {
+            //Arrange
+            courses.Add(course);
+            dbContext.Setup(x => x.Courses).ReturnsDbSet(courses);
+
+            //Act
+            var actual = await service.GetTrainingProgramme(course.LarsCode);
+
+            //Assert
+            actual.CourseCode.Should().Be(course.LarsCode);
+            actual.Name.Should().Be($"{course.Title}, Level: {course.Level}");
+            actual.EffectiveFrom.Should().Be(course.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(course.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.FundingPeriods.Count.Should().Be(1);
+            actual.FundingPeriods[0].EffectiveFrom.Should().Be(course.EffectiveFrom);
+            actual.FundingPeriods[0].EffectiveTo.Should().Be(course.EffectiveTo);
+            actual.FundingPeriods[0].FundingCap.Should().Be(course.MaxFunding);
+            dbContext.Verify(x => x.Standards.FindAsync(It.IsAny<int>()), Times.Never);
+            dbContext.Verify(x => x.Frameworks.FindAsync(It.IsAny<string>()), Times.Never);
         }
 
         [Test, RecursiveMoqAutoData]
@@ -133,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             //Arrange
+            dbContext.Setup(x => x.Courses).ReturnsDbSet(new List<Course>());
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(new List<Framework>());
 
             //Act Assert
