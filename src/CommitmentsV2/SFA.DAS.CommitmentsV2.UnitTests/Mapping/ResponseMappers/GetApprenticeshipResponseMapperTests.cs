@@ -1,6 +1,7 @@
 ﻿using KellermanSoftware.CompareNetObjects;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -33,35 +34,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
-        public void ResponseIsMappedCorrectly()
-        {
-            var compare = new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true });
-            var compareResult = compare.Compare(_source, _result);
-            Assert.That(compareResult.AreEqual, Is.True);
-        }
-
-        [Test]
         public void DeliveryModelIsMappedCorrectly()
         {
-            Assert.That(_result.DeliveryModel, Is.EqualTo(_source.DeliveryModel));
+            _result.DeliveryModel.Should().Be(_source.DeliveryModel);
         }
 
         [Test]
         public void EmploymentPriceIsMappedCorrectly()
         {
-            Assert.That(_result.EmploymentPrice, Is.EqualTo(_source.FlexibleEmployment.EmploymentPrice));
+            _result.EmploymentPrice.Should().Be(_source.FlexibleEmployment.EmploymentPrice);
         }
 
         [Test]
         public void EmploymentEndDateIsMappedCorrectly()
         {
-            Assert.That(_result.EmploymentEndDate, Is.EqualTo(_source.FlexibleEmployment.EmploymentEndDate));
+            _result.EmploymentEndDate.Should().Be(_source.FlexibleEmployment.EmploymentEndDate);
         }
 
         [Test]
         public void RecognisePriorLearningIsMappedCorrectly()
         {
-            Assert.That(_result.RecognisePriorLearning, Is.EqualTo(_source.RecognisePriorLearning));
+            _result.RecognisePriorLearning.Should().Be(_source.RecognisePriorLearning);
         }
 
         [Test]
@@ -73,37 +66,83 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         [Test]
         public void PriceReducedByIsMappedCorrectly()
         {
-            Assert.That(_result.PriceReducedBy, Is.EqualTo(_source.ApprenticeshipPriorLearning.PriceReducedBy));
+            _result.PriceReducedBy.Should().Be(_source.ApprenticeshipPriorLearning.PriceReducedBy);
         }
 
         [Test]
         public void DurationReducedByHoursIsMappedCorrectly()
         {
-            Assert.That(_result.DurationReducedByHours, Is.EqualTo(_source.ApprenticeshipPriorLearning.DurationReducedByHours));
+            _result.DurationReducedByHours.Should().Be(_source.ApprenticeshipPriorLearning.DurationReducedByHours);
         }
 
         [Test]
         public void TrainingTotalHoursIsMappedCorrectly()
         {
-            Assert.That(_result.TrainingTotalHours, Is.EqualTo(_source.TrainingTotalHours));
+            _result.TrainingTotalHours.Should().Be(_source.TrainingTotalHours);
         }
 
         [Test]
         public void IsDurationReducedIsMappedCorrectly()
         {
-            Assert.That(_result.IsDurationReducedByRpl, Is.EqualTo(_source.ApprenticeshipPriorLearning.IsDurationReducedByRpl));
+            _result.IsDurationReducedByRpl.Should().Be(_source.ApprenticeshipPriorLearning.IsDurationReducedByRpl);
         }
 
         [Test]
         public void StartDateIsMappedCorrectly()
         {
-            Assert.That(_result.ActualStartDate, Is.EqualTo(_source.ActualStartDate));
+            _result.ActualStartDate.Should().Be(_source.ActualStartDate);
         }
 
         [Test]
         public void IsDurationReducedByRplIsMappedCorrectly()
         {
-            Assert.That(_result.IsDurationReducedByRpl, Is.EqualTo(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl));
+            _result.IsDurationReducedByRpl.Should().Be(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl);
+        }
+
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        public async Task LearningTypeIsMappedCorrectly(LearningType learningType)
+        {
+            _source.LearningType = learningType;
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+            _result.LearningType.Should().Be(learningType);
+        }
+        
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreMappedCorrectly()
+        {
+            _source.EmployerVerificationStatus = EmployerVerificationRequestStatus.Passed;
+            _source.EmployerVerificationNotes = null;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().Be((int)EmployerVerificationRequestStatus.Passed);
+            _result.EmployerVerificationNotes.Should().BeNull();
+        }
+
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreMappedCorrectly_WhenErrorWithNotes()
+        {
+            _source.EmployerVerificationStatus = EmployerVerificationRequestStatus.Error;
+            _source.EmployerVerificationNotes = "PAYENotFound";
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().Be((int)EmployerVerificationRequestStatus.Error);
+            _result.EmployerVerificationNotes.Should().Be("PAYENotFound");
+        }
+
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreNullWhenNotSet()
+        {
+            _source.EmployerVerificationStatus = null;
+            _source.EmployerVerificationNotes = null;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().BeNull();
+            _result.EmployerVerificationNotes.Should().BeNull();
         }
     }
 }

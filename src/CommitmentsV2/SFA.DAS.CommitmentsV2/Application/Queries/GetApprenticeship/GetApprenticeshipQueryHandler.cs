@@ -1,5 +1,7 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 
@@ -7,10 +9,12 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 {
     public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
     {
-        var result = await dbContext.Value
-            .Apprenticeships
+
+        var db = dbContext.Value;
+        var result = await db.Apprenticeships
             .Include(x => x.FlexibleEmployment)
             .Include(x => x.PriorLearning)
+            .Include(x => x.EmployerVerificationRequest)
             .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {
@@ -55,7 +59,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
                         MadeRedundant = apprenticeship.MadeRedundant,
                         EmailAddressConfirmedByApprentice = apprenticeship.EmailAddressConfirmed == true,
-                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null,
+                        EmailShouldBePresent = apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021, 9, 10) && apprenticeship.ContinuationOfId == null,
                         ConfirmationStatus = Models.Apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
@@ -66,10 +70,15 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
                         TransferSenderId = apprenticeship.Cohort.TransferSenderId,
                         TrainingTotalHours = apprenticeship.TrainingTotalHours,
-                        EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost
+                        EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost,
+                        EmployerVerificationStatus = apprenticeship.EmployerVerificationRequest == null ? null : apprenticeship.EmployerVerificationRequest.Status,
+                        EmployerVerificationNotes = apprenticeship.EmployerVerificationRequest == null ? null : apprenticeship.EmployerVerificationRequest.Notes
                     },
                 cancellationToken);
 
+        var learningType = db.Courses.FirstOrDefaultAsync(c => c.LarsCode == result.CourseCode, cancellationToken: cancellationToken).Result?.LearningType;
+        result.LearningType = learningType ?? LearningType.Apprenticeship;
+
         return result;
-    }
+    }   
 }
