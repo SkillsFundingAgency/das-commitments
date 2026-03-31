@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -126,7 +126,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.Cohort.Provider)
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
-                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests);
+                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
         }
         else
         {
@@ -142,7 +143,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.Cohort.Provider)
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
-                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests);
+                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
         }
 
         if (skipCount > 0)
@@ -177,7 +179,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.Cohort.Provider)
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
-                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests);
+                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
         }
         else
         {
@@ -193,7 +196,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.Cohort.Provider)
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
-                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests);
+                .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
         }
 
         if (skipCount > 0)
