@@ -15,34 +15,36 @@ public class PostCocApprovalCommandHandler(
     ILogger<PostCocApprovalCommandHandler> logger)
     : IRequestHandler<PostCocApprovalCommand, CocApprovalResult>
 {
-    public async Task<CocApprovalResult> Handle(PostCocApprovalCommand command, CancellationToken cancellationToken)
+    public async Task<CocApprovalResult> Handle(PostCocApprovalCommand postCommand, CancellationToken cancellationToken)
     {
         logger.LogInformation("=== COMMITMENTS API: PostCocApprovalCommandHandler.Handle called ===");
 
-        if (command == null)
+        if (postCommand?.CocApprovalDetails == null)
         {
-            throw new ArgumentNullException(nameof(command));
+            throw new ArgumentNullException(nameof(postCommand));
         }
 
+        var cocApprovalDetails = postCommand.CocApprovalDetails;
+
         var db = dbContext.Value;
-        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey && r.Status == CocApprovalResultStatus.Pending);
+        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == cocApprovalDetails.LearningKey && r.Status == CocApprovalResultStatus.Pending);
 
         if (existingApprovalRequests.Any())
         {
             throw new DomainException("LearningKey", "An approval request for this learning key already exists.");
         }
 
-        var updateStatuses = cocApprovalService.DetermineCocUpdateStatuses(command.Updates, command.Apprenticeship);
+        var updateStatuses = cocApprovalService.DetermineCocUpdateStatuses(cocApprovalDetails.Updates, cocApprovalDetails.Apprenticeship);
         var approvalRequestStatus = DetermineApprovalRequestStatus(updateStatuses);
-        IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(command, updateStatuses);
+        IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(cocApprovalDetails, updateStatuses);
 
         var approvalRequest = new ApprovalRequest
         {
-            LearningKey = command.LearningKey,
-            ApprenticeshipId = command.ApprenticeshipId,
-            LearningType = command.LearningType,
-            UKPRN = command.ProviderId.ToString(),
-            ULN = command.ULN,
+            LearningKey = cocApprovalDetails.LearningKey,
+            ApprenticeshipId = cocApprovalDetails.ApprenticeshipId,
+            LearningType = cocApprovalDetails.LearningType,
+            UKPRN = cocApprovalDetails.ProviderId.ToString(),
+            ULN = cocApprovalDetails.ULN,
             Status = approvalRequestStatus,
             Items = approvalFieldRequests.ToList()
         };
@@ -56,7 +58,7 @@ public class PostCocApprovalCommandHandler(
         }; ;
     }
 
-    private static IEnumerable<ApprovalFieldRequest> MapToApprovalFieldRequests(PostCocApprovalCommand command, List<CocUpdateResult> updateStatuses)
+    private static IEnumerable<ApprovalFieldRequest> MapToApprovalFieldRequests(CocApprovalDetails command, List<CocUpdateResult> updateStatuses)
     {
         return command.ApprovalFieldChanges.Join(
             updateStatuses,

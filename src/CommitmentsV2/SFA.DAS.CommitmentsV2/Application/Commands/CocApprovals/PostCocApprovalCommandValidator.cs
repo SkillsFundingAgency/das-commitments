@@ -7,7 +7,9 @@ public class PostCocApprovalCommandValidator : AbstractValidator<PostCocApproval
 {
     public PostCocApprovalCommandValidator()
     {
-        RuleFor(model => model.Apprenticeship).NotNull().WithMessage("No Matching Apprenticeship Found");
-        RuleFor(model => model.Apprenticeship.Cohort.ProviderId).Equal(x => x.ProviderId).When(model => model.Apprenticeship != null).WithMessage("The UKPRN does not match Provider assigned");
+        RuleFor(x => x.CocApprovalDetails)
+                    .NotNull()
+                    .WithMessage("CocApprovalCommand is required.")
+                    .SetValidator(new CocApprovalValidator());
     }
 }

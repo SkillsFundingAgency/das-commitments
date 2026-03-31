@@ -15,24 +15,41 @@ public class PostCocApprovalCommandValidatorTests
     {
         var command = new PostCocApprovalCommand
         {
-            Apprenticeship = new Apprenticeship
+            CocApprovalDetails = new CocApprovalDetails
             {
-                Cohort = new Cohort
+                Apprenticeship = new Apprenticeship
                 {
-                    ProviderId = 12345
+                    Cohort = new Cohort
+                    {
+                        ProviderId = 12345
+                    }
                 }
-            },
+            }
         };
 
-        AssertValidationResult(r => r.Apprenticeship, command, true);
+        AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship, command, true);
+    }
+
+    [Test]
+    public void Validate_CocApprovalCommandFails_WhenNull()
+    {
+        var command = new PostCocApprovalCommand();
+
+        AssertValidationResult(r => r.CocApprovalDetails, command, false);
     }
 
     [Test]
     public void Validate_ApprenticeshipFails_WhenNull()
     {
-        var command = new PostCocApprovalCommand();
+        var command = new PostCocApprovalCommand
+        {
+            CocApprovalDetails = new CocApprovalDetails
+            {
+                Apprenticeship = null
+            }
+        };
 
-        AssertValidationResult(r => r.Apprenticeship, command, false);
+        AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship, command, false);
     }
 
     [TestCase(1234, false)]
@@ -40,16 +57,19 @@ public class PostCocApprovalCommandValidatorTests
     {
         var command = new PostCocApprovalCommand
         {
-            Apprenticeship = new Apprenticeship
+            CocApprovalDetails = new CocApprovalDetails
             {
-                Cohort = new Cohort
+                Apprenticeship = new Apprenticeship
                 {
-                    ProviderId = providerId
+                    Cohort = new Cohort
+                    {
+                        ProviderId = providerId
+                    }
                 }
-            },
+            }
         };
 
-        AssertValidationResult(r => r.Apprenticeship.Cohort.ProviderId, command, isValid);
+        AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship.Cohort.ProviderId, command, isValid);
     }
 
     private void AssertValidationResult<T>(Expression<Func<PostCocApprovalCommand, T>> property,

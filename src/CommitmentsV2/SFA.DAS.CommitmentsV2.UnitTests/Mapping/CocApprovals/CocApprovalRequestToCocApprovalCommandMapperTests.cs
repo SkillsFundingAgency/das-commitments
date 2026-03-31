@@ -122,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         public List<CocApprovalFieldChange> FieldChanges { get; set; } = new();
         public ProviderCommitmentsDbContext Db { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-        public CocApprovalRequestToCocApprovalCommandMapper Mapper { get; set; }
+        public CocApprovalRequestToCocApprovalDetailsMapper Mapper { get; set; }
         public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
 
         public CocApprovalRequestToCocApprovalCommandMapperTestsFixture()
@@ -145,7 +145,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
                 .With(x => x.Changes, FieldChanges)
                 .Create();
 
-            Mapper = new CocApprovalRequestToCocApprovalCommandMapper(new Lazy<ProviderCommitmentsDbContext>(Db), Mock.Of<ILogger<CocApprovalRequestToCocApprovalCommandMapper>>());
+            Mapper = new CocApprovalRequestToCocApprovalDetailsMapper(new Lazy<ProviderCommitmentsDbContext>(Db), Mock.Of<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>>());
         }
 
         public CocApprovalRequestToCocApprovalCommandMapperTestsFixture SeedData()
