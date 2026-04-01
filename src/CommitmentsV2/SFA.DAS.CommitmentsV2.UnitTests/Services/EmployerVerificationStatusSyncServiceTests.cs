@@ -79,6 +79,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeTrue();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
         request.LastCheckedDate.Should().Be(dateOfCheck);
         request.Updated.Should().NotBeNull();
@@ -112,6 +113,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeFalse();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Failed);
     }
 
@@ -142,6 +144,7 @@ public class EmployerVerificationStatusSyncServiceTests
         // Assert
         var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
         request.Should().NotBeNull();
+        request!.Employed.Should().BeNull();
         request!.Status.Should().Be(EmployerVerificationRequestStatus.Error);
         request.Notes.Should().Be("NinoNotFound");
     }
@@ -166,10 +169,10 @@ public class EmployerVerificationStatusSyncServiceTests
     }
 
     [Test]
-    public async Task SyncPendingEmploymentChecksAsync_WhenMoreThan100Pending_MakesPagedApiCalls()
+    public async Task SyncPendingEmploymentChecksAsync_WhenMoreThan50Pending_MakesPagedApiCalls()
     {
-        // Arrange
-        for (var i = 1; i <= 250; i++)
+        // Arrange: 150 pending, ApiPageSize 50 => 3 API calls
+        for (var i = 1; i <= 150; i++)
         {
             SeedPendingRequest(i);
         }
@@ -177,7 +180,7 @@ public class EmployerVerificationStatusSyncServiceTests
         _apiClient
             .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
             .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
-        
+
         // Act
         await _sut.SyncPendingEmploymentChecksAsync();
 
@@ -185,6 +188,101 @@ public class EmployerVerificationStatusSyncServiceTests
         _apiClient.Verify(
             x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()),
             Times.Exactly(3));
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenCreatedLessThanOneDayAgo_DoesNotSelectRecord()
+    {
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = 300,
+            Created = DateTime.UtcNow.AddHours(-12),
+            Status = EmployerVerificationRequestStatus.Pending
+        });
+        _db.SaveChanges();
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenCreatedMoreThanFiveMonthsAgo_DoesNotSelectRecord()
+    {
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = 301,
+            Created = DateTime.UtcNow.AddMonths(-6),
+            Updated = null,
+            Status = EmployerVerificationRequestStatus.Pending
+        });
+        _db.SaveChanges();
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenEmployedTrueAndUpdatedOverOneDayAgo_DoesNotSelectForPeriodicRecheck()
+    {
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = 302,
+            Created = DateTime.UtcNow.AddMonths(-1),
+            Updated = DateTime.UtcNow.AddDays(-2),
+            Employed = true,
+            Status = EmployerVerificationRequestStatus.Passed
+        });
+        _db.SaveChanges();
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenStatusFailedAndUpdatedOverOneDayAgo_SelectsForPeriodicRecheck()
+    {
+        const long apprenticeshipId = 303;
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = apprenticeshipId,
+            Created = DateTime.UtcNow.AddMonths(-1),
+            Updated = DateTime.UtcNow.AddDays(-2),
+            Status = EmployerVerificationRequestStatus.Failed
+        });
+        _db.SaveChanges();
+
+        _apiClient
+            .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
+            .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.Verify(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenStatusPassedButEmployedUnknownAndUpdatedOverOneDayAgo_SelectsForPeriodicRecheck()
+    {
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = 304,
+            Created = DateTime.UtcNow.AddMonths(-1),
+            Updated = DateTime.UtcNow.AddDays(-2),
+            Employed = null,
+            Status = EmployerVerificationRequestStatus.Passed
+        });
+        _db.SaveChanges();
+
+        _apiClient
+            .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
+            .ReturnsAsync(new GetEmploymentChecksResponse { Checks = [] });
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        _apiClient.Verify(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()), Times.Once);
     }
 
     private void SeedPendingRequest(long apprenticeshipId)
