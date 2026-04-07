@@ -2,6 +2,7 @@
 public class CommitmentsV2Configuration
 {
     public string DatabaseConnectionString { get; set; }
+    public string StorageConnectionString { get; set; }
     public string RedisConnectionString { get; set; }
     public string ZenDeskEmailAddress { get; set; }
 
@@ -26,4 +27,15 @@ public class CommitmentsV2Configuration
     public string EmployerCommitmentsBaseUrl { get; set; }
     public DateTime ExpireInactiveEmployerCohortImplementationDate { get; set; }
     public bool IgnoreShortCourses { get; set; }
+    public string ReplayApprenticeshipCreatedEventsJobSchedule { get; set; }
+    public ReplayApprenticeshipCreatedEventsConfiguration ReplayApprenticeshipCreatedEvents { get; set; }
+}
+
+public class ReplayApprenticeshipCreatedEventsConfiguration
+{
+    public bool DryRun { get; set; }
+    public string InputContainer { get; set; }
+    public string InputPrefix { get; set; }
+    public string ArchiveContainer { get; set; }
+    public string ArchivePrefix { get; set; }
 }
