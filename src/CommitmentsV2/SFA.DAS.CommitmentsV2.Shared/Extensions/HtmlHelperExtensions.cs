@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -28,7 +28,7 @@ public static class HtmlHelperExtensions
             var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
                 .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-            if (expressionProvider?.CreateModelExpression(htmlHelper.ViewContext.ViewBag, expression) is ModelExpression modelExpression)
+            if (expressionProvider?.CreateModelExpression(htmlHelper.ViewData, expression) is ModelExpression modelExpression)
             {
                 return modelExpression.Name;
             }

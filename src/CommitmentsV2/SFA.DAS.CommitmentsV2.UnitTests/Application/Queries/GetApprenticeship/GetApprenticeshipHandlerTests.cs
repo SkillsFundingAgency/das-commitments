@@ -1,4 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -251,6 +251,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _result.TrainingTotalHours.Should().Be(Apprenticeship.TrainingTotalHours);
                 _result.EmployerHasEditedCost.Should().Be(Apprenticeship.EmployerHasEditedCost);
                 _result.ApprenticeshipPriorLearning.IsDurationReducedByRpl.Should().Be(Apprenticeship.PriorLearning.IsDurationReducedByRpl);
+                _result.EmployerVerificationStatus.Should().BeNull();
+                _result.EmployerVerificationNotes.Should().BeNull();
             }
 
             public void Dispose()
