@@ -18,18 +18,22 @@ public class ReplayApprenticeshipCreatedEventsService(
     ILogger<ReplayApprenticeshipCreatedEventsService> logger)
     : IReplayApprenticeshipCreatedEventsService
 {
+    private const string ApprenticeshipIdHeader = "apprenticeshipid";
+
     public async Task ReplayFromFile(ReplayInputFile replayInputFile)
     {
-        var cohortIds = ParseCohortIds(replayInputFile.Content);
-        if (cohortIds.Count == 0)
+        var apprenticeshipIds = ParseApprenticeshipIds(replayInputFile.Content);
+        if (apprenticeshipIds.Count == 0)
         {
-            logger.LogWarning("Replay file {FileName} did not contain any valid cohort ids.", replayInputFile.FullPath);
+            logger.LogWarning(
+                "Replay file {FileName} did not contain any valid apprenticeship ids. Ensure header is ApprenticeshipId.",
+                replayInputFile.FullPath);
             return;
         }
 
         var creationDate = DateTime.UtcNow;
         var events = await dbContext.Apprenticeships
-            .Where(apprenticeship => cohortIds.Contains(apprenticeship.CommitmentId))
+            .Where(apprenticeship => apprenticeshipIds.Contains(apprenticeship.Id))
             .Join(dbContext.Standards,
                 apprenticeship => apprenticeship.StandardUId,
                 standard => standard.StandardUId,
@@ -77,8 +81,8 @@ public class ReplayApprenticeshipCreatedEventsService(
             .ToListAsync();
 
         logger.LogInformation(
-            "Replay file {FileName} produced {Count} ApprenticeshipCreatedEvents from {CohortCount} cohort ids.",
-            replayInputFile.FullPath, events.Count, cohortIds.Count);
+            "Replay file {FileName} produced {Count} ApprenticeshipCreatedEvents from {InputCount} apprenticeship ids.",
+            replayInputFile.FullPath, events.Count, apprenticeshipIds.Count);
 
         var dryRun = configuration.ReplayApprenticeshipCreatedEvents?.DryRun ?? true;
         foreach (var apprenticeshipCreatedEvent in events)
@@ -98,7 +102,7 @@ public class ReplayApprenticeshipCreatedEventsService(
         }
     }
 
-    public static HashSet<long> ParseCohortIds(string content)
+    public static HashSet<long> ParseApprenticeshipIds(string content)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -107,9 +111,14 @@ public class ReplayApprenticeshipCreatedEventsService(
 
         var separators = new[] { ',', '\n', '\r', ';', '\t', ' ' };
         var values = content.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (values.Length == 0)
+        {
+            return [];
+        }
 
         return values
             .Select(NormaliseToken)
+            .Where(value => !IsHeader(value, ApprenticeshipIdHeader))
             .Select(value => long.TryParse(value, out var id) ? id : (long?)null)
             .Where(id => id.HasValue)
             .Select(id => id!.Value)
@@ -120,4 +129,11 @@ public class ReplayApprenticeshipCreatedEventsService(
     {
         return string.IsNullOrWhiteSpace(value) ? value : value.Trim().Trim('"', '\'');
     }
+
+    private static bool IsHeader(string value, string expectedHeader)
+    {
+        return !string.IsNullOrWhiteSpace(value) &&
+               string.Equals(NormaliseToken(value), expectedHeader, StringComparison.OrdinalIgnoreCase);
+    }
+
 }
