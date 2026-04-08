@@ -17,8 +17,9 @@ public class CommitmentsV2Configuration
 
     public ProviderUrlConfiguration ProviderUrl { get; set; }
 
-    // An ISO-formatted string date representation for test override, or any other
-    // non-empty value for the real current datetime.
+    /// <summary>
+    /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
+    /// </summary>
     public string CurrentDateTime { get; set; }
     public string ReadOnlyDatabaseConnectionString { get; set; }
 
