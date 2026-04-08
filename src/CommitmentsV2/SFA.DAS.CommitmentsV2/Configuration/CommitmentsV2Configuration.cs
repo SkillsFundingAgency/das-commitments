@@ -17,9 +17,8 @@ public class CommitmentsV2Configuration
 
     public ProviderUrlConfiguration ProviderUrl { get; set; }
 
-    /// <summary>
-    /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
-    /// </summary>
+    // An ISO-formatted string date representation for test override, or any other
+    // non-empty value for the real current datetime.
     public string CurrentDateTime { get; set; }
     public string ReadOnlyDatabaseConnectionString { get; set; }
 
@@ -28,14 +27,5 @@ public class CommitmentsV2Configuration
     public DateTime ExpireInactiveEmployerCohortImplementationDate { get; set; }
     public bool IgnoreShortCourses { get; set; }
     public string ReplayApprenticeshipCreatedEventsJobSchedule { get; set; }
-    public ReplayApprenticeshipCreatedEventsConfiguration ReplayApprenticeshipCreatedEvents { get; set; }
-}
-
-public class ReplayApprenticeshipCreatedEventsConfiguration
-{
-    public bool DryRun { get; set; }
-    public string InputContainer { get; set; }
-    public string InputPrefix { get; set; }
-    public string ArchiveContainer { get; set; }
-    public string ArchivePrefix { get; set; }
+    public bool ReplayApprenticeshipCreatedEventsDryRun { get; set; } = true;
 }
