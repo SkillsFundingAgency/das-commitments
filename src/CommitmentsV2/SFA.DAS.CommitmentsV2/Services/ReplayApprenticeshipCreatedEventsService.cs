@@ -84,7 +84,7 @@ public class ReplayApprenticeshipCreatedEventsService(
             "Replay file {FileName} produced {Count} ApprenticeshipCreatedEvents from {InputCount} apprenticeship ids.",
             replayInputFile.FullPath, events.Count, apprenticeshipIds.Count);
 
-        var dryRun = configuration.ReplayApprenticeshipCreatedEvents?.DryRun ?? true;
+        var dryRun = configuration.ReplayApprenticeshipCreatedEventsDryRun;
         foreach (var apprenticeshipCreatedEvent in events)
         {
             if (dryRun)
