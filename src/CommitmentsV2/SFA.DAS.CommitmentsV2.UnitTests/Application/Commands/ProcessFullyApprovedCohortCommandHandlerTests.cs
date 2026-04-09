@@ -193,11 +193,26 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .With(s => s.LearningType, LearningType.ApprenticeshipUnit)
             .Create();
 
+        var standardBuilder = AutoFixture.Build<Standard>();
+        var standard1 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship1.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
+        var standard2 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship2.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
+        var standard3 = standardBuilder
+            .With(s => s.StandardUId, apprenticeship3.StandardUId)
+            .With(s => s.ApprenticeshipType, "Apprenticeship")
+            .Create();
+
         Apprenticeships.AddRange(apprenticeships1);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships2);
         Db.Object.Courses.AddRange(new[] { course1, course2, course3 });
+        Db.Object.Standards.AddRange(new[] { standard1, standard2, standard3 });
 
         Db.Object.SaveChanges();
             

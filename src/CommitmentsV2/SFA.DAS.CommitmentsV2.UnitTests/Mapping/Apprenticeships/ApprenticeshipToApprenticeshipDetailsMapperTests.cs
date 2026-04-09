@@ -306,6 +306,8 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         OverlappingTrainingDateRequest overlappingTrainingDateRequest,
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
+        source.IsProviderSearch = false;
+        overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
         source.ApprenticeshipUpdate = null;
         source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
         {

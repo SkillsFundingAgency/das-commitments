@@ -108,5 +108,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             _result = await _mapper.Map(TestHelper.Clone(_source));
             _result.LearningType.Should().Be(learningType);
         }
+        
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreMappedCorrectly()
+        {
+            _source.EmployerVerificationStatus = EmployerVerificationRequestStatus.Passed;
+            _source.EmployerVerificationNotes = null;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().Be((int)EmployerVerificationRequestStatus.Passed);
+            _result.EmployerVerificationNotes.Should().BeNull();
+        }
+
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreMappedCorrectly_WhenErrorWithNotes()
+        {
+            _source.EmployerVerificationStatus = EmployerVerificationRequestStatus.Error;
+            _source.EmployerVerificationNotes = "PAYENotFound";
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().Be((int)EmployerVerificationRequestStatus.Error);
+            _result.EmployerVerificationNotes.Should().Be("PAYENotFound");
+        }
+
+        [Test]
+        public async Task EmployerVerificationStatusAndNotesAreNullWhenNotSet()
+        {
+            _source.EmployerVerificationStatus = null;
+            _source.EmployerVerificationNotes = null;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.EmployerVerificationStatus.Should().BeNull();
+            _result.EmployerVerificationNotes.Should().BeNull();
+        }
     }
 }

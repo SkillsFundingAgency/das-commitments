@@ -54,5 +54,6 @@ public class GetApprenticeshipQueryResult
     public int? TrainingTotalHours { get; set; }
     public bool? EmployerHasEditedCost { get; set; }
     public LearningType LearningType { get; set; }
-
+    public EmployerVerificationRequestStatus? EmployerVerificationStatus { get; set; }
+    public string EmployerVerificationNotes { get; set; }
 }

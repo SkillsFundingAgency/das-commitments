@@ -35,7 +35,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         var events = await db.Value.Apprenticeships
             .Where(apprenticeship => apprenticeship.Cohort.Id == request.CohortId)
-            .Join(db.Value.Courses, apprenticeship => apprenticeship.CourseCode, course => course.LarsCode, (apprenticeship, course) => new { apprenticeship, course })
+            .Join(db.Value.Standards, apprenticeship => apprenticeship.StandardUId, standard => standard.StandardUId, (apprenticeship, standard) => new { apprenticeship, standard })
             .Select(x => new ApprenticeshipCreatedEvent
             {
                 ApprenticeshipId = x.apprenticeship.Id,
@@ -74,7 +74,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 LastName = x.apprenticeship.LastName,
                 ApprenticeshipHashedId = encodingService.Encode(x.apprenticeship.Id, EncodingType.ApprenticeshipId),
                 LearnerDataId = x.apprenticeship.LearnerDataId,
-                LearningType = x.course.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship
+                LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.standard.ApprenticeshipType, true)
             })
             .ToListAsync(cancellationToken);
 
