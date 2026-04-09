@@ -8,6 +8,7 @@ public class EmployerVerificationRequest
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
     public DateTime? LastCheckedDate { get; set; }
+    public bool? Employed { get; set; }
     public EmployerVerificationRequestStatus Status { get; set; }
     public string Notes { get; set; }
 
