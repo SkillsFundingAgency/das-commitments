@@ -14,8 +14,8 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     [HttpPost("{learningKey}")]
     public async Task<ActionResult> PostApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
     {
-        var command = await modelMapper.Map<CocApprovalDetails>(request);
-        var result = await mediator.Send(new PostCocApprovalCommand { CocApprovalDetails = command });
+        var details = await modelMapper.Map<CocApprovalDetails>(request);
+        var result = await mediator.Send(new PostCocApprovalCommand { CocApprovalDetails = details });
         logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PostApprovals completed === Returning status of {0}", result?.Status);
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }
@@ -23,8 +23,8 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     [HttpPut("{learningKey}")]
     public async Task<ActionResult> PutApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
     {
-        var command = await modelMapper.Map<CocApprovalDetails>(request);
-        var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalCommand = command });
+        var details = await modelMapper.Map<CocApprovalDetails>(request);
+        var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
         logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PutApprovals completed === Returning status of {0}", result?.Status);
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }

@@ -2,5 +2,5 @@
 
 public class PutCocApprovalCommand() : IRequest<CocApprovalResult>
 {
-    public CocApprovalDetails CocApprovalCommand { get; set; }
+    public CocApprovalDetails CocApprovalDetails { get; set; }
 }
