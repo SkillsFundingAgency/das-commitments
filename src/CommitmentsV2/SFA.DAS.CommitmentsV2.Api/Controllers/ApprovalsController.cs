@@ -37,7 +37,6 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
             Reason = x.Reason
         }).ToList();
     }
-
 }
 
 public class ApprovalFieldChange
