@@ -39,7 +39,6 @@ public class EmployerAgreementService : IEmployerAgreementService
 
         try
         {
-            return true;
             var legalEntity = await GetLegalEntity(accountId, maLegalEntityId);
 
             var signedAgreements = legalEntity.Agreements

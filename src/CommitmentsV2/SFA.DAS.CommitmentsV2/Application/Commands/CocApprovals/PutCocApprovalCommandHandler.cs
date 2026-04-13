@@ -7,30 +7,32 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
-public class PostCocApprovalCommandHandler(
+public class PutCocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICocApprovalRules cocApprovalRules,
     ILogger<PostCocApprovalCommandHandler> logger)
-    : IRequestHandler<PostCocApprovalCommand, CocApprovalResult>
+    : IRequestHandler<PutCocApprovalCommand, CocApprovalResult>
 {
-    public async Task<CocApprovalResult> Handle(PostCocApprovalCommand postCommand, CancellationToken cancellationToken)
+    public async Task<CocApprovalResult> Handle(PutCocApprovalCommand putCommand, CancellationToken cancellationToken)
     {
-        logger.LogInformation("PostCocApprovalCommandHandler.Handle called");
+        logger.LogInformation("PutCocApprovalCommandHandler.Handle called");
 
-        if (postCommand?.CocApprovalDetails == null)
+        if (putCommand?.CocApprovalDetails == null)
         {
-            throw new ArgumentNullException(nameof(postCommand));
+            throw new ArgumentNullException(nameof(putCommand));
         }
 
-        var cocApprovalDetails = postCommand.CocApprovalDetails;
+        var cocApprovalDetails = putCommand.CocApprovalDetails;
 
         var db = dbContext.Value;
         var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == cocApprovalDetails.LearningKey && r.Status == CocApprovalResultStatus.Pending);
 
-        if (existingApprovalRequests.Any())
+        if (!existingApprovalRequests.Any())
         {
-            throw new DomainException("LearningKey", "An approval request for this learning key already exists.");
+            throw new DomainException("LearningKey", "A pending approval request for this learning key is expected but nothing exists.");
         }
+        
+        db.ApprovalRequests.RemoveRange(existingApprovalRequests);
 
         var approvalState = cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
 

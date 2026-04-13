@@ -3,7 +3,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-public interface ICocApprovalService
+public interface ICocApprovalStatusService
 {
     List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship);
 }
