@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -99,6 +100,9 @@ public class ProcessFullyApprovedCohortCommandHandler(
         ApprenticeshipEmployerType apprenticeshipEmployerType,
         Func<Apprenticeship, Common.Domain.Types.LearningType> learningTypeResolver)
     {
+
+        logger.LogInformation("Mapping apprenticeshipIs {Id}.", apprenticeship.Id);
+
         return new ApprenticeshipCreatedEvent
         {
             ApprenticeshipId = apprenticeship.Id,
