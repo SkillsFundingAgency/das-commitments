@@ -35,9 +35,12 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
+        logger.LogInformation("IgnoreShortCourses is set to {ignoreShortCourse} for cohort {cohortId}.", configuration.IgnoreShortCourses, request.CohortId);
+
         List<ApprenticeshipCreatedEvent> events;
         if (configuration.IgnoreShortCourses)
         {
+            logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Standards.", request.CohortId);
             var matches = (await db.Value.Apprenticeships
             .Where(a => a.Cohort.Id == request.CohortId)
             .Join(db.Value.Standards,
@@ -52,9 +55,12 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 apprenticeshipEmployerType,
                 _ => Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.s.ApprenticeshipType, true)))
             .ToList();
+            logger.LogInformation("Retrieved Apprenticeships for Cohort {CohortId} joined with Standards.", request.CohortId);
+
         }
         else
         {
+            logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Courses.", request.CohortId);
             var matches = (await db.Value.Apprenticeships
                 .Where(a => a.Cohort.Id == request.CohortId)
                 .Join(db.Value.Courses,
@@ -69,6 +75,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                     apprenticeshipEmployerType,
                     _ => x.c.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship))
                 .ToList();
+            logger.LogInformation("Retrieved Apprenticeships for Cohort {CohortId} joined with Courses.", request.CohortId);
         }
         logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
 
