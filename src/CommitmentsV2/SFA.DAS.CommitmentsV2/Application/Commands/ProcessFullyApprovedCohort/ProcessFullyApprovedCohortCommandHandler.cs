@@ -1,5 +1,6 @@
 using Azure.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
@@ -110,6 +111,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
     {
 
         logger.LogInformation("Mapping apprenticeshipIs {Id}.", apprenticeship.Id);
+        logger.LogInformation("Apprenticeship Values {o}", JsonConvert.SerializeObject(apprenticeship) );
 
         return new ApprenticeshipCreatedEvent
         {
@@ -149,7 +151,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
             LastName = apprenticeship.LastName,
             ApprenticeshipHashedId = encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId),
             LearnerDataId = apprenticeship.LearnerDataId,
-            LearningType = learningTypeResolver(apprenticeship)
+            LearningType = Common.Domain.Types.LearningType.Apprenticeship // learningTypeResolver(apprenticeship)
         };
     }
 
