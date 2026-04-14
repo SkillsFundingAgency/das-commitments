@@ -41,17 +41,18 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
             logger.LogInformation("IgnoreShortCourses is set to {ignoreShortCourse} for cohort {cohortId}.", configuration.IgnoreShortCourses, request.CohortId);
 
-            List<ApprenticeshipCreatedEvent> events;
+            var apprenticeships = await db.Value.Apprenticeships.Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+
+            List <ApprenticeshipCreatedEvent> events;
             if (configuration.IgnoreShortCourses)
             {
                 logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Standards.", request.CohortId);
-                var matches = (await db.Value.Apprenticeships
-                .Where(a => a.Cohort.Id == request.CohortId)
+                var matches = apprenticeships
                 .Join(db.Value.Standards,
                     a => a.StandardUId,
                     s => s.StandardUId,
                     (a, s) => new { a, s })
-                .ToListAsync(cancellationToken));
+                .ToList();
 
                 events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                     x.a,
@@ -65,13 +66,12 @@ public class ProcessFullyApprovedCohortCommandHandler(
             else
             {
                 logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Courses.", request.CohortId);
-                var matches = (await db.Value.Apprenticeships
-                    .Where(a => a.Cohort.Id == request.CohortId)
+                var matches = apprenticeships
                     .Join(db.Value.Courses,
                         a => a.CourseCode,
                         c => c.LarsCode,
                         (a, c) => new { a, c })
-                    .ToListAsync(cancellationToken));
+                    .ToList();
 
                 events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                         x.a,
@@ -151,7 +151,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
             LastName = apprenticeship.LastName,
             ApprenticeshipHashedId = encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId),
             LearnerDataId = apprenticeship.LearnerDataId,
-            LearningType = Common.Domain.Types.LearningType.Apprenticeship // learningTypeResolver(apprenticeship)
+            LearningType = learningTypeResolver(apprenticeship)
         };
     }
 
