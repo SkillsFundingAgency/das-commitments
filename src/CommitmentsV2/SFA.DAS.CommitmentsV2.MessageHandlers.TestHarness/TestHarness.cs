@@ -231,12 +231,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCreatedEvent)}");
                             break;
-                        case ConsoleKey.D2:
-	                        await _publisher.Publish(new LearningStartDateChangedEvent());
-	                        Console.WriteLine();
-	                        Console.WriteLine($"Sent {nameof(LearningStartDateChangedEvent)}");
-	                        break;
-
 					}
                 }
                 catch (Exception e)
