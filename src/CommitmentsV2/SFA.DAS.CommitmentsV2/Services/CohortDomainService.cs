@@ -38,6 +38,7 @@ public class CohortDomainService(
     public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, Party? requestingParty, CancellationToken cancellationToken)
     {
         var db = dbContext.Value;
+        await ApplyIlrApprenticeshipUnitDateValidationFlag(draftApprenticeshipDetails, cancellationToken);
         var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
         var party = requestingParty ?? authenticationService.GetUserParty();
         var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo, minimumAgeAtApprenticeshipStart, maximumAgeAtApprenticeshipStart);
@@ -49,6 +50,7 @@ public class CohortDomainService(
     {
         Cohort cohort = null;
         draftApprenticeshipDetails.IgnoreStartDateOverlap = true;
+        await ApplyIlrApprenticeshipUnitDateValidationFlag(draftApprenticeshipDetails, cancellationToken);
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
         if (cohortId.HasValue && cohortId.Value > 0)
         {
@@ -71,6 +73,7 @@ public class CohortDomainService(
 
         foreach (var apprenticeship in draftApprenticeships)
         {
+            await ApplyIlrApprenticeshipUnitDateValidationFlag(apprenticeship, cancellationToken);
             Cohort cohort;
             logger.LogInformation("Bulk upload - Add draft apprenticeship. Reservation-Id:{ReservationId} - uln {Uln}", apprenticeship.ReservationId, apprenticeship.Uln);
             var csvApprenticeship = csvBulkUploadApprenticehips.First(x => x.Uln == apprenticeship.Uln);
@@ -162,6 +165,7 @@ public class CohortDomainService(
     {
         var originatingParty = requestingParty ?? authenticationService.GetUserParty();
         var db = dbContext.Value;
+        await ApplyIlrApprenticeshipUnitDateValidationFlag(draftApprenticeshipDetails, cancellationToken);
         var provider = await GetProvider(providerId, db, cancellationToken);
         var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
         var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
@@ -217,6 +221,7 @@ public class CohortDomainService(
 
     public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, int minimumAgeAtApprenticeshipStart, int maximumAgeAtApprenticeshipStart, CancellationToken cancellationToken)
     {
+        await ApplyIlrApprenticeshipUnitDateValidationFlag(draftApprenticeshipDetails, cancellationToken);
         var cohort = await dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
         AssertHasProvider(cohortId, cohort.ProviderId);
@@ -232,6 +237,27 @@ public class CohortDomainService(
         await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
         return cohort;
+    }
+
+    private async Task ApplyIlrApprenticeshipUnitDateValidationFlag(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+    {
+        details.AllowSameStartAndEndDateForIlrApprenticeshipUnit = false;
+
+        if (!details.LearnerDataId.HasValue)
+        {
+            return;
+        }
+
+        var courseCode = details.TrainingProgramme?.CourseCode;
+        if (string.IsNullOrWhiteSpace(courseCode))
+        {
+            return;
+        }
+
+        details.AllowSameStartAndEndDateForIlrApprenticeshipUnit =
+            await dbContext.Value.Courses.AnyAsync(
+                c => c.LarsCode == courseCode && c.LearningType == LearningType.ApprenticeshipUnit,
+                cancellationToken);
     }
 
     public async Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)

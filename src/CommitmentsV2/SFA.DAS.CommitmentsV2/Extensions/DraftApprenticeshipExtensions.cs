@@ -60,9 +60,21 @@ public static class DraftApprenticeshipExtensions
             yield break;
         }
 
-        if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
+        if (draftApprenticeshipDetails.EndDate.HasValue
+            && draftApprenticeshipDetails.StartDate.HasValue
+            && IsEndDateInvalid(draftApprenticeshipDetails))
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+        }
+
+        bool IsEndDateInvalid(DraftApprenticeshipDetails details)
+        {
+            if (details.AllowSameStartAndEndDateForIlrApprenticeshipUnit)
+            {
+                return details.EndDate < details.StartDate;
+            }
+
+            return details.EndDate <= details.StartDate;
         }
     }
 

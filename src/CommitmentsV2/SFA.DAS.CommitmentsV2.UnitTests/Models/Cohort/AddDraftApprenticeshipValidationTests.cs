@@ -43,6 +43,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
+        [Test]
+        public void EndDate_CheckValidation_AllowsEqualDates_ForIlrApprenticeshipUnitFlag()
+        {
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 20);
+                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit = true;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                true);
+        }
+
+        [Test]
+        public void EndDate_CheckValidation_StillRejectsEndDateBeforeStart_ForIlrApprenticeshipUnitFlag()
+        {
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 21);
+                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
+                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
+                    _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit = true;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                false);
+        }
+
         [TestCase(null, true)]
         [TestCase(-1, false)]
         [TestCase(0, false)]

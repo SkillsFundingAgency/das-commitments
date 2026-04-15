@@ -91,6 +91,48 @@ public class CohortDomainServiceTests
     }
 
     [Test]
+    public async Task CreateCohort_AllowsEqualStartAndEndDate_ForIlrApprenticeshipUnit()
+    {
+        await _fixture
+            .WithParty(Party.Provider)
+            .WithTrainingProgramme(courseCode: "AU-1")
+            .WithLearnerDataId(123)
+            .WithApprenticeshipUnitCourse("AU-1")
+            .WithDates(new DateTime(2022, 8, 1), new DateTime(2022, 8, 1))
+            .CreateCohort();
+
+        _fixture.DomainErrors.Should().BeEmpty();
+        _fixture.Exception.Should().BeNull();
+    }
+
+    [Test]
+    public async Task CreateCohort_DoesNotSetAllowSameDateFlag_ForNonApprenticeshipUnitIlr()
+    {
+        await _fixture
+            .WithParty(Party.Provider)
+            .WithTrainingProgramme(courseCode: "STANDARD-1")
+            .WithLearnerDataId(123)
+            .WithDates(new DateTime(2022, 8, 1), new DateTime(2022, 8, 1))
+            .CreateCohort();
+
+        _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task CreateCohort_SetsAllowSameDateFlag_ForIlrApprenticeshipUnit()
+    {
+        await _fixture
+            .WithParty(Party.Provider)
+            .WithTrainingProgramme(courseCode: "AU-2")
+            .WithLearnerDataId(456)
+            .WithApprenticeshipUnitCourse("AU-2")
+            .WithDates(new DateTime(2022, 8, 2), new DateTime(2022, 8, 1))
+            .CreateCohort();
+
+        _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit.Should().BeTrue();
+    }
+
+    [Test]
     public async Task CreateCohortWithOtherParty_WithNoTransferSenderId_Creates_Cohort()
     {
         await _fixture
@@ -1056,14 +1098,42 @@ public class CohortDomainServiceTests
             return this;
         }
 
-        public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard)
+        public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard, string courseCode = "TEST")
         {
-            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(courseCode,
                 "TEST",
                 programmeType,
                 new DateTime(2016, 1, 1),
                 null);
             DraftApprenticeshipDetails.DeliveryModel = DeliveryModel.Regular;
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithApprenticeshipUnitCourse(string courseCode)
+        {
+            Db.Courses.Add(new Course
+            {
+                LarsCode = courseCode,
+                Title = "Apprenticeship unit",
+                Level = "1",
+                LearningType = LearningType.ApprenticeshipUnit,
+                MaxFunding = 10000,
+                EffectiveFrom = new DateTime(2016, 1, 1),
+                EffectiveTo = null
+            });
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithLearnerDataId(long learnerDataId)
+        {
+            DraftApprenticeshipDetails.LearnerDataId = learnerDataId;
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithDates(DateTime startDate, DateTime endDate)
+        {
+            DraftApprenticeshipDetails.StartDate = startDate;
+            DraftApprenticeshipDetails.EndDate = endDate;
             return this;
         }
 
