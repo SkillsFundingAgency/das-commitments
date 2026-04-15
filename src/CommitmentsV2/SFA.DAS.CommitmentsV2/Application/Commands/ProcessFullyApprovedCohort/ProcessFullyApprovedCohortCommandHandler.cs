@@ -41,7 +41,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
             logger.LogInformation("IgnoreShortCourses is set to {ignoreShortCourse} for cohort {cohortId}.", configuration.IgnoreShortCourses, request.CohortId);
 
-            var apprenticeships = await db.Value.Apprenticeships.Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+            var apprenticeships = await db.Value.Apprenticeships.Include(x => x.Cohort).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
 
             List <ApprenticeshipCreatedEvent> events;
             if (configuration.IgnoreShortCourses)
