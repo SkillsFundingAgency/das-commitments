@@ -6,7 +6,6 @@ public class DataLockUpdaterJobs(ILogger<DataLockUpdaterJobs> logger, IDataLockU
 {
     public async Task Update([TimerTrigger("*/30 * * * * *", RunOnStartup = false)] TimerInfo timer)
     {
-        return;
         logger.LogInformation("DataLockUpdaterJobs - Started {Time}",timer?.IsPastDue ?? false ? " later than expected" : string.Empty);
 
         await dataLockUpdaterService.RunUpdate();
