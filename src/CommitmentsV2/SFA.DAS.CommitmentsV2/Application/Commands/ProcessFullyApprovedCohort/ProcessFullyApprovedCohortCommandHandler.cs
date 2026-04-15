@@ -1,4 +1,6 @@
+using Azure.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
@@ -24,65 +26,80 @@ public class ProcessFullyApprovedCohortCommandHandler(
 {
     public async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Handling ProcessFullyApprovedCohortCommand for Cohort {CohortId}.", request.CohortId);
-
-        var account = await accountApiClient.GetAccount(request.AccountId);
-        var apprenticeshipEmployerType = account.ApprenticeshipEmployerType.ToEnum<ApprenticeshipEmployerType>();
-
-        logger.LogInformation("Account {AccountId} is of type {ApprenticeshipEmployerType}.", request.AccountId, apprenticeshipEmployerType);
-
-        var creationDate = DateTime.UtcNow;
-
-        await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
-
-        List<ApprenticeshipCreatedEvent> events;
-        if (configuration.IgnoreShortCourses)
+        try
         {
-            var matches = (await db.Value.Apprenticeships
-            .Where(a => a.Cohort.Id == request.CohortId)
-            .Join(db.Value.Standards,
-                a => a.StandardUId,
-                s => s.StandardUId,
-                (a, s) => new { a, s })
-            .ToListAsync(cancellationToken));
-            
-            events = matches.Select(x => MapToApprenticeshipCreatedEvent(
-                x.a,
-                creationDate,
-                apprenticeshipEmployerType,
-                _ => Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.s.ApprenticeshipType, true)))
-            .ToList();
-        }
-        else
-        {
-            var matches = (await db.Value.Apprenticeships
-                .Where(a => a.Cohort.Id == request.CohortId)
-                .Join(db.Value.Courses,
-                    a => a.CourseCode,
-                    c => c.LarsCode,
-                    (a, c) => new { a, c })
-                .ToListAsync(cancellationToken));
-            
-            events = matches.Select(x => MapToApprenticeshipCreatedEvent(
+            logger.LogInformation("Handling ProcessFullyApprovedCohortCommand for Cohort {CohortId}.", request.CohortId);
+
+            var account = await accountApiClient.GetAccount(request.AccountId);
+            var apprenticeshipEmployerType = account.ApprenticeshipEmployerType.ToEnum<ApprenticeshipEmployerType>();
+
+            logger.LogInformation("Account {AccountId} is of type {ApprenticeshipEmployerType}.", request.AccountId, apprenticeshipEmployerType);
+
+            var creationDate = DateTime.UtcNow;
+
+            await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
+
+            logger.LogInformation("IgnoreShortCourses is set to {ignoreShortCourse} for cohort {cohortId}.", configuration.IgnoreShortCourses, request.CohortId);
+
+            var apprenticeships = await db.Value.Apprenticeships.Include(x => x.Cohort).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+
+            List <ApprenticeshipCreatedEvent> events;
+            if (configuration.IgnoreShortCourses)
+            {
+                logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Standards.", request.CohortId);
+                var matches = apprenticeships
+                .Join(db.Value.Standards,
+                    a => a.StandardUId,
+                    s => s.StandardUId,
+                    (a, s) => new { a, s })
+                .ToList();
+
+                events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                     x.a,
                     creationDate,
                     apprenticeshipEmployerType,
-                    _ => x.c.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship))
+                    _ => Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.s.ApprenticeshipType, true)))
                 .ToList();
+                logger.LogInformation("Retrieved Apprenticeships for Cohort {CohortId} joined with Standards.", request.CohortId);
+
+            }
+            else
+            {
+                logger.LogInformation("Retrieving Apprenticeships for Cohort {CohortId} joined with Courses.", request.CohortId);
+                var matches = apprenticeships
+                    .Join(db.Value.Courses,
+                        a => a.CourseCode,
+                        c => c.LarsCode,
+                        (a, c) => new { a, c })
+                    .ToList();
+
+                events = matches.Select(x => MapToApprenticeshipCreatedEvent(
+                        x.a,
+                        creationDate,
+                        apprenticeshipEmployerType,
+                        _ => x.c.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship))
+                    .ToList();
+                logger.LogInformation("Retrieved Apprenticeships for Cohort {CohortId} joined with Courses.", request.CohortId);
+            }
+            logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
+
+            var tasks = events.Select(apprenticeshipCreatedEvent =>
+            {
+                logger.LogInformation("Emitting ApprenticeshipCreatedEvent for Apprenticeship {ApprenticeshipId}", apprenticeshipCreatedEvent.ApprenticeshipId);
+                return eventPublisher.Publish(apprenticeshipCreatedEvent);
+            });
+
+            await Task.WhenAll(tasks);
+
+            if (request.ChangeOfPartyRequestId.HasValue)
+            {
+                await Task.WhenAll(EmitChangeOfPartyEvents(request, events));
+            }
         }
-        logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
-
-        var tasks = events.Select(apprenticeshipCreatedEvent =>
+        catch (Exception ex)
         {
-            logger.LogInformation("Emitting ApprenticeshipCreatedEvent for Apprenticeship {ApprenticeshipId}", apprenticeshipCreatedEvent.ApprenticeshipId);
-            return eventPublisher.Publish(apprenticeshipCreatedEvent);
-        });
-
-        await Task.WhenAll(tasks);
-
-        if (request.ChangeOfPartyRequestId.HasValue)
-        {
-            await Task.WhenAll(EmitChangeOfPartyEvents(request, events));
+            logger.LogError(ex, "Error processing ProcessFullyApprovedCohortCommand for Cohort {CohortId}.", request.CohortId);
+            throw;
         }
     }
 
@@ -92,6 +109,10 @@ public class ProcessFullyApprovedCohortCommandHandler(
         ApprenticeshipEmployerType apprenticeshipEmployerType,
         Func<Apprenticeship, Common.Domain.Types.LearningType> learningTypeResolver)
     {
+
+        logger.LogInformation("Mapping apprenticeshipIs {Id}.", apprenticeship.Id);
+        logger.LogInformation("Apprenticeship Values {o}", JsonConvert.SerializeObject(apprenticeship) );
+
         return new ApprenticeshipCreatedEvent
         {
             ApprenticeshipId = apprenticeship.Id,
