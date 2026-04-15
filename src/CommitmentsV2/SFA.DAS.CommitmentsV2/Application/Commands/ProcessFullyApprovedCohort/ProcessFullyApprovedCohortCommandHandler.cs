@@ -35,7 +35,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
-        var apprenticeships = await db.Value.Apprenticeships.Include(x => x.Cohort).ThenInclude(x => x.AccountLegalEntity).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+        var apprenticeships = await db.Value.Apprenticeships.Include(x=>x.PriceHistory).Include(x => x.Cohort).ThenInclude(x => x.AccountLegalEntity).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
 
         List<ApprenticeshipCreatedEvent> events;
         if (configuration.IgnoreShortCourses)
