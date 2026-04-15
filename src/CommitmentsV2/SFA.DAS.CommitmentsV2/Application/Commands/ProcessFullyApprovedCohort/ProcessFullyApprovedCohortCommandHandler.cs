@@ -35,16 +35,18 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
+        var apprenticeships = await db.Value.Apprenticeships.Include(x => x.Cohort).ThenInclude(x => x.AccountLegalEntity).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+
         List<ApprenticeshipCreatedEvent> events;
         if (configuration.IgnoreShortCourses)
         {
-            var matches = (await db.Value.Apprenticeships
+            var matches = apprenticeships
             .Where(a => a.Cohort.Id == request.CohortId)
             .Join(db.Value.Standards,
                 a => a.StandardUId,
                 s => s.StandardUId,
                 (a, s) => new { a, s })
-            .ToListAsync(cancellationToken));
+            .ToList();
             
             events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                 x.a,
@@ -55,13 +57,13 @@ public class ProcessFullyApprovedCohortCommandHandler(
         }
         else
         {
-            var matches = (await db.Value.Apprenticeships
+            var matches = apprenticeships
                 .Where(a => a.Cohort.Id == request.CohortId)
                 .Join(db.Value.Courses,
                     a => a.CourseCode,
                     c => c.LarsCode,
                     (a, c) => new { a, c })
-                .ToListAsync(cancellationToken));
+                .ToList();
             
             events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                     x.a,
