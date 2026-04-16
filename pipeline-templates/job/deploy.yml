@@ -66,6 +66,7 @@ jobs:
             TargetFileName: '*.schema.json'
             TableName: Configuration
             ConfigurationSecrets:
+              StorageConnectionString: $(SharedStorageAccountConnectionString)
               CommitmentsMessageServiceBusString: $(CommitmentsMessageServiceBusString)
               CompaniesHouseKey: $(CompaniesHouseKey)
               NotificationsClientToken: $(NotificationsClientToken)

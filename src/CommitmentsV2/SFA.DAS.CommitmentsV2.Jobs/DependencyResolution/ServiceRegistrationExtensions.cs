@@ -69,6 +69,10 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<AcademicYearEndExpiryProcessorJob>();
         services.AddTransient<EmployerVerificationStatusSyncJob>();
         services.AddTransient<LearningDataSyncJob>();
+        services.AddTransient<ReplayApprenticeshipCreatedEventsJob>();
+        services.AddTransient<IBlobStorageService, BlobStorageService>();
+        services.AddTransient<IReplayInputFileStore, ReplayInputFileStore>();
+        services.AddTransient<IReplayApprenticeshipCreatedEventsService, ReplayApprenticeshipCreatedEventsService>();
         services.AddTransient<IDbContextFactory, DbContextFactory>();
 
         return services;
