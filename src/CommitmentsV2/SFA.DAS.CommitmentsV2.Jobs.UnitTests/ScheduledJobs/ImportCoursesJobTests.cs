@@ -33,7 +33,7 @@ public class ImportCoursesJobTests
         )
     {
         //Arrange
-        configuration.IgnoreShortCourses = false;
+        configuration.ImportShortCourses = true;
         apiResponse.Courses = new List<CourseSummary> { course1, course2 };
         apiClient.Setup(x => x.Get<CourseResponse>(It.IsAny<GetCoursesRequest>())).ReturnsAsync(apiResponse);
         var importedCourses = new List<CourseSummary>();
@@ -82,7 +82,7 @@ public class ImportCoursesJobTests
     }
 
     [Test, MoqAutoData]
-    public async Task Then_The_Courses_Are_Not_Saved_When_Config_Ignore_Short_Courses_Is_Enabled(
+    public async Task Then_The_Courses_Are_Not_Saved_When_Config_Import_Short_Courses_Is_Disabled(
         CourseResponse apiResponse,
         CourseSummary course1,
         CourseSummary course2,
@@ -93,7 +93,7 @@ public class ImportCoursesJobTests
         )
     {
         //Arrange
-        configuration.IgnoreShortCourses = true;
+        configuration.ImportShortCourses = false;
 
         apiResponse.Courses = new List<CourseSummary> { course1, course2 };
         apiClient.Setup(x => x.Get<CourseResponse>(It.IsAny<GetCoursesRequest>())).ReturnsAsync(apiResponse);
@@ -122,5 +122,28 @@ public class ImportCoursesJobTests
 
         //Assert
         importedCourses.Should().BeEmpty();
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_The_Courses_Are_Imported_When_ImportShortCourses_Is_Enabled_Even_If_IgnoreShortCourses_Is_Enabled(
+        CourseResponse apiResponse,
+        CourseSummary course1,
+        [Frozen] Mock<IApprovalsOuterApiClient> apiClient,
+        [Frozen] Mock<IProviderCommitmentsDbContext> context,
+        [Frozen] CommitmentsV2Configuration configuration,
+        ImportCoursesJob importCoursesJob
+    )
+    {
+        //Arrange
+        configuration.ImportShortCourses = true;
+        configuration.IgnoreShortCourses = true;
+        apiResponse.Courses = new List<CourseSummary> { course1 };
+        apiClient.Setup(x => x.Get<CourseResponse>(It.IsAny<GetCoursesRequest>())).ReturnsAsync(apiResponse);
+
+        //Act
+        await importCoursesJob.Import(null);
+
+        //Assert
+        context.Verify(d => d.ExecuteSqlCommandAsync("EXEC ImportCourses @courses", It.IsAny<SqlParameter>()), Times.Once);
     }
 }

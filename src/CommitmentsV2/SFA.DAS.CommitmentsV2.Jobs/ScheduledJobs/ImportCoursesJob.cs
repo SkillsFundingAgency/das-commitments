@@ -27,6 +27,12 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     private async Task ProcessCourses(IEnumerable<CourseSummary> courses)
     {
         logger.LogTrace("ImportCoursesJob: {courses} records retrived from coruses api", courses.Count());
+        
+        if (!configuration.ImportShortCourses)
+        {
+            logger.LogInformation("ImportShortCourses is disabled - courses not saved");
+            return;
+        }
 
         var batches = courses.Batch(1000).Select(b => b.ToDataTable(
             p => p.LarsCode,
@@ -40,14 +46,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
 
         foreach (var batch in batches)
         {
-            if (!configuration.IgnoreShortCourses)
-            {
-                await ImportCourses(providerContext, batch);
-            }
-            else
-            {
-                logger.LogInformation("IgnoreShortCourses is enabled - courses not saved");
-            }
+            await ImportCourses(providerContext, batch);
         }
     }
 
