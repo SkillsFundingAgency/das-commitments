@@ -1,5 +1,4 @@
 using MoreLinq.Extensions;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
@@ -9,10 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 
 public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     IApprovalsOuterApiClient apiClient,
-    IProviderCommitmentsDbContext providerContext,
-    CommitmentsV2Configuration configuration)
+    IProviderCommitmentsDbContext providerContext)
 {
-    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
+    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
     {
         logger.LogInformation("ImportCoursesJob - Started");
 
@@ -27,12 +25,6 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     private async Task ProcessCourses(IEnumerable<CourseSummary> courses)
     {
         logger.LogTrace("ImportCoursesJob: {courses} records retrived from coruses api", courses.Count());
-        
-        if (!configuration.ImportShortCourses)
-        {
-            logger.LogInformation("ImportShortCourses is disabled - courses not saved");
-            return;
-        }
 
         var batches = courses.Batch(1000).Select(b => b.ToDataTable(
             p => p.LarsCode,
