@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 20);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
                     _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
-                    _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit = true;
+                    _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),
                 true);
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 21);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
                     _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
-                    _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit = true;
+                    _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),
                 false);

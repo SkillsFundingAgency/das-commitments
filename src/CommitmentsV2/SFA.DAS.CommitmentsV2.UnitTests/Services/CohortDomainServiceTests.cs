@@ -106,7 +106,7 @@ public class CohortDomainServiceTests
     }
 
     [Test]
-    public async Task CreateCohort_DoesNotSetAllowSameDateFlag_ForNonApprenticeshipUnitIlr()
+    public async Task CreateCohort_DoesNotPopulateLearningType_ForNonApprenticeshipUnitIlr()
     {
         await _fixture
             .WithParty(Party.Provider)
@@ -115,11 +115,11 @@ public class CohortDomainServiceTests
             .WithDates(new DateTime(2022, 8, 1), new DateTime(2022, 8, 1))
             .CreateCohort();
 
-        _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit.Should().BeFalse();
+        _fixture.DraftApprenticeshipDetails.LearningType.Should().BeNull();
     }
 
     [Test]
-    public async Task CreateCohort_SetsAllowSameDateFlag_ForIlrApprenticeshipUnit()
+    public async Task CreateCohort_PopulatesLearningType_ForIlrApprenticeshipUnit()
     {
         await _fixture
             .WithParty(Party.Provider)
@@ -129,7 +129,7 @@ public class CohortDomainServiceTests
             .WithDates(new DateTime(2022, 8, 2), new DateTime(2022, 8, 1))
             .CreateCohort();
 
-        _fixture.DraftApprenticeshipDetails.AllowSameStartAndEndDateForIlrApprenticeshipUnit.Should().BeTrue();
+        _fixture.DraftApprenticeshipDetails.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
     }
 
     [Test]
