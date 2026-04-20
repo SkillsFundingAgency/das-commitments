@@ -11,7 +11,7 @@ public class CocDeleteCommandHandler(
 {
     public async Task<CocDeleteResult> Handle(CocDeleteCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("=== COMMITMENTS API: CocDeleteCommandHandler.Handle called ===");
+        logger.LogInformation("=== Coc Delete command handler called ===");
 
         ArgumentNullException.ThrowIfNull(command);
 
