@@ -17,7 +17,7 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     {
         var details = await modelMapper.Map<CocApprovalDetails>(request);
         var result = await mediator.Send(new PostCocApprovalCommand { CocApprovalDetails = details });
-        logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PostApprovals completed === Returning status of {0}", result?.Status);
+        logger.LogInformation("PostApprovals completed Returning status of {0}", result?.Status);
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }
 
@@ -26,7 +26,7 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     {
         var details = await modelMapper.Map<CocApprovalDetails>(request);
         var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
-        logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PutApprovals completed === Returning status of {0}", result?.Status);
+        logger.LogInformation("PutApprovals completed Returning status of {0}", result?.Status);
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }
     
