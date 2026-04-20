@@ -123,7 +123,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
         services.AddTransient<ICocApprovalStatusService, CocApprovalStatusService>();
-        services.AddTransient<ICocApprovalRules, CocApprovalRules>();
+        services.AddTransient<ICocApprovalRulesEngine, CocApprovalRulesEngine>();
 
         return services;
     }

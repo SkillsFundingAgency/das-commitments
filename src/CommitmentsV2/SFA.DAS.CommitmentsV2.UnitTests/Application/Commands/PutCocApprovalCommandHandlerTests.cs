@@ -47,7 +47,7 @@ public class PutCocApprovalCommandHandlerTests
 public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
 {
     public Fixture AutoFixture { get; set; }
-    public Mock<ICocApprovalRules> CocApprovalRules { get; set; }
+    public Mock<ICocApprovalRulesEngine> CocApprovalRules { get; set; }
     public ProviderCommitmentsDbContext DbContext { get; set; }
     public IRequestHandler<PutCocApprovalCommand, CocApprovalResult> Handler { get; set; }
     public PutCocApprovalCommand Command { get; set; }
@@ -69,7 +69,7 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
         var approvalDetails = AutoFixture.Build<CocApprovalDetails>().Without(c => c.Apprenticeship).Create();
         Command = new PutCocApprovalCommand { CocApprovalDetails = approvalDetails };
 
-        CocApprovalRules = new Mock<ICocApprovalRules>();
+        CocApprovalRules = new Mock<ICocApprovalRulesEngine>();
         CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).Returns(CocApprovalState);
 
         Handler = new PutCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object, Mock.Of<ILogger<PostCocApprovalCommandHandler>>());

@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
 public class PostCocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    ICocApprovalRules cocApprovalRules,
+    ICocApprovalRulesEngine cocApprovalRules,
     ILogger<PostCocApprovalCommandHandler> logger)
     : IRequestHandler<PostCocApprovalCommand, CocApprovalResult>
 {

@@ -6,14 +6,13 @@ using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
-public class CocApprovalRules(
+public class CocApprovalRulesEngine(
     ICocApprovalStatusService cocApprovalService,
-    ILogger<CocApprovalRules> logger) : ICocApprovalRules
+    ILogger<CocApprovalRulesEngine> logger) : ICocApprovalRulesEngine
 {
     public CocApprovalState DetermineApprovalState(CocApprovalDetails cocApprovalDetails)
     {
-        logger.LogInformation("");
-
+        logger.LogInformation("Determining Approval State");
         var updateStatuses = cocApprovalService.DetermineCocUpdateStatuses(cocApprovalDetails.Updates, cocApprovalDetails.Apprenticeship);
         var approvalRequestStatus = DetermineApprovalRequestStatus(updateStatuses);
         IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(cocApprovalDetails, updateStatuses);
@@ -54,7 +53,7 @@ public class CocApprovalRules(
             );
     }
 
-    private CocApprovalResultStatus DetermineApprovalRequestStatus(List<CocUpdateResult> updateResults)
+    private static CocApprovalResultStatus DetermineApprovalRequestStatus(List<CocUpdateResult> updateResults)
     {
         if (updateResults.Any(x => x.Status == CocApprovalItemStatus.Pending))
             return CocApprovalResultStatus.Pending;
