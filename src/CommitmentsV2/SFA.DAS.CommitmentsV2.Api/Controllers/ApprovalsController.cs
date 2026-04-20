@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -28,14 +29,24 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         logger.LogInformation("=== COMMITMENTS API: ApprovalsController.PutApprovals completed === Returning status of {0}", result?.Status);
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }
+    
     private List<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items)
     {
         return items.Select(x => new ApprovalFieldChange
         {
             ChangeType = x.Field.GetEnumDescription(),
-            ApprovalStatus = x.Status.GetEnumDescription(),
+            ApprovalStatus = GetApprovalStatus(x.Status),
             Reason = x.Reason
         }).ToList();
+    }
+
+    private string GetApprovalStatus(CocApprovalItemStatus status)
+    {
+        if(status == CocApprovalItemStatus.Pending)
+        {
+            return "EmployerApprovalRequested";
+        }
+        return status.GetEnumDescription();
     }
 }
 
@@ -45,3 +56,4 @@ public class ApprovalFieldChange
     public string ApprovalStatus { get; set; }
     public string Reason { get; set; }
 }
+

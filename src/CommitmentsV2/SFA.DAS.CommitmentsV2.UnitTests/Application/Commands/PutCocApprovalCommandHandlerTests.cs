@@ -42,6 +42,18 @@ public class PutCocApprovalCommandHandlerTests
 
         result.Should().BeEquivalentTo(fixture.CocApprovalState.ApprovalResult);
     }
+
+    [Test]
+    public async Task Handle_WhenHandlingCommandAndThereIsAnExistingApprovalRequest_ThenShouldMarkOldRecordsAsSuperseded()
+    {
+        var fixture = new PutCocApprovalCommandHandlerTestsFixture().WithExistingApprovalRequest();
+
+        var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
+
+        var oldRequest = fixture.DbContext.ApprovalRequests.FirstOrDefault(r => r.LearningKey == fixture.Command.CocApprovalDetails.LearningKey);
+        oldRequest.Should().NotBeNull();
+        oldRequest.Status.Should().Be(CocApprovalResultStatus.Superseded);
+    }
 }
 
 public class PutCocApprovalCommandHandlerTestsFixture : IDisposable

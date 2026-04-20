@@ -31,13 +31,22 @@ public class PutCocApprovalCommandHandler(
         {
             throw new DomainException("LearningKey", "A pending approval request for this learning key is expected but nothing exists.");
         }
-        
-        db.ApprovalRequests.RemoveRange(existingApprovalRequests);
+
+        MarkAsSuperseded(db, existingApprovalRequests);
 
         var approvalState = cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 
         return approvalState.ApprovalResult;
+    }
+
+    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, IQueryable<ApprovalRequest> existingApprovalRequests)
+    {
+        existingApprovalRequests.ToList().ForEach(r =>
+        {
+            r.Status = CocApprovalResultStatus.Superseded;
+        });
+        db.ApprovalRequests.UpdateRange(existingApprovalRequests);
     }
 }

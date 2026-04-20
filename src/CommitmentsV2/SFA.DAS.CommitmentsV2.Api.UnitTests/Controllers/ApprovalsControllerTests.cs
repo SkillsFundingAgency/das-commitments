@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers;
@@ -37,6 +38,7 @@ public class ApprovalsControllerTests
 
         _mapper.Setup(m => m.Map<CocApprovalDetails>(request)).ReturnsAsync(cocApprovalDetails);
         _mediator.Setup(m => m.Send(It.Is<PostCocApprovalCommand>(p=>p.CocApprovalDetails == cocApprovalDetails), It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
+        commandResult.Items.Where(x=>x.Status == CocApprovalItemStatus.Pending).ToList().ForEach(i => i.Status = CocApprovalItemStatus.AutoApproved);
 
         // Act
         var result = await _controller.PostApprovals(Guid.NewGuid(), request);
@@ -56,6 +58,7 @@ public class ApprovalsControllerTests
         var request = _fixture.Create<CocApprovalRequest>();
         var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
         var commandResult = _fixture.Create<CocApprovalResult>();
+        commandResult.Items.ForEach(i => i.Status = CocApprovalItemStatus.Pending);
 
         _mapper.Setup(m => m.Map<CocApprovalDetails>(request)).ReturnsAsync(cocApprovalDetails);
         _mediator.Setup(m => m.Send(It.Is<PutCocApprovalCommand>(p => p.CocApprovalDetails == cocApprovalDetails), It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
@@ -68,6 +71,6 @@ public class ApprovalsControllerTests
         result.Should().BeOfType<CreatedResult>();
         var jsonResult = result as CreatedResult;
         jsonResult.StatusCode.Should().Be(201);
-        jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = x.Status.GetEnumDescription(), x.Reason }).ToList());
+        jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = "EmployerApprovalRequested", x.Reason }).ToList());
     }
 }
