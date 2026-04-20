@@ -38,7 +38,6 @@ public class CocApprovalRulesEngineTests
         result.ApprovalRequest.UKPRN.Should().Be(fixture.ApprovalDetails.ProviderId.ToString());
         result.ApprovalRequest.ULN.Should().Be(fixture.ApprovalDetails.ULN);
         result.ApprovalRequest.Status.Should().Be(CocApprovalResultStatus.Pending);
-
         result.ApprovalRequest.Items.Should().BeEquivalentTo(fixture.ExpectedApprovalFields());
     }
 
@@ -64,7 +63,6 @@ public class CocApprovalRulesEngineTests
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Pending);
     }
-
 }
 
 public class CocApprovalRulesEngineTestsFixture
@@ -133,6 +131,7 @@ public class CocApprovalRulesEngineTestsFixture
         }
         return this;
     }
+
     public List<ApprovalFieldRequest> ExpectedApprovalFields()
     {
 
