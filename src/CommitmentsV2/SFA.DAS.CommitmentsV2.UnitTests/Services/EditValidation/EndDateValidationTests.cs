@@ -1,6 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class EndDateValidationTests
     {
@@ -56,29 +54,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be on or before the start date"));
                 Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
             });
-        }
-
-        [Test]
-        public async Task EndDate_Should_Allow_Same_Month_For_Ilr_ApprenticeshipUnit()
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenticeship();
-            fixture.Apprenticeship.LearnerDataId = 123;
-            fixture.SetupCourseLearningType(fixture.Apprenticeship.CourseCode, LearningType.ApprenticeshipUnit);
-
-            var request = fixture.CreateValidationRequest(
-                firstName: "Updated",
-                startYear: fixture.StartDate.Value.Year,
-                startMonth: fixture.StartDate.Value.Month,
-                endYear: fixture.StartDate.Value.Year,
-                endMonth: fixture.StartDate.Value.Month);
-
-            var result = await fixture.Validate(request);
-
-            Assert.That(result.Errors.Any(x =>
-                    x.PropertyName == "EndDate" &&
-                    x.ErrorMessage == "The end date must not be on or before the start date"),
-                Is.False);
         }
     }
 }

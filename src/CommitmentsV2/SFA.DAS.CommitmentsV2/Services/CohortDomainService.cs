@@ -239,27 +239,6 @@ public class CohortDomainService(
         return cohort;
     }
 
-    private async Task PopulateLearningTypeForIlrRecord(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
-    {
-        details.LearningType = null;
-
-        if (!details.LearnerDataId.HasValue)
-        {
-            return;
-        }
-
-        var courseCode = details.TrainingProgramme?.CourseCode;
-        if (string.IsNullOrWhiteSpace(courseCode))
-        {
-            return;
-        }
-
-        details.LearningType = await dbContext.Value.Courses
-            .Where(c => c.LarsCode == courseCode)
-            .Select(c => c.LearningType)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
     public async Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
     {
         var cohort = await dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
@@ -427,11 +406,44 @@ public class CohortDomainService(
 
     private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, long? cohortId, CancellationToken cancellationToken)
     {
+        await PopulateLearningTypeForIlrRecord(draftApprenticeshipDetails, cancellationToken);
         ValidateApprenticeshipDate(draftApprenticeshipDetails);
         ValidateUln(draftApprenticeshipDetails);
         await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
         await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
         await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
+    }
+
+    private async Task PopulateLearningTypeForIlrRecord(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+    {
+        details.LearningType = null;
+
+        var courseCode = details.TrainingProgramme?.CourseCode;
+
+        if (!details.LearnerDataId.HasValue && details.Id > 0)
+        {
+            var existingDraft = await dbContext.Value.DraftApprenticeships
+                .AsNoTracking()
+                .Where(d => d.Id == details.Id)
+                .Select(d => new { d.LearnerDataId, d.CourseCode })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (existingDraft != null)
+            {
+                details.LearnerDataId = existingDraft.LearnerDataId;
+                courseCode ??= existingDraft.CourseCode;
+            }
+        }
+
+        if (!details.LearnerDataId.HasValue || string.IsNullOrWhiteSpace(courseCode))
+        {
+            return;
+        }
+
+        details.LearningType = await dbContext.Value.Courses
+            .Where(c => c.LarsCode == courseCode)
+            .Select(c => c.LearningType)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)

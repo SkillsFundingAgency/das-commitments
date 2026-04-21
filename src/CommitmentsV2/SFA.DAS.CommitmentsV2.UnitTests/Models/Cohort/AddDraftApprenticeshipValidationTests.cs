@@ -44,13 +44,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void EndDate_CheckValidation_AllowsEqualDates_ForIlrApprenticeshipUnitFlag()
+        public void EndDate_CheckValidation_AllowsEqualDates_ForApprenticeshipUnit()
         {
             _fixture.AssertValidationForProperty(() =>
                 {
                     _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 20);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
-                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
                     _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),
@@ -58,13 +57,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void EndDate_CheckValidation_StillRejectsEndDateBeforeStart_ForIlrApprenticeshipUnitFlag()
+        public void EndDate_CheckValidation_RejectsBeforeStart_ForApprenticeshipUnit()
         {
             _fixture.AssertValidationForProperty(() =>
                 {
                     _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 21);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
-                    _fixture.DraftApprenticeshipDetails.LearnerDataId = 123;
                     _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),

@@ -197,21 +197,6 @@ public class EditApprenticeshipValidationServiceTestsFixture
         return this;
     }
 
-    public EditApprenticeshipValidationServiceTestsFixture SetupCourseLearningType(string larsCode, LearningType learningType)
-    {
-        var courses = new List<Course>
-        {
-            new()
-            {
-                LarsCode = larsCode,
-                LearningType = learningType
-            }
-        };
-
-        _dbContext.Setup(x => x.Courses).ReturnsDbSet(courses);
-        return this;
-    }
-
     public EditApprenticeshipValidationServiceTestsFixture SetupOverlapCheckServiceToReturnEmailOverlap(string email)
     {
         var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);

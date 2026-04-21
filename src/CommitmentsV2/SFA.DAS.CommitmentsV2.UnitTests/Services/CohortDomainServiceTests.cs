@@ -91,48 +91,6 @@ public class CohortDomainServiceTests
     }
 
     [Test]
-    public async Task CreateCohort_AllowsEqualStartAndEndDate_ForIlrApprenticeshipUnit()
-    {
-        await _fixture
-            .WithParty(Party.Provider)
-            .WithTrainingProgramme(courseCode: "AU-1")
-            .WithLearnerDataId(123)
-            .WithApprenticeshipUnitCourse("AU-1")
-            .WithDates(new DateTime(2022, 8, 1), new DateTime(2022, 8, 1))
-            .CreateCohort();
-
-        _fixture.DomainErrors.Should().BeEmpty();
-        _fixture.Exception.Should().BeNull();
-    }
-
-    [Test]
-    public async Task CreateCohort_DoesNotPopulateLearningType_ForNonApprenticeshipUnitIlr()
-    {
-        await _fixture
-            .WithParty(Party.Provider)
-            .WithTrainingProgramme(courseCode: "STANDARD-1")
-            .WithLearnerDataId(123)
-            .WithDates(new DateTime(2022, 8, 1), new DateTime(2022, 8, 1))
-            .CreateCohort();
-
-        _fixture.DraftApprenticeshipDetails.LearningType.Should().BeNull();
-    }
-
-    [Test]
-    public async Task CreateCohort_PopulatesLearningType_ForIlrApprenticeshipUnit()
-    {
-        await _fixture
-            .WithParty(Party.Provider)
-            .WithTrainingProgramme(courseCode: "AU-2")
-            .WithLearnerDataId(456)
-            .WithApprenticeshipUnitCourse("AU-2")
-            .WithDates(new DateTime(2022, 8, 2), new DateTime(2022, 8, 1))
-            .CreateCohort();
-
-        _fixture.DraftApprenticeshipDetails.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
-    }
-
-    [Test]
     public async Task CreateCohortWithOtherParty_WithNoTransferSenderId_Creates_Cohort()
     {
         await _fixture
@@ -483,6 +441,24 @@ public class CohortDomainServiceTests
         _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship();
         await _fixture.UpdateDraftApprenticeship();
         _fixture.VerifyLastUpdatedFieldsAreSet(withParty);
+    }
+
+    [Test]
+    public async Task UpdateDraftApprenticeship_PreApproval_IlrApprenticeshipUnit_AllowsSameStartAndEndDate()
+    {
+        _fixture.WithParty(Party.Provider)
+            .WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+            .WithExistingDraftApprenticeship()
+            .WithExistingIlrApprenticeshipUnitDraft();
+
+        _fixture.DraftApprenticeshipDetails.LearnerDataId = null;
+        _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 4, 1);
+        _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 4, 1);
+
+        await _fixture.UpdateDraftApprenticeship();
+
+        _fixture.DomainErrors.Should().NotContain(x => x.PropertyName == nameof(DraftApprenticeshipDetails.EndDate));
+        _fixture.Exception.Should().BeNull();
     }
 
     [Test]
@@ -1098,42 +1074,14 @@ public class CohortDomainServiceTests
             return this;
         }
 
-        public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard, string courseCode = "TEST")
+        public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard)
         {
-            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(courseCode,
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                 "TEST",
                 programmeType,
                 new DateTime(2016, 1, 1),
                 null);
             DraftApprenticeshipDetails.DeliveryModel = DeliveryModel.Regular;
-            return this;
-        }
-
-        public CohortDomainServiceTestFixture WithApprenticeshipUnitCourse(string courseCode)
-        {
-            Db.Courses.Add(new Course
-            {
-                LarsCode = courseCode,
-                Title = "Apprenticeship unit",
-                Level = "1",
-                LearningType = LearningType.ApprenticeshipUnit,
-                MaxFunding = 10000,
-                EffectiveFrom = new DateTime(2016, 1, 1),
-                EffectiveTo = null
-            });
-            return this;
-        }
-
-        public CohortDomainServiceTestFixture WithLearnerDataId(long learnerDataId)
-        {
-            DraftApprenticeshipDetails.LearnerDataId = learnerDataId;
-            return this;
-        }
-
-        public CohortDomainServiceTestFixture WithDates(DateTime startDate, DateTime endDate)
-        {
-            DraftApprenticeshipDetails.StartDate = startDate;
-            DraftApprenticeshipDetails.EndDate = endDate;
             return this;
         }
 
@@ -1442,6 +1390,27 @@ public class CohortDomainServiceTests
             ExistingDraftApprenticeship.PriorLearning = PriorLearning;
 
             Db.DraftApprenticeships.Add(ExistingDraftApprenticeship);
+            return this;
+        }
+
+        public CohortDomainServiceTestFixture WithExistingIlrApprenticeshipUnitDraft()
+        {
+            const string apprenticeshipUnitCourseCode = "AU-TEST-01";
+            ExistingDraftApprenticeship.SetValue(x => x.CourseCode, apprenticeshipUnitCourseCode);
+            ExistingDraftApprenticeship.SetValue(x => x.LearnerDataId, 999L);
+
+            Db.Courses.Add(new Course
+            {
+                LarsCode = apprenticeshipUnitCourseCode,
+                Title = "Apprenticeship Unit",
+                Level = "1",
+                LearningType = LearningType.ApprenticeshipUnit,
+                MaxFunding = 10000
+            });
+
+            DraftApprenticeshipDetails.TrainingProgramme =
+                new TrainingProgramme(apprenticeshipUnitCourseCode, "AU", ProgrammeType.Standard, ReferenceDate, null);
+
             return this;
         }
 

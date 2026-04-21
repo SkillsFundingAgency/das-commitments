@@ -537,8 +537,6 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> BuildEndDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
-        var allowSameMonthYear = IsIlrApprenticeshipUnit(request, apprenticeshipDetails);
-
         if (request.EndDate.HasValue)
         {
             if (request.EndDate.Value != apprenticeshipDetails.EndDate.Value)
@@ -552,7 +550,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
             if (request.StartDate.HasValue)
             {
-                if (!IsEndDateValid(request.StartDate, request.EndDate, allowSameMonthYear))
+                if (request.EndDate <= request.StartDate)
                 {
                     yield return new DomainError(nameof(request.EndDate), "The end date must not be on or before the start date");
                 }
@@ -562,37 +560,6 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         {
             yield return new DomainError(nameof(request.EndDate), $"The end date is not valid");
         }
-    }
-
-    private bool IsIlrApprenticeshipUnit(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
-    {
-        if (!apprenticeship.LearnerDataId.HasValue)
-        {
-            return false;
-        }
-
-        var courseCode = request.CourseCode ?? apprenticeship.CourseCode;
-        if (string.IsNullOrWhiteSpace(courseCode))
-        {
-            return false;
-        }
-
-        var learningType = _context.Courses
-            .Where(c => c.LarsCode == courseCode)
-            .Select(c => c.LearningType)
-            .FirstOrDefault();
-
-        return learningType == LearningType.ApprenticeshipUnit;
-    }
-
-    private static bool IsEndDateValid(DateTime? startDate, DateTime? endDate, bool allowSameMonthYear)
-    {
-        if (!startDate.HasValue || !endDate.HasValue)
-        {
-            return true;
-        }
-
-        return allowSameMonthYear ? endDate >= startDate : endDate > startDate;
     }
 
     private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
