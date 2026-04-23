@@ -7,7 +7,7 @@ public class ApprovalRequest
         Items = new List<ApprovalFieldRequest>();
     }
     public Guid Id { get; set; }
-    public DateTime Created { get; }
+    public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
     public Guid LearningKey { get; set; } 
     public long ApprenticeshipId { get; set; } 
@@ -16,4 +16,9 @@ public class ApprovalRequest
     public string ULN { get; set; } 
     public CocApprovalResultStatus Status { get; set; } 
     public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
+
+    internal object OrderByDescending(Func<object, object> value)
+    {
+        throw new NotImplementedException();
+    }
 }
