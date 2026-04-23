@@ -10,7 +10,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     IApprovalsOuterApiClient apiClient,
     IProviderCommitmentsDbContext providerContext)
 {
-    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
+    public async Task Import([TimerTrigger("%SFA.DAS.CommitmentsV2:ImportCoursesJobSchedule%", RunOnStartup = false)] TimerInfo timer)
     {
         logger.LogInformation("ImportCoursesJob - Started");
 
