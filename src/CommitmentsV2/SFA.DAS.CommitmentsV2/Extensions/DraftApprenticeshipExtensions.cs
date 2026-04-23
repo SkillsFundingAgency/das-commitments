@@ -67,17 +67,19 @@ public static class DraftApprenticeshipExtensions
 
         bool IsEndDateValid(DraftApprenticeshipDetails details)
         {
-            if (!details.EndDate.HasValue || !details.StartDate.HasValue)
+            var effectiveStartDate = details.GetStartDate();
+
+            if (!details.EndDate.HasValue || !effectiveStartDate.HasValue)
             {
                 return true;
             }
 
             if (details.LearningType == LearningType.ApprenticeshipUnit)
             {
-                return details.EndDate >= details.StartDate;
+                return details.EndDate >= effectiveStartDate;
             }
 
-            return details.EndDate > details.StartDate;
+            return details.EndDate > effectiveStartDate;
         }
     }
 
