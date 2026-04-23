@@ -76,10 +76,25 @@ public static class DraftApprenticeshipExtensions
 
             if (details.LearningType == LearningType.ApprenticeshipUnit)
             {
-                return details.EndDate >= effectiveStartDate;
+                return IsSameMonthOrAfter(details.EndDate.Value, effectiveStartDate.Value);
             }
 
             return details.EndDate > effectiveStartDate;
+        }
+
+        static bool IsSameMonthOrAfter(DateTime endDate, DateTime startDate)
+        {
+            if (endDate.Year > startDate.Year)
+            {
+                return true;
+            }
+
+            if (endDate.Year < startDate.Year)
+            {
+                return false;
+            }
+
+            return endDate.Month >= startDate.Month;
         }
     }
 

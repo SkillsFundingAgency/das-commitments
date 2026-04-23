@@ -57,12 +57,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void EndDate_CheckValidation_RejectsBeforeStart_ForApprenticeshipUnit()
+        public void EndDate_CheckValidation_RejectsEarlierMonth_ForApprenticeshipUnit()
         {
             _fixture.AssertValidationForProperty(() =>
                 {
-                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 01, 21);
+                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2022, 02, 01);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
+                    _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                false);
+        }
+
+        [Test]
+        public void EndDate_CheckValidation_AllowsSameMonth_WhenStartDateHasLaterDay_ForApprenticeshipUnit()
+        {
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 04, 15);
+                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 04, 01);
+                    _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                true);
+        }
+
+        [Test]
+        public void EndDate_CheckValidation_RejectsEarlierMonth_ForApprenticeshipUnit_DayMismatchScenario()
+        {
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 05, 01);
+                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 04, 30);
                     _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),
@@ -75,8 +101,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.AssertValidationForProperty(() =>
                 {
                     _fixture.DraftApprenticeshipDetails.StartDate = null;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = new DateTime(2022, 01, 20);
-                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = new DateTime(2026, 04, 05);
+                    _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 04, 15);
                     _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
                 nameof(_fixture.DraftApprenticeshipDetails.EndDate),
@@ -84,12 +110,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void EndDate_CheckValidation_RejectsBeforeActualStart_ForApprenticeshipUnit()
+        public void EndDate_CheckValidation_RejectsEarlierMonthThanActualStart_ForApprenticeshipUnit()
         {
             _fixture.AssertValidationForProperty(() =>
                 {
                     _fixture.DraftApprenticeshipDetails.StartDate = null;
-                    _fixture.DraftApprenticeshipDetails.ActualStartDate = new DateTime(2022, 01, 21);
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = new DateTime(2022, 02, 21);
                     _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2022, 01, 20);
                     _fixture.DraftApprenticeshipDetails.LearningType = LearningType.ApprenticeshipUnit;
                 },
