@@ -6,16 +6,16 @@ using Microsoft.Extensions.Logging;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
 [TestFixture]
-public class CocApprovalServiceTests
+public class CocApprovalStatusServiceTests
 {
-    private Mock<ILogger<CocApprovalService>> _loggerMock;
-    private CocApprovalService _service;
+    private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
+    private CocApprovalStatusService _service;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<CocApprovalService>>();
-        _service = new CocApprovalService(_loggerMock.Object);
+        _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
+        _service = new CocApprovalStatusService(_loggerMock.Object);
     }
 
     [Test]

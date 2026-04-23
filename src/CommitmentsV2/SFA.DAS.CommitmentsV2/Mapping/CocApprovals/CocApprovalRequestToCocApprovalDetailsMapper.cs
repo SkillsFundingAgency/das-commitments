@@ -2,7 +2,6 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
-using FluentValidation;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Logging;
@@ -12,13 +11,13 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
-public class CocApprovalRequestToCocApprovalCommandMapper(
+public class CocApprovalRequestToCocApprovalDetailsMapper(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    ILogger<CocApprovalRequestToCocApprovalCommandMapper> logger) : IMapper<CocApprovalRequest, PostCocApprovalCommand>
+    ILogger<CocApprovalRequestToCocApprovalDetailsMapper> logger) : IMapper<CocApprovalRequest, CocApprovalDetails>
 {
-    public async Task<PostCocApprovalCommand> Map(CocApprovalRequest request)
+    public async Task<CocApprovalDetails> Map(CocApprovalRequest request)
     {
-        var result = new PostCocApprovalCommand
+        var result = new CocApprovalDetails
         {
             LearningKey = request.LearningKey,
             ApprenticeshipId = request.ApprenticeshipId,
