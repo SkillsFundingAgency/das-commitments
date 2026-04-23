@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Validation;
 using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
@@ -111,6 +112,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var request = new CocApprovalRequest { Changes = new List<CocApprovalFieldChange>() };
 
             AssertValidationResult(r => r.Changes, request, false);
+        }
+
+        [TestCase(null, true)]
+        [TestCase("", true)]
+        [TestCase("   ", true)]
+        [TestCase("https://example.com/path?x=1", true)]
+        [TestCase("http://localhost/foo", true)]
+        [TestCase("<script>alert(1)</script>", false)]
+        [TestCase("https://example.com/<bad>", false)]
+        [TestCase("javascript:void(0)", false)]
+        [TestCase("data:text/html,<p>x</p>", false)]
+        [TestCase("ftp://files.example/file", false)]
+        [TestCase("not-a-valid-url", false)]
+        public void Validate_ApprovedUri_ShouldBeOptionalHttpOrHttpsOnly(string approvedUri, bool expectedValid)
+        {
+            var request = CreateValidRequest();
+            request.ApprovedUri = approvedUri;
+
+            AssertValidationResult(r => r.ApprovedUri, request, expectedValid);
+        }
+
+        [Test]
+        public void Validate_ApprovedUri_ShouldRejectWhenLengthExceedsMaximum()
+        {
+            var tooLong = "https://" + new string('a', ApprovedUriValidation.MaxLength + 1);
+            var request = CreateValidRequest();
+            request.ApprovedUri = tooLong;
+
+            AssertValidationResult(r => r.ApprovedUri, request, false);
+        }
+
+        private static CocApprovalRequest CreateValidRequest()
+        {
+            return new CocApprovalRequest
+            {
+                LearningKey = Guid.NewGuid(),
+                ApprenticeshipId = 1,
+                UKPRN = "1234567890",
+                ULN = "1234567890",
+                LearningType = "Apprenticeship",
+                Changes =
+                [
+                    new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "1", Old = "2" } }
+                ]
+            };
         }
 
         private static void AssertValidationResult<T>(Expression<Func<CocApprovalRequest, T>> property, CocApprovalRequest request, bool expectedValid)

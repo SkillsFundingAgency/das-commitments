@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Validation;
 
 namespace SFA.DAS.CommitmentsV2.Validators;
 
@@ -22,5 +23,8 @@ public class CocApprovalRequestValidator :  AbstractValidator<CocApprovalRequest
         RuleFor(x => x.Changes).Must(list => list.All(p => fields.Contains(p.ChangeType))).WithMessage("ChangeType must be " + fields.First() + " or " + fields.Last());
         RuleFor(x => x.Changes).Must(list => list.All(p => p.Data != null)).WithMessage("ChangeType must contain a Data structure");
         RuleFor(x => x.Changes).Must(list => list.All(p => p.Data?.Old != p.Data?.New)).When(r => r.Changes.All(p => p.Data != null)).WithMessage("New and Old values cannot be the same");
+        RuleFor(x => x.ApprovedUri)
+            .Must(ApprovedUriValidation.IsValidOptional)
+            .WithMessage("ApprovedUri must be empty or a valid http or https URL without invalid characters.");
     }
 }

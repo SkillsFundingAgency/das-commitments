@@ -150,11 +150,9 @@ public class Startup
         {
             context.Response.OnStarting(() =>
             {
-                if (context.Response.Headers.ContainsKey("X-Powered-By"))
-                {
-                    context.Response.Headers.Remove("X-Powered-By");
-                }
-                
+                context.Response.Headers.Remove("X-Powered-By");
+                context.Response.Headers.Remove("Server");
+
                 return Task.CompletedTask;
             });
             await next();
