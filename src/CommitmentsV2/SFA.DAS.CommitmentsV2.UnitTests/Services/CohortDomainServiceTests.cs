@@ -444,6 +444,59 @@ public class CohortDomainServiceTests
     }
 
     [Test]
+    public async Task UpdateDraftApprenticeship_PreApproval_IlrApprenticeshipUnit_AllowsSameStartAndEndDate()
+    {
+        _fixture.WithParty(Party.Provider)
+            .WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+            .WithExistingDraftApprenticeship()
+            .WithExistingIlrApprenticeshipUnitDraft();
+
+        _fixture.DraftApprenticeshipDetails.LearnerDataId = null;
+        _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 4, 1);
+        _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 4, 1);
+
+        await _fixture.UpdateDraftApprenticeship();
+
+        _fixture.DomainErrors.Should().NotContain(x => x.PropertyName == nameof(DraftApprenticeshipDetails.EndDate));
+        _fixture.Exception.Should().BeNull();
+    }
+
+    [Test]
+    public async Task UpdateDraftApprenticeship_PreApproval_IlrApprenticeshipUnit_AllowsSameMonthWithLaterStartDay()
+    {
+        _fixture.WithParty(Party.Provider)
+            .WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+            .WithExistingDraftApprenticeship()
+            .WithExistingIlrApprenticeshipUnitDraft();
+
+        _fixture.DraftApprenticeshipDetails.LearnerDataId = null;
+        _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 4, 15);
+        _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 4, 1);
+
+        await _fixture.UpdateDraftApprenticeship();
+
+        _fixture.DomainErrors.Should().NotContain(x => x.PropertyName == nameof(DraftApprenticeshipDetails.EndDate));
+        _fixture.Exception.Should().BeNull();
+    }
+
+    [Test]
+    public async Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest_IlrApprenticeshipUnit_RejectsEarlierEndMonth()
+    {
+        _fixture.WithParty(Party.Provider)
+            .WithExistingDraftApprenticeship()
+            .WithExistingIlrApprenticeshipUnitDraft();
+
+        _fixture.DraftApprenticeshipDetails.LearnerDataId = null;
+        _fixture.DraftApprenticeshipDetails.StartDate = new DateTime(2026, 5, 15);
+        _fixture.DraftApprenticeshipDetails.EndDate = new DateTime(2026, 4, 1);
+
+        await _fixture.ValidateDraftApprenticeshipForOverlappingTrainingDateRequest();
+
+        _fixture.DomainErrors.Should().Contain(x => x.PropertyName == nameof(DraftApprenticeshipDetails.EndDate));
+        _fixture.Exception.Should().BeOfType<DomainException>();
+    }
+
+    [Test]
     public async Task UpdateDraftApprenticeship_WhenUserInfoDoesNotExist_ThenLastUpdatedFieldsAreNotSet()
     {
         _fixture.WithParty(Party.Employer).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship().WithNoUserInfo();
@@ -1375,6 +1428,27 @@ public class CohortDomainServiceTests
             return this;
         }
 
+        public CohortDomainServiceTestFixture WithExistingIlrApprenticeshipUnitDraft()
+        {
+            const string apprenticeshipUnitCourseCode = "AU-TEST-01";
+            ExistingDraftApprenticeship.SetValue(x => x.CourseCode, apprenticeshipUnitCourseCode);
+            ExistingDraftApprenticeship.SetValue(x => x.LearnerDataId, 999L);
+
+            Db.Courses.Add(new Course
+            {
+                LarsCode = apprenticeshipUnitCourseCode,
+                Title = "Apprenticeship Unit",
+                Level = "1",
+                LearningType = LearningType.ApprenticeshipUnit,
+                MaxFunding = 10000
+            });
+
+            DraftApprenticeshipDetails.TrainingProgramme =
+                new TrainingProgramme(apprenticeshipUnitCourseCode, "AU", ProgrammeType.Standard, ReferenceDate, null);
+
+            return this;
+        }
+
 
         public CohortDomainServiceTestFixture WithOverlappingEmails()
         {
@@ -1603,6 +1677,30 @@ public class CohortDomainServiceTests
             {
                 Exception = ex;
                 DomainErrors.AddRange(ex.DomainErrors);
+            }
+        }
+
+        public async Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest()
+        {
+            Db.SaveChanges();
+            DomainErrors.Clear();
+
+            try
+            {
+                await CohortDomainService.ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(
+                    ProviderId,
+                    Cohort?.Id,
+                    DraftApprenticeshipDetails,
+                    CancellationToken.None);
+            }
+            catch (DomainException ex)
+            {
+                Exception = ex;
+                DomainErrors.AddRange(ex.DomainErrors);
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
             }
         }
 
