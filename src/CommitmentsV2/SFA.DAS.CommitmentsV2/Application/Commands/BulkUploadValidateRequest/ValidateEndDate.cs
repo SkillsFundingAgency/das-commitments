@@ -27,7 +27,7 @@ public partial class BulkUploadValidateCommandHandler
             else
             {
                 var startDate = csvRecord.StartDate;
-                if (startDate != null && endDate.Value < startDate.Value)
+                if (startDate != null && endDate.Value <= startDate.Value)
                 {
                     domainErrors.Add(new Error("EndDate", "Enter an <b>end date</b> that is after the start date"));
                 }
