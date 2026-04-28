@@ -67,7 +67,7 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddDatabaseRegistration(this IServiceCollection services)
     {
-        services.AddScoped(provider => new Lazy<ProviderCommitmentsDbContext>(provider.GetService<ProviderCommitmentsDbContext>()));
+        services.AddScoped(provider => new Lazy<ProviderCommitmentsDbContext>(provider.GetRequiredService<ProviderCommitmentsDbContext>));
         services.AddScoped<IProviderCommitmentsDbContext>(c => c.GetService<ProviderCommitmentsDbContext>());
 
         return services;
