@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Validation;
 using SFA.DAS.CommitmentsV2.Validators;
 
@@ -39,6 +41,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var request = new CocApprovalRequest { ULN = "12345678901" };
 
             AssertValidationResult(r => r.ULN, request, false);
+        }
+
+        [TestCase(" ", false)]
+        [TestCase("9999999999", false)]
+        [TestCase("1234567890", true)]
+        public void Validate_ULN_ShouldUseExistingUlnFormatValidator(string uln, bool expectedValid)
+        {
+            var request = CreateValidRequest();
+            request.ULN = uln;
+
+            AssertValidationResult(
+                r => r.ULN,
+                request,
+                expectedValid,
+                mock =>
+                {
+                    mock.Setup(x => x.Validate(" ")).Returns(UlnValidationResult.IsInValidTenDigitUlnNumber);
+                    mock.Setup(x => x.Validate("9999999999")).Returns(UlnValidationResult.IsInvalidUln);
+                    mock.Setup(x => x.Validate("1234567890")).Returns(UlnValidationResult.Success);
+                });
         }
 
         [TestCase("Apprenticeship", true)]
@@ -159,10 +181,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             };
         }
 
-        private static void AssertValidationResult<T>(Expression<Func<CocApprovalRequest, T>> property, CocApprovalRequest request, bool expectedValid)
+        private static void AssertValidationResult<T>(
+            Expression<Func<CocApprovalRequest, T>> property,
+            CocApprovalRequest request,
+            bool expectedValid,
+            Action<Mock<IUlnValidator>> setup = null)
         {
             // Arrange
-            var validator = new CocApprovalRequestValidator();
+            var ulnValidator = new Mock<IUlnValidator>();
+            ulnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
+            setup?.Invoke(ulnValidator);
+            var validator = new CocApprovalRequestValidator(ulnValidator.Object);
 
             // Act
             var result = validator.TestValidate(request);

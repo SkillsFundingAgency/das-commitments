@@ -1,14 +1,16 @@
 ﻿using FluentValidation;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Validation;
+using SFA.DAS.CommitmentsV2.Validators.RuleBuilderExtensions;
 
 namespace SFA.DAS.CommitmentsV2.Validators;
 
-public class CocApprovalRequestValidator :  AbstractValidator<CocApprovalRequest>
+public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
 {
-    public CocApprovalRequestValidator()
+    public CocApprovalRequestValidator(IUlnValidator ulnValidator)
     {
         var learningTypes = EnumExtensions.GetEnumDescriptions<CocLearningType>();
         var fields = EnumExtensions.GetEnumDescriptions<CocChangeField>();
@@ -17,6 +19,7 @@ public class CocApprovalRequestValidator :  AbstractValidator<CocApprovalRequest
         RuleFor(model => model.ApprenticeshipId).GreaterThan(ctx => 0).WithMessage("The ApprenticeshipId must be greater than 0");
         RuleFor(model => model.UKPRN).NotNull().MaximumLength(10).WithMessage("The UKPRN not be more that {MaxLenth} characters");
         RuleFor(model => model.ULN).NotNull().MaximumLength(10).WithMessage("The ULN not be more that {MaxLenth} characters");
+        RuleFor(model => model.ULN).MustBeValidUln(ulnValidator);
         RuleFor(model => model.LearningType).NotNull().Must(learningTypes.Contains).WithMessage("LearningType must be " + string.Join(", ", learningTypes[..^1]) + " or " + learningTypes[^1]);
         RuleFor(model => model.Changes).NotEmpty().NotNull();
         RuleFor(x => x.Changes).Must(items => items == null || items.GroupBy(i => i.ChangeType, StringComparer.OrdinalIgnoreCase).All(g => g.Count() == 1)).WithMessage("ChangeType must be unique within the listed values.");
