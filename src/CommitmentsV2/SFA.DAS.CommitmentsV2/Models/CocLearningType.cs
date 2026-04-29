@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Models;
 
-public enum CocLearningType
+public enum CocLearningType: byte
 {
     Apprenticeship = 0,
     FoundationApprenticeship = 1,
