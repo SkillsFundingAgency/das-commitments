@@ -138,16 +138,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 
         [TestCase(null, true)]
         [TestCase("", true)]
-        [TestCase("   ", true)]
-        [TestCase("https://example.com/path?x=1", true)]
-        [TestCase("http://localhost/foo", true)]
+        [TestCase("/ABCxyz-123", true)]
+        [TestCase("ABCxyz-123", true)]
+        [TestCase("///aB9-", true)]
+        [TestCase(" ", false)]
+        [TestCase("https://example.com/path", false)]
+        [TestCase("abc_def", false)]
+        [TestCase("abc.def", false)]
+        [TestCase("abc?x=1", false)]
         [TestCase("<script>alert(1)</script>", false)]
-        [TestCase("https://example.com/<bad>", false)]
         [TestCase("javascript:void(0)", false)]
-        [TestCase("data:text/html,<p>x</p>", false)]
-        [TestCase("ftp://files.example/file", false)]
-        [TestCase("not-a-valid-url", false)]
-        public void Validate_ApprovedUri_ShouldBeOptionalHttpOrHttpsOnly(string approvedUri, bool expectedValid)
+        public void Validate_ApprovedUri_ShouldMatchApprovedCharacterAllowList(string approvedUri, bool expectedValid)
         {
             var request = CreateValidRequest();
             request.ApprovedUri = approvedUri;

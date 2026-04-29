@@ -6,20 +6,15 @@ internal static class ApprovedUriValidation
 {
     public const int MaxLength = 2048;
 
-    private static readonly SearchValues<char> InvalidChars =
-        SearchValues.Create(['<', '>', '"', '\'', '`', '\\']);
+    private static readonly SearchValues<char> AllowedChars = SearchValues.Create(
+        "/-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
     public static bool IsValidOptional(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrEmpty(value))
             return true;
 
-        var trimmed = value.Trim();
-
-        return trimmed.Length <= MaxLength
-               && !trimmed.AsSpan().ContainsAny(InvalidChars)
-               && !trimmed.Any(char.IsControl)
-               && Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
-               && uri.Scheme is "http" or "https";
+        return value.Length <= MaxLength
+               && value.AsSpan().IndexOfAnyExcept(AllowedChars) < 0;
     }
 }
