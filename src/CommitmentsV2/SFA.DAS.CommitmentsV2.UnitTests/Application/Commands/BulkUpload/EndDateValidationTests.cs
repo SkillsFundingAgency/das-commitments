@@ -41,5 +41,15 @@
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");
         }
+
+        [Test]
+        public async Task Validate_Is_Not_The_Same_As_StartDate()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2023-01-01");
+            fixture.SetEndDate("2023-01");
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");
+        }
     }
 }

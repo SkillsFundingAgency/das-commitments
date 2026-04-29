@@ -60,9 +60,41 @@ public static class DraftApprenticeshipExtensions
             yield break;
         }
 
-        if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
+        if (!IsEndDateValid(draftApprenticeshipDetails))
         {
             yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+        }
+
+        bool IsEndDateValid(DraftApprenticeshipDetails details)
+        {
+            var effectiveStartDate = details.GetStartDate();
+
+            if (!details.EndDate.HasValue || !effectiveStartDate.HasValue)
+            {
+                return true;
+            }
+
+            if (details.LearningType == LearningType.ApprenticeshipUnit)
+            {
+                return IsSameMonthOrAfter(details.EndDate.Value, effectiveStartDate.Value);
+            }
+
+            return details.EndDate > effectiveStartDate;
+        }
+
+        static bool IsSameMonthOrAfter(DateTime endDate, DateTime startDate)
+        {
+            if (endDate.Year > startDate.Year)
+            {
+                return true;
+            }
+
+            if (endDate.Year < startDate.Year)
+            {
+                return false;
+            }
+
+            return endDate.Month >= startDate.Month;
         }
     }
 
