@@ -25,7 +25,7 @@ public class PutCocApprovalCommandHandler(
         var cocApprovalDetails = putCommand.CocApprovalDetails;
 
         var db = dbContext.Value;
-        var existingApprovalRequests = db.ApprovalRequests.Where(r => r.LearningKey == cocApprovalDetails.LearningKey && r.Status == CocApprovalResultStatus.Pending);
+        var existingApprovalRequests = await db.ApprovalRequests.Where(r => r.LearningKey == cocApprovalDetails.LearningKey && r.Status == CocApprovalResultStatus.Pending).ToListAsync(cancellationToken);
 
         if (!existingApprovalRequests.Any())
         {
@@ -41,9 +41,9 @@ public class PutCocApprovalCommandHandler(
         return approvalState.ApprovalResult;
     }
 
-    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, IQueryable<ApprovalRequest> existingApprovalRequests)
+    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, List<ApprovalRequest> existingApprovalRequests)
     {
-        existingApprovalRequests.ToList().ForEach(r =>
+        existingApprovalRequests.ForEach(r =>
         {
             r.Status = CocApprovalResultStatus.Superseded;
         });
