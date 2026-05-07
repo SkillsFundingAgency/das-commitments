@@ -44,6 +44,8 @@ public class EditApprenticeshipCommandHandler(
 
         var immediateUpdateCreated = await CreateIntermediateUpdate(command, party, apprenticeship);
 
+        throw new ApplicationException("Edit Apprenticeship - Test Transaction Rollback in API");
+
         return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
     }
 

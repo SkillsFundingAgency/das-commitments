@@ -97,6 +97,7 @@ public class LearnerDataUpdatedEventHandler(
                 logger.LogInformation("Successfully transitioned cohort {CohortId} from WithTransferSender to WithProvider", cohort.Id);
             }
         }
+        throw new ApplicationException("Learner Data Updated - Test Transaction Rollback in External Message Handlers");
 
         await dbContext.Value.SaveChangesAsync();
     }

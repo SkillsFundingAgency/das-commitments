@@ -82,6 +82,9 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         await Task.WhenAll(tasks);
 
+        throw new ApplicationException("Process Fully Approved Cohort - Test Transaction Rollback in Message Handler");
+
+
         if (request.ChangeOfPartyRequestId.HasValue)
         {
             await Task.WhenAll(EmitChangeOfPartyEvents(request, events));

@@ -10,7 +10,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     IApprovalsOuterApiClient apiClient,
     IProviderCommitmentsDbContext providerContext)
 {
-    public async Task Import([TimerTrigger("%SFA.DAS.CommitmentsV2:ImportCoursesJobSchedule%", RunOnStartup = false)] TimerInfo timer)
+    public async Task Import([TimerTrigger("%SFA.DAS.CommitmentsV2:ImportCoursesJobSchedule%", RunOnStartup = true)] TimerInfo timer)
     {
         logger.LogInformation("ImportCoursesJob - Started");
 
@@ -40,6 +40,8 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
         {
             await ImportCourses(providerContext, batch);
         }
+        throw new ApplicationException("Import Courses - Test Transaction Rollback in Jobs");
+
     }
 
     private static Task ImportCourses(IProviderCommitmentsDbContext db, DataTable coursesDataTable)
