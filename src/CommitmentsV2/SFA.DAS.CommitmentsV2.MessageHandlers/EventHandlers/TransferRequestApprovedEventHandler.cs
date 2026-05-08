@@ -19,6 +19,8 @@ public class TransferRequestApprovedEventHandler(
 
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleAsync(c => c.Id == message.CohortId);
             cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
+            throw new ApplicationException("TransferRequestApprovedEvent - Test Transaction Rollback in Message Handlers");
+
         }
         catch (Exception e)
         {
