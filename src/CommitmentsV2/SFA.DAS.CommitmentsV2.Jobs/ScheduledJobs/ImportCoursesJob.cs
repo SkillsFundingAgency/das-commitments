@@ -1,5 +1,4 @@
 using MoreLinq.Extensions;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
@@ -9,10 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 
 public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
     IApprovalsOuterApiClient apiClient,
-    IProviderCommitmentsDbContext providerContext,
-    CommitmentsV2Configuration configuration)
+    IProviderCommitmentsDbContext providerContext)
 {
-    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
+    public async Task Import([TimerTrigger("%SFA.DAS.CommitmentsV2:ImportCoursesJobSchedule%", RunOnStartup = false)] TimerInfo timer)
     {
         logger.LogInformation("ImportCoursesJob - Started");
 
@@ -40,14 +38,7 @@ public class ImportCoursesJob(ILogger<ImportCoursesJob> logger,
 
         foreach (var batch in batches)
         {
-            if (!configuration.IgnoreShortCourses)
-            {
-                await ImportCourses(providerContext, batch);
-            }
-            else
-            {
-                logger.LogInformation("IgnoreShortCourses is enabled - courses not saved");
-            }
+            await ImportCourses(providerContext, batch);
         }
     }
 

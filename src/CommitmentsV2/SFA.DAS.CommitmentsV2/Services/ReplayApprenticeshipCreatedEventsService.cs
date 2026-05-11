@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -14,7 +15,7 @@ public class ReplayApprenticeshipCreatedEventsService(
     ProviderCommitmentsDbContext dbContext,
     CommitmentsV2Configuration configuration,
     IEncodingService encodingService,
-    IEventPublisher eventPublisher,
+    IMessageSession messageSession,
     ILogger<ReplayApprenticeshipCreatedEventsService> logger)
     : IReplayApprenticeshipCreatedEventsService
 {
@@ -95,7 +96,7 @@ public class ReplayApprenticeshipCreatedEventsService(
                 continue;
             }
 
-            await eventPublisher.Publish(apprenticeshipCreatedEvent);
+            await messageSession.Publish(apprenticeshipCreatedEvent);
             logger.LogInformation(
                 "Published ApprenticeshipCreatedEvent for ApprenticeshipId {ApprenticeshipId}.",
                 apprenticeshipCreatedEvent.ApprenticeshipId);

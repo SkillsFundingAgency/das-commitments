@@ -72,6 +72,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             fixture.Verify_EmailCommandIsNotSent();
         }
 
+        [Test]
+        public async Task Verify_SendFailureBubblesUpAndEarlierRecordRemainsPersisted()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            fixture.AddSecondValidRecord();
+            fixture.Setup_SendFailsForRecord(recordId: 2);
+
+            Assert.ThrowsAsync<Exception>(async () => await fixture.Handle());
+
+            fixture.Verify_NotifiedEmployerOn_Updated(recordId: 1);
+            fixture.Verify_NotifiedEmployerOn_NotUpdated(recordId: 2);
+        }
+
         public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
@@ -144,6 +157,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 x.NotifiedServiceDeskOn = DateTime.UtcNow;
                 Db.SaveChanges();
             }
+
+            internal void Setup_SendFailsForRecord(long recordId)
+            {
+                var record = Db.OverlappingTrainingDateRequests.Single(r => r.Id == recordId);
+                var failingUln = record.PreviousApprenticeship.Uln;
+                _messageSession
+                    .Setup(x => x.Send(It.Is<SendEmailToEmployerCommand>(c => c.Tokens["ULN"] == failingUln), It.IsAny<SendOptions>()))
+                    .ThrowsAsync(new Exception("Simulated send failure"));
+            }
           
             internal void Verify_EmailCommandIsNotSent()
             {
@@ -169,9 +191,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                            It.IsAny<SendOptions>()), Times.Once);
             }
 
-            internal void Verify_NotifiedEmployerOn_Updated()
+            internal void Verify_NotifiedEmployerOn_Updated(long recordId = 1)
             {
-                var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
+                var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.Single(r => r.Id == recordId);
                 Assert.That(overlappingTrainingDateRequest, Is.Not.Null);
                 Assert.Multiple(() =>
                 {
@@ -179,6 +201,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                     Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
                     Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
                 });
+            }
+
+            internal void Verify_NotifiedEmployerOn_NotUpdated(long recordId)
+            {
+                var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.Single(r => r.Id == recordId);
+                Assert.That(overlappingTrainingDateRequest.NotifiedEmployerOn, Is.Null);
+            }
+
+            internal void AddSecondValidRecord()
+            {
+                var sourceRecord = Db.OverlappingTrainingDateRequests.Single(r => r.Id == 1);
+                var secondPreviousApprenticeship = new CommitmentsV2.Models.Apprenticeship()
+                    .Set(x => x.Id, sourceRecord.PreviousApprenticeship.Id + 1)
+                    .Set(x => x.Uln, $"{sourceRecord.PreviousApprenticeship.Uln}2")
+                    .Set(x => x.FirstName, sourceRecord.PreviousApprenticeship.FirstName)
+                    .Set(x => x.LastName, sourceRecord.PreviousApprenticeship.LastName)
+                    .Set(x => x.Cohort, sourceRecord.PreviousApprenticeship.Cohort)
+                    .Set(x => x.PaymentStatus, sourceRecord.PreviousApprenticeship.PaymentStatus)
+                    .Set(x => x.StartDate, sourceRecord.PreviousApprenticeship.StartDate)
+                    .Set(x => x.EndDate, sourceRecord.PreviousApprenticeship.EndDate);
+
+                var secondRecord = new OverlappingTrainingDateRequest()
+                    .Set(x => x.Id, 2)
+                    .Set(x => x.Status, Types.OverlappingTrainingDateRequestStatus.Pending)
+                    .Set(x => x.PreviousApprenticeship, secondPreviousApprenticeship)
+                    .Set(x => x.CreatedOn, currentProxyDateTime.AddDays(-20))
+                    .Set(x => x.DraftApprenticeship, sourceRecord.DraftApprenticeship);
+                Db.Apprenticeships.Add(secondPreviousApprenticeship);
+                Db.OverlappingTrainingDateRequests.Add(secondRecord);
+                Db.SaveChanges();
             }
 
             private void SeedData()
