@@ -199,6 +199,9 @@
                     "storageAccountName": {
                         "value": "[variables('workerStorageAccountName')]"
                     },
+                    "storageKind": {
+                        "value": "StorageV2"
+                    },
                     "allowSharedKeyAccess": {
                         "value": true
                     },
