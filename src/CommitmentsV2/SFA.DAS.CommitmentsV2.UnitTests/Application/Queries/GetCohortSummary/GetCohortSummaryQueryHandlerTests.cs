@@ -253,20 +253,18 @@ public class GetCohortSummaryQueryHandlerTests
             apprenticeDetails);
     }
 
-    [TestCase("2022-07-01", null, null, null, null, null, null, AllowedApproval.BothCanApprove)]
-    [TestCase("2022-08-01", null, null, null, null, null, null, AllowedApproval.CannotApprove)]
-    [TestCase("2022-08-01", false, null, null, null, null, null, AllowedApproval.BothCanApprove)]
-    [TestCase("2022-08-01", true, 1000, 100, false, null, 1000, AllowedApproval.BothCanApprove)]
-    [TestCase("2022-08-01", true, 1000, null, false, null, 1000, AllowedApproval.CannotApprove)]
-    [TestCase("2022-08-01", true, 1000, 100, null, null, 1000, AllowedApproval.CannotApprove)]
-    [TestCase("2022-08-01", true, 1000, 100, true, null, 1000, AllowedApproval.CannotApprove)]
-    [TestCase("2022-08-01", true, 10, 100, true, 12, null, AllowedApproval.CannotApprove)]
+    [TestCase("2022-07-01", null, null, null, null, AllowedApproval.BothCanApprove)]
+    [TestCase("2022-08-01", null, null, null, null, AllowedApproval.CannotApprove)]
+    [TestCase("2022-08-01", false, null, null, null, AllowedApproval.BothCanApprove)]
+    [TestCase("2022-08-01", true, 1000, 100, 1000, AllowedApproval.BothCanApprove)]
+    [TestCase("2022-08-01", true, 1000, null, 1000, AllowedApproval.CannotApprove)]
+    [TestCase("2022-08-01", true, 10, 100, null, AllowedApproval.CannotApprove)]
     public async Task Handle_WithApprenticeRPLExtendedConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? trainingTotalHours,
-        int? durationReducedByHours, bool? isDurationBeingReduced, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
+        int? durationReducedByHours,  int? priceReducedBy, AllowedApproval allowedApproval)
     {
         Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
         {
-            f.SetupRplExtendedData(recognisePriorLearning, trainingTotalHours, durationReducedByHours, isDurationBeingReduced, durationReducedBy, priceReducedBy);
+            f.SetupRplExtendedData(recognisePriorLearning, trainingTotalHours, durationReducedByHours, priceReducedBy);
         });
 
         var apprenticeDetails = new Fixture()
@@ -513,15 +511,13 @@ public class GetCohortSummaryHandlerTestFixtures
         builder.SetMinimumLevel(LogLevel.Debug);
     });
 
-    public GetCohortSummaryHandlerTestFixtures SetupRplExtendedData(bool? recognisePriorLearning, int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReduced, int? durationReducedBy, int? priceReducedBy)
+    public GetCohortSummaryHandlerTestFixtures SetupRplExtendedData(bool? recognisePriorLearning, int? trainingTotalHours, int? durationReducedByHours, int? priceReducedBy)
     {
         var apprenticeship = SeedCohorts.First().Apprenticeships.First();
         apprenticeship.TrainingTotalHours = trainingTotalHours;
         apprenticeship.RecognisePriorLearning = recognisePriorLearning;
         apprenticeship.PriorLearning = new ApprenticeshipPriorLearning();
         apprenticeship.PriorLearning.DurationReducedByHours = durationReducedByHours;
-        apprenticeship.PriorLearning.IsDurationReducedByRpl = isDurationReduced;
-        apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
         apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
 
         return this;
