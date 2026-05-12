@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -41,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             AutoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            Handler = new CohortFullyApprovedEventHandler(Mediator.Object);
+            Handler = new CohortFullyApprovedEventHandler(Mediator.Object, Mock.Of<ILogger<CohortFullyApprovedEventHandler>>());
             Event = AutoFixture.Create<CohortFullyApprovedEvent>();
         }
 

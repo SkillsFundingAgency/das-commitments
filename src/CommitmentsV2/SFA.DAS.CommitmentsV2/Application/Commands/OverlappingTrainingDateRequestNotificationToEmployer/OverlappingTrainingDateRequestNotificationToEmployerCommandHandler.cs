@@ -38,12 +38,19 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(
 
         foreach (var pendingRecord in pendingRecords)
         {
-            logger.LogInformation("Sending chaser email to employer - with cohort ref:{PreviousApprenticeshipCohortRef} for apprentice with ULN:{PreviousApprenticeshipUln}", pendingRecord.PreviousApprenticeship.Cohort.Reference, pendingRecord.PreviousApprenticeship.Uln);
-
-            if (pendingRecord.DraftApprenticeship == null)
+            if (pendingRecord.DraftApprenticeship == null ||
+                pendingRecord.PreviousApprenticeship?.Cohort == null)
             {
+                logger.LogWarning(
+                    "Skipping OLTD notification for request {RequestId} because required apprenticeship/cohort data is missing",
+                    pendingRecord.Id);
                 continue;
             }
+
+            logger.LogInformation(
+                "Sending chaser email to employer - with cohort ref:{PreviousApprenticeshipCohortRef} for apprentice with ULN:{PreviousApprenticeshipUln}",
+                pendingRecord.PreviousApprenticeship.Cohort.Reference,
+                pendingRecord.PreviousApprenticeship.Uln);
 
             var tokens = new Dictionary<string, string>
             {
@@ -59,8 +66,7 @@ public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(
             await messageSession.Send(emailCommand);
 
             pendingRecord.NotifiedEmployerOn = currentDateTime.UtcNow;
+            await commitmentsDbContext.Value.SaveChangesAsync(cancellationToken);
         }
-
-        await commitmentsDbContext.Value.SaveChangesAsync(cancellationToken);
     }
 }

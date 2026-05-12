@@ -21,7 +21,7 @@ public class WhenICreateACsvFile
         var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
         var commentLine = fileString.Split("\r\n")[0];
 
-        Assert.That(commentLine, Is.EqualTo("#Data only includes apprentices with an apprenticeship end date within the last 12 months"));
+        Assert.That(commentLine, Is.EqualTo("#Data only includes learners with a training end date within the last 12 months"));
     }
 
     [Test, MoqAutoData]
