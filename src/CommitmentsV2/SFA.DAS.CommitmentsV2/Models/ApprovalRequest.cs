@@ -7,7 +7,7 @@ public class ApprovalRequest
         Items = new List<ApprovalFieldRequest>();
     }
     public Guid Id { get; set; }
-    public DateTime Created { get; set; }
+    public DateTime Created { get; }
     public DateTime? Updated { get; set; }
     public Guid LearningKey { get; set; } 
     public long ApprenticeshipId { get; set; } 

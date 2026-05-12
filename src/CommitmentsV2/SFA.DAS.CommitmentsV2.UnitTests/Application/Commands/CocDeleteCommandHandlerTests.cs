@@ -64,7 +64,7 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
         AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
         AutoFixture.Customizations.Add(new ModelSpecimenBuilder());
 
-        DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+        DbContext = new TestProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
             .Options);
 
@@ -79,8 +79,7 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
         DbContext.ApprovalRequests.Add(new ApprovalRequest
         {
             LearningKey = Command.LearningKey,
-            Status = status,
-            Created = DateTime.UtcNow.AddHours(-1)
+            Status = status
         });
         DbContext.SaveChanges();
         return this;
@@ -90,4 +89,19 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
     {
         DbContext?.Dispose();
     }
+
+    private class TestProviderCommitmentsDbContext : ProviderCommitmentsDbContext
+    {
+        public TestProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
+        {
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApprovalRequest>().Property(e => e.Created).HasDefaultValue(DateTime.UtcNow);
+        }
+    }
 }
+
+
