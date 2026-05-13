@@ -29,7 +29,7 @@ public class PutCocApprovalCommandHandler(
 
         if (!existingApprovalRequests.Any())
         {
-            throw new DomainException("LearningKey", "A pending approval request for this learning key is expected but nothing exists.");
+            throw new DomainException("LearningKey", "There is no pending change to override.");
         }
 
         MarkAsSuperseded(db, existingApprovalRequests);
