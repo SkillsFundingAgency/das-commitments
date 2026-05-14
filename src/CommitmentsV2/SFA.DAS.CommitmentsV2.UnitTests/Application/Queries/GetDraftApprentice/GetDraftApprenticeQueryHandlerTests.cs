@@ -41,6 +41,22 @@ public class GetDraftApprenticeHandlerTests
         result.HasStandardOptions.Should().BeTrue();
     }
 
+    [TestCase(LearningType.Apprenticeship)]
+    [TestCase(LearningType.FoundationApprenticeship)]
+    [TestCase(LearningType.ApprenticeshipUnit)]
+    [TestCase(null)]
+    public async Task Then_Ensure_LearningType_Is_Returned(LearningType? type)
+    {
+        var fixture = new GetDraftApprenticeHandlerTestFixtures()
+            .SetApprentice(Party.Employer, "EMPREF123", false)
+            .AddLearningTypeToCourse(type)
+            .SetRequestingParty(Party.Employer);
+
+        var result = await fixture.Handle();
+
+        result.LearningType.Should().Be(type);
+    }
+
     [Test]
     public async Task Then_If_There_is_prior_learning_return_values_and_status()
     {
@@ -155,6 +171,8 @@ public class GetDraftApprenticeHandlerTestFixtures
             Constants.MinimumAgeAtApprenticeshipStart,
             Constants.MaximumAgeAtApprenticeshipStart);
 
+        commitment.Apprenticeships.First().CourseCode = "Course1";
+
         Db.Cohorts.Add(commitment);
 
         Db.SaveChanges();
@@ -165,6 +183,25 @@ public class GetDraftApprenticeHandlerTestFixtures
 
         return this;
     }
+
+    public GetDraftApprenticeHandlerTestFixtures AddLearningTypeToCourse(LearningType? learningType)
+    {
+        string courseCode = Db.DraftApprenticeships.First().CourseCode;
+
+        if (courseCode != null)
+        {
+            Db.Courses.Add(new Course
+            {
+                LarsCode = courseCode,
+                Title = "Course Title",
+                LearningType = learningType
+            });
+
+            Db.SaveChanges();
+        }
+        return this;
+    }
+
 
     public GetDraftApprenticeHandlerTestFixtures SetApprenticeshipPriorLearning()
     {
