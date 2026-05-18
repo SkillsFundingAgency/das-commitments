@@ -42,7 +42,7 @@ public class ApprovalsControllerTests
         commandResult.Items.Where(x=>x.Status == CocApprovalItemStatus.Pending).ToList().ForEach(i => i.Status = CocApprovalItemStatus.AutoApproved);
 
         // Act
-        var result = await _controller.PostApprovals(Guid.NewGuid(), request);
+        var result = await _controller.PostApprovals(request.LearningKey, request);
 
         // Assert
         result.Should().NotBeNull();
@@ -50,6 +50,22 @@ public class ApprovalsControllerTests
         var jsonResult = result as CreatedResult;
         jsonResult.StatusCode.Should().Be(201);
         jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = x.Status.GetEnumDescription(), x.Reason }).ToList());
+    }
+
+    [Test]
+    public async Task PostApprovals_Returns_BadRequest_When_LearningKey_Not_Matching()
+    {
+        // Arrange
+        var request = _fixture.Create<CocApprovalRequest>();
+
+        // Act
+        var result = await _controller.PostApprovals(Guid.NewGuid(), request);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var jsonResult = result as BadRequestObjectResult;
+        jsonResult.StatusCode.Should().Be(400);
     }
 
     [Test]
@@ -65,7 +81,7 @@ public class ApprovalsControllerTests
         _mediator.Setup(m => m.Send(It.Is<PutCocApprovalCommand>(p => p.CocApprovalDetails == cocApprovalDetails), It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
 
         // Act
-        var result = await _controller.PutApprovals(Guid.NewGuid(), request);
+        var result = await _controller.PutApprovals(request.LearningKey, request);
 
         // Assert
         result.Should().NotBeNull();
@@ -89,7 +105,7 @@ public class ApprovalsControllerTests
             .ThrowsAsync(new PendingApprovalNotFoundException("Not found"));
 
         // Act
-        var result = await _controller.PutApprovals(Guid.NewGuid(), request);
+        var result = await _controller.PutApprovals(request.LearningKey, request);
 
         // Assert
         result.Should().NotBeNull();
@@ -98,4 +114,21 @@ public class ApprovalsControllerTests
         notFoundResult.StatusCode.Should().Be(404);
         notFoundResult.Value.Should().Be("Not found");
     }
+
+    [Test]
+    public async Task PutApprovals_Returns_BadRequest_When_LearningKey_Not_Matching()
+    {
+        // Arrange
+        var request = _fixture.Create<CocApprovalRequest>();
+
+        // Act
+        var result = await _controller.PutApprovals(Guid.NewGuid(), request);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var jsonResult = result as BadRequestObjectResult;
+        jsonResult.StatusCode.Should().Be(400);
+    }
 }
+
