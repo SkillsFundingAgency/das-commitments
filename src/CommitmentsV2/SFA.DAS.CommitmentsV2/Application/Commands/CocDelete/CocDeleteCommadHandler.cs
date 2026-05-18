@@ -39,6 +39,7 @@ public class CocDeleteCommandHandler(
         }
 
         latestApprovalRequest.Status = CocApprovalResultStatus.Cancelled;
+        latestApprovalRequest.Updated = DateTime.UtcNow;
 
         db.ApprovalRequests.Update(latestApprovalRequest);
 
