@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
@@ -29,7 +29,7 @@ public class PutCocApprovalCommandHandler(
 
         if (!existingApprovalRequests.Any())
         {
-            throw new DomainException("LearningKey", "There is no pending change to override.");
+            throw new PendingApprovalNotFoundException("There is no pending change to override.");
         }
 
         MarkAsSuperseded(db, existingApprovalRequests);
@@ -43,9 +43,11 @@ public class PutCocApprovalCommandHandler(
 
     private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, List<ApprovalRequest> existingApprovalRequests)
     {
+        var updated = DateTime.UtcNow;
         existingApprovalRequests.ForEach(r =>
         {
             r.Status = CocApprovalResultStatus.Superseded;
+            r.Updated = updated;
         });
         db.ApprovalRequests.UpdateRange(existingApprovalRequests);
     }

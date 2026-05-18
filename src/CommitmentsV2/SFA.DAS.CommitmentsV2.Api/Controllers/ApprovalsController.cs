@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -24,10 +25,18 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
     [HttpPut("{learningKey}")]
     public async Task<ActionResult> PutApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
     {
-        var details = await modelMapper.Map<CocApprovalDetails>(request);
-        var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
-        logger.LogInformation("PutApprovals completed Returning status of {0}", result?.Status);
-        return Created("", MapToApprovalFieldChangeList(result.Items));
+        try
+        {
+            var details = await modelMapper.Map<CocApprovalDetails>(request);
+            var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
+            logger.LogInformation("PutApprovals completed Returning status of {0}", result?.Status);
+            return Created("", MapToApprovalFieldChangeList(result.Items));
+        }
+        catch (PendingApprovalNotFoundException ex)
+        {
+            logger.LogWarning(ex, "PutApprovals failed with PendingApprovalNotFoundException");
+            return NotFound(ex.Message);
+        }
     }
     
     private List<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items)

@@ -4,6 +4,7 @@ using Moq;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -72,5 +73,29 @@ public class ApprovalsControllerTests
         var jsonResult = result as CreatedResult;
         jsonResult.StatusCode.Should().Be(201);
         jsonResult.Value.Should().BeEquivalentTo(commandResult.Items.Select(x => new { ChangeType = x.Field.GetEnumDescription(), ApprovalStatus = "EmployerApprovalRequested", x.Reason }).ToList());
+    }
+
+    [Test]
+    public async Task PutApprovals_Processes_Throws_PendingApprovalNotFoundException_Then_ReturnsNotFoundResponse()
+    {
+        // Arrange
+        var request = _fixture.Create<CocApprovalRequest>();
+        var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
+        var commandResult = _fixture.Create<CocApprovalResult>();
+        commandResult.Items.ForEach(i => i.Status = CocApprovalItemStatus.Pending);
+
+        _mapper.Setup(m => m.Map<CocApprovalDetails>(request)).ReturnsAsync(cocApprovalDetails);
+        _mediator.Setup(m => m.Send(It.Is<PutCocApprovalCommand>(p => p.CocApprovalDetails == cocApprovalDetails), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new PendingApprovalNotFoundException("Not found"));
+
+        // Act
+        var result = await _controller.PutApprovals(Guid.NewGuid(), request);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<NotFoundObjectResult>();
+        var notFoundResult = result as NotFoundObjectResult;
+        notFoundResult.StatusCode.Should().Be(404);
+        notFoundResult.Value.Should().Be("Not found");
     }
 }
