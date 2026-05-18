@@ -19,7 +19,7 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
             var history = dbContext.Value.LearningChangeHistory;
             history.Add(new Models.LearningChangeHistory()
             {
-                AccountId = apprenticeship.Cohort.EmployerAccountId.ToString(),
+                AccountId = apprenticeship.Cohort.EmployerAccountId,
                 AppliedDate = command.AppliedDate,
                 ApprenticeshipId = command.ApprenticeshipId,
                 ChangeType = ((byte)command.ChangeType),

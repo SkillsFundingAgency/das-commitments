@@ -34,7 +34,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.AccountId.Should().Be(_fixture.Apprenticeship.Cohort.EmployerAccountId.ToString());
+        history.AccountId.Should().Be(_fixture.Apprenticeship.Cohort.EmployerAccountId);
     }
 
     [Test]

@@ -2,16 +2,17 @@
 	Id uniqueidentifier NOT NULL,
 	[Source] tinyint NOT NULL,
 	ChangeType tinyint NOT NULL,
-	Description varchar(1024) NOT NULL,
-	UserId bigint NULL,
+	Description NVARCHAR(1024) NOT NULL,
+	UserId uniqueidentifier NULL,
 	ApprenticeshipId bigint NOT NULL,
+	LearnerName NVARCHAR(100) NOT NULL,
 	LearningKey uniqueidentifier NULL,
 	Created datetime2(0) NOT NULL,
 	AppliedDate datetime2(0) NOT NULL,
-	AccountId varchar(100)  NOT NULL,
+	AccountId bigint  NOT NULL,
 	UKPRN bigint NOT NULL,
-	ProviderName varchar(1000) NOT NULL,
-	EmployerName varchar(1000) NOT NULL,
+	ProviderName nvarchar(100) NOT NULL,
+	EmployerName nvarchar(100) NOT NULL,
 	CONSTRAINT LearningChangeHistory_PK PRIMARY KEY (Id)
 )
 GO

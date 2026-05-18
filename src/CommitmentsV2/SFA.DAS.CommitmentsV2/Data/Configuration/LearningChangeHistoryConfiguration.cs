@@ -16,7 +16,7 @@ public class LearningChangeHistoryConfiguration : IEntityTypeConfiguration<Learn
         builder.Property(x => x.Description)
             .IsRequired()
             .HasMaxLength(1024)
-            .HasColumnType("varchar(1024)");
+            .HasColumnType("nvarchar(1024)");
 
         builder.Property(x => x.UserId)
             .IsRequired(false);
@@ -26,8 +26,8 @@ public class LearningChangeHistoryConfiguration : IEntityTypeConfiguration<Learn
 
         builder.Property(x => x.LearnerName)
             .IsRequired()
-            .HasMaxLength(1000)
-            .HasColumnType("varchar(1000)");
+            .HasMaxLength(200)
+            .HasColumnType("nvarchar(200)");
 
         builder.Property(x => x.LearnerKey)
             .IsRequired(false);
@@ -41,22 +41,20 @@ public class LearningChangeHistoryConfiguration : IEntityTypeConfiguration<Learn
             .HasColumnType("datetime2(0)");
 
         builder.Property(x => x.AccountId)
-            .IsRequired()
-            .HasMaxLength(100)
-            .HasColumnType("varchar(100)");
+            .IsRequired();
 
         builder.Property(x => x.UKPRN)
             .IsRequired();
 
         builder.Property(x => x.ProviderName)
             .IsRequired()
-            .HasMaxLength(1000)
-            .HasColumnType("varchar(1000)");
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)");
 
         builder.Property(x => x.EmployerName)
            .IsRequired()
-           .HasMaxLength(1000)
-           .HasColumnType("varchar(1000)");
+           .HasMaxLength(100)
+           .HasColumnType("nvarchar(100)");
 
         builder.HasIndex(x => x.AccountId)
             .HasDatabaseName("LearningChangeHistory_AccountId_IDX");
