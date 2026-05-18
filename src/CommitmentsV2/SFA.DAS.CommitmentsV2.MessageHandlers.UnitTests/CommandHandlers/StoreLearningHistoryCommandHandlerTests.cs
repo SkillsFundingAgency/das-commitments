@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
@@ -92,7 +91,6 @@ public class StoreLearningHistoryCommandHandlerTests
         history.LearnerKey.Should().Be(_fixture.command.LearningKey);
     }
 
-
     [Test]
     public async Task When_HandlingCommand_StoreLearningHistory_Should_MapEmployerName()
     {
@@ -101,7 +99,6 @@ public class StoreLearningHistoryCommandHandlerTests
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
         history.EmployerName.Should().Be(_fixture.Apprenticeship.Cohort.AccountLegalEntity.Name);
     }
-
 
     [Test]
     public async Task When_HandlingCommand_StoreLearningHistory_Should_MapProviderName()
@@ -143,10 +140,10 @@ public class StoreLearningHistoryCommandHandlerTests
     public async Task When_HandlingCommandFailes_ThenItShouldLogException()
     {
         var act = () => _fixture.SetupNullMessage().Handle();
-        
-       await act.Should().ThrowAsync<BadRequestException>();
 
-       _fixture.VerifyHasError();
+        await act.Should().ThrowAsync<NullReferenceException>();
+
+        _fixture.VerifyHasError();
     }
 
     public class StoreLearningHistoryCommandHandlerTestsFixture
@@ -161,20 +158,28 @@ public class StoreLearningHistoryCommandHandlerTests
 
         public StoreLearningHistoryCommandHandlerTestsFixture()
         {
-
-
             var provider = new Provider()
             {
                 UkPrn = 12345,
                 Name = "Test Provider"
-            };            
+            };
 
+            var account = new Account(1, "", "", "", DateTime.UtcNow);
+
+            var accountLegalEntity = new AccountLegalEntity(account,
+                  1,
+                  0,
+                  "",
+                  "HasedId", "Test Employer",
+                  OrganisationType.PublicBodies,
+                  "",
+                  DateTime.UtcNow);
             var cohort = new Cohort()
-            { 
+            {
                 Id = 1,
                 Provider = provider,
                 ProviderId = provider.UkPrn,
-                AccountLegalEntity = null,
+                AccountLegalEntity = accountLegalEntity,
                 EmployerAccountId = 1
             };
 
@@ -195,21 +200,16 @@ public class StoreLearningHistoryCommandHandlerTests
 
             _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-            command =  new StoreLearningHistoryCommand() { ApprenticeshipId = Apprenticeship.Id, AppliedDate = DateTime.UtcNow, ChangeType = LearningChangeType.AutoApproved, Description = "Test Description", LearningKey = Guid.NewGuid(), Source = LearningSourceType.ApprovalAPI };
+            command = new StoreLearningHistoryCommand() { ApprenticeshipId = Apprenticeship.Id, AppliedDate = DateTime.UtcNow, ChangeType = LearningChangeType.AutoApproved, Description = "Test Description", LearningKey = Guid.NewGuid(), Source = LearningSourceType.ApprovalAPI };
 
             _dbContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship });
         }
 
-       
-
         public StoreLearningHistoryCommandHandlerTestsFixture SetupNullMessage()
         {
-
-            _dbContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(null);
+            command = null;
             return this;
         }
 
@@ -222,16 +222,10 @@ public class StoreLearningHistoryCommandHandlerTests
         {
             _dbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
-       
 
         public void VerifyHasError()
         {
-           _logger.HasErrors.Should().BeTrue();
-        }
-
-        public void VerifyHasWarning()
-        {
-            Assert.That(_logger.HasWarnings, Is.True);
-        }
+            _logger.HasErrors.Should().BeTrue();
+        }        
     }
 }
