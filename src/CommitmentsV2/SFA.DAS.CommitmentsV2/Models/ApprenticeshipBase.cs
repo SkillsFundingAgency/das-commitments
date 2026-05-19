@@ -83,7 +83,7 @@ public abstract class ApprenticeshipBase : Aggregate
                     }
 
                 if (TrainingTotalHours == null || PriorLearning?.DurationReducedByHours == null 
-                                               || PriorLearning?.IsDurationReducedByRpl == null || PriorLearning?.PriceReducedBy == null)
+                                               || PriorLearning?.PriceReducedBy == null)
                 {
                     return true;
                 }
