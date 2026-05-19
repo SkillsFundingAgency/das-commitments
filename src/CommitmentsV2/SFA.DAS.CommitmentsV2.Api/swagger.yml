@@ -161,7 +161,7 @@ components:
         new:
           description: The new value to be applied
           type: string
-        applicableFromDate:
+        effectiveFromDate:
           description: The date this change will take effect
           type: string
           format: date
