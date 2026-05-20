@@ -54,6 +54,7 @@
     [LearnerDataId] BIGINT NULL, 
     [HasLearnerDataChanges] BIT NOT NULL DEFAULT 0,
     [LastLearnerDataSync] DATETIME NULL,
+    [WithdrawnReasonCode] INT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )

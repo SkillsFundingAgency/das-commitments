@@ -26,6 +26,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public Originator? PendingUpdateOriginator { get; set; }
     public DateTime? CompletionDate { get; set; }
     public bool? MadeRedundant { get; set; }
+    public int? WithdrawnReasonCode { get; set; }
 
     [NotMapped] public string ApprenticeName => string.Concat(FirstName, " ", LastName);
 
@@ -894,6 +895,12 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId,
         });
+    }
+
+    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
+    {
+        StopDate = stoppedDate;
+        WithdrawnReasonCode = withdrawnReasonCode;
     }
 
     private void ResolveDatalocks(DateTime stopDate)
