@@ -51,7 +51,8 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
                 UKPRN = cohort.ProviderId,
                 Source = ((byte)command.Source),
                 Id = messageId,
-                LearnerName = $"{apprenticeship.FirstName} {apprenticeship.LastName}"
+                LearnerName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
+                UserId = command.UserId
             });
 
             await dbContext.Value.SaveChangesAsync();
