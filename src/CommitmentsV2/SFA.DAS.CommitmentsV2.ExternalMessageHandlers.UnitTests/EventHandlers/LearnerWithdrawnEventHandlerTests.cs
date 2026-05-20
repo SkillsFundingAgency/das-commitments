@@ -8,6 +8,7 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.Fakes;
 
@@ -33,6 +34,13 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
+        {
+            await _fixture.Handle();
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent();
+        }
+
+        [Test]
         public async Task When_LearnerWithDrawnEvent_AppliedOnNonApprenticeship_Exception_IsThrown()
         {
             _fixture.SetApprenticeshipIdTo(999);
@@ -47,6 +55,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private LearnerWithdrawnEvent _event;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
+            private Mock<IMessageSession> _messageSession;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
             private FakeApprenticeship _apprenticeship;
             private Cohort _cohort;
@@ -57,8 +66,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
                 _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
+                _messageSession = new Mock<IMessageSession>();
 
-                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger);
+                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _messageSession.Object, _logger);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
@@ -95,6 +105,18 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _apprenticeship.WithdrawnReasonCode.Should().Be(_event.WithdrawnReasonCode);
             }
 
+            public void VerifyStoreLearnerHistoryCommandIsSent()
+            {
+                _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == _event.ApprenticeshipId &&
+                    c.Source == Types.LearningSourceType.ILRStatusChange &&
+                    c.ChangeType == Types.LearningChangeType.AutoApproved &&
+                    c.LearningKey == _event.LearningKey &&
+                    c.AppliedDate == _event.Created &&
+                    c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawnReasonCode}"
+                ), It.IsAny<SendOptions>()), Times.Once);
+            }
+            
             public void VerifyHasError()
             {
                 Assert.That(_logger.HasErrors, Is.True);
