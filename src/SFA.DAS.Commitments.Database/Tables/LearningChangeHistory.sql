@@ -5,7 +5,7 @@
 	Description NVARCHAR(1024) NOT NULL,
 	UserId uniqueidentifier NULL,
 	ApprenticeshipId bigint NOT NULL,
-	LearnerName NVARCHAR(100) NOT NULL,
+	LearnerName NVARCHAR(200) NOT NULL,
 	LearningKey uniqueidentifier NULL,
 	Created datetime2(0) NOT NULL,
 	AppliedDate datetime2(0) NOT NULL,

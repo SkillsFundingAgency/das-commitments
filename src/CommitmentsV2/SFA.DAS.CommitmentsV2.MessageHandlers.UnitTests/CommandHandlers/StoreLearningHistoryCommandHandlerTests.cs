@@ -34,7 +34,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.AccountId.Should().Be(_fixture.Apprenticeship.Cohort.EmployerAccountId);
+        history.AccountId.Should().Be(_fixture.Account.Id);
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.LearnerKey.Should().Be(_fixture.command.LearningKey);
+        history.LearningKey.Should().Be(_fixture.command.LearningKey);
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.EmployerName.Should().Be(_fixture.Apprenticeship.Cohort.AccountLegalEntity.Name);
+        history.EmployerName.Should().Be(_fixture.AccountLegalEntity.Name);
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.ProviderName.Should().Be(_fixture.Apprenticeship.Cohort.Provider.Name);
+        history.ProviderName.Should().Be(_fixture.Provider.Name);
     }
 
     [Test]
@@ -115,7 +115,7 @@ public class StoreLearningHistoryCommandHandlerTests
         await _fixture.Handle();
 
         var history = _fixture._dbContext.Object.LearningChangeHistory.FirstOrDefault();
-        history.UKPRN.Should().Be(_fixture.Apprenticeship.Cohort.ProviderId);
+        history.UKPRN.Should().Be(_fixture.Provider.UkPrn);
     }
 
     [Test]
@@ -155,18 +155,23 @@ public class StoreLearningHistoryCommandHandlerTests
         private FakeLogger<StoreLearningHistoryCommandHandler> _logger;
 
         public Apprenticeship Apprenticeship { get; set; }
+        public Account Account { get; set; }
+
+        public Provider Provider { get; set; }
+
+        public AccountLegalEntity AccountLegalEntity { get; set; }
 
         public StoreLearningHistoryCommandHandlerTestsFixture()
         {
-            var provider = new Provider()
+            Provider = new Provider()
             {
                 UkPrn = 12345,
                 Name = "Test Provider"
             };
 
-            var account = new Account(1, "", "", "", DateTime.UtcNow);
+            Account = new Account(1, "", "", "", DateTime.UtcNow);
 
-            var accountLegalEntity = new AccountLegalEntity(account,
+            AccountLegalEntity = new AccountLegalEntity(Account,
                   1,
                   0,
                   "",
@@ -177,19 +182,19 @@ public class StoreLearningHistoryCommandHandlerTests
             var cohort = new Cohort()
             {
                 Id = 1,
-                Provider = provider,
-                ProviderId = provider.UkPrn,
-                AccountLegalEntity = accountLegalEntity,
-                EmployerAccountId = 1
+                Provider = Provider,
+                ProviderId = Provider.UkPrn,
+                AccountLegalEntity = AccountLegalEntity,
+                EmployerAccountId = 1,
+                AccountLegalEntityId = AccountLegalEntity.Id,
             };
 
             Apprenticeship = new Apprenticeship()
             {
                 Id = 1,
-                Cohort = cohort,
-                CommitmentId = cohort.Id,
                 FirstName = "Test",
-                LastName = "Apprentice"
+                LastName = "Apprentice",
+                CommitmentId = cohort.Id,
             };
 
             _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
@@ -199,12 +204,18 @@ public class StoreLearningHistoryCommandHandlerTests
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object));
 
             _messageHandlerContext = new Mock<IMessageHandlerContext>();
+            _messageHandlerContext.Setup(c => c.MessageId).Returns(Guid.NewGuid().ToString());
 
             command = new StoreLearningHistoryCommand() { ApprenticeshipId = Apprenticeship.Id, AppliedDate = DateTime.UtcNow, ChangeType = LearningChangeType.AutoApproved, Description = "Test Description", LearningKey = Guid.NewGuid(), Source = LearningSourceType.ApprovalAPI };
 
+            _dbContext.Setup(c => c.Providers).ReturnsDbSet(new List<Provider> { Provider });
+
+            _dbContext.Setup(c => c.AccountLegalEntities).ReturnsDbSet(new List<AccountLegalEntity> { AccountLegalEntity });
+            _dbContext.Setup(c => c.Cohorts).ReturnsDbSet(new List<Cohort> { cohort });
             _dbContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship });
+               .Setup(context => context.Apprenticeships)
+               .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship });
+            _dbContext.Setup(c => c.Accounts).ReturnsDbSet(new List<Account> { Account });
         }
 
         public StoreLearningHistoryCommandHandlerTestsFixture SetupNullMessage()
@@ -226,6 +237,6 @@ public class StoreLearningHistoryCommandHandlerTests
         public void VerifyHasError()
         {
             _logger.HasErrors.Should().BeTrue();
-        }        
+        }
     }
 }

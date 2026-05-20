@@ -19,7 +19,7 @@ public static class CommitmentsDbContextExtensions
     public static async Task<Cohort> GetCohortAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
     {
         var cohort = await db.GetCohortAggregateSafely(cohortId, cancellationToken);
-        
+
         if (cohort == null)
         {
             throw new BadRequestException($"Cohort {cohortId} was not found");
@@ -136,4 +136,24 @@ public static class CommitmentsDbContextExtensions
                                        && c.Status == OverlappingTrainingDateRequestStatus.Pending, cancellationToken);
         return result;
     }
+
+    public static async Task<Apprenticeship> GetApprenticeshipDetailsAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
+    {
+        var apprenticeship = await db.Apprenticeships.AsNoTracking()
+            .Where(a => a.Id == apprenticeshipId)
+            .Select(a => new Apprenticeship
+            {
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                DateOfBirth = a.DateOfBirth,
+                StartDate = a.StartDate,
+                EndDate = a.EndDate,
+                Cost = a.Cost,
+                CommitmentId = a.CommitmentId
+            })
+            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+        return apprenticeship ?? throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");
+    }   
 }

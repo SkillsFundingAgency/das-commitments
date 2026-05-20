@@ -9,7 +9,7 @@ public class LearningChangeHistory
     public Guid? UserId { get; set; }
     public long ApprenticeshipId { get; set; }
     public string LearnerName { get; set; }
-    public Guid? LearnerKey { get; set; }
+    public Guid? LearningKey { get; set; }
     public DateTime Created { get; set; }
     public DateTime AppliedDate { get; set; }
     public long AccountId { get; set; }

@@ -29,7 +29,7 @@ public class LearningChangeHistoryConfiguration : IEntityTypeConfiguration<Learn
             .HasMaxLength(200)
             .HasColumnType("nvarchar(200)");
 
-        builder.Property(x => x.LearnerKey)
+        builder.Property(x => x.LearningKey)
             .IsRequired(false);
 
         builder.Property(x => x.Created)
