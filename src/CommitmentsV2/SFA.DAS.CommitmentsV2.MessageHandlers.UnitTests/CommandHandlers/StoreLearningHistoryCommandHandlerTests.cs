@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
@@ -138,11 +139,11 @@ public class StoreLearningHistoryCommandHandlerTests
     }
 
     [Test]
-    public async Task When_HandlingCommandFailes_ThenItShouldLogException()
+    public async Task When_HandlingCommandFails_ThenItShouldLogException()
     {
         var act = () => _fixture.SetupNullMessage().Handle();
 
-        await act.Should().ThrowAsync<NullReferenceException>();
+        await act.Should().ThrowAsync<ArgumentNullException>();
 
         _fixture.VerifyHasError();
     }
@@ -205,6 +206,7 @@ public class StoreLearningHistoryCommandHandlerTests
                 FirstName = "Test",
                 LastName = "Apprentice",
                 CommitmentId = cohort.Id,
+                Cohort = cohort,
             };
 
             _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
@@ -232,7 +234,7 @@ public class StoreLearningHistoryCommandHandlerTests
         {
             _dbContext.Setup(c => c.LearningChangeHistory).ReturnsDbSet(new List<LearningChangeHistory>()
             {
-                 new LearningChangeHistory(){
+                 new(){
                      Id = MessageId,
                      ApprenticeshipId = 1,
                      AccountId = 1,

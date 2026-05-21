@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
@@ -13,6 +12,12 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
     {
         try
         {
+            if (command is null)
+            {
+                logger.LogError("Received null command for {TypeName}", nameof(StoreLearningHistoryCommand));
+                throw new ArgumentNullException(nameof(command));
+            }
+
             logger.LogInformation("Handling {TypeName} with MessageId '{MessageId}'", nameof(StoreLearningHistoryCommand), context.MessageId);
 
             if (!Guid.TryParse(context.MessageId, out var messageId))
@@ -28,34 +33,34 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
                 return;
             }
 
-            var apprenticeship = await dbContext.Value.GetApprenticeshipDetailsAggregate(command.ApprenticeshipId, default);
-            var cohort = await dbContext.Value.Cohorts.GetById(apprenticeship.CommitmentId,
-                             c => new
-                             {
-                                 c.EmployerAccountId,
-                                 c.AccountLegalEntityId,
-                                 c.ProviderId
-                             }, default);
-
-            var providerName = await dbContext.Value.Providers.GetById(cohort.ProviderId,
-                p => p.Name, default);
-
-            var accountLegalEntityName = await dbContext.Value.AccountLegalEntities.GetById(cohort.AccountLegalEntityId,
-                al => al.Name, default);
+            var apprenticeship = await dbContext.Value.Apprenticeships
+                 .AsNoTracking()
+                 .Where(a => a.Id == command.ApprenticeshipId)
+                 .Select(a => new
+                 {
+                     a.FirstName,
+                     a.LastName,
+                     AccountId = a.Cohort.EmployerAccountId,
+                     ProviderName = a.Cohort.Provider.Name,
+                     UKPRN = a.Cohort.ProviderId,
+                     EmployerName = a.Cohort.AccountLegalEntity.Name,
+                 })
+                 .SingleOrDefaultAsync(default)
+                 ?? throw new BadRequestException($"Apprenticeship {command.ApprenticeshipId} was not found");
 
             var history = dbContext.Value.LearningChangeHistory;
             history.Add(new Models.LearningChangeHistory()
             {
-                AccountId = cohort.EmployerAccountId,
+                AccountId = apprenticeship.AccountId,
                 AppliedDate = command.AppliedDate,
                 ApprenticeshipId = command.ApprenticeshipId,
                 ChangeType = ((byte)command.ChangeType),
                 Created = DateTime.UtcNow,
                 Description = command.Description,
                 LearningKey = command.LearningKey,
-                EmployerName = accountLegalEntityName,
-                ProviderName = providerName,
-                UKPRN = cohort.ProviderId,
+                EmployerName = apprenticeship.EmployerName,
+                ProviderName = apprenticeship.ProviderName,
+                UKPRN = apprenticeship.UKPRN,
                 Source = ((byte)command.Source),
                 Id = messageId,
                 LearnerName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
