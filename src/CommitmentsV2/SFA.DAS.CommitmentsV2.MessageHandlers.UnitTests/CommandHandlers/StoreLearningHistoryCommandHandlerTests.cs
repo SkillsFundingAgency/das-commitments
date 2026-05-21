@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -146,6 +147,13 @@ public class StoreLearningHistoryCommandHandlerTests
         _fixture.VerifyHasError();
     }
 
+    [Test]
+    public async Task When_HandlingCommandWithInvalidMessageId_ThenItShouldLogError()
+    {
+        await _fixture.SetupLearningChangeHistory().Handle();
+        _fixture.VerifyLogInformation("has already been processed");
+    }
+
     public class StoreLearningHistoryCommandHandlerTestsFixture
     {
         private StoreLearningHistoryCommandHandler _handler;
@@ -153,6 +161,7 @@ public class StoreLearningHistoryCommandHandlerTests
         public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
         private Mock<IMessageHandlerContext> _messageHandlerContext;
         private FakeLogger<StoreLearningHistoryCommandHandler> _logger;
+        public Guid MessageId { get; set; }
 
         public Apprenticeship Apprenticeship { get; set; }
         public Account Account { get; set; }
@@ -163,6 +172,7 @@ public class StoreLearningHistoryCommandHandlerTests
 
         public StoreLearningHistoryCommandHandlerTestsFixture()
         {
+            MessageId = Guid.NewGuid();
             Provider = new Provider()
             {
                 UkPrn = 12345,
@@ -204,7 +214,7 @@ public class StoreLearningHistoryCommandHandlerTests
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object));
 
             _messageHandlerContext = new Mock<IMessageHandlerContext>();
-            _messageHandlerContext.Setup(c => c.MessageId).Returns(Guid.NewGuid().ToString());
+            _messageHandlerContext.Setup(c => c.MessageId).Returns(MessageId.ToString());
 
             command = new StoreLearningHistoryCommand() { ApprenticeshipId = Apprenticeship.Id, AppliedDate = DateTime.UtcNow, ChangeType = LearningChangeType.AutoApproved, Description = "Test Description", LearningKey = Guid.NewGuid(), Source = LearningSourceType.ApprovalAPI };
 
@@ -216,6 +226,30 @@ public class StoreLearningHistoryCommandHandlerTests
                .Setup(context => context.Apprenticeships)
                .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship });
             _dbContext.Setup(c => c.Accounts).ReturnsDbSet(new List<Account> { Account });
+        }
+
+        public StoreLearningHistoryCommandHandlerTestsFixture SetupLearningChangeHistory()
+        {
+            _dbContext.Setup(c => c.LearningChangeHistory).ReturnsDbSet(new List<LearningChangeHistory>()
+            {
+                 new LearningChangeHistory(){
+                     Id = MessageId,
+                     ApprenticeshipId = 1,
+                     AccountId = 1,
+                     AppliedDate = DateTime.UtcNow,
+                     ChangeType = (byte)LearningChangeType.AutoApproved,
+                     Description = "Test Description",
+                     LearningKey = Guid.NewGuid(),
+                     Source = (byte)LearningSourceType.ApprovalAPI,
+                     Created = DateTime.UtcNow,
+                     EmployerName = "Test Employer",
+                     ProviderName = "Test Provider",
+                     UKPRN = 12345,
+                     LearnerName = "Test Apprentice"
+                 }
+            });
+
+            return this;
         }
 
         public StoreLearningHistoryCommandHandlerTestsFixture SetupNullMessage()
@@ -237,6 +271,11 @@ public class StoreLearningHistoryCommandHandlerTests
         public void VerifyHasError()
         {
             _logger.HasErrors.Should().BeTrue();
+        }
+
+        public void VerifyLogInformation(string message)
+        {
+            _logger.LogMessages.Should().Contain(m => m.logLevel == LogLevel.Information && m.message.Contains(message));
         }
     }
 }

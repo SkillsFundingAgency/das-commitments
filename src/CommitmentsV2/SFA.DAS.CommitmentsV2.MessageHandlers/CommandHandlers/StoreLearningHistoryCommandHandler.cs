@@ -21,6 +21,13 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
                 return;
             }
 
+            var isAlreadyProcessed = await dbContext.Value.LearningChangeHistory.AnyAsync(h => h.Id == messageId, default);
+            if (isAlreadyProcessed)
+            {
+                logger.LogInformation("MessageId '{MessageId}' for {TypeName} has already been processed", context.MessageId, nameof(StoreLearningHistoryCommand));
+                return;
+            }
+
             var apprenticeship = await dbContext.Value.GetApprenticeshipDetailsAggregate(command.ApprenticeshipId, default);
             var cohort = await dbContext.Value.Cohorts.GetById(apprenticeship.CommitmentId,
                              c => new
@@ -57,11 +64,6 @@ public class StoreLearningHistoryCommandHandler(ILogger<StoreLearningHistoryComm
 
             await dbContext.Value.SaveChangesAsync();
             logger.LogInformation("Successfully processed {TypeName} with MessageId '{MessageId}'", nameof(StoreLearningHistoryCommand), context.MessageId);
-        }
-        catch (DbUpdateException dbEx)
-        {
-            logger.LogError(dbEx, "Database update error processing {TypeName} with MessageId '{MessageId}'", nameof(StoreLearningHistoryCommand), context.MessageId);
-            throw;
         }
         catch (Exception e)
         {
