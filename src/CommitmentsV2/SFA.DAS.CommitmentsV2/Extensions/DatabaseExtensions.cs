@@ -15,6 +15,7 @@ public static class DatabaseExtensions
 #if !DEBUG
         new ManagedIdentityCredential(),
 #endif
+
         new AzureCliCredential(),
         new VisualStudioCodeCredential(),
         new VisualStudioCredential());
