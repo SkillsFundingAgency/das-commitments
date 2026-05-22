@@ -88,6 +88,7 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
     public void Dispose()
     {
         DbContext?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     private class TestProviderCommitmentsDbContext : ProviderCommitmentsDbContext
@@ -95,6 +96,7 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
         public TestProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -103,5 +105,3 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
         }
     }
 }
-
-

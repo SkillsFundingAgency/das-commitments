@@ -25,7 +25,7 @@ public class CocDeleteCommandHandler(
             return new CocDeleteResult
             {
                 Status = DeleteValidationState.NotFound,
-                Message = $"An approval was not found in pending state for  this learningkey"
+                Message = $"An approval was not found in pending state for this learningkey"
             };
         }
 
