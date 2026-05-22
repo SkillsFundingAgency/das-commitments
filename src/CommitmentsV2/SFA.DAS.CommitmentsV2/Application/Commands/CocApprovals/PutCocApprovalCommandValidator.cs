@@ -3,9 +3,9 @@ using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 
-public class PostCocApprovalCommandValidator : AbstractValidator<PostCocApprovalCommand>
+public class PutCocApprovalCommandValidator : AbstractValidator<PutCocApprovalCommand>
 {
-    public PostCocApprovalCommandValidator()
+    public PutCocApprovalCommandValidator()
     {
         RuleFor(x => x.CocApprovalDetails)
                     .NotNull()
