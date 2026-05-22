@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocDelete;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -129,6 +130,60 @@ public class ApprovalsControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var jsonResult = result as BadRequestObjectResult;
         jsonResult.StatusCode.Should().Be(400);
+    }
+
+    [Test]
+    public async Task Delete_Processes_The_Request_Then_ReturnsNotFoundObjectResultResponse()
+    {
+        // Arrange
+        Guid LearningKey = Guid.NewGuid();
+
+        _mediator.Setup(m => m.Send(It.Is<CocDeleteCommand>(t => t.LearningKey == LearningKey), default))
+        .ReturnsAsync(new CocDeleteResult()
+        { Status = DeleteValidationState.NotFound });
+
+        // Act
+        var result = await _controller.DeleteApprovals(LearningKey);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Test]
+    public async Task Delete_Processes_The_Request_Then_ReturnsBadRequestObjectResultResponse()
+    {
+        // Arrange
+        Guid LearningKey = Guid.NewGuid();
+
+        _mediator.Setup(m => m.Send(It.Is<CocDeleteCommand>(t => t.LearningKey == LearningKey), default))
+        .ReturnsAsync(new CocDeleteResult()
+        { Status = DeleteValidationState.NotPending });
+
+        // Act
+        var result = await _controller.DeleteApprovals(LearningKey);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Test]
+    public async Task Delete_Processes_The_Request_Then_ReturnsOkObjectResultResponse()
+    {
+        // Arrange
+        Guid LearningKey = Guid.NewGuid();
+
+        _mediator.Setup(m => m.Send(It.Is<CocDeleteCommand>(t => t.LearningKey == LearningKey), default))
+        .ReturnsAsync(new CocDeleteResult()
+        { Status = DeleteValidationState.Cancelled });
+
+        // Act
+        var result = await _controller.DeleteApprovals(LearningKey);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<OkObjectResult>();
     }
 }
 
