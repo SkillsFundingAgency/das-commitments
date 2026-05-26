@@ -50,7 +50,8 @@ public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMappe
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             LearnerDataId = source.LearnerDataId,
             HasLearnerDataChanges = source.HasLearnerDataChanges,
-            LastLearnerDataSync = source.LastLearnerDataSync
+            LastLearnerDataSync = source.LastLearnerDataSync,
+            LearningType = source.LearningType
         });
     }
 }
