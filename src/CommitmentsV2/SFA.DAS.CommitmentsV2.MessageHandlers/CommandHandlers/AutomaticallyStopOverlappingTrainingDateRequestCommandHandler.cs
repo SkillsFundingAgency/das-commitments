@@ -39,7 +39,8 @@ public class AutomaticallyStopOverlappingTrainingDateRequestCommandHandler(
                 message.StopDate,
                 false,
                 Types.UserInfo.System,
-                Types.Party.Employer));
+                Types.Party.Employer,
+                Types.StopSource.OltdAutomatic));
         }
         catch (Exception ex)
         {

@@ -38,6 +38,12 @@ public class UpdateApprenticeshipStopDateCommandHandler(
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
 
+        if (apprenticeship.WithdrawnReasonCode.HasValue)
+        {
+            throw new DomainException(nameof(apprenticeship.WithdrawnReasonCode),
+                "Apprenticeship was withdrawn in ILR and the stop date cannot be updated by the employer");
+        }
+
         CheckAuthorization(command, apprenticeship);
 
         ValidateChangeDateForStop(command.StopDate, apprenticeship);

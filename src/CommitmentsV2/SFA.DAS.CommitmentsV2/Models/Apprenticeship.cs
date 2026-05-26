@@ -786,9 +786,32 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
     }
 
-    public void StopApprenticeship(DateTime stopDate, long accountId, bool madeRedundant, UserInfo userInfo, ICurrentDateTime currentDate, Party party)
+    private void ValidateApprenticeshipForIlrStop(long accountId)
     {
-        ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
+        if (Cohort.EmployerAccountId != accountId)
+        {
+            throw new DomainException(nameof(accountId), $"Employer {accountId} not authorised to access commitment {Cohort.Id}, expected employer {Cohort.EmployerAccountId}");
+        }
+    }
+
+    public void StopApprenticeship(
+        DateTime stopDate,
+        long accountId,
+        bool madeRedundant,
+        UserInfo userInfo,
+        ICurrentDateTime currentDate,
+        Party party,
+        StopSource stopSource = StopSource.Employer,
+        int? withdrawnReasonCode = null)
+    {
+        if (stopSource == StopSource.Ilr)
+        {
+            ValidateApprenticeshipForIlrStop(accountId);
+        }
+        else
+        {
+            ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
+        }
 
         StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
@@ -796,21 +819,32 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         PaymentStatus = PaymentStatus.Withdrawn;
         StopDate = stopDate;
-        MadeRedundant = madeRedundant;
+
+        if (stopSource == StopSource.Ilr)
+        {
+            WithdrawnReasonCode = withdrawnReasonCode;
+        }
+        else
+        {
+            MadeRedundant = madeRedundant;
+        }
 
         ResolveDatalocks(stopDate);
 
         ChangeTrackingSession.CompleteTrackingSession();
 
-        Publish(() => new ApprenticeshipStoppedEvent
+        if (stopSource != StopSource.Ilr)
         {
-            AppliedOn = currentDate.UtcNow,
-            ApprenticeshipId = Id,
-            StopDate = stopDate,
-            IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stopDate.Date,
-            LearnerDataId = LearnerDataId,
-            ProviderId = Cohort.ProviderId
-        });
+            Publish(() => new ApprenticeshipStoppedEvent
+            {
+                AppliedOn = currentDate.UtcNow,
+                ApprenticeshipId = Id,
+                StopDate = stopDate,
+                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stopDate.Date,
+                LearnerDataId = LearnerDataId,
+                ProviderId = Cohort.ProviderId
+            });
+        }
     }
 
     public void UpdateEmployerReference(string employerReference, Party party, UserInfo userInfo)
@@ -895,12 +929,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId,
         });
-    }
-
-    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
-    {
-        StopDate = stoppedDate;
-        WithdrawnReasonCode = withdrawnReasonCode;
     }
 
     private void ResolveDatalocks(DateTime stopDate)

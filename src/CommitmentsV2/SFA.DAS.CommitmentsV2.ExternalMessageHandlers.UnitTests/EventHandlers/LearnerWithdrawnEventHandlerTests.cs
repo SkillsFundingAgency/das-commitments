@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Fakes;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
@@ -29,15 +32,14 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StopDateAndCodeAreUpdated()
         {
             await _fixture.Handle();
-            _fixture.VerifyStopDateIsAssignedCorrectly();
-            _fixture.VerifyWithdrawnReasonCodeIsAssignedCorrectly();
+            _fixture.VerifyStopApprenticeshipCommandIsSent();
         }
 
         [Test]
         public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
         {
             await _fixture.Handle();
-            _fixture.VerifyStoreLearnerHistoryCommandIsSent();
+            _fixture.VerifyStopApprenticeshipCommandIsSent();
         }
 
         [Test]
@@ -55,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private LearnerWithdrawnEvent _event;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
-            private Mock<IMessageSession> _messageSession;
+            private Mock<IMediator> _mediator;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
             private FakeApprenticeship _apprenticeship;
             private Cohort _cohort;
@@ -66,15 +68,15 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
                 _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
-                _messageSession = new Mock<IMessageSession>();
+                _mediator = new Mock<IMediator>();
 
-                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _messageSession.Object, _logger);
+                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _mediator.Object, _logger);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
                 _event = autoFixture.Create<LearnerWithdrawnEvent>();
 
-                _cohort = new Cohort() { Id = 1 };
+                _cohort = new Cohort { Id = 1, EmployerAccountId = autoFixture.Create<long>() };
 
                 _apprenticeship = new FakeApprenticeship { Id = _event.ApprenticeshipId, CommitmentId = 1 };
                 _dbContext.Object.Apprenticeships.Add(_apprenticeship);
@@ -95,31 +97,22 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 await _handler.Handle(_event, _messageHandlerContext.Object);
             }
 
-            public void VerifyStopDateIsAssignedCorrectly()
+            public void VerifyStopApprenticeshipCommandIsSent()
             {
-                _apprenticeship.StopDate.Should().Be(_event.WithdrawnDate);
-            }
-
-            public void VerifyWithdrawnReasonCodeIsAssignedCorrectly()
-            {
-                _apprenticeship.WithdrawnReasonCode.Should().Be(_event.WithdrawnReasonCode);
-            }
-
-            public void VerifyStoreLearnerHistoryCommandIsSent()
-            {
-                _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+                _mediator.Verify(x => x.Send(It.Is<StopApprenticeshipCommand>(c =>
                     c.ApprenticeshipId == _event.ApprenticeshipId &&
-                    c.Source == Types.LearningSourceType.ILRStatusChange &&
-                    c.ChangeType == Types.LearningChangeType.AutoApproved &&
+                    c.AccountId == _cohort.EmployerAccountId &&
+                    c.StopDate == _event.WithdrawnDate &&
+                    c.StopSource == StopSource.Ilr &&
+                    c.WithdrawnReasonCode == _event.WithdrawnReasonCode &&
                     c.LearningKey == _event.LearningKey &&
-                    c.AppliedDate == _event.Created &&
-                    c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawnReasonCode}"
-                ), It.IsAny<SendOptions>()), Times.Once);
+                    c.AppliedDate == _event.Created
+                ), It.IsAny<CancellationToken>()), Times.Once);
             }
             
             public void VerifyHasError()
             {
-                Assert.That(_logger.HasErrors, Is.True);
+                _logger.HasErrors.Should().BeTrue();
             }
         }
 

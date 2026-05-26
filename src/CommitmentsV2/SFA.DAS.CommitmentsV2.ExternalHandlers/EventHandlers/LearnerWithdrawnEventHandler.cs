@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class LearnerWithdrawnEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    IMessageSession messageSession,
+    IMediator mediator,
     ILogger<LearnerWithdrawnEventHandler> logger)
     : IHandleMessages<LearnerWithdrawnEvent>
 {
@@ -22,19 +24,21 @@ public class LearnerWithdrawnEventHandler(
                 "WithdrawnReasonCode {WithdrawnReasonCode}",
                 message.ApprenticeshipId, message.WithdrawnDate, message.WithdrawnReasonCode);
             var db = dbContext.Value;
-            var apprentice = await db.Apprenticeships.SingleAsync(x => x.Id == message.ApprenticeshipId);
-            apprentice.SetIlrWithdrawn(message.WithdrawnDate, message.WithdrawnReasonCode);
+            var apprenticeship = await db.Apprenticeships
+                .Include(x => x.Cohort)
+                .SingleAsync(x => x.Id == message.ApprenticeshipId);
 
-            var command = new StoreLearningHistoryCommand
-            {
-                ApprenticeshipId = message.ApprenticeshipId,
-                Source = Types.LearningSourceType.ILRStatusChange,
-                ChangeType = Types.LearningChangeType.AutoApproved,
-                LearningKey = message.LearningKey,
-                AppliedDate = message.Created,
-                Description = $"ILR Learner status changed from Live to Withdrawn due to {message.WithdrawnReasonCode}"
-            };
-            await messageSession.Send(command);
+            await mediator.Send(new StopApprenticeshipCommand(
+                apprenticeship.Cohort.EmployerAccountId,
+                message.ApprenticeshipId,
+                message.WithdrawnDate,
+                false,
+                UserInfo.System,
+                Party.Employer,
+                StopSource.Ilr,
+                message.WithdrawnReasonCode,
+                message.LearningKey,
+                message.Created));
         }
         catch (Exception e)
         {

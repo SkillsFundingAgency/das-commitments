@@ -11,5 +11,9 @@ public class StopApprenticeshipCommandValidator : AbstractValidator<StopApprenti
         RuleFor(model => model.UserInfo).Must(info => info != null && info.UserId != null).WithMessage("The User Info supplied must not be null and contain a UserId");
         RuleFor(model => model.StopDate).Must(date => date != DateTime.MinValue).WithMessage("The StopDate must be supplied");
         RuleFor(model => model.Party).Must(party => party != Types.Party.None).WithMessage("The Party must be supplied");
+        RuleFor(model => model.WithdrawnReasonCode)
+            .Must(code => code.HasValue)
+            .When(model => model.StopSource == Types.StopSource.Ilr)
+            .WithMessage("The WithdrawnReasonCode must be supplied for an ILR stop");
     }
 }

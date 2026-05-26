@@ -28,24 +28,45 @@ public class StopApprenticeshipCommandHandler(
     {
         try
         {
-            logger.LogInformation("Begin stopping apprenticeShip. Apprenticeship-Id:{ApprenticeshipId}",
-                request.ApprenticeshipId);
+            logger.LogInformation("Begin stopping apprenticeship. Apprenticeship-Id:{ApprenticeshipId}, StopSource:{StopSource}",
+                request.ApprenticeshipId, request.StopSource);
 
             CheckPartyIsValid(request.Party);
 
             var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
-            apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, currentDate, request.Party);
+            if (request.StopSource == StopSource.Employer && apprenticeship.WithdrawnReasonCode.HasValue)
+            {
+                throw new DomainException(nameof(apprenticeship.WithdrawnReasonCode),
+                    "Apprenticeship was withdrawn in ILR and cannot be stopped by the employer");
+            }
+
+            apprenticeship.StopApprenticeship(
+                request.StopDate,
+                request.AccountId,
+                request.MadeRedundant,
+                request.UserInfo,
+                currentDate,
+                request.Party,
+                request.StopSource,
+                request.WithdrawnReasonCode);
+
             await dbContext.Value.SaveChangesAsync(cancellationToken);
 
-            logger.LogInformation("Stopped apprenticeship. Apprenticeship-Id:{ApprenticeshipId}",
-                request.ApprenticeshipId);
+            logger.LogInformation("Stopped apprenticeship. Apprenticeship-Id:{ApprenticeshipId}, StopSource:{StopSource}",
+                request.ApprenticeshipId, request.StopSource);
 
             await resolveOverlappingTrainingDateRequestService.Resolve(
                 request.ApprenticeshipId,
                 null,
                 OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped
                 );
+
+            if (request.StopSource == StopSource.Ilr)
+            {
+                await SendLearningHistory(request);
+                return;
+            }
 
             logger.LogInformation("Sending email to Provider {ProviderId}, template {StopNotificationEmailTemplate}", apprenticeship.Cohort.ProviderId, StopNotificationEmailTemplate);
 
@@ -62,6 +83,21 @@ public class StopApprenticeshipCommandHandler(
             logger.LogError(exception, "Error Stopping Apprenticeship with id {ApprenticeshipId}", request.ApprenticeshipId);
             throw;
         }
+    }
+
+    private async Task SendLearningHistory(StopApprenticeshipCommand request)
+    {
+        var command = new StoreLearningHistoryCommand
+        {
+            ApprenticeshipId = request.ApprenticeshipId,
+            Source = LearningSourceType.ILRStatusChange,
+            ChangeType = LearningChangeType.AutoApproved,
+            LearningKey = request.LearningKey,
+            AppliedDate = request.AppliedDate ?? currentDate.UtcNow,
+            Description = $"ILR Learner status changed from Live to Withdrawn due to {request.WithdrawnReasonCode}"
+        };
+
+        await nserviceBusContext.Send(command);
     }
 
     private async Task NotifyProvider(long providerId, long apprenticeshipId, string employerName,

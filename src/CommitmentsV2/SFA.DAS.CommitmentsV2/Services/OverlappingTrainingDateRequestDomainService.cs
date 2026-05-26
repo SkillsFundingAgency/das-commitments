@@ -51,8 +51,18 @@ public class OverlappingTrainingDateRequestDomainService(
                 $"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
         }
 
+        var previousApprenticeshipId = changeOfEmployerOriginalApprenticeId ?? overlapResult.ApprenticeshipId.Value;
+        var previousApprenticeship = await dbContext.Value.Apprenticeships
+            .SingleAsync(x => x.Id == previousApprenticeshipId, cancellationToken);
+
+        if (previousApprenticeship.WithdrawnReasonCode.HasValue)
+        {
+            throw new DomainException(nameof(Apprenticeship.WithdrawnReasonCode),
+                "The previous apprenticeship was withdrawn in ILR and an overlapping training date request cannot be created");
+        }
+
         var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(originatingParty,
-            changeOfEmployerOriginalApprenticeId ?? overlapResult.ApprenticeshipId.Value,
+            previousApprenticeshipId,
             userInfo, currentDateTime.UtcNow);
         
         await dbContext.Value.SaveChangesAsync(cancellationToken);
