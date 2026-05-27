@@ -1,0 +1,245 @@
+openapi: 3.0.0
+info:
+  version: "1.0"
+  title: Start an approval endpoint
+  description: Approval endpoint to allow consumers to start an approval by sending changes on approved learning. Approvals will calculate whether approval is required and start the process
+paths:
+  /info:
+    get:
+      description: information regarding this API. The version will be returned
+      responses:
+        "200":
+          $ref: "#/components/responses/infoResponse"
+  
+  /health:
+    get:
+      description: The system is fully ready to accept equests and all the dependencies are healthy
+      responses:
+        "200":
+          $ref: "#/components/responses/healthCheckResponse"
+        "503":
+          $ref: "#/components/responses/healthCheckResponse"
+
+  /approvals/{learningKey}:
+    put:
+      summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/approvalRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/approvalResponse"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "400":
+          $ref: "#/components/responses/errorNoPendingChangeResponse"
+    post:
+      summary: Request to start a new approval for the record on learning. This allows metrics on whether we are synchronised between systems
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/approvalRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/approvalResponse"          
+        "404":
+          $ref: "#/components/responses/notFound"
+        "400":
+          $ref: "#/components/responses/errorPendingChangeExistsResponse"
+    delete:
+      summary: Request to delete the current pending approval on this record
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: An approval was deleted
+        "400":
+          description: An approval was not found in pending state for this learningkey
+components:  
+  requestBodies:
+    approvalRequest:
+      description: Details changes to training records to be evaluated
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/approvalRequest"
+  responses:
+    approvalResponse:
+      description: A response to an approval request containiung each fields and the status of approval
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/approvalsResult"
+    
+    okResponse:
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: OK
+
+    errorNoPendingChangeResponse:
+      description: There is no pending change to override
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/error"
+
+    errorPendingChangeExistsResponse:
+      description: There is a pending change and the caller has asked to create a new one
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/error"
+    
+    notFound:
+      description: Not found response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+
+
+    healthCheckResponse:
+      description: Results of a health check
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/healthcheckResults"
+
+    infoResponse:
+      description: Information response
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Leaner data APIM for the training service - Version 3.0.2
+            
+  schemas:
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    
+    change:
+      type: object
+      required:
+        - old
+        - new
+      properties:
+        old:
+          description: The old value of the field being changed
+          type: string
+        new:
+          description: The new value to be applied
+          type: string
+        effectiveFromDate:
+          description: The date this change will take effect
+          type: string
+          format: date
+
+    approvalsResult:
+      type: array
+      items:
+        type: object
+        properties: 
+          changeType:
+            description: The field being changed. An enumerated type to be agreed across the service for each field
+            type: string
+            enum: [TNP1, TNP2] # this will expand greatly
+          approvalStatus:
+            description: The status of an approval request on an individual piece of data
+            type: string
+            enum: 
+              - autoApproved
+              - autoRejected
+              - employerApprovalRequired
+          reason:
+            type: string
+            description: A reason for the approval result
+        required:
+          - changeType
+          - approvalStatus
+    
+    approvalRequest:
+      type: object
+      properties:
+        ukprn:
+          type: string
+        apprenticeshipId:
+          type: string
+        uln:
+          type: string
+        learningKey:
+          type: string
+          format: uuid
+        learningType:
+          type: string
+          enum:
+            - apprenticeship
+            - foundation
+            - shortCourse
+        approvedUri:
+          description: This is the uri to fetch the current record that has been approved
+          type: string
+          format: uri
+        changes:
+          $ref: "#/components/schemas/learningChangeArray"
+          
+    learningChangeArray:
+      type: array
+      description: >
+        A list of key/value pairs, where the key is a change enum and the value is a data object.
+      items:
+        $ref: "#/components/schemas/learningChange"
+
+    learningChange:
+      type: object
+      required: [changeType, data]
+      properties:
+        changeType:
+          type: string
+          enum: [TNP1, TNP2] # this will expand greatly
+        data:
+          $ref: "#/components/schemas/change"
+          
+    healthcheckResults:
+      type: array
+      items:
+        $ref: "#/components/schemas/healthcheck" 
+  
+    healthcheck:
+      type: object
+      properties:
+        description: 
+          type: string
+        result: 
+          type: string
