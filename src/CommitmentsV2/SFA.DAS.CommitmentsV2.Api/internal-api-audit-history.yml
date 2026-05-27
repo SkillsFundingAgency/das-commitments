@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: "1.0"
-  title: Start an approval endpoint
+  title: Audit history
   description: Approval endpoint to allow consumers to start an approval by sending changes on approved learning. Approvals will calculate whether approval is required and start the process
 paths:
   /info:
@@ -13,81 +13,122 @@ paths:
   
   /health:
     get:
-      description: The system is fully ready to accept equests and all the dependencies are healthy
+      description: The system is fully ready to accept requests and all the dependencies are healthy
       responses:
         "200":
           $ref: "#/components/responses/healthCheckResponse"
         "503":
           $ref: "#/components/responses/healthCheckResponse"
 
-  /approvals/{learningKey}:
-    put:
-      summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
+  /learners/employers/{accountId}:
+    get:
+      summary: returns the audit history for a particular employer. The caller needs to have permission to view these learner
       parameters:
       - in: path
-        name: learningKey
+        name: accountId
         required: true
         schema:
-          type: string
-          format: uuid
-      requestBody:
-        $ref: "#/components/requestBodies/approvalRequest"
-      responses:
-        "201":
-          $ref: "#/components/responses/approvalResponse"
-        "404":
-          $ref: "#/components/responses/notFound"
-        "400":
-          $ref: "#/components/responses/errorNoPendingChangeResponse"
-    post:
-      summary: Request to start a new approval for the record on learning. This allows metrics on whether we are synchronised between systems
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
+          type: integer
+      - in: query
+        name: page
+        required: false
         schema:
-          type: string
-          format: uuid
-      requestBody:
-        $ref: "#/components/requestBodies/approvalRequest"
-      responses:
-        "201":
-          $ref: "#/components/responses/approvalResponse"          
-        "404":
-          $ref: "#/components/responses/notFound"
-        "400":
-          $ref: "#/components/responses/errorPendingChangeExistsResponse"
-    delete:
-      summary: Request to delete the current pending approval on this record
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
+          type: integer
+          minimum: 1
+          default: 1
+        description: The page number to retrieve
+      - in: query
+        name: pageSize
+        required: false
         schema:
-          type: string
-          format: uuid
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        description: The number of records per page
       responses:
         "200":
-          description: An approval was deleted
-        "400":
-          description: An approval was not found in pending state for this learningkey
+          $ref: "#/components/responses/pagedHistoryResponse"
+
+  /learners/employers/{accountId}/providers/{ukprn}/learners/{apprenticeshipId}:
+    get:
+      summary: returns the audit history for a particular learner. The caller needs to have permission to view this learner
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: apprenticeshipId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: ukprn
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/historyArray"  
+
+  /learners/providers/{ukprn}/count:
+    get:
+      description: return a count of events that have happened between a datetime
+      parameters:
+      - in: path
+        name: ukprn
+        required: true
+        schema:
+          type: integer
+      - in: query
+        name: dateFrom
+        required: true
+        schema:
+          type: string
+          format: datetime
+        description: The date to query the activity from
+      - in: query
+        name: dateTo
+        required: true
+        schema:
+          type: string
+          format: datetime
+        description: The date to query the activity to
+      responses:
+        "200":
+          $ref: "#/components/responses/notificationCount"
+
+  /learners/employers/{accountId}/count:
+    get:
+      description: return a count of events that have happened between a datetime
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: integer
+      - in: query
+        name: dateFrom
+        required: true
+        schema:
+          type: string
+          format: datetime
+        description: The date to query the activity from
+      - in: query
+        name: dateTo
+        required: true
+        schema:
+          type: string
+          format: datetime
+        description: The date to query the activity to
+      responses:
+        "200":
+          $ref: "#/components/responses/notificationCount"
+  
 components:  
-  requestBodies:
-    approvalRequest:
-      description: Details changes to training records to be evaluated
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/approvalRequest"
   responses:
-    approvalResponse:
-      description: A response to an approval request containiung each fields and the status of approval
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/approvalsResult"
-    
     okResponse:
       description: OK
       content:
@@ -96,23 +137,32 @@ components:
             type: string
             example: OK
 
-    errorNoPendingChangeResponse:
-      description: There is no pending change to override
+    historyArray:
+      description: An array of history for learners
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/error"
+              $ref: "#/components/schemas/history"
 
-    errorPendingChangeExistsResponse:
-      description: There is a pending change and the caller has asked to create a new one
+    notificationCount:
+      description: The count of data thats changed
+      content:
+        application/json: 
+          schema:
+            type: object
+            properties: 
+              changesCount:
+                description: the count
+                type: integer
+    
+    pagedHistoryResponse:
+      description: A paged array of history for learners
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/error"
+            $ref: "#/components/schemas/pagedHistory"
     
     notFound:
       description: Not found response
@@ -120,7 +170,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/error"
-
 
     healthCheckResponse:
       description: Results of a health check
@@ -148,89 +197,86 @@ components:
       required:
         - code
         - message
-    
-    change:
-      type: object
-      required:
-        - old
-        - new
-      properties:
-        old:
-          description: The old value of the field being changed
-          type: string
-        new:
-          description: The new value to be applied
-          type: string
-        effectiveFromDate:
-          description: The date this change will take effect
-          type: string
-          format: date
 
-    approvalsResult:
-      type: array
-      items:
-        type: object
-        properties: 
-          changeType:
-            description: The field being changed. An enumerated type to be agreed across the service for each field
-            type: string
-            enum: [TNP1, TNP2] # this will expand greatly
-          approvalStatus:
-            description: The status of an approval request on an individual piece of data
-            type: string
-            enum: 
-              - autoApproved
-              - autoRejected
-              - employerApprovalRequired
-          reason:
-            type: string
-            description: A reason for the approval result
-        required:
-          - changeType
-          - approvalStatus
-    
-    approvalRequest:
+    pagedHistory:
       type: object
       properties:
-        ukprn:
-          type: string
-        apprenticeshipId:
-          type: string
-        uln:
-          type: string
-        learningKey:
-          type: string
-          format: uuid
-        learningType:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/history"
+        totalItems:
+          description: Total number of records across all pages
+          type: integer
+          example: 243
+        page:
+          description: The current page number
+          type: integer
+          example: 1
+        pageSize:
+          description: The number of records per page
+          type: integer
+          example: 20
+        totalPages:
+          description: Total number of pages available
+          type: integer
+          example: 13
+      required:
+        - items
+        - totalItems
+        - page
+        - pageSize
+        - totalPages
+    
+    history:
+      type: object
+      properties:
+        source:
+          description: Where was this change applied
           type: string
           enum:
-            - apprenticeship
-            - foundation
-            - shortCourse
-        approvedUri:
-          description: This is the uri to fetch the current record that has been approved
-          type: string
-          format: uri
-        changes:
-          $ref: "#/components/schemas/learningChangeArray"
-          
-    learningChangeArray:
-      type: array
-      description: >
-        A list of key/value pairs, where the key is a change enum and the value is a data object.
-      items:
-        $ref: "#/components/schemas/learningChange"
-
-    learningChange:
-      type: object
-      required: [changeType, data]
-      properties:
+            - TBD
         changeType:
+          description: The ytype of change applied
           type: string
-          enum: [TNP1, TNP2] # this will expand greatly
-        data:
-          $ref: "#/components/schemas/change"
-          
+          enum:
+            - TBD
+        description:
+          description: The change description
+          type: string
+        userId:
+          description: The user Id of the change. Used primarily for support as this wont be displayed to the userId
+          type: integer
+        apprenticeshipId:
+          description: The id within approvals of the learner record
+          ty[e: integer
+        learnerName:
+          description: The learner name this applies to
+          type: string
+        learningKey: 
+          description: The learningKey used from learning 
+          type: string
+          format: uniqueidentifier
+        created:
+          description: The date the entry was Created
+          type: string
+          format: datetime
+        appliedDate:
+          description: The date the change applies
+          type: string
+          format: datetime
+        accountId:
+          description: The accountId of the employer this learner belongs
+          type: integer
+        UKPRN: 
+          description: The provider ukprn
+          type: integer
+        providerName: 
+          description: The provider name to aid display to the user
+          type: string
+        employerName: 
+          description: The employer name to aid display to the user
+          type: string
     healthcheckResults:
       type: array
       items:
