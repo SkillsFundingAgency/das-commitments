@@ -45,4 +45,5 @@ public class GetDraftApprenticeshipQueryResult
     public long? LearnerDataId { get; set; }
     public bool HasLearnerDataChanges { get; set; }
     public DateTime? LastLearnerDataSync { get; set; }
+    public LearningType? LearningType { get; set; }
 }

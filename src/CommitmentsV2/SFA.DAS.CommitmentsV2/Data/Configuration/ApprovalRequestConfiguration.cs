@@ -9,6 +9,7 @@ public class ApprovalRequestConfiguration : IEntityTypeConfiguration<ApprovalReq
     {
         builder.ToTable("ApprovalRequest")
             .HasKey("Id");
+        builder.Property(e => e.Created).HasDefaultValueSql("(getdate())");
 
         builder.HasMany(d => d.Items)
             .WithOne(x => x.ApprovalRequest)

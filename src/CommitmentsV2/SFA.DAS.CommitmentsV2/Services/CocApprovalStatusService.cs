@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
-public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprovalService
+public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) : ICocApprovalStatusService
 {
     public List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship)
     {
@@ -37,6 +37,7 @@ public class CocApprovalService(ILogger<CocApprovalService> logger) : ICocApprov
 
         if (oldTotalCost != apprenticeship.Cost)
         {
+            // TODO raise concerns, that we are ignoring this mismatch
             logger.LogWarning("Old total cost from changes does not match apprenticeship cost");
         }
 
