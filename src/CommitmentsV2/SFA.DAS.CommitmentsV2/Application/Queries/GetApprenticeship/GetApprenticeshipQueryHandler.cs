@@ -79,6 +79,8 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
         var learningType = db.Courses.FirstOrDefaultAsync(c => c.LarsCode == result.CourseCode, cancellationToken: cancellationToken).Result?.LearningType;
         result.LearningType = learningType ?? LearningType.Apprenticeship;
 
+        result.HasChangeHistory = db.LearningChangeHistory.Any(t => t.ApprenticeshipId == request.ApprenticeshipId);
+
         return result;
     }   
 }
