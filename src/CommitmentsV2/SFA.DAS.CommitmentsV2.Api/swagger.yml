@@ -86,7 +86,7 @@ paths:
         $ref: "#/components/requestBodies/approvalStatusRequest"
       responses:
         "200":
-          $ref: "#/components/responses/approvalResponse"
+          $ref: '#/components/responses/okResponse'
         "404":
           $ref: "#/components/responses/notFound"
         "400":
