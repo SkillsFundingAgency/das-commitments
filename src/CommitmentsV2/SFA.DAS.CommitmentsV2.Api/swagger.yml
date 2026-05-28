@@ -19,7 +19,7 @@ paths:
           $ref: "#/components/responses/healthCheckResponse"
         "503":
           $ref: "#/components/responses/healthCheckResponse"
-
+  
   /approvals/{learningKey}:
     put:
       summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
@@ -71,7 +71,59 @@ paths:
           description: An approval was deleted
         "400":
           description: An approval was not found in pending state for this learningkey
-components:  
+
+  /approvals/{learningKey}/status:
+    patch:
+      summary: Update the status of an existing approval request
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/approvalStatusRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/approvalResponse"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "400":
+          $ref: "#/components/responses/errorResponse"
+
+  /approvals/pending:
+    get:
+      summary: Returns all pending approval requests grouped by employer with a count of pending changes
+      parameters:
+      - in: query
+        name: ukprn
+        required: false
+        schema:
+          type: string
+        description: Optionally filter pending approvals by provider
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+        description: The page number to retrieve
+      - in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        description: The number of records per page
+      responses:
+        "200":
+          $ref: "#/components/responses/pendingApprovalsSummaryResponse"
+
+components:
   requestBodies:
     approvalRequest:
       description: Details changes to training records to be evaluated
@@ -80,14 +132,30 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/approvalRequest"
+
+    approvalStatusRequest:
+      description: The status to apply to an approval request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/approvalStatusRequest"
+
   responses:
     approvalResponse:
-      description: A response to an approval request containiung each fields and the status of approval
+      description: A response to an approval request containing each field and the status of approval
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/approvalsResult"
-    
+
+    pendingApprovalsSummaryResponse:
+      description: A paged list of pending approval counts grouped by employer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/pagedPendingApprovalSummary"
+
     okResponse:
       description: OK
       content:
@@ -95,6 +163,15 @@ components:
           schema:
             type: string
             example: OK
+
+    errorResponse:
+      description: A general error response
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/error"
 
     errorNoPendingChangeResponse:
       description: There is no pending change to override
@@ -113,14 +190,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/error"
-    
+
     notFound:
       description: Not found response
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/error"
-
 
     healthCheckResponse:
       description: Results of a health check
@@ -136,7 +212,7 @@ components:
           schema:
             type: string
             example: Leaner data APIM for the training service - Version 3.0.2
-            
+
   schemas:
     error:
       type: object
@@ -148,7 +224,7 @@ components:
       required:
         - code
         - message
-    
+
     change:
       type: object
       required:
@@ -170,15 +246,15 @@ components:
       type: array
       items:
         type: object
-        properties: 
+        properties:
           changeType:
             description: The field being changed. An enumerated type to be agreed across the service for each field
             type: string
-            enum: [TNP1, TNP2] # this will expand greatly
+            enum: [TNP1, TNP2]
           approvalStatus:
             description: The status of an approval request on an individual piece of data
             type: string
-            enum: 
+            enum:
               - autoApproved
               - autoRejected
               - employerApprovalRequired
@@ -188,7 +264,7 @@ components:
         required:
           - changeType
           - approvalStatus
-    
+
     approvalRequest:
       type: object
       properties:
@@ -213,7 +289,23 @@ components:
           format: uri
         changes:
           $ref: "#/components/schemas/learningChangeArray"
-          
+
+    approvalStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          description: The status to set on the approval request
+          type: string
+          enum:
+            - approved
+            - rejected
+            - pending
+        reason:
+          description: Optional reason for the status change, required when rejecting
+          type: string
+
     learningChangeArray:
       type: array
       description: >
@@ -227,19 +319,66 @@ components:
       properties:
         changeType:
           type: string
-          enum: [TNP1, TNP2] # this will expand greatly
+          enum: [TNP1, TNP2]
         data:
           $ref: "#/components/schemas/change"
-          
+
+    pendingApprovalEmployerSummary:
+      type: object
+      properties:
+        accountId:
+          description: The employer account ID
+          type: integer
+        employerName:
+          description: The employer name
+          type: string
+        pendingCount:
+          description: The total number of pending approval changes for this employer
+          type: integer
+          example: 12
+      required:
+        - accountId
+        - pendingCount
+
+    pagedPendingApprovalSummary:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/pendingApprovalEmployerSummary"
+        totalItems:
+          description: Total number of employers with pending approvals
+          type: integer
+          example: 34
+        page:
+          description: The current page number
+          type: integer
+          example: 1
+        pageSize:
+          description: The number of records per page
+          type: integer
+          example: 20
+        totalPages:
+          description: Total number of pages available
+          type: integer
+          example: 2
+      required:
+        - items
+        - totalItems
+        - page
+        - pageSize
+        - totalPages
+
     healthcheckResults:
       type: array
       items:
-        $ref: "#/components/schemas/healthcheck" 
-  
+        $ref: "#/components/schemas/healthcheck"
+
     healthcheck:
       type: object
       properties:
-        description: 
+        description:
           type: string
-        result: 
+        result:
           type: string
