@@ -1,5 +1,4 @@
-﻿using MoreLinq;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
@@ -43,7 +42,7 @@ public class GetChangeHistoryHandlerTests
         public long ApprenticehshipId { get; set; }
 
         public GetChangeHistoryHandlerTestFixture()
-        {            
+        {
             _autoFixture = new Fixture();
             SeedChangeHistory = _autoFixture.Create<List<LearningChangeHistory>>();
             ApprenticehshipId = _autoFixture.Create<long>();
