@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 {
+    private const int WithdrawalReasonCode_MadeRedundant = 29;
     public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
@@ -790,6 +791,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
 
+        if(WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode);
+        }
+
         StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
         ChangeTrackingSession.TrackUpdate(this);
@@ -874,6 +880,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command, ICurrentDateTime currentDate, Party party)
     {
+        if (WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode);
+        }
+
         StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
 
         ChangeTrackingSession.TrackUpdate(this);
@@ -899,8 +910,18 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
+        PaymentStatus = PaymentStatus.Withdrawn;
         StopDate = stoppedDate;
         WithdrawnReasonCode = withdrawnReasonCode;
+        if (WithdrawnReasonCode == WithdrawalReasonCode_MadeRedundant)
+        {
+            MadeRedundant = true;
+        }
+        else
+        {
+            MadeRedundant = false;
+        }
+        ResolveDatalocks(stoppedDate);
     }
 
     private void ResolveDatalocks(DateTime stopDate)
