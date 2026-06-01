@@ -12,7 +12,7 @@ public class GetChangeHistoryHandlerTests
     {
         var fixtures = new GetChangeHistoryHandlerTestFixture();
 
-        var response = await fixtures.GetResponse(new GetChangeHistoryQuery() { ApprenticeshipId = fixtures.ApprenticehshipId });
+        var response = await fixtures.GetResponse(new GetChangeHistoryQuery() { ApprenticeshipId = fixtures.ApprenticeshipId });
 
         response.ChangeHistory.Should().NotBeNull();
         response.ChangeHistory.Should().BeEquivalentTo(fixtures.SeedChangeHistory.Select(x => new ChangeHistory
@@ -31,7 +31,7 @@ public class GetChangeHistoryHandlerTests
     {
         var fixtures = new GetChangeHistoryHandlerTestFixture().GenerateChangeHistoryWithApprenticeshipId(0);
 
-        var response = await fixtures.GetResponse(new GetChangeHistoryQuery() { ApprenticeshipId = fixtures.ApprenticehshipId });
+        var response = await fixtures.GetResponse(new GetChangeHistoryQuery() { ApprenticeshipId = fixtures.ApprenticeshipId });
 
         response.ChangeHistory.Should().BeEmpty();
     }
@@ -39,13 +39,15 @@ public class GetChangeHistoryHandlerTests
     public class GetChangeHistoryHandlerTestFixture
     {
         private readonly Fixture _autoFixture;
-        public long ApprenticehshipId { get; set; }
+        public long ApprenticeshipId { get; set; }
 
         public GetChangeHistoryHandlerTestFixture()
         {
             _autoFixture = new Fixture();
             SeedChangeHistory = _autoFixture.Create<List<LearningChangeHistory>>();
-            ApprenticehshipId = _autoFixture.Create<long>();
+            ApprenticeshipId = _autoFixture.Create<long>();
+
+            SeedChangeHistory.ForEach(x => x.ApprenticeshipId = ApprenticeshipId);
         }
 
         public List<LearningChangeHistory> SeedChangeHistory { get; }
