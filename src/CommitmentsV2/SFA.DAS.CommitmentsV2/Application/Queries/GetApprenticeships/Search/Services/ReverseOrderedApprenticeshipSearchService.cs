@@ -25,6 +25,7 @@ public class ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbCon
             .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
             .Include(apprenticeship => apprenticeship.DataLockStatus)
             .Include(apprenticeship => apprenticeship.PriceHistory)
+            .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
             .Include(apprenticeship => apprenticeship.Cohort)
             .ThenInclude(cohort => cohort.AccountLegalEntity)
             .Include(apprenticeship => apprenticeship.Cohort)
