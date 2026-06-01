@@ -41,7 +41,8 @@ public class HstsConfigurationTests
         context.Request.Scheme = "https";
         context.Request.Host = new HostString("commitments-api.example.com");
 
-        await appBuilder.Build()(context);
+        RequestDelegate pipeline = appBuilder.Build();
+        await pipeline(context);
 
         context.Response.Headers["Strict-Transport-Security"].ToString()
             .Should()
