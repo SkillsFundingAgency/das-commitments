@@ -756,6 +756,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
     {
+        if (PaymentStatus == PaymentStatus.Withdrawn && WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode.ToString());
+        }
+
         if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
         {
             throw new DomainException(nameof(PaymentStatus), "Apprenticeship must be Active or Paused. Unable to stop apprenticeship");
@@ -791,10 +796,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
 
-        if(WithdrawnReasonCode != null)
-        {
-            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode);
-        }
 
         StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 

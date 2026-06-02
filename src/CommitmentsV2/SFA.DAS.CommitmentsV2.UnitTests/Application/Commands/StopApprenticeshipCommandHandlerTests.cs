@@ -203,21 +203,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test, MoqAutoData]
-        public async Task Handle_WhenHandlingCommand_WhenValidApprenticeship_ButWithdrawnReasonCodeAlreadySete_ThenShouldThrowDomainException()
+        public async Task Handle_WhenHandlingCommand_WhenValidApprenticeship_ButWithdrawnReasonCodeAlreadySet_ThenShouldThrowDomainException()
         {
             // Arrange
             var stopDate = DateTime.UtcNow;
             var apprenticeship = await SetupApprenticeship();
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            apprenticeship.WithdrawnReasonCode = 1;
             var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
+
             // Assert
-            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be in the future and must be the 1st of the month." });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawnReasonCode", ErrorMessage = "Apprenticeship has already been withdrawn via ILR with reason code " + "1" });
         }
-
-
 
         [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInPast_ThenShouldThrowDomainException()
@@ -403,7 +404,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return true;
         }
 
-        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null, int? withdrawnReasonCode = null)
+        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
         {
             var today = DateTime.UtcNow;
             _currentDateTime.Setup(a => a.UtcNow).Returns(today);
@@ -422,13 +423,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 PaymentStatus = paymentStatus,
                 StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2)
             };
-
-            if(withdrawnReasonCode != null)
-            {
-                apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
-                apprenticeship.StopDate = DateTime.Today;
-                apprenticeship.WithdrawnReasonCode = withdrawnReasonCode;
-            }
 
             _dbContext.Apprenticeships.Add(apprenticeship);
             await _dbContext.SaveChangesAsync();

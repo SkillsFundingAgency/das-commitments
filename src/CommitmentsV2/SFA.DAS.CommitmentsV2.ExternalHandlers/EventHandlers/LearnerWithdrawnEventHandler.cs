@@ -48,14 +48,10 @@ public class LearnerWithdrawnEventHandler(
 
     private void ValidateStopDateForWithdrawal(DateTime stopDate, Apprenticeship apprenticeship)
     {
-        if (apprenticeship == null)
-        {
-            throw new ArgumentException(null, nameof(apprenticeship));
-        }
-
         if (apprenticeship.PaymentStatus == PaymentStatus.Completed)
         {
-            throw new DomainException(nameof(PaymentStatus), "Apprenticeship cannot be Stopped if Payment Status is Completed. Unable to stop apprenticeship");
+            var ex = new DomainException(nameof(stopDate), "Apprenticeship cannot be Stopped if Payment Status is Completed. Unable to stop apprenticeship");
+            throw ex;
         }
 
         if (apprenticeship.IsWaitingToStart(currentDate))
@@ -76,6 +72,11 @@ public class LearnerWithdrawnEventHandler(
             {
                 throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be before the apprenticeship has started.");
             }
+        }
+
+        if(stopDate.Day != 1)
+        {
+            throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date must be the 1st of the month.");
         }
     }
 
