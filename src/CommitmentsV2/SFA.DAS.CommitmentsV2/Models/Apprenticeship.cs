@@ -796,7 +796,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
 
-
         StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
         ChangeTrackingSession.TrackUpdate(this);
