@@ -74,6 +74,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
         }
         logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
 
+        throw new Exception("Throwing exception to prevent events being published until we are ready. Remove this once ready to publish events.");
         var tasks = events.Select(apprenticeshipCreatedEvent =>
         {
             logger.LogInformation("Emitting ApprenticeshipCreatedEvent for Apprenticeship {ApprenticeshipId}", apprenticeshipCreatedEvent.ApprenticeshipId);
