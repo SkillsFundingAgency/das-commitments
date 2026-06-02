@@ -50,6 +50,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             return AssertPropertySet(input => input.CourseCode, "ABC123");
         }
 
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        [TestCase(null)]
+        public Task Map_LearningType_ShouldBeSet(LearningType? type)
+        {
+            return AssertPropertySet(input => input.LearningType, type);
+        }
+
         [TestCase(DeliveryModel.Regular)]
         [TestCase(DeliveryModel.PortableFlexiJob)]
         public async Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
