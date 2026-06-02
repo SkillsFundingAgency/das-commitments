@@ -942,7 +942,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            ChangeTrackingSession.TrackUpdate(dataLock);
+            if(ChangeTrackingSession != null)
+            {
+                ChangeTrackingSession.TrackUpdate(dataLock);
+            }
             dataLock.Resolve();
         }
     }

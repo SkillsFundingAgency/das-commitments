@@ -90,7 +90,7 @@ public class LearnerWithdrawnEventHandler(
 
         const string errorMessage = "The date overlaps with existing dates for the same apprentice";
 
-        var errors = new List<DomainError> { new("newStopDate", errorMessage) };
+        var errors = new List<DomainError> { new("stopDate", errorMessage) };
 
         throw new DomainException(errors);
     }
