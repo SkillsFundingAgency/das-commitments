@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
 [Authorize]
-[Route("api/changehistory")]
+[Route("api/change-history")]
 [ApiController]
 public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryController> logger) : ControllerBase
 {
