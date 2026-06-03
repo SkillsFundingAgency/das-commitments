@@ -23,7 +23,8 @@ public static class RoutingSettingsExtensions
             typeof(ApprenticeshipResendInvitationCommand),
             typeof(AutomaticallyStopOverlappingTrainingDateRequestCommand),
             typeof(EmployerSendCohortCommand),
-            typeof(SyncLearningDataBatchCommand)
+            typeof(SyncLearningDataBatchCommand),
+            typeof(StoreLearningHistoryCommand)
         ]);
 
         routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
