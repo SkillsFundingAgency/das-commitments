@@ -42,19 +42,21 @@ public class ChangeHistoryControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task GetChangeHistory_Then_ReturnNotFound(long apprenticeshipId)
+    public async Task GetChangeHistory_Then_ReturnEmptyResponse(long apprenticeshipId)
     {
         {
             // Arrange
             _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId)))
-                .ReturnsAsync((GetChangeHistoryQueryResult)null);
+                .ReturnsAsync(new GetChangeHistoryQueryResult(){ ChangeHistory = new List<ChangeHistory>() });
 
             // Act
-            var result = await _controller.GetChangeHistory(apprenticeshipId) as NotFoundResult;
+            var result = await _controller.GetChangeHistory(apprenticeshipId) as ObjectResult;
+            var model = result?.Value as GetChangeHistoryResponse;
 
             // Assert
-            result.Should().NotBeNull();
-            result.StatusCode.Should().Be(404);
+            model.Should().NotBeNull();
+            model.ChangeHistory.Should().BeEmpty();
+
         }
     }
 }
