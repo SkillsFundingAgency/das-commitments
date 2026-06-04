@@ -25,12 +25,7 @@ public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryCo
         var result = await mediator.Send(new GetChangeHistoryQuery
         {
             ApprenticeshipId = apprenticeshipId
-        });
-
-        if (result == null)
-        {
-            return NotFound();
-        }
+        });      
 
         logger.LogInformation("Successfully retrieved change history for apprenticeship with id {ApprenticeshipId}", apprenticeshipId);
 
