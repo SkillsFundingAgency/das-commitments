@@ -40,6 +40,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             result.LearningType.Should().Be(learningType);
         }
 
+        [Test]
+        public async Task Handle_ThenShouldWithdrawnReasonCode()
+        {
+            var result = await _fixture.Handle();
+            result.LearningType.Should().Be(learningType);
+        }
+
+
         private class GetApprenticeshipHandlerTestsFixture : IDisposable
         {
             private Fixture _autoFixture;
@@ -172,7 +180,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     FlexibleEmployment = _autoFixture.Create<FlexibleEmployment>(),
                     PriorLearning = _autoFixture.Create<ApprenticeshipPriorLearning>(),
                     TrainingTotalHours = _autoFixture.Create<int>(),
-                    EmployerHasEditedCost = _autoFixture.Create<bool?>()
+                    EmployerHasEditedCost = _autoFixture.Create<bool?>(),
+                    StopDate = _autoFixture.Create<DateTime>(),
+                    WithdrawnReasonCode = _autoFixture.Create<int?>(),
                 };
 
                 switch (Apprenticeship.PaymentStatus)
@@ -223,6 +233,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _result.EndpointAssessorName.Should().Be(Apprenticeship.EpaOrg.Name);
                 _result.Status.Should().Be(Apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow));
                 _result.StopDate.Should().Be(Apprenticeship.StopDate);
+                _result.WithdrawnReasonCode.Should().Be(Apprenticeship.WithdrawnReasonCode);
                 _result.PauseDate.Should().Be(Apprenticeship.PauseDate);
                 _result.CompletionDate.Should().Be(Apprenticeship.CompletionDate);
                 _result.HasHadDataLockSuccess.Should().Be(Apprenticeship.HasHadDataLockSuccess);

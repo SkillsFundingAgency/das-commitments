@@ -144,5 +144,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             _result.EmployerVerificationStatus.Should().BeNull();
             _result.EmployerVerificationNotes.Should().BeNull();
         }
+
+        [Test]
+        public void WithdrawnReasonCodeIsMappedCorrectly()
+        {
+            _result.WithdrawnReasonCode.Should().Be(_source.WithdrawnReasonCode);
+        }
+
+        [Test]
+        public void StopDateIsMappedCorrectly()
+        {
+            _result.StopDate.Should().Be(_source.StopDate);
+        }
     }
 }
