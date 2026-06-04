@@ -47,7 +47,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             result.LearningType.Should().Be(learningType);
         }
 
-
         private class GetApprenticeshipHandlerTestsFixture : IDisposable
         {
             private Fixture _autoFixture;
