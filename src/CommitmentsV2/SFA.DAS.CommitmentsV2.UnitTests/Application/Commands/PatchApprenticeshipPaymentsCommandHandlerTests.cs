@@ -1,4 +1,4 @@
-using SFA.DAS.CommitmentsV2.Application.Commands.FreezePayments;
+using SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
 [TestFixture]
 [Parallelizable]
-public class FreezePaymentsCommandHandlerTests
+public class PatchApprenticeshipPaymentsCommandHandlerTests
 {
     private ProviderCommitmentsDbContext _dbContext;
     private Mock<IAuthenticationService> _authenticationService;
     private Mock<ICurrentDateTime> _currentDateTime;
     private UnitOfWorkContext _unitOfWorkContext;
-    private IRequestHandler<FreezePaymentsCommand> _handler;
+    private PatchApprenticeshipPaymentsCommandHandler _handler;
 
     [SetUp]
     public void Init()
@@ -31,7 +31,7 @@ public class FreezePaymentsCommandHandlerTests
         _currentDateTime.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
         _unitOfWorkContext = new UnitOfWorkContext();
 
-        _handler = new FreezePaymentsCommandHandler(
+        _handler = new PatchApprenticeshipPaymentsCommandHandler(
             new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _currentDateTime.Object,
             _authenticationService.Object);
@@ -44,14 +44,15 @@ public class FreezePaymentsCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenValid_SetsPaymentFreezeDateAndReason()
+    public async Task Handle_WhenFreezePayments_SetsPaymentFreezeDateAndReason()
     {
         var apprenticeship = await SetupApprenticeship();
         _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
 
-        await _handler.Handle(new FreezePaymentsCommand
+        await _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
+            FreezePayments = true,
             FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
             UserInfo = new UserInfo()
         }, CancellationToken.None);
@@ -66,20 +67,42 @@ public class FreezePaymentsCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenReasonMissing_ThrowsDomainException()
+    public async Task Handle_WhenUnfreezePayments_ClearsPaymentFreezeDateAndReason()
+    {
+        var apprenticeship = await SetupApprenticeship(frozen: true);
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+
+        await _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            FreezePayments = false,
+            UserInfo = new UserInfo()
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
+        updated.PaymentFreezeDate.Should().BeNull();
+        updated.FreezePaymentsReason.Should().BeNull();
+        updated.FreezeStatus.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Handle_WhenFreezePaymentsReasonMissing_ThrowsDomainException()
     {
         var apprenticeship = await SetupApprenticeship();
         _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
 
-        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new FreezePaymentsCommand
+        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
+            FreezePayments = true,
             UserInfo = new UserInfo()
         }, CancellationToken.None));
 
         exception.DomainErrors.Should().ContainEquivalentOf(new
         {
-            PropertyName = nameof(FreezePaymentsCommand.FreezePaymentsReason),
+            PropertyName = nameof(PatchApprenticeshipPaymentsCommand.FreezePaymentsReason),
             ErrorMessage = "A reason for pausing payments must be provided"
         });
     }
@@ -87,13 +110,14 @@ public class FreezePaymentsCommandHandlerTests
     [TestCase(Party.Provider)]
     [TestCase(Party.TransferSender)]
     [TestCase(Party.None)]
-    public void Handle_WhenPartyIsNotEmployer_ThrowsDomainException(Party party)
+    public void Handle_WhenFreezePaymentsAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
         _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
 
-        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new FreezePaymentsCommand
+        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = 1,
+            FreezePayments = true,
             FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
             UserInfo = new UserInfo()
         }, CancellationToken.None));
@@ -104,7 +128,25 @@ public class FreezePaymentsCommandHandlerTests
         });
     }
 
-    private async Task<Apprenticeship> SetupApprenticeship()
+    [TestCase(Party.Provider)]
+    public void Handle_WhenUnfreezePaymentsAndPartyIsNotEmployer_ThrowsDomainException(Party party)
+    {
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
+
+        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = 1,
+            FreezePayments = false,
+            UserInfo = new UserInfo()
+        }, CancellationToken.None));
+
+        exception.DomainErrors.Should().ContainEquivalentOf(new
+        {
+            ErrorMessage = $"Only employers are allowed to unfreeze payments - {party} is invalid"
+        });
+    }
+
+    private async Task<Apprenticeship> SetupApprenticeship(bool frozen = false)
     {
         var fixture = new Fixture();
         var apprenticeship = new Apprenticeship
@@ -116,7 +158,9 @@ public class FreezePaymentsCommandHandlerTests
                 AccountLegalEntity = new AccountLegalEntity()
             },
             PaymentStatus = PaymentStatus.Active,
-            StartDate = DateTime.UtcNow.AddMonths(-2)
+            StartDate = DateTime.UtcNow.AddMonths(-2),
+            PaymentFreezeDate = frozen ? DateTime.UtcNow.Date.AddDays(-2) : null,
+            FreezePaymentsReason = frozen ? FreezePaymentsReason.LearnerWithdrawn : null
         };
 
         _dbContext.Apprenticeships.Add(apprenticeship);
