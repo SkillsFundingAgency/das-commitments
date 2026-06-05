@@ -10,12 +10,15 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Fakes;
+using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
@@ -43,8 +46,61 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             await _fixture.Handle();
             _fixture.VerifyStopDateIsAssignedCorrectly();
             _fixture.VerifyWithdrawnReasonCodeIsAssignedCorrectly();
+            _fixture.VerifyApprenticeshipStopEventIsCorrectlyPublished();
+            _fixture.VerifyApprenticeshipStopDateChangedEventIsNotPublished();
         }
 
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToAlreadyWithdrawnApprenticeshipWithSameStopDate_OnlyStopEventPublished()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Withdrawn);
+            var stopDate = DateTime.Today.AddMonths(-1);
+            stopDate = new DateTime(stopDate.Year, stopDate.Month, 1);
+            apprentice.StopDate = stopDate;
+            _fixture.SetEventValues(apprentice.Id, stopDate, 12);
+
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeshipStopEventIsCorrectlyPublished();
+            _fixture.VerifyApprenticeshipStopDateChangedEventIsNotPublished();
+        }
+
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToAlreadyWithdrawnApprenticeshipWithNewStopDate_OnlyStopDateChangedEventPublished()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Withdrawn);
+            var stopDate = DateTime.Today.AddMonths(-2);
+            stopDate = new DateTime(stopDate.Year, stopDate.Month, 1);
+            apprentice.StopDate = stopDate.AddMonths(1);
+            _fixture.SetEventValues(apprentice.Id, stopDate, 12);
+
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeshipStopEventIsNotPublished();
+            _fixture.VerifyApprenticeshipStopDateChangedEventIsCorrectlyPublished();
+        }
+
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeshipWithRedundancyReasonCode_RedundancyFlagIsSet()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            apprentice.MadeRedundant = null;
+            var stopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), Apprenticeship.WithdrawalReasonCode_MadeRedundant);
+
+            await _fixture.Handle();
+            apprentice.MadeRedundant.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeshipWithoutRedundancyReason_RedundancyFlagIsNotSet()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            apprentice.MadeRedundant = null;
+            var stopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), 12);
+
+            await _fixture.Handle();
+            apprentice.MadeRedundant.Should().BeFalse();
+        }
 
         [Test]
         public async Task When_LearnerWithDrawnEvent_AppliedOnNonApprenticeship_Exception_IsThrown()
@@ -141,9 +197,10 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         {
             private LearnerWithdrawnEventHandler _handler;
             private LearnerWithdrawnEvent _event;
-            public ProviderCommitmentsDbContext _dbContext { get; set; }
-            public Mock<ICurrentDateTime> _currentDateTime { get; set; }
-            public Mock<IOverlapCheckService> _overlapCheckService { get; set; }
+            private ProviderCommitmentsDbContext _dbContext { get; set; }
+            private Mock<ICurrentDateTime> _currentDateTime { get; set; }
+            private Mock<IOverlapCheckService> _overlapCheckService { get; set; }
+            private UnitOfWorkContext _unitOfWorkContext { get; set; }
             public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
@@ -155,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                             .Options);
-
+                _unitOfWorkContext = new UnitOfWorkContext();
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _overlapCheckService = new Mock<IOverlapCheckService>();
                 _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResult(false, false));
@@ -207,6 +264,47 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
                 apprenticeship.StopDate.Should().Be(_event.WithdrawnDate);
             }
+
+            public void VerifyApprenticeshipStopEventIsCorrectlyPublished()
+            {
+                var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
+                var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStoppedEvent>().FirstOrDefault();
+                stoppedEvent.Should().NotBeNull();
+                stoppedEvent.AppliedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+                stoppedEvent.ApprenticeshipId.Should().Be(_event.ApprenticeshipId);
+                stoppedEvent.StopDate.Should().Be(_event.WithdrawnDate);
+                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawnDate);
+                stoppedEvent.LearnerDataId.Should().Be(apprenticeship.LearnerDataId);
+                stoppedEvent.ProviderId.Should().Be(apprenticeship.Cohort.ProviderId);
+                stoppedEvent.IsWithdrawnViaIlr.Should().BeTrue();
+            }
+
+            public void VerifyApprenticeshipStopEventIsNotPublished()
+            {
+                var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStoppedEvent>().FirstOrDefault();
+                stoppedEvent.Should().BeNull();
+            }
+
+            public void VerifyApprenticeshipStopDateChangedEventIsCorrectlyPublished()
+            {
+                var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
+                var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStopDateChangedEvent>().First();
+                stoppedEvent.Should().NotBeNull();
+                stoppedEvent.ChangedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+                stoppedEvent.ApprenticeshipId.Should().Be(_event.ApprenticeshipId);
+                stoppedEvent.StopDate.Should().Be(_event.WithdrawnDate);
+                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawnDate);
+                stoppedEvent.LearnerDataId.Should().Be(apprenticeship.LearnerDataId);
+                stoppedEvent.ProviderId.Should().Be(apprenticeship.Cohort.ProviderId);
+                stoppedEvent.IsWithdrawnViaIlr.Should().BeTrue();
+            }
+
+            public void VerifyApprenticeshipStopDateChangedEventIsNotPublished()
+            {
+                var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStopDateChangedEvent>().FirstOrDefault();
+                stoppedEvent.Should().BeNull();
+            }
+
 
             public void VerifyWithdrawnReasonCodeIsAssignedCorrectly()
             {
