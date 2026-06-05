@@ -34,6 +34,9 @@ public class GetApprenticeshipQueryResult
     public DateTime? StopDate { get; set; }
     public int? WithdrawnReasonCode { get; set; }
     public DateTime? PauseDate { get; set; }
+    public bool FreezeStatus { get; set; }
+    public FreezePaymentsReason? FreezePaymentsReason { get; set; }
+    public DateTime? PaymentFreezeDate { get; set; }
     public DateTime? CompletionDate { get; set; }
     public string EndpointAssessorName { get; set; }
     public bool HasHadDataLockSuccess { get; set; }

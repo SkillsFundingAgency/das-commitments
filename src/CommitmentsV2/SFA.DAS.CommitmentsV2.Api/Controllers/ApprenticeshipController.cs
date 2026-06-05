@@ -3,10 +3,12 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.FreezePayments;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.UnfreezePayments;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
@@ -152,6 +154,38 @@ public class ApprenticeshipController(
             request.MadeRedundant,
             request.UserInfo,
             party));
+
+        return Ok();
+    }
+
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/freeze-payments")]
+    public async Task<IActionResult> FreezePayments(long apprenticeshipId, [FromBody] FreezePaymentsRequest request)
+    {
+        logger.LogInformation("Freeze payments api endpoint called for : {Id}.", apprenticeshipId);
+
+        await mediator.Send(new FreezePaymentsCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            UserInfo = request.UserInfo,
+            FreezePaymentsReason = request.FreezePaymentsReason
+        });
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/unfreeze-payments")]
+    public async Task<IActionResult> UnfreezePayments(long apprenticeshipId, [FromBody] UnfreezePaymentsRequest request)
+    {
+        logger.LogInformation("Unfreeze payments api endpoint called for : {Id}.", apprenticeshipId);
+
+        await mediator.Send(new UnfreezePaymentsCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            UserInfo = request.UserInfo
+        });
 
         return Ok();
     }
