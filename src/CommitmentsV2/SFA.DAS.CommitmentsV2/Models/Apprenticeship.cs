@@ -815,7 +815,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             StopDate = stopDate,
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stopDate.Date,
             LearnerDataId = LearnerDataId,
-            ProviderId = Cohort.ProviderId
+            ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
     }
 
@@ -905,6 +906,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == command.StopDate.Date,
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
     }
 
