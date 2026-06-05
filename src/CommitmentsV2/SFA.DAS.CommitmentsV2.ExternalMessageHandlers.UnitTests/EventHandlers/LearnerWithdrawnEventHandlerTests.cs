@@ -51,7 +51,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         {
             var func = () => _fixture.Handle();
 
-            //_fixture.SetApprenticeshipPaymentStatus(PaymentStatus.Completed);
             var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Completed);
             _fixture.SetApprenticeshipIdOnEvent(apprentice.Id + 1);
 
@@ -138,8 +137,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "stopDate", ErrorMessage = "The date overlaps with existing dates for the same apprentice" });
         }
 
-
-
         public class LearnerWithdrawnEventHandlerTestsFixture
         {
             private LearnerWithdrawnEventHandler _handler;
@@ -199,7 +196,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _overlapCheckService.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<DateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResult(true, true));
                 return this;
             }
-
 
             public async Task Handle()
             {
@@ -286,10 +282,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 return new List<DataLockStatus> { activeDataLock4, activeDataLock5, inactiveDataLock6, dataLockForApprenticeshipBeforeStart };
             }
 
-        }
-
-        private class FakeApprenticeship : Apprenticeship
-        {
         }
     }
 }
