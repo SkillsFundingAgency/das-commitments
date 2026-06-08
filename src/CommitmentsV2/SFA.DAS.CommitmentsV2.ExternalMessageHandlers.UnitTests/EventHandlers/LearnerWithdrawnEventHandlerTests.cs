@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -22,6 +23,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
+using IMessageSession = NServiceBus.IMessageSession;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 {
@@ -100,6 +102,17 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
             await _fixture.Handle();
             apprentice.MadeRedundant.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var stopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), 12);
+
+            await _fixture.Handle();
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         }
 
         [Test]
@@ -201,7 +214,8 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private Mock<ICurrentDateTime> _currentDateTime { get; set; }
             private Mock<IOverlapCheckService> _overlapCheckService { get; set; }
             private UnitOfWorkContext _unitOfWorkContext { get; set; }
-            public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
+            private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
+            private Mock<IMessageSession> _messageSession;
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
 
@@ -217,11 +231,12 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _overlapCheckService = new Mock<IOverlapCheckService>();
                 _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResult(false, false));
                 _resolveOLTDRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
+                _messageSession = new Mock<IMessageSession>();
 
                 _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
 
                 _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
-                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _logger);
+                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _messageSession.Object, _logger);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
@@ -312,6 +327,17 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 apprenticeship.WithdrawnReasonCode.Should().Be(_event.WithdrawnReasonCode);
             }
 
+            public void VerifyStoreLearnerHistoryCommandIsSent()
+            {
+                _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == _event.ApprenticeshipId &&
+                    c.Source == Types.LearningSourceType.ILRStatusChange &&
+                    c.ChangeType == Types.LearningChangeType.AutoApproved &&
+                    c.LearningKey == _event.LearningKey &&
+                    c.AppliedDate == _event.Created &&
+                    c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawnReasonCode}"
+                ), It.IsAny<SendOptions>()), Times.Once);
+            }
             public async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
             {
                 var today = DateTime.UtcNow;

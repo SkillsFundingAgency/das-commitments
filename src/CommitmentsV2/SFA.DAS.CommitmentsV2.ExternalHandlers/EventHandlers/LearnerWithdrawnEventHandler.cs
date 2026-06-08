@@ -10,9 +10,11 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using IMessageSession = NServiceBus.IMessageSession;
 
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
@@ -22,6 +24,7 @@ public class LearnerWithdrawnEventHandler(
     ICurrentDateTime currentDate,
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
+    IMessageSession messageSession,
     ILogger<LearnerWithdrawnEventHandler> logger)
     : IHandleMessages<LearnerWithdrawnEvent>
 {
@@ -38,6 +41,17 @@ public class LearnerWithdrawnEventHandler(
 
             apprentice.SetIlrWithdrawn(message.WithdrawnDate, message.WithdrawnReasonCode);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
+
+            var historyCommand = new StoreLearningHistoryCommand
+            {
+                ApprenticeshipId = message.ApprenticeshipId,
+                Source = LearningSourceType.ILRStatusChange,
+                ChangeType = LearningChangeType.AutoApproved,
+                LearningKey = message.LearningKey,
+                AppliedDate = message.Created,
+                Description = $"ILR Learner status changed from Live to Withdrawn due to {message.WithdrawnReasonCode}"
+            };
+            await messageSession.Send(historyCommand);
         }
         catch (Exception e)
         {
