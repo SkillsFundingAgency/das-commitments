@@ -27,7 +27,6 @@ using SFA.DAS.ReservationsV2.Api.Client;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
@@ -68,13 +67,7 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddDatabaseRegistration(this IServiceCollection services)
     {
-        services.AddDbContext<ProviderCommitmentsDbContext>((sp, options) =>
-        {
-            var dbConnection = DatabaseExtensions.GetSqlConnection(sp.GetService<CommitmentsV2Configuration>().DatabaseConnectionString);
-            options.UseSqlServer(dbConnection);
-        });
-
-        services.AddScoped(provider => new Lazy<ProviderCommitmentsDbContext>(provider.GetService<ProviderCommitmentsDbContext>()));
+        services.AddScoped(provider => new Lazy<ProviderCommitmentsDbContext>(() => provider.GetRequiredService<ProviderCommitmentsDbContext>()));
         services.AddScoped<IProviderCommitmentsDbContext>(c => c.GetService<ProviderCommitmentsDbContext>());
 
         return services;
