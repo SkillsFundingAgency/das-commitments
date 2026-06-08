@@ -4,10 +4,10 @@ namespace SFA.DAS.CommitmentsV2.Types;
 
 public enum FreezePaymentsReason : byte
 {
-    [Description("The learner is on a break")]
+    [Description("Learner is on a break")]
     LearnerOnBreak = 1,
 
-    [Description("The learner has withdrawn")]
+    [Description("Learner has withdrawn")]
     LearnerWithdrawn = 2,
 
     [Description("There is a change to training details")]
