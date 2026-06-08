@@ -807,5 +807,116 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 Assert.That(actual.Apprenticeships, Is.Not.Empty);
             });
         }
+
+        [Test]
+        public async Task Then_Sorted_Search_Loads_Employer_Verification_Request()
+        {
+            // Arrange
+            await using var dbContext = TestHelper.GetInMemoryDatabase();
+            const long providerId = 12345;
+            var apprenticeship = CreateApprenticeshipWithEmployerVerification(providerId, "A");
+            dbContext.Apprenticeships.Add(apprenticeship);
+            await dbContext.SaveChangesAsync();
+            dbContext.ChangeTracker.Clear();
+
+            var searchParameters = new OrderedApprenticeshipSearchParameters
+            {
+                ProviderId = providerId,
+                FieldName = nameof(Apprenticeship.FirstName),
+                Filters = new ApprenticeshipSearchFilters(),
+                PageNumber = 1,
+                PageItemCount = 25,
+                CancellationToken = CancellationToken.None
+            };
+
+            var service = new OrderedApprenticeshipSearchService(dbContext);
+
+            // Act
+            var result = await service.Find(searchParameters);
+
+            // Assert
+            result.Apprenticeships.Should().ContainSingle();
+            result.Apprenticeships.Single().EmployerVerificationRequest.Should().NotBeNull();
+            result.Apprenticeships.Single().EmployerVerificationRequest!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
+            result.Apprenticeships.Single().EmployerVerificationRequest!.Notes.Should().Be("Evs note");
+        }
+
+        [Test]
+        public async Task Then_Reverse_Sorted_Search_Loads_Employer_Verification_Request()
+        {
+            // Arrange
+            await using var dbContext = TestHelper.GetInMemoryDatabase();
+            const long providerId = 12345;
+            var apprenticeship = CreateApprenticeshipWithEmployerVerification(providerId, "Z");
+            dbContext.Apprenticeships.Add(apprenticeship);
+            await dbContext.SaveChangesAsync();
+            dbContext.ChangeTracker.Clear();
+
+            var searchParameters = new ReverseOrderedApprenticeshipSearchParameters
+            {
+                ProviderId = providerId,
+                FieldName = nameof(Apprenticeship.FirstName),
+                Filters = new ApprenticeshipSearchFilters(),
+                PageNumber = 1,
+                PageItemCount = 25,
+                CancellationToken = CancellationToken.None
+            };
+
+            var service = new ReverseOrderedApprenticeshipSearchService(dbContext);
+
+            // Act
+            var result = await service.Find(searchParameters);
+
+            // Assert
+            result.Apprenticeships.Should().ContainSingle();
+            result.Apprenticeships.Single().EmployerVerificationRequest.Should().NotBeNull();
+            result.Apprenticeships.Single().EmployerVerificationRequest!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
+            result.Apprenticeships.Single().EmployerVerificationRequest!.Notes.Should().Be("Evs note");
+        }
+
+        private static Apprenticeship CreateApprenticeshipWithEmployerVerification(long providerId, string firstName)
+        {
+            var apprenticeship = new Apprenticeship
+            {
+                FirstName = firstName,
+                LastName = "Verifier",
+                Uln = "1234567890",
+                CourseName = "Course",
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(12),
+                ProviderRef = "ProviderRef",
+                Cohort = new Cohort
+                {
+                    ProviderId = providerId,
+                    Provider = new Provider
+                    {
+                        UkPrn = providerId,
+                        Name = "Test Provider",
+                        Created = DateTime.UtcNow
+                    },
+                    AccountLegalEntity = CreateAccountLegalEntity("Employer")
+                },
+                ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                DataLockStatus = new List<DataLockStatus>(),
+                PriceHistory = new List<PriceHistory>
+                {
+                    new PriceHistory
+                    {
+                        Cost = 1000,
+                        FromDate = DateTime.UtcNow.AddDays(-10)
+                    }
+                }
+            };
+
+            apprenticeship.EmployerVerificationRequest = new EmployerVerificationRequest
+            {
+                Apprenticeship = apprenticeship,
+                Created = DateTime.UtcNow.AddDays(-1),
+                Status = EmployerVerificationRequestStatus.Passed,
+                Notes = "Evs note"
+            };
+
+            return apprenticeship;
+        }
     }
 }
