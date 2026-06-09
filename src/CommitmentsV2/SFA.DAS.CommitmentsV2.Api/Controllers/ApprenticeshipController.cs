@@ -167,7 +167,7 @@ public class ApprenticeshipController(
         await mediator.Send(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeshipId,
-            FreezePayments = request.FreezePayments,
+            PaymentFreezeDate = request.PaymentFreezeDate,
             FreezePaymentsReason = request.FreezePaymentsReason,
             UserInfo = request.UserInfo
         });

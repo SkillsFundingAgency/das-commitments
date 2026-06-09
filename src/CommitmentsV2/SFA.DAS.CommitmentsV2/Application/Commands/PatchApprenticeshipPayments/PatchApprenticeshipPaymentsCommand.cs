@@ -6,7 +6,7 @@ public class PatchApprenticeshipPaymentsCommand : IRequest
 {
     public long ApprenticeshipId { get; set; }
 
-    public bool FreezePayments { get; set; }
+    public DateTime? PaymentFreezeDate { get; set; }
 
     public FreezePaymentsReason? FreezePaymentsReason { get; set; }
 

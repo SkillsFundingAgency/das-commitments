@@ -44,7 +44,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenFreezePayments_SetsPaymentFreezeDateAndReason()
+    public async Task Handle_WhenPaymentFreezeDateProvided_SetsPaymentFreezeDateAndReason()
     {
         var apprenticeship = await SetupApprenticeship();
         _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
@@ -52,7 +52,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         await _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
-            FreezePayments = true,
+            PaymentFreezeDate = DateTime.UtcNow.Date,
             FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
             UserInfo = new UserInfo()
         }, CancellationToken.None);
@@ -67,7 +67,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenUnfreezePayments_ClearsPaymentFreezeDateAndReason()
+    public async Task Handle_WhenPaymentFreezeDateCleared_ClearsPaymentFreezeDateAndReason()
     {
         var apprenticeship = await SetupApprenticeship(frozen: true);
         _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
@@ -75,7 +75,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         await _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
-            FreezePayments = false,
+            PaymentFreezeDate = null,
             UserInfo = new UserInfo()
         }, CancellationToken.None);
 
@@ -96,7 +96,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
-            FreezePayments = true,
+            PaymentFreezeDate = DateTime.UtcNow.Date,
             UserInfo = new UserInfo()
         }, CancellationToken.None));
 
@@ -110,14 +110,14 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     [TestCase(Party.Provider)]
     [TestCase(Party.TransferSender)]
     [TestCase(Party.None)]
-    public void Handle_WhenFreezePaymentsAndPartyIsNotEmployer_ThrowsDomainException(Party party)
+    public void Handle_WhenFreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
         _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
 
         var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = 1,
-            FreezePayments = true,
+            PaymentFreezeDate = DateTime.UtcNow.Date,
             FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
             UserInfo = new UserInfo()
         }, CancellationToken.None));
@@ -129,14 +129,14 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     }
 
     [TestCase(Party.Provider)]
-    public void Handle_WhenUnfreezePaymentsAndPartyIsNotEmployer_ThrowsDomainException(Party party)
+    public void Handle_WhenUnfreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
         _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
 
         var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = 1,
-            FreezePayments = false,
+            PaymentFreezeDate = null,
             UserInfo = new UserInfo()
         }, CancellationToken.None));
 

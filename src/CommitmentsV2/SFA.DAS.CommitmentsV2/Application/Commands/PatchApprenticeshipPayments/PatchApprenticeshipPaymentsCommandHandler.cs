@@ -15,12 +15,14 @@ public class PatchApprenticeshipPaymentsCommandHandler(
 {
     public async Task Handle(PatchApprenticeshipPaymentsCommand command, CancellationToken cancellationToken)
     {
+        var isFreeze = command.PaymentFreezeDate.HasValue;
+
         var party = authenticationService.GetUserParty();
-        CheckPartyIsValid(party, command.FreezePayments);
+        CheckPartyIsValid(party, isFreeze);
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
 
-        if (command.FreezePayments)
+        if (isFreeze)
         {
             if (!command.FreezePaymentsReason.HasValue)
             {
@@ -39,11 +41,11 @@ public class PatchApprenticeshipPaymentsCommandHandler(
         // await messageSession.Send(new StoreLearningHistoryCommand { ... });
     }
 
-    private static void CheckPartyIsValid(Party party, bool freezePayments)
+    private static void CheckPartyIsValid(Party party, bool isFreeze)
     {
         if (party != Party.Employer)
         {
-            var action = freezePayments ? "freeze" : "unfreeze";
+            var action = isFreeze ? "freeze" : "unfreeze";
             throw new DomainException(nameof(party), $"Only employers are allowed to {action} payments - {party} is invalid");
         }
     }
