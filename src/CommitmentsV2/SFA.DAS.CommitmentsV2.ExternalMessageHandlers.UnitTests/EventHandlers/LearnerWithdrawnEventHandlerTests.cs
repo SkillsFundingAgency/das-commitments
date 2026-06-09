@@ -206,6 +206,36 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "stopDate", ErrorMessage = "The date overlaps with existing dates for the same apprentice" });
         }
 
+        [Test]
+        public async Task Handle_LearnerWithDrawnEvent_ThenShouldResolveDataLocks()
+        {
+            // Arrange
+            var apprenticeship = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            _fixture.SetWithdrawnDateEvent(stopDate);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyDataLocksAreResolvedCorrectly();
+        }
+
+        [Test]
+        public async Task Handle_LearnerWithDrawnEvent_ThenResolveOltd()
+        {
+            // Arrange
+            var apprenticeship = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            _fixture.SetWithdrawnDateEvent(stopDate);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyOltdIsCalledCorrectly();
+        }
+
         public class LearnerWithdrawnEventHandlerTestsFixture
         {
             private LearnerWithdrawnEventHandler _handler;
@@ -338,6 +368,21 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                     c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawnReasonCode}"
                 ), It.IsAny<SendOptions>()), Times.Once);
             }
+
+            public void VerifyDataLocksAreResolvedCorrectly()
+            {
+                var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
+                var dataLockAssertion = _dbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id).ToList();
+                dataLockAssertion.Should().HaveCount(4);
+                dataLockAssertion.Where(s => s.IsResolved).Should().HaveCount(2);
+            }
+
+            public void VerifyOltdIsCalledCorrectly()
+            {
+                _resolveOLTDRequestService
+                    .Verify(x => x.Resolve(_event.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate), Times.Once);
+            }
+
             public async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
             {
                 var today = DateTime.UtcNow;
