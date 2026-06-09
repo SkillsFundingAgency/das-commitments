@@ -19,7 +19,7 @@ public static class CommitmentsDbContextExtensions
     public static async Task<Cohort> GetCohortAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
     {
         var cohort = await db.GetCohortAggregateSafely(cohortId, cancellationToken);
-        
+
         if (cohort == null)
         {
             throw new BadRequestException($"Cohort {cohortId} was not found");
