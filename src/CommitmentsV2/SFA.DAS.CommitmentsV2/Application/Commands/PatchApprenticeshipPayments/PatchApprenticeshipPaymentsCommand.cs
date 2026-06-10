@@ -11,4 +11,6 @@ public class PatchApprenticeshipPaymentsCommand : IRequest
     public FreezePaymentsReason? FreezePaymentsReason { get; set; }
 
     public UserInfo UserInfo { get; set; }
+
+    public Party Party { get; set; }
 }

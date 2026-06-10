@@ -8,4 +8,6 @@ public class PatchApprenticeshipPaymentsRequest : SaveDataRequest
     public DateTime? PaymentFreezeDate { get; set; }
 
     public FreezePaymentsReason? FreezePaymentsReason { get; set; }
+
+    public Party Party { get; set; }
 }

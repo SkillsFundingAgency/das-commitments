@@ -16,8 +16,8 @@ public class PatchApprenticeshipPaymentsCommandHandler(
     public async Task Handle(PatchApprenticeshipPaymentsCommand command, CancellationToken cancellationToken)
     {
         var isFreeze = command.PaymentFreezeDate.HasValue;
+        var party = GetParty(command);
 
-        var party = authenticationService.GetUserParty();
         CheckPartyIsValid(party, isFreeze);
 
         var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
@@ -39,6 +39,16 @@ public class PatchApprenticeshipPaymentsCommandHandler(
         // APPMAN-2645: after StoreLearningHistoryCommand merges to main, call SaveChangesAsync then send history (see StopApprenticeshipCommandHandler), e.g.:
         // await dbContext.Value.SaveChangesAsync(cancellationToken);
         // await messageSession.Send(new StoreLearningHistoryCommand { ... });
+    }
+
+    private Party GetParty(PatchApprenticeshipPaymentsCommand command)
+    {
+        if (command.Party != Party.None)
+        {
+            return command.Party;
+        }
+
+        return authenticationService.GetUserParty();
     }
 
     private static void CheckPartyIsValid(Party party, bool isFreeze)

@@ -169,7 +169,8 @@ public class ApprenticeshipController(
             ApprenticeshipId = apprenticeshipId,
             PaymentFreezeDate = request.PaymentFreezeDate,
             FreezePaymentsReason = request.FreezePaymentsReason,
-            UserInfo = request.UserInfo
+            UserInfo = request.UserInfo,
+            Party = request.Party
         });
 
         return Ok();

@@ -128,6 +128,27 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         });
     }
 
+    [Test]
+    public async Task Handle_WhenPartyProvidedAsEmployer_UsesCommandPartyInsteadOfAuthenticationService()
+    {
+        var apprenticeship = await SetupApprenticeship();
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Provider);
+
+        await _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            PaymentFreezeDate = DateTime.UtcNow.Date,
+            FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
+            UserInfo = new UserInfo(),
+            Party = Party.Employer
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
+        updated.FreezeStatus.Should().BeTrue();
+    }
+
     [TestCase(Party.Provider)]
     public void Handle_WhenUnfreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
