@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Models;
@@ -72,8 +73,130 @@ public class PutCocApprovalCommandValidatorTests
         AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship.Cohort.ProviderId, command, isValid);
     }
 
+    [Test]
+    public void Validate_DataWithNoEffectiveFromDate_ShouldBeValid()
+    {
+        var command = new PutCocApprovalCommand
+        {
+            CocApprovalDetails = new CocApprovalDetails
+            {
+                Apprenticeship = new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderId = 12345
+                    }
+                },
+                ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = null
+                        }
+                    }
+                }
+            }
+        };
+
+        AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, true);
+    }
+
+    [Test]
+    public void Validate_DataWithEffectiveFromDateBefore_ShouldBeInvalid()
+    {
+        var command = new PutCocApprovalCommand
+        {
+            CocApprovalDetails = new CocApprovalDetails
+            {
+                ProviderId = 12345,
+                ULN = "1234567890",
+                Apprenticeship = new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderId = 12345
+                    },
+                    StartDate = DateTime.Today,
+                    Uln = "1234567890"
+                },
+                ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = DateTime.Today.AddDays(-1)
+                        }
+                    }
+                }
+            }
+        };
+
+        AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, false);
+    }
+
+    [Test]
+    public void Validate_DataWithEffectiveFromDateAfterStart_ShouldBeValid()
+    {
+        var command = new PutCocApprovalCommand
+        {
+            CocApprovalDetails = new CocApprovalDetails
+            {
+                ProviderId = 12345,
+                ULN = "1234567890",
+                Apprenticeship = new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderId = 12345
+                    },
+                    StartDate = DateTime.Today,
+                    Uln = "1234567890"
+                },
+                ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = DateTime.Today.AddDays(1)
+                        }
+                    }
+                }
+            }
+        };
+
+        AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, true);
+    }
+
     private void AssertValidationResult<T>(Expression<Func<PutCocApprovalCommand, T>> property,
         PutCocApprovalCommand command, bool isValid)
+    {
+        var validator = new PutCocApprovalCommandValidator();
+        var result = validator.TestValidate(command);
+
+        if (isValid)
+        {
+            result.ShouldNotHaveValidationErrorFor(property);
+        }
+        else
+        {
+            result.ShouldHaveValidationErrorFor(property);
+        }
+    }
+
+    private void AssertValidationPropertyHasMessage(string property, PutCocApprovalCommand command, bool isValid)
     {
         var validator = new PutCocApprovalCommandValidator();
         var result = validator.TestValidate(command);

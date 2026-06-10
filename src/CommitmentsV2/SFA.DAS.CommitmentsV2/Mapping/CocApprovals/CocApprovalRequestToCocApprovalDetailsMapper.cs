@@ -38,7 +38,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                 var update = new CocUpdate<int>
                 {
                     Old = ToInt(change.Data.Old),
-                    New = ToInt(change.Data.New)
+                    New = ToInt(change.Data.New),
+                    EffectiveFromDate = change.Data.EffectiveFromDate
                 };
 
                 switch (changeType) 
