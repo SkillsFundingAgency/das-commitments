@@ -25,7 +25,7 @@ public class WithDrawalNotificationToEmployerServiceTests
     public async Task When_SendingNotification_ThenShouldNotSendEmail()
     {
         var fixture = new WithDrawalNotificationToEmployerServiceTestsFixture();
-        await fixture.SendNotificationWithNoMatchingApprenticeship();
+        await fixture.WithNoMatchingApprenticeship().SendNotification();
         fixture.VerifyEmailNotSentToEmployer();
     }
 
@@ -99,13 +99,13 @@ public class WithDrawalNotificationToEmployerServiceTests
 
         public async Task SendNotification()
         {
-            _sut.SendWithdrawalNotificationToEmployer(_event.Object, _context.Object).GetAwaiter().GetResult();
+            await _sut.SendWithdrawalNotificationToEmployer(_event.Object, _context.Object);
         }
 
-        public async Task SendNotificationWithNoMatchingApprenticeship()
+        public WithDrawalNotificationToEmployerServiceTestsFixture WithNoMatchingApprenticeship()
         {
             _event.Object.ApprenticeshipId = _autoFixture.Create<long>();
-            _sut.SendWithdrawalNotificationToEmployer(_event.Object, _context.Object).GetAwaiter().GetResult();
+            return this;
         }
 
         public void VerifyEmailSentToEmployer()

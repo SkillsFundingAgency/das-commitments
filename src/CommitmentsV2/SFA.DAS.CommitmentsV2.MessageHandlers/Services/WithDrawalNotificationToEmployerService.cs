@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -33,7 +34,7 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
                                                        x.Cohort.Provider.Name
                                                    }
                                                }
-                                           }).SingleOrDefaultAsync();
+                                           }).SingleOrDefaultAsync();                                           
 
         if (apprenticeshipDetails is null)
         {
