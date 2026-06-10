@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using IAuthenticationService = SFA.DAS.CommitmentsV2.Authentication.IAuthenticationService;
@@ -170,7 +171,7 @@ public class ApprenticeshipController(
             PaymentFreezeDate = request.PaymentFreezeDate,
             FreezePaymentsReason = request.FreezePaymentsReason,
             UserInfo = request.UserInfo,
-            Party = request.Party
+            Party = (Party)request.Party
         });
 
         return Ok();

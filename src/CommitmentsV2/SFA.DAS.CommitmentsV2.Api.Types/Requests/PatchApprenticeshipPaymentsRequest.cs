@@ -9,5 +9,5 @@ public class PatchApprenticeshipPaymentsRequest : SaveDataRequest
 
     public FreezePaymentsReason? FreezePaymentsReason { get; set; }
 
-    public Party Party { get; set; }
+    public int Party { get; set; }
 }
