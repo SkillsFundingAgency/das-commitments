@@ -8,7 +8,7 @@ public class ApprovalFieldRequest
     public string Field { get; set; }
     public string Old { get; set; }
     public string New { get; set; }
-    public DateTime EffectiveFromDate { get; }
+    public DateTime? EffectiveFromDate { get; set; }
     public Guid ApprovalRequestId { get; set; }
     public ApprovalRequest ApprovalRequest { get; set; }
     public CocApprovalItemStatus? Status { get; set; }
