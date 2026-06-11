@@ -16,4 +16,5 @@ public class ChangeHistory
     public long ApprenticeshipId { get; set; }
     public string LearnerName { get; set; }
     public DateTime AppliedDate { get; set; }
+    public DateTime Created { get; set; }
 }

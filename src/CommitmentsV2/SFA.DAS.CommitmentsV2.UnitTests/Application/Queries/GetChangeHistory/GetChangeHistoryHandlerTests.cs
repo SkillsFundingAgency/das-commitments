@@ -23,6 +23,7 @@ public class GetChangeHistoryHandlerTests
             AppliedDate = x.AppliedDate,
             LearnerName = x.LearnerName,
             Description = x.Description,
+            Created = x.Created
         }));
     }
 

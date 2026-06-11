@@ -16,6 +16,7 @@ public class GetChangeHistoryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbC
                 ApprenticeshipId = x.ApprenticeshipId,
                 LearnerName = x.LearnerName,
                 AppliedDate = x.AppliedDate,
+                Created = x.Created,
                 Id = x.Id,
             }).ToListAsync(cancellationToken);
 
