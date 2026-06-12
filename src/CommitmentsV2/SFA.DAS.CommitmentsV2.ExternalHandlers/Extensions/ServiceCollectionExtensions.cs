@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.LearnerData.Messages;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
                     t == typeof(RecordedAct1CompletionPayment) ||
                     t == typeof(EntityStateChangedEvent) ||
                     t == typeof(LearnerDataUpdatedEvent) ||
+                    t == typeof(LearningWithdrawnEvent) ||
                     t.Name.EndsWith("Event"));
 
                 if (isDevelopment)
