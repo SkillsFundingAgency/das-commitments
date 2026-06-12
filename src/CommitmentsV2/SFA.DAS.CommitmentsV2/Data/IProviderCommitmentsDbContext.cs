@@ -32,4 +32,5 @@ public interface ICommitmentsDbContext
     DbSet<Framework> Frameworks { get; set; }
     DbSet<Course> Courses { get; set; }
     Task ExecuteSqlCommandAsync(string sql, params object[] parameters);
+    DbSet<LearningChangeHistory> LearningChangeHistory { get; set; }
 }
