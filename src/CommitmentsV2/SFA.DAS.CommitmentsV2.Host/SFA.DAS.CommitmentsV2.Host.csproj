@@ -1,22 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+	  <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
-      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.MessageHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\SFA.DAS.CommitmentsV2.Jobs\bin\**\*" CopyToOutputDirectory="PreserveNewest">
-      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.Jobs\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
-      <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.ExternalHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\$(Configuration)\net10.0\**\*"
+         Exclude="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\$(Configuration)\net10.0\runtimes\**\*">
+  <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.MessageHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
+   <Content Include="..\SFA.DAS.CommitmentsV2.Jobs\bin\$(Configuration)\net10.0\**\*"
+         Exclude="..\SFA.DAS.CommitmentsV2.Jobs\bin\$(Configuration)\net10.0\runtimes\**\*">
+  <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.Jobs\%(RecursiveDir)%(Filename)%(Extension)</Link>
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
+   <Content Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\$(Configuration)\net10.0\**\*"
+         Exclude="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\$(Configuration)\net10.0\runtimes\**\*">
+  <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.ExternalHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
   </ItemGroup>
 
   <ItemGroup>
