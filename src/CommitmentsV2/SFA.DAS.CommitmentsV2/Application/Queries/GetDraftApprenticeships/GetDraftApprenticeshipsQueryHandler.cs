@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
+﻿using Microsoft.IdentityModel.Tokens;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 
@@ -20,6 +21,7 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
 
         var courseIds = cohort?.DraftApprenticeships.Where(x => x.StandardUId != null).Select(x => x.StandardUId).Distinct().ToList();
         var standards = db.Standards.Where(x => courseIds.Contains(x.StandardUId)).ToList();
+        var courses = await db.Courses.ToListAsync();
 
         return new GetDraftApprenticeshipsQueryResult
         {
@@ -53,9 +55,20 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 HasLearnerDataChanges = a.HasLearnerDataChanges,
                 LastLearnerDataSync = a.LastLearnerDataSync,
                 LearnerDataId = a.LearnerDataId,
-                ApprenticeshipType = GetApprenticeshipType(a.StandardUId)
+                ApprenticeshipType = GetApprenticeshipType(a.StandardUId),
+                LearningType = GetLearningType(a.CourseCode)
             }).ToList()
         };
+
+        LearningType? GetLearningType(string courseCode)
+        {
+            if (!courseCode.IsNullOrEmpty())
+            {
+                var course = courses.Where(c => c.LarsCode == courseCode).SingleOrDefault();
+                return course?.LearningType;
+            }
+            return null;
+        }
 
         string GetApprenticeshipType(string standardUId)
         {
