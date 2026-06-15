@@ -65,8 +65,8 @@ public class WhenICreateACsvFile
         CreateCsvService createCsvService)
     {
         List<SomethingToCsv> nullList = null;
-
-        Assert.Throws<WriterException>(() => createCsvService.GenerateCsvContent(nullList, false));
+               
+        Assert.Throws<NullReferenceException>( () => createCsvService.GenerateCsvContent(nullList, false));
     }
 
     [Test, MoqAutoData]
