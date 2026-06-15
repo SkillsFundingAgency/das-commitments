@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\**\*" CopyToOutputDirectory="PreserveNewest">
