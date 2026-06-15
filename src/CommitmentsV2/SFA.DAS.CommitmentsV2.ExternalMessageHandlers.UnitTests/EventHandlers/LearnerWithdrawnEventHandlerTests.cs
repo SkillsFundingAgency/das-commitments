@@ -24,7 +24,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
-using IMessageSession = NServiceBus.IMessageSession;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 {
@@ -246,7 +245,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private Mock<IOverlapCheckService> _overlapCheckService { get; set; }
             private UnitOfWorkContext _unitOfWorkContext { get; set; }
             private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
-            private Mock<IMessageSession> _messageSession;
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
 
@@ -262,14 +260,13 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _overlapCheckService = new Mock<IOverlapCheckService>();
                 _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResult(false, false));
                 _resolveOLTDRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
-                _messageSession = new Mock<IMessageSession>();
 
                 _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
 
-                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
-                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _messageSession.Object, _logger);
-
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
+
+                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
+                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _logger);
 
                 _event = autoFixture.Create<LearningWithdrawnEvent>();
             }
@@ -360,7 +357,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
             public void VerifyStoreLearnerHistoryCommandIsSent()
             {
-                _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+                _messageHandlerContext.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
                     c.ApprenticeshipId == _event.ApprenticeshipId &&
                     c.Source == Types.LearningSourceType.ILRStatusChange &&
                     c.ChangeType == Types.LearningChangeType.AutoApproved &&

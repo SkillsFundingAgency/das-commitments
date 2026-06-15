@@ -15,8 +15,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
-using IMessageSession = NServiceBus.IMessageSession;
-
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -25,7 +23,6 @@ public class LearnerWithdrawnEventHandler(
     ICurrentDateTime currentDate,
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
-    IMessageSession messageSession,
     ILogger<LearnerWithdrawnEventHandler> logger)
     : IHandleMessages<LearningWithdrawnEvent>
 {
@@ -52,7 +49,7 @@ public class LearnerWithdrawnEventHandler(
                 AppliedDate = message.Created,
                 Description = $"ILR Learner status changed from Live to Withdrawn due to {message.WithdrawalReasonCode}"
             };
-            await messageSession.Send(historyCommand);
+            await context.Send(historyCommand);
         }
         catch (Exception e)
         {
