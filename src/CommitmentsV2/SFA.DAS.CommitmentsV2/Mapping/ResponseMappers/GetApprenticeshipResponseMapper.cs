@@ -62,7 +62,8 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
             LearningType = source.LearningType,
             EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
-            EmployerVerificationNotes = source.EmployerVerificationNotes
+            EmployerVerificationNotes = source.EmployerVerificationNotes,
+            HasChangeHistory = source.HasChangeHistory
         });
     }
 }
