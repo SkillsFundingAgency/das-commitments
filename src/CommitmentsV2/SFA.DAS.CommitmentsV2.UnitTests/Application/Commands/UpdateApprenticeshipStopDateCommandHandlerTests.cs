@@ -329,7 +329,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
-
             // Assert
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawnReasonCode", ErrorMessage = "Apprenticeship has already been withdrawn via ILR with reason code " + "1" });
         }
