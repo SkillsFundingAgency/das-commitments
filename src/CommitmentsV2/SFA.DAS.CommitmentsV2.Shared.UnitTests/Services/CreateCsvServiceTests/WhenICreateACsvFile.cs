@@ -80,14 +80,13 @@ public class WhenICreateACsvFile
         var csvStreamField = typeof(CreateCsvService).GetField("_csvWriter", BindingFlags.NonPublic | BindingFlags.Instance);
         var streamWriterField = typeof(CreateCsvService).GetField("_streamWriter", BindingFlags.NonPublic | BindingFlags.Instance);
         createCsvService.GenerateCsvContent(listToWriteToCsv, true);
+
         var getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
         var getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
 
         getterMemoryStream.CanWrite.Should().BeTrue();
         getterStream.BaseStream.CanWrite.Should().BeTrue();
-
-
-
+        
         //Act
         createCsvService.Dispose();
 
@@ -97,10 +96,8 @@ public class WhenICreateACsvFile
 
         getterMemoryStream.CanWrite.Should().BeFalse();
         getterStream.BaseStream.CanWrite.Should().BeFalse();
-
     }
 }
-
 public abstract class SomethingToCsv
 {
     public int Id { get; set; }
