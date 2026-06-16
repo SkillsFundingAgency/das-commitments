@@ -1,7 +1,9 @@
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -16,6 +18,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     private ProviderCommitmentsDbContext _dbContext;
     private Mock<IAuthenticationService> _authenticationService;
     private Mock<ICurrentDateTime> _currentDateTime;
+    private Mock<IMessageSession> _messageSession;
     private UnitOfWorkContext _unitOfWorkContext;
     private PatchApprenticeshipPaymentsCommandHandler _handler;
 
@@ -29,12 +32,14 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         _authenticationService = new Mock<IAuthenticationService>();
         _currentDateTime = new Mock<ICurrentDateTime>();
         _currentDateTime.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
+        _messageSession = new Mock<IMessageSession>();
         _unitOfWorkContext = new UnitOfWorkContext();
 
         _handler = new PatchApprenticeshipPaymentsCommandHandler(
             new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _currentDateTime.Object,
-            _authenticationService.Object);
+            _authenticationService.Object,
+            _messageSession.Object);
     }
 
     [TearDown]
@@ -57,13 +62,20 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             UserInfo = new UserInfo()
         }, CancellationToken.None);
 
-        await _dbContext.SaveChangesAsync();
-
         var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
         updated.PaymentFreezeDate.Should().Be(_currentDateTime.Object.UtcNow.Date);
         updated.FreezePaymentsReason.Should().Be(FreezePaymentsReason.LearnerOnBreak);
         updated.FreezeStatus.Should().BeTrue();
         updated.PaymentStatus.Should().Be(PaymentStatus.Active);
+
+        _messageSession.Verify(x => x.Send(
+            It.Is<StoreLearningHistoryCommand>(c =>
+                c.ApprenticeshipId == apprenticeship.Id &&
+                c.Source == LearningSourceType.ApprovalAPI &&
+                c.ChangeType == LearningChangeType.ManualUpdate &&
+                c.AppliedDate == _currentDateTime.Object.UtcNow.Date &&
+                c.Description == "Payments paused - Learner is on a break"),
+            It.IsAny<SendOptions>()), Times.Once);
     }
 
     [Test]
@@ -79,12 +91,19 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             UserInfo = new UserInfo()
         }, CancellationToken.None);
 
-        await _dbContext.SaveChangesAsync();
-
         var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
         updated.PaymentFreezeDate.Should().BeNull();
         updated.FreezePaymentsReason.Should().BeNull();
         updated.FreezeStatus.Should().BeFalse();
+
+        _messageSession.Verify(x => x.Send(
+            It.Is<StoreLearningHistoryCommand>(c =>
+                c.ApprenticeshipId == apprenticeship.Id &&
+                c.Source == LearningSourceType.ApprovalAPI &&
+                c.ChangeType == LearningChangeType.ManualUpdate &&
+                c.AppliedDate == _currentDateTime.Object.UtcNow &&
+                c.Description == "Payments resumed"),
+            It.IsAny<SendOptions>()), Times.Once);
     }
 
     [Test]
@@ -105,6 +124,8 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             PropertyName = nameof(PatchApprenticeshipPaymentsCommand.FreezePaymentsReason),
             ErrorMessage = "A reason for pausing payments must be provided"
         });
+
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
     [TestCase(Party.Provider)]
@@ -142,8 +163,6 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             UserInfo = new UserInfo(),
             Party = Party.Employer
         }, CancellationToken.None);
-
-        await _dbContext.SaveChangesAsync();
 
         var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
         updated.FreezeStatus.Should().BeTrue();

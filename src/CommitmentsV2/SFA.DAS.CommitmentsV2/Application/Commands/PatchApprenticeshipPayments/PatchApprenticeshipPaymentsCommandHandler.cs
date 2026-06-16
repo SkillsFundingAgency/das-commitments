@@ -1,7 +1,10 @@
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -10,7 +13,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments
 public class PatchApprenticeshipPaymentsCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICurrentDateTime currentDate,
-    IAuthenticationService authenticationService)
+    IAuthenticationService authenticationService,
+    IMessageSession messageSession)
     : IRequestHandler<PatchApprenticeshipPaymentsCommand>
 {
     public async Task Handle(PatchApprenticeshipPaymentsCommand command, CancellationToken cancellationToken)
@@ -36,9 +40,21 @@ public class PatchApprenticeshipPaymentsCommandHandler(
             apprenticeship.UnfreezePayments(currentDate, party, command.UserInfo);
         }
 
-        // APPMAN-2645: after StoreLearningHistoryCommand merges to main, call SaveChangesAsync then send history (see StopApprenticeshipCommandHandler), e.g.:
-        // await dbContext.Value.SaveChangesAsync(cancellationToken);
-        // await messageSession.Send(new StoreLearningHistoryCommand { ... });
+        await dbContext.Value.SaveChangesAsync(cancellationToken);
+
+        await messageSession.Send(new StoreLearningHistoryCommand
+        {
+            ApprenticeshipId = command.ApprenticeshipId,
+            Source = LearningSourceType.ApprovalAPI,
+            ChangeType = LearningChangeType.ManualUpdate,
+            AppliedDate = isFreeze
+                ? apprenticeship.PaymentFreezeDate!.Value
+                : currentDate.UtcNow,
+            Description = isFreeze
+                ? $"Payments paused - {command.FreezePaymentsReason!.Value.GetEnumDescription()}"
+                : "Payments resumed",
+            UserId = GetUserId(command.UserInfo)
+        });
     }
 
     private Party GetParty(PatchApprenticeshipPaymentsCommand command)
@@ -58,5 +74,15 @@ public class PatchApprenticeshipPaymentsCommandHandler(
             var action = isFreeze ? "freeze" : "unfreeze";
             throw new DomainException(nameof(party), $"Only employers are allowed to {action} payments - {party} is invalid");
         }
+    }
+
+    private static Guid? GetUserId(UserInfo userInfo)
+    {
+        if (userInfo?.UserId != null && Guid.TryParse(userInfo.UserId, out var userId))
+        {
+            return userId;
+        }
+
+        return null;
     }
 }
