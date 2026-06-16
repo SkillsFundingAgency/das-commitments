@@ -1,9 +1,8 @@
-﻿using System.IO;
-using System.Reflection;
-using CsvHelper;
-using FluentAssertions;
+﻿using FluentAssertions;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.Testing.AutoFixture;
+using System.IO;
+using System.Reflection;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests;
 
@@ -15,7 +14,7 @@ public class WhenICreateACsvFile
         CreateCsvService createCsvService)
     {
         var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
-        
+
         actual.Should().NotBeNull();
         actual.Should().BeAssignableTo<MemoryStream>();
         var actualByteArray = actual.ToArray();
@@ -33,7 +32,7 @@ public class WhenICreateACsvFile
         var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
         actual.Should().NotBeNull();
-        actual.Should().BeAssignableTo<MemoryStream>();              
+        actual.Should().BeAssignableTo<MemoryStream>();
 
         var actualByteArray = actual.ToArray();
         var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
@@ -83,10 +82,10 @@ public class WhenICreateACsvFile
         createCsvService.GenerateCsvContent(listToWriteToCsv, true);
         var getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
         var getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
-                
-            getterMemoryStream.CanWrite.Should().BeTrue();
-            getterStream.BaseStream.CanWrite.Should().BeTrue();
-        
+
+        getterMemoryStream.CanWrite.Should().BeTrue();
+        getterStream.BaseStream.CanWrite.Should().BeTrue();
+
 
 
         //Act
@@ -95,10 +94,10 @@ public class WhenICreateACsvFile
         //Assert
         getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
         getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
-               
-            getterMemoryStream.CanWrite.Should().BeFalse();
-            getterStream.BaseStream.CanWrite.Should().BeFalse();
-       
+
+        getterMemoryStream.CanWrite.Should().BeFalse();
+        getterStream.BaseStream.CanWrite.Should().BeFalse();
+
     }
 }
 
