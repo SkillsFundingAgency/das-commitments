@@ -73,6 +73,10 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
     {
         if (int.TryParse(value, out var result))
         {
+            if(result < 0)
+            {
+                throw new DomainException("Data", "String could not be converted to a positive integer");
+            }
             return result;
         }
         throw new DomainException("Data", "String could not be converted to an integer");
