@@ -14,4 +14,8 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NServiceBus\" />
+  </ItemGroup>
+
 </Project>
