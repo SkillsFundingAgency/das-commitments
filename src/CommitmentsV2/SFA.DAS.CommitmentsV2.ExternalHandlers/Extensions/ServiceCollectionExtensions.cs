@@ -42,6 +42,7 @@ public static class ServiceCollectionExtensions
                 endpointConfiguration.Conventions().DefiningEventsAs(t =>
                     t == typeof(RecordedAct1CompletionPayment) ||
                     t == typeof(EntityStateChangedEvent) ||
+                    t == typeof(LearningPausedEvent) ||
                     t.Name.EndsWith("Event"));
 
                 if (isDevelopment)
