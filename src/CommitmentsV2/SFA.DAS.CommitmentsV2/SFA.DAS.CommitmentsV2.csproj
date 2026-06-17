@@ -25,13 +25,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.9" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
     <PackageReference Include="morelinq" Version="4.3.0" />
     <PackageReference Include="Polly" Version="8.3.0" />
     <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.113" />
