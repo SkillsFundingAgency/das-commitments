@@ -22,10 +22,17 @@ public class LearningPausedEventHandler(
     {
         try
         {
+            if (message is null) return;
+
             logger.LogInformation("LearningPausedEvent for ApprenticeshipId {ApprenticeshipId} with PauseDate {PauseDate}",
                 message.ApprenticeshipId, message.PauseDate);
             var db = dbContext.Value;
             var apprentice = await db.Apprenticeships.Where(t => t.Id == message.ApprenticeshipId).SingleOrDefaultAsync();
+
+            if (apprentice == null)
+            {
+                throw new DomainException(nameof(apprentice), $"Apprenticeship with Id {message.ApprenticeshipId} not found.");
+            }
 
             ValidatePauseDate(message.PauseDate, apprentice);
 

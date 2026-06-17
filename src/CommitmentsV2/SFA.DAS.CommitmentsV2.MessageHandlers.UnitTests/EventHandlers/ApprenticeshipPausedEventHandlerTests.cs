@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.SetPaymentStatus(status);
 
             await _fixture.Handle();
-            
+
             if (status == PaymentStatus.Paused)
             {
                 _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
@@ -60,6 +60,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
                 ), It.IsAny<SendOptions>()), Times.Never);
             }
+        }
+
+        [Test]
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsNotCalled_WhenPausedViaIlr_Is_True()
+        {
+            _fixture.Event.PausedViaILR = true;
+
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+            ), It.IsAny<SendOptions>()), Times.Never);
         }
 
         private static List<PaymentStatus> GetAllPaymentStatus() => Enum.GetValues(typeof(PaymentStatus)).Cast<PaymentStatus>().ToList();
@@ -88,6 +104,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var autoFixture = new Fixture();
 
             Event = autoFixture.Create<ApprenticeshipPausedEvent>();
+            Event.PausedViaILR = false;
             var accountLegalEntity = new AccountLegalEntity();
             accountLegalEntity.SetValue(x => x.Name, EmployerName);
 

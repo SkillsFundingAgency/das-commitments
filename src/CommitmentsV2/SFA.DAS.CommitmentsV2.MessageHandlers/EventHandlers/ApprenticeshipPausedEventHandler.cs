@@ -35,9 +35,12 @@ public class ApprenticeshipPausedEventHandler(
                 return;
             }
 
-            var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
+            if (!message.PausedViaILR)
+            {
+                var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
 
-            await context.Send(emailToProviderCommand, new SendOptions());
+                await context.Send(emailToProviderCommand, new SendOptions());
+            }
         }
     }
 

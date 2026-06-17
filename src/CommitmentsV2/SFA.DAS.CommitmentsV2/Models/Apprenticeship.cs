@@ -939,8 +939,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void SetIlrPaused(DateTime pausedDate)
     {
-        var currentStopDate = StopDate;
-
         StartTrackingSession(UserAction.PauseApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
 
         ChangeTrackingSession.TrackUpdate(this);
