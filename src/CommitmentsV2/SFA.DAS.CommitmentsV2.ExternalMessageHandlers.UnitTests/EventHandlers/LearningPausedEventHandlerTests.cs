@@ -71,20 +71,14 @@ public class LearningPausedEventHandlerTests
         var act = async () => await _fixture.SetEndDate(DateTime.UtcNow.AddMonths(3)).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Pause date cannot be on or after the end date"));
         _fixture.VerifyLearningPausedEventIsNotPublished();
-    }
+    }    
 
     [Test]
-    public async Task ThenThrowsDomainException_WhenStatusIsCompleted()
+    [TestCase(PaymentStatus.Withdrawn)]
+    [TestCase(PaymentStatus.Completed)]
+    public async Task ThenThrowsDomainException_WhenStatusIsWithdrawn(PaymentStatus status)
     {
-        var act = async () => await _fixture.SetPaymentStatus(PaymentStatus.Completed).Handle();
-        await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learning cannot be Paused if Payment Status is Completed or Withdrawn"));
-        _fixture.VerifyLearningPausedEventIsNotPublished();
-    }
-
-    [Test]
-    public async Task ThenThrowsDomainException_WhenStatusIsWithdrawn()
-    {
-        var act = async () => await _fixture.SetPaymentStatus(PaymentStatus.Withdrawn).Handle();
+        var act = async () => await _fixture.SetPaymentStatus(status).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learning cannot be Paused if Payment Status is Completed or Withdrawn"));
         _fixture.VerifyLearningPausedEventIsNotPublished();
     }
