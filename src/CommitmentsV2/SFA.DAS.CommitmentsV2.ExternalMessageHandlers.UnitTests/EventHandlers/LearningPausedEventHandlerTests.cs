@@ -10,7 +10,6 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -30,13 +29,16 @@ public class LearningPausedEventHandlerTests
         _fixture = new LearningPausedEventHandlerTestsFixture();
     }
 
+    [TearDown]
+    public void TearDown() => _fixture.Dispose();
+
     [Test]
     public async Task Handle_WhenLearningPausedEventReceived()
     {
         await _fixture.Handle();
         _fixture.VerifyLearnerPaused();
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
-        _fixture.VerifyApprenticeshipPauseDateChangedEventIsCorrectlyPublished();
+        _fixture.VerifyLearningPausedEventIsPublished();
     }
 
     [Test]
@@ -44,6 +46,7 @@ public class LearningPausedEventHandlerTests
     {
         var act = async () => await _fixture.SetStartDate(DateTime.UtcNow.AddMonths(4)).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learner not started"));
+        _fixture.VerifyLearningPausedEventIsNotPublished();
     }
 
     [Test]
@@ -51,6 +54,7 @@ public class LearningPausedEventHandlerTests
     {
         var act = async () => await _fixture.SetEventApprenticeshipId(_fixture.fixture.Create<long>()).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("not found"));
+        _fixture.VerifyLearningPausedEventIsNotPublished();
     }
 
     [Test]
@@ -58,7 +62,7 @@ public class LearningPausedEventHandlerTests
     {
         var act = async () => await _fixture.SetEndDate(DateTime.UtcNow.AddMonths(-2)).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Pause date cannot be on or after the end date"));
-        _fixture.VerifyApprenticeshipPauseDateChangedEventIsNotPublished();
+        _fixture.VerifyLearningPausedEventIsNotPublished();
     }
 
     [Test]
@@ -66,6 +70,7 @@ public class LearningPausedEventHandlerTests
     {
         var act = async () => await _fixture.SetEndDate(DateTime.UtcNow.AddMonths(3)).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Pause date cannot be on or after the end date"));
+        _fixture.VerifyLearningPausedEventIsNotPublished();
     }
 
     [Test]
@@ -73,6 +78,15 @@ public class LearningPausedEventHandlerTests
     {
         var act = async () => await _fixture.SetPaymentStatus(PaymentStatus.Completed).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learning cannot be Paused if Payment Status is Completed or Withdrawn"));
+        _fixture.VerifyLearningPausedEventIsNotPublished();
+    }
+
+    [Test]
+    public async Task ThenThrowsDomainException_WhenStatusIsWithdrawn()
+    {
+        var act = async () => await _fixture.SetPaymentStatus(PaymentStatus.Withdrawn).Handle();
+        await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learning cannot be Paused if Payment Status is Completed or Withdrawn"));
+        _fixture.VerifyLearningPausedEventIsNotPublished();
     }
 }
 
@@ -85,7 +99,6 @@ public class LearningPausedEventHandlerTestsFixture
     private LearningPausedEventHandler _handler;
     private Mock<IMessageHandlerContext> _mockContext;
     private LearningPausedEvent _event;
-    private Mock<IChangeTrackingSession> _mocktrackingSession;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
 
@@ -95,15 +108,10 @@ public class LearningPausedEventHandlerTestsFixture
         _mockLogger = new Mock<ILogger<LearningPausedEventHandler>>();
         _mockSession = new Mock<IMessageSession>();
         _mockContext = new Mock<IMessageHandlerContext>();
-        _mocktrackingSession = new Mock<IChangeTrackingSession>();
         UnitOfWorkContext = new UnitOfWorkContext();
 
         _event = fixture.Create<LearningPausedEvent>();
-
-        var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
+      
         _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                             .Options);
@@ -142,7 +150,7 @@ public class LearningPausedEventHandlerTestsFixture
 
         _dbContext.Cohorts.Add(cohort);
         _dbContext.Apprenticeships.Add(Apprenticeship);
-        _ = _dbContext.SaveChangesAsync();
+        _dbContext.SaveChanges();
 
         _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockSession.Object, _mockLogger.Object);
     }
@@ -151,7 +159,7 @@ public class LearningPausedEventHandlerTestsFixture
     {
         var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
         apprenticeship.StartDate = startDate;
-        _dbContext.SaveChangesAsync();
+        _dbContext.SaveChanges();
         return this;
     }    
 
@@ -159,7 +167,7 @@ public class LearningPausedEventHandlerTestsFixture
     {
         var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
         apprenticeship.EndDate = endDate;
-        _dbContext.SaveChangesAsync();
+        _dbContext.SaveChanges();
         return this;
     }
 
@@ -167,7 +175,7 @@ public class LearningPausedEventHandlerTestsFixture
     {
         var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
         apprenticeship.PaymentStatus = status;
-        _dbContext.SaveChangesAsync();
+        _dbContext.SaveChanges();
         return this;
     }
 
@@ -194,7 +202,7 @@ public class LearningPausedEventHandlerTestsFixture
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 
-    public void VerifyApprenticeshipPauseDateChangedEventIsCorrectlyPublished()
+    public void VerifyLearningPausedEventIsPublished()
     {
         _ = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
         var pausedEvent = UnitOfWorkContext.GetEvents().OfType<ApprenticeshipPausedEvent>().First();
@@ -204,7 +212,7 @@ public class LearningPausedEventHandlerTestsFixture
         pausedEvent.PausedViaILR.Should().BeTrue();
     }
 
-    public void VerifyApprenticeshipPauseDateChangedEventIsNotPublished()
+    public void VerifyLearningPausedEventIsNotPublished()
     {
         var pausedEvent = UnitOfWorkContext.GetEvents().OfType<ApprenticeshipPausedEvent>().FirstOrDefault();
         pausedEvent.Should().BeNull();
@@ -217,4 +225,6 @@ public class LearningPausedEventHandlerTestsFixture
         updatedApprenticeship.PaymentStatus.Should().Be(PaymentStatus.Paused);
         updatedApprenticeship.PauseDate.Should().Be(_event.PauseDate.Date);
     }
+
+    public void Dispose() => _dbContext?.Dispose();
 }
