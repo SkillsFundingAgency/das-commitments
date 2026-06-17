@@ -105,11 +105,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -148,11 +147,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -191,11 +189,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -234,11 +231,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -277,11 +273,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -320,11 +315,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIRST ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -423,11 +417,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "ONE ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -438,11 +431,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "TWO ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1002/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1002/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1002" }
                             }
                         },
@@ -453,11 +445,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "THREE ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -468,11 +459,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FOUR ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1004/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1004/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1004" }
                             }
                         },
@@ -483,11 +473,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "is 1 apprentice" },
-                                { "account_name", "FIVE ACCOUNT" },
-                                { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         },
@@ -498,11 +487,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 2 apprentices" },
-                                { "account_name", "SIX ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         },
@@ -513,11 +501,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 3 apprentices" },
-                                { "account_name", "SEVEN ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1007/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1007/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1007" }
                             }
                         }
@@ -556,11 +543,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 2 apprentices" },
-                                { "account_name", "SIX ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         }
@@ -619,11 +605,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 2 apprentices" },
-                                { "account_name", "ONE ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -634,11 +619,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 2 apprentices" },
-                                { "account_name", "THREE ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -649,11 +633,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", "are 2 apprentices" },
-                                { "account_name", "FIVE ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         }
@@ -692,11 +675,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                             Tokens = new Dictionary<string, string>
                             {
                                 { "total_count_text", $"are 6 apprentices" },
-                                { "account_name", "ONE ACCOUNT" },
-                                { "need_needs", "need" },
                                 { "changes_for_review", $"* 4 apprentices with changes for review" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
+                                { "ilrchanges_to_confirm", "" },
+                                //{ "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         }
