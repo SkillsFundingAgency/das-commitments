@@ -34,6 +34,11 @@ public class LearnerWithdrawnEventHandler(
                 message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+            
+            if (message.WithdrawalReasonCode < 0)
+            {
+                throw new DomainException(nameof(message.WithdrawalReasonCode), "Invalid WithdrawalReasonCode. The reason code can not be negative.");
+            }
             ValidateStopDateForWithdrawal(message.WithdrawalDate, apprentice);
             await ValidateEndDateOverlap(message.WithdrawalDate, apprentice, default);
 

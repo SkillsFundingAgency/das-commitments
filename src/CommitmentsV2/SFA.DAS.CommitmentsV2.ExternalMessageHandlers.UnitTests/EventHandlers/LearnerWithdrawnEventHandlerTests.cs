@@ -207,6 +207,21 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task When_LearnerWithDrawnEvent_ContainsNegativeReason_Exception_IsThrown()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var newstopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(newstopDate.Year, newstopDate.Month, 1), -1);
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(_fixture.Handle);
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawalReasonCode", ErrorMessage = "Invalid WithdrawalReasonCode. The reason code can not be negative." });
+        }
+
+
+        [Test]
         public async Task Handle_LearnerWithDrawnEvent_ThenShouldResolveDataLocks()
         {
             // Arrange
