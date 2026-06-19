@@ -27,7 +27,7 @@ public class ChangeHistoryControllerTests
         long apprenticeshipId)
     {
         // Arrange
-        _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId)))
+        _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId), It.IsAny<CancellationToken>()))
             .ReturnsAsync(changeHistoryresult);
 
         // Act
@@ -46,7 +46,7 @@ public class ChangeHistoryControllerTests
     {
         {
             // Arrange
-            _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId)))
+            _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetChangeHistoryQueryResult(){ ChangeHistory = new List<ChangeHistory>() });
 
             // Act
