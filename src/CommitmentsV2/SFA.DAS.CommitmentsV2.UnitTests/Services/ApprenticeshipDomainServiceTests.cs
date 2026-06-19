@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 using System.Collections;
+using static SFA.DAS.CommitmentsV2.UnitTests.Services.ApprenticeshipDomainServiceTests.DataCases;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -29,7 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .WithApprenticeship(input.ApprenticeshipInput.AccountLegalEntityId, input.ApprenticeshipInput.LegalEntityId, input.ApprenticeshipInput.AccountId,
                         input.ApprenticeshipInput.CohortId, input.ApprenticeshipInput.ApprenticeshipId, input.ApprenticeshipInput.PaymentStatus, input.ApprenticeshipInput.Originator)
                     .WithDataLock(input.DataLockInput.DataLockStatusId, input.ApprenticeshipInput.ApprenticeshipId, input.DataLockInput.IsResolved, input.DataLockInput.IsExpired, input.DataLockInput.Status,
-                        input.DataLockInput.EventStatus, input.DataLockInput.TriageStatus, input.DataLockInput.ErrorCode);
+                        input.DataLockInput.EventStatus, input.DataLockInput.TriageStatus, input.DataLockInput.ErrorCode)
+                    .WithApprovalRequest(input.ApprenticeshipInput.ApprenticeshipId, input.ApprovalResultStatus);
             }
 
             // Act
@@ -49,7 +51,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .WithApprenticeship(input.ApprenticeshipInput.AccountLegalEntityId, input.ApprenticeshipInput.LegalEntityId, input.ApprenticeshipInput.AccountId,
                         input.ApprenticeshipInput.CohortId, input.ApprenticeshipInput.ApprenticeshipId, input.ApprenticeshipInput.PaymentStatus, input.ApprenticeshipInput.Originator)
                     .WithDataLock(input.DataLockInput.DataLockStatusId, input.ApprenticeshipInput.ApprenticeshipId, input.DataLockInput.IsResolved, input.DataLockInput.IsExpired, input.DataLockInput.Status,
-                        input.DataLockInput.EventStatus, input.DataLockInput.TriageStatus, input.DataLockInput.ErrorCode);
+                        input.DataLockInput.EventStatus, input.DataLockInput.TriageStatus, input.DataLockInput.ErrorCode)
+                    .WithApprovalRequest(input.ApprenticeshipInput.ApprenticeshipId, input.ApprovalResultStatus);
             }
 
             // Act
@@ -80,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 #endregion
 
-                #region single provider notification
+                #region single provider notification and Pending ILR Approval notification
                 yield return new object[]
                 {
                     new List<Input>
@@ -88,20 +91,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 0, LegalEntityId = "LE0", AccountId = 1000, CohortId = 0, ApprenticeshipId = 1, PaymentStatus = PaymentStatus.Active, Originator = Originator.Provider },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 0, IsResolved = true, IsExpired = true, Status = Status.Pass, EventStatus = EventStatus.Removed, TriageStatus = TriageStatus.Unknown, ErrorCode = DataLockErrorCode.None }
-                        },
+                            DataLockInput = new DataLockInput { DataLockStatusId = 0, IsResolved = true, IsExpired = true, Status = Status.Pass, EventStatus = EventStatus.Removed, TriageStatus = TriageStatus.Unknown, ErrorCode = DataLockErrorCode.None },
+                            ApprovalResultStatus = CocApprovalResultStatus.Pending
+                        }
                     },
                     new List<EmployerAlertSummaryNotification>
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 2, ChangesForReviewCount = 1, RestartRequestCount = 0, PendingIlrChangesCount = 1
                         }
                     }
                 };
                 #endregion
 
-                #region single price triage notification
+                #region single price triage notification and no notification for ILR as it's been completed
                 yield return new object[]
                 {
                     new List<Input>
@@ -109,14 +113,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 0, LegalEntityId = "LE0", AccountId = 1000, CohortId = 0, ApprenticeshipId = 2, PaymentStatus = PaymentStatus.Active, Originator = Originator.Employer },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 0, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, ErrorCode = DataLockErrorCode.Dlock07 }
+                            DataLockInput = new DataLockInput { DataLockStatusId = 0, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, ErrorCode = DataLockErrorCode.Dlock07 },
+                            ApprovalResultStatus = CocApprovalResultStatus.Complete
                         }
                     },
                     new List<EmployerAlertSummaryNotification>
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -137,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -158,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -179,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -200,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1000", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -258,27 +263,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1001", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1001", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1002", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1002", TotalCount = 1, ChangesForReviewCount = 1, RestartRequestCount = 0, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1003", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1003", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1004", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1004", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1005", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1
+                            EmployerHashedAccountId = "HSH1005", TotalCount = 1, ChangesForReviewCount = 0, RestartRequestCount = 1, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
+                            EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -306,7 +311,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
+                            EmployerHashedAccountId = "HSH1006", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2, PendingIlrChangesCount = 0
                         }
                     }
                 };
@@ -352,22 +357,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 5, LegalEntityId = "LE5", AccountId = 1005, CohortId = 5, ApprenticeshipId = 6, PaymentStatus = PaymentStatus.Active, Originator = Originator.Employer },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 6, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 }
+                            DataLockInput = new DataLockInput { DataLockStatusId = 6, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 },
+                            ApprovalResultStatus = CocApprovalResultStatus.Pending
                         }
                     },
                     new List<EmployerAlertSummaryNotification>
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1001", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1001", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1003", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0
+                            EmployerHashedAccountId = "HSH1003", TotalCount = 2, ChangesForReviewCount = 2, RestartRequestCount = 0, PendingIlrChangesCount = 0
                         },
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1005", TotalCount = 2, ChangesForReviewCount = 0, RestartRequestCount = 2
+                            EmployerHashedAccountId = "HSH1005", TotalCount = 3, ChangesForReviewCount = 0, RestartRequestCount = 2, PendingIlrChangesCount = 1
                         }
                     }
                 };
@@ -401,26 +407,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", AccountId = 1001, CohortId = 1, ApprenticeshipId = 4, PaymentStatus = PaymentStatus.Active, Originator = Originator.Employer },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 4, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, ErrorCode = DataLockErrorCode.Dlock07 }
+                            DataLockInput = new DataLockInput { DataLockStatusId = 4, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, ErrorCode = DataLockErrorCode.Dlock07 },
+                            ApprovalResultStatus = CocApprovalResultStatus.Pending
                         },
                         // single course triage notification
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", AccountId = 1001, CohortId = 1, ApprenticeshipId = 5, PaymentStatus = PaymentStatus.Active, Originator = Originator.Employer },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 5, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 }
+                            DataLockInput = new DataLockInput { DataLockStatusId = 5, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 },
+                            ApprovalResultStatus = CocApprovalResultStatus.Pending
                         },
                         // single course triage notification
                         new Input
                         {
                             ApprenticeshipInput =  new ApprenticeshipInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", AccountId = 1001, CohortId = 1, ApprenticeshipId = 6, PaymentStatus = PaymentStatus.Active, Originator = Originator.Employer },
-                            DataLockInput = new DataLockInput { DataLockStatusId = 6, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 }
+                            DataLockInput = new DataLockInput { DataLockStatusId = 6, IsResolved = false, IsExpired = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Restart, ErrorCode = DataLockErrorCode.Dlock06 },
+                            ApprovalResultStatus = CocApprovalResultStatus.Pending
                         }
                     },
                     new List<EmployerAlertSummaryNotification>
                     {
                         new EmployerAlertSummaryNotification
                         {
-                            EmployerHashedAccountId = "HSH1001", TotalCount = 6, ChangesForReviewCount = 4, RestartRequestCount = 2
+                            EmployerHashedAccountId = "HSH1001", TotalCount = 9, ChangesForReviewCount = 4, RestartRequestCount = 2, PendingIlrChangesCount = 3
                         }
                     }
                 };
@@ -432,6 +441,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 public ApprenticeshipInput ApprenticeshipInput { get; set; }
                 public DataLockInput DataLockInput { get; set; }
+                public CocApprovalResultStatus? ApprovalResultStatus { get; set; }
             }
 
             public class ApprenticeshipInput
@@ -462,6 +472,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             public List<Apprenticeship> SeedApprenticeships { get; }
             public List<DataLockStatus> SeedDataLocks { get; }
+            public List<ApprovalRequest> SeedApprovalRequests { get; }
 
             private Mock<IEncodingService> _encodingService;
 
@@ -469,6 +480,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 SeedApprenticeships = new List<Apprenticeship>();
                 SeedDataLocks = new List<DataLockStatus>();
+                SeedApprovalRequests = new List<ApprovalRequest>();
 
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(s => s.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns<long, EncodingType>((value, encodingType) => $"HSH{value}");
@@ -504,6 +516,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 dbContext.Apprenticeships.AddRange(SeedApprenticeships);
                 dbContext.DataLocks.AddRange(SeedDataLocks);
+                dbContext.ApprovalRequests.AddRange(SeedApprovalRequests);
                 dbContext.SaveChanges(true);
             }
 
@@ -554,6 +567,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Set(c => c.ErrorCode, errorCode);
 
                 SeedDataLocks.Add(dataLock);
+                return this;
+            }
+
+            public ApprenticeshipDomainServiceTestsFixture WithApprovalRequest(long apprenticeshipId, CocApprovalResultStatus? status)
+            {
+                if (status != null)
+                {
+                    var approval = new ApprovalRequest()
+                        .Set(c => c.Id, Guid.NewGuid())
+                        .Set(c => c.ApprenticeshipId, apprenticeshipId)
+                        .Set(c => c.Status, status);
+
+                    SeedApprovalRequests.Add(approval);
+                }
                 return this;
             }
         }
