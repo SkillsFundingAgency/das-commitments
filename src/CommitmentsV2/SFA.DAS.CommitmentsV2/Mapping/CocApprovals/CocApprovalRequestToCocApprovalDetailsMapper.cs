@@ -38,7 +38,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                 var update = new CocUpdate<int>
                 {
                     Old = ToInt(change.Data.Old),
-                    New = ToInt(change.Data.New)
+                    New = ToInt(change.Data.New),
+                    EffectiveFromDate = change.Data.EffectiveFromDate
                 };
 
                 switch (changeType) 
@@ -72,6 +73,10 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
     {
         if (int.TryParse(value, out var result))
         {
+            if(result < 0)
+            {
+                throw new DomainException("Data", "String could not be converted to a positive integer");
+            }
             return result;
         }
         throw new DomainException("Data", "String could not be converted to an integer");
