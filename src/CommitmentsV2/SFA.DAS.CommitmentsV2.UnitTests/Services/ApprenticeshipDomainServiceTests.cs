@@ -6,7 +6,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 using System.Collections;
-using static SFA.DAS.CommitmentsV2.UnitTests.Services.ApprenticeshipDomainServiceTests.DataCases;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
