@@ -261,7 +261,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 AppliedOn = _currentDateTime.Object.UtcNow,
                 ApprenticeshipId = apprenticeship.Id,
-                StopDate = stopDate
+                StopDate = stopDate,
+                IsWithdrawnViaIlr = false,
             });
         }
 

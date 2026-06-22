@@ -10,10 +10,11 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -23,21 +24,37 @@ public class LearnerWithdrawnEventHandler(
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
     ILogger<LearnerWithdrawnEventHandler> logger)
-    : IHandleMessages<LearnerWithdrawnEvent>
+    : IHandleMessages<LearningWithdrawnEvent>
 {
-    public async Task Handle(LearnerWithdrawnEvent message, IMessageHandlerContext context)
+    public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
         {
-            logger.LogInformation("LearnerWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawnDate {WithdrawnDate} and WithdrawnReasonCode {WithdrawnReasonCode}",
-                message.ApprenticeshipId, message.WithdrawnDate, message.WithdrawnReasonCode);
+            logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate} and WithdrawalReasonCode {WithdrawalReasonCode}",
+                message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-            ValidateStopDateForWithdrawal(message.WithdrawnDate, apprentice);
-            await ValidateEndDateOverlap(message.WithdrawnDate, apprentice, default);
+            
+            if (message.WithdrawalReasonCode < 0)
+            {
+                throw new DomainException(nameof(message.WithdrawalReasonCode), "Invalid WithdrawalReasonCode. The reason code can not be negative.");
+            }
+            ValidateStopDateForWithdrawal(message.WithdrawalDate, apprentice);
+            await ValidateEndDateOverlap(message.WithdrawalDate, apprentice, default);
 
-            apprentice.SetIlrWithdrawn(message.WithdrawnDate, message.WithdrawnReasonCode);
+            apprentice.SetIlrWithdrawn(message.WithdrawalDate, message.WithdrawalReasonCode);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
+
+            var historyCommand = new StoreLearningHistoryCommand
+            {
+                ApprenticeshipId = message.ApprenticeshipId,
+                Source = LearningSourceType.ILRStatusChange,
+                ChangeType = LearningChangeType.AutoApproved,
+                LearningKey = message.LearningKey,
+                AppliedDate = message.Created,
+                Description = $"ILR Learner status changed from Live to Withdrawn due to {message.WithdrawalReasonCode}"
+            };
+            await context.Send(historyCommand);
         }
         catch (Exception e)
         {
@@ -94,14 +111,4 @@ public class LearnerWithdrawnEventHandler(
 
         throw new DomainException(errors);
     }
-}
-
-// Will be removed once Learning creates the message
-public class LearnerWithdrawnEvent
-{
-    public Guid LearningKey { get; set; }
-    public long ApprenticeshipId { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime WithdrawnDate { get; set; }
-    public int WithdrawnReasonCode { get; set; }
 }

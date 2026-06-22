@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 {
-    private const int WithdrawalReasonCode_MadeRedundant = 29;
+    public const int WithdrawalReasonCode_MadeRedundant = 29;
     public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
@@ -815,7 +815,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             StopDate = stopDate,
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stopDate.Date,
             LearnerDataId = LearnerDataId,
-            ProviderId = Cohort.ProviderId
+            ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
     }
 
@@ -905,11 +906,14 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == command.StopDate.Date,
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
     }
 
     public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
+        var currentStopDate = StopDate;
+
         PaymentStatus = PaymentStatus.Withdrawn;
         StopDate = stoppedDate;
         WithdrawnReasonCode = withdrawnReasonCode;
@@ -922,6 +926,33 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             MadeRedundant = false;
         }
         ResolveDatalocks(stoppedDate);
+
+        if (currentStopDate == null || currentStopDate == stoppedDate)
+        {
+            Publish(() => new ApprenticeshipStoppedEvent
+            {
+                AppliedOn = DateTime.UtcNow,
+                ApprenticeshipId = Id,
+                StopDate = stoppedDate,
+                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
+                LearnerDataId = LearnerDataId,
+                ProviderId = Cohort.ProviderId,
+                IsWithdrawnViaIlr = true
+            });
+        }
+        else
+        {
+            Publish(() => new ApprenticeshipStopDateChangedEvent
+            {
+                StopDate = stoppedDate,
+                ApprenticeshipId = Id,
+                ChangedOn = DateTime.UtcNow,
+                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
+                LearnerDataId = LearnerDataId,
+                ProviderId = Cohort.ProviderId,
+                IsWithdrawnViaIlr = true
+            });
+        }
     }
 
     private void ResolveDatalocks(DateTime stopDate)
