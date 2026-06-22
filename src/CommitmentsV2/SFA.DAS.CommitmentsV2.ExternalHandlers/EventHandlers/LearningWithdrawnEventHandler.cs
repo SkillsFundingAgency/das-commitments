@@ -19,20 +19,20 @@ using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
-public class LearnerWithdrawnEventHandler(
+public class LearningWithdrawnEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICurrentDateTime currentDate,
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
     CommitmentsV2Configuration commitmentsV2Configuration,
-    ILogger<LearnerWithdrawnEventHandler> logger)
+    ILogger<LearningWithdrawnEventHandler> logger)
     : IHandleMessages<LearningWithdrawnEvent>
 {
     public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
         {
-            if (commitmentsV2Configuration.LearnerWithdrawalsIsActive == false)
+            if (commitmentsV2Configuration.LearningWithdrawalsIsActive == false)
             {
                 logger.LogInformation("LearnerWithdrawals feature is not active. Ignoring LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
                 return;
@@ -66,7 +66,7 @@ public class LearnerWithdrawnEventHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing LearnerWithdrawnEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
+            logger.LogError(e, "Error processing LearningWithdrawnEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
             throw;
         }
     }

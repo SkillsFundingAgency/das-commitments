@@ -29,14 +29,14 @@ using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
-    public class LearnerWithdrawnEventHandlerTests
+    public class LearningWithdrawnEventHandlerTests
     {
-        public LearnerWithdrawnEventHandlerTestsFixture _fixture;
+        public LearningWithdrawnEventHandlerTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new LearnerWithdrawnEventHandlerTestsFixture();
+            _fixture = new LearningWithdrawnEventHandlerTestsFixture();
         }
 
         [Test]
@@ -267,9 +267,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.VerifyOltdIsCalledCorrectly();
         }
 
-        public class LearnerWithdrawnEventHandlerTestsFixture
+        public class LearningWithdrawnEventHandlerTestsFixture
         {
-            private LearnerWithdrawnEventHandler _handler;
+            private LearningWithdrawnEventHandler _handler;
             private LearningWithdrawnEvent _event;
             private ProviderCommitmentsDbContext _dbContext { get; set; }
             private Mock<ICurrentDateTime> _currentDateTime { get; set; }
@@ -278,9 +278,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private CommitmentsV2Configuration _commitmentsV2Configuration; 
-            private FakeLogger<LearnerWithdrawnEventHandler> _logger;
+            private FakeLogger<LearningWithdrawnEventHandler> _logger;
 
-            public LearnerWithdrawnEventHandlerTestsFixture()
+            public LearningWithdrawnEventHandlerTestsFixture()
             {
                 var autoFixture = new Fixture();
 
@@ -294,19 +294,19 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _resolveOLTDRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
                 _commitmentsV2Configuration = new CommitmentsV2Configuration()
                 {
-                    LearnerWithdrawalsIsActive = true
+                    LearningWithdrawalsIsActive = true
                 };
-                _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
+                _logger = new FakeLogger<LearningWithdrawnEventHandler>();
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
+                _handler = new LearningWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
                     _overlapCheckService.Object, _resolveOLTDRequestService.Object, _commitmentsV2Configuration, _logger);
 
                 _event = autoFixture.Create<LearningWithdrawnEvent>();
             }
 
-            public LearnerWithdrawnEventHandlerTestsFixture SetEventValues(long apprenticeshipId, DateTime withdrawnDate, short withdrawnReasoncode)
+            public LearningWithdrawnEventHandlerTestsFixture SetEventValues(long apprenticeshipId, DateTime withdrawnDate, short withdrawnReasoncode)
             {
                 _event.ApprenticeshipId = apprenticeshipId;
                 _event.WithdrawalDate = withdrawnDate;
@@ -314,27 +314,27 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 return this;
             }
 
-            public LearnerWithdrawnEventHandlerTestsFixture SetApprenticeshipIdOnEvent(long id)
+            public LearningWithdrawnEventHandlerTestsFixture SetApprenticeshipIdOnEvent(long id)
             {
                 _event.ApprenticeshipId = id;
                 return this;
             }
 
-            public LearnerWithdrawnEventHandlerTestsFixture SetWithdrawnDateEvent(DateTime date)
+            public LearningWithdrawnEventHandlerTestsFixture SetWithdrawnDateEvent(DateTime date)
             {
                 _event.WithdrawalDate = date;
                 return this;
             }
 
-            public LearnerWithdrawnEventHandlerTestsFixture TurnFeatureToggleOff()
+            public LearningWithdrawnEventHandlerTestsFixture TurnFeatureToggleOff()
             {
-                _commitmentsV2Configuration.LearnerWithdrawalsIsActive = false;
+                _commitmentsV2Configuration.LearningWithdrawalsIsActive = false;
                 return this;
             }
 
             
 
-            public LearnerWithdrawnEventHandlerTestsFixture SetOverlapCheckStatusToFailForThisApprenticeship(Apprenticeship apprenticeship)
+            public LearningWithdrawnEventHandlerTestsFixture SetOverlapCheckStatusToFailForThisApprenticeship(Apprenticeship apprenticeship)
             {
                 _overlapCheckService.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<DateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResult(true, true));
                 return this;

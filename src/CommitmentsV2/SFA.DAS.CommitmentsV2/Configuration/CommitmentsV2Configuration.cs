@@ -29,5 +29,5 @@ public class CommitmentsV2Configuration
     public bool IgnoreShortCourses { get; set; }
     public string ReplayApprenticeshipCreatedEventsJobSchedule { get; set; }
     public bool ReplayApprenticeshipCreatedEventsDryRun { get; set; } = true;
-    public bool LearnerWithdrawalsIsActive { get; set; }
+    public bool LearningWithdrawalsIsActive { get; set; }
 }
