@@ -50,18 +50,30 @@ public class ApprenticeshipDomainService(
             .GroupBy(app => app.Cohort.EmployerAccountId)
             .Select(m => new { EmployerAccountId = m.Key, ChangesForReviewCount = m.Count() });
 
+        var pendingIlrChangeOfCircs = dbContext.Value.ApprovalRequests
+            .Where(ar => ar.Status == CocApprovalResultStatus.Pending)
+            .Join(dbContext.Value.Apprenticeships, ar => ar.ApprenticeshipId, app => app.Id, (ar, app) => new { ar, app })
+            .GroupBy(app => app.app.Cohort.EmployerAccountId)
+            .Select(m => new { EmployerAccountId = m.Key, PendingChangesForReviewCount = m.Count() });
+
         var pendingUpdateByProvider = await queryPendingUpdateByProvider.ToDictionaryAsync(p => p.EmployerAccountId, p => p.PendingUpdateByProviderCount);
         var courseTriaged = await queryCourseTriaged.ToDictionaryAsync(p => p.EmployerAccountId, p => p.RestartRequestCount);
         var priceTriaged = await queryPriceTriaged.ToDictionaryAsync(p => p.EmployerAccountId, p => p.ChangesForReviewCount);
+        var pendingIlrChanges = await pendingIlrChangeOfCircs.ToDictionaryAsync(p => p.EmployerAccountId, p => p.PendingChangesForReviewCount);
 
-        var results = pendingUpdateByProvider.Select(p => p.Key).Union(courseTriaged.Select(p => p.Key).Union(priceTriaged.Select(p => p.Key)))
+        var results = pendingUpdateByProvider.Select(p => p.Key)
+            .Union(courseTriaged.Select(p => p.Key)
+            .Union(priceTriaged.Select(p => p.Key))
+            .Union(pendingIlrChanges.Select(p => p.Key)))
             .Distinct()
             .Select(p => new EmployerAlertSummaryNotification
             {
                 EmployerHashedAccountId = encodingService.Encode(p, EncodingType.AccountId),
-                TotalCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0) + courseTriaged.GetValueOrDefault(p, 0),
+                TotalCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0) 
+                    + courseTriaged.GetValueOrDefault(p, 0) + pendingIlrChanges.GetValueOrDefault(p, 0),
                 ChangesForReviewCount = pendingUpdateByProvider.GetValueOrDefault(p, 0) + priceTriaged.GetValueOrDefault(p, 0),
-                RestartRequestCount = courseTriaged.GetValueOrDefault(p, 0)
+                RestartRequestCount = courseTriaged.GetValueOrDefault(p, 0),
+                PendingIlrChangesCount = pendingIlrChanges.GetValueOrDefault(p, 0)
             })
             .ToList();
 
