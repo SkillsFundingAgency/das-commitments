@@ -36,6 +36,7 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             ProviderReference = source.ProviderReference,
             Status = source.Status,
             StopDate = source.StopDate,
+            WithdrawnReasonCode = source.WithdrawnReasonCode,
             PauseDate = source.PauseDate,
             CompletionDate = source.CompletionDate,
             EndpointAssessorName = source.EndpointAssessorName,

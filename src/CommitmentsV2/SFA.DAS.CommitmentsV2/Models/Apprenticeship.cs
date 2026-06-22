@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 {
+    private const int WithdrawalReasonCode_MadeRedundant = 29;
     public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
@@ -26,6 +27,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public Originator? PendingUpdateOriginator { get; set; }
     public DateTime? CompletionDate { get; set; }
     public bool? MadeRedundant { get; set; }
+    public int? WithdrawnReasonCode { get; set; }
 
     [NotMapped] public string ApprenticeName => string.Concat(FirstName, " ", LastName);
 
@@ -754,6 +756,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
     {
+        if (PaymentStatus == PaymentStatus.Withdrawn && WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode.ToString());
+        }
+
         if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
         {
             throw new DomainException(nameof(PaymentStatus), "Apprenticeship must be Active or Paused. Unable to stop apprenticeship");
@@ -873,6 +880,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command, ICurrentDateTime currentDate, Party party)
     {
+        if (WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode);
+        }
+
         StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
 
         ChangeTrackingSession.TrackUpdate(this);
@@ -896,6 +908,22 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
+    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
+    {
+        PaymentStatus = PaymentStatus.Withdrawn;
+        StopDate = stoppedDate;
+        WithdrawnReasonCode = withdrawnReasonCode;
+        if (WithdrawnReasonCode == WithdrawalReasonCode_MadeRedundant)
+        {
+            MadeRedundant = true;
+        }
+        else
+        {
+            MadeRedundant = false;
+        }
+        ResolveDatalocks(stoppedDate);
+    }
+
     private void ResolveDatalocks(DateTime stopDate)
     {
         IEnumerable<DataLockStatus> dataLocks;
@@ -913,7 +941,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            ChangeTrackingSession.TrackUpdate(dataLock);
+            if(ChangeTrackingSession != null)
+            {
+                ChangeTrackingSession.TrackUpdate(dataLock);
+            }
             dataLock.Resolve();
         }
     }

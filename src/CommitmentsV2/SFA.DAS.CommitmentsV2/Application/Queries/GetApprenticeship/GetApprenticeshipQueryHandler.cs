@@ -44,6 +44,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
                         ProviderReference = apprenticeship.ProviderRef,
                         Status = apprenticeship.GetApprenticeshipStatus(null),
                         StopDate = apprenticeship.StopDate,
+                        WithdrawnReasonCode = apprenticeship.WithdrawnReasonCode,
                         PauseDate = apprenticeship.PauseDate,
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
                         CompletionDate = apprenticeship.CompletionDate,
