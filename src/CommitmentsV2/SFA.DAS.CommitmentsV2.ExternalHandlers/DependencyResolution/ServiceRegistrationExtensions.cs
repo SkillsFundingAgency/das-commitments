@@ -28,6 +28,7 @@ public static class ServiceRegistrationExtensions
                 .Get<CommitmentsV2Configuration>();
 
             services.AddConfigurationSections(context.Configuration);
+            services.AddCurrentDateTimeService(context.Configuration);
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddSingleton<IEncodingService, EncodingService>();

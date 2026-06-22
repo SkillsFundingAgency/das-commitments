@@ -73,6 +73,11 @@ public class UpdateApprenticeshipStopDateCommandHandler(
             throw new ArgumentException(null, nameof(apprenticeship));
         }
 
+        if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn && apprenticeship.WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(apprenticeship.WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + apprenticeship.WithdrawnReasonCode.ToString());
+        }
+
         if (apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
         {
             throw new DomainException(nameof(newStopDate), "Apprenticeship must be stopped in order to update stop date");

@@ -30,6 +30,8 @@
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
+    [FreezePaymentsReason] TINYINT NULL,
+    [PaymentFreezeDate] DATE NULL,
 	  [HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
     -- PendingUpdateOriginator is a combination of ApprenticeshipUpdate Originator and Status
     -- if not null, Status = Pending, contains PendingUpdateOriginator = Originator
@@ -54,6 +56,7 @@
     [LearnerDataId] BIGINT NULL, 
     [HasLearnerDataChanges] BIT NOT NULL DEFAULT 0,
     [LastLearnerDataSync] DATETIME NULL,
+    [WithdrawnReasonCode] INT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
