@@ -178,17 +178,17 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task When_LearnerWithDrawnEvent_AppliedWithStopDateWhichIsNot1stOfMonth_Exception_IsThrown()
+        public async Task When_LearnerWithDrawnEvent_AppliedWithStopDateWhichIsNot1stOfMonth_Then_StopDate_IsSetTo1st()
         {
             var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
             var newstopDate = DateTime.Today.AddMonths(-1);
             _fixture.SetWithdrawnDateEvent(new DateTime(newstopDate.Year, newstopDate.Month, 15));
 
             // Act
-            var exception = Assert.ThrowsAsync<DomainException>(_fixture.Handle);
+            await _fixture.Handle();
 
             // Assert
-            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "stopDate", ErrorMessage = "Invalid Stop Date. Stop date must be the 1st of the month." });
+            apprentice.StopDate.Should().Be(new DateTime(newstopDate.Year, newstopDate.Month, 1));
         }
 
         [Test]

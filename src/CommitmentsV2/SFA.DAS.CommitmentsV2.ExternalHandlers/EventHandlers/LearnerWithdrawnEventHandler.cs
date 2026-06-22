@@ -35,14 +35,15 @@ public class LearnerWithdrawnEventHandler(
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
             
+            var withdrawalDate = new DateTime(message.WithdrawalDate.Year, message.WithdrawalDate.Month, 1);
             if (message.WithdrawalReasonCode < 0)
             {
                 throw new DomainException(nameof(message.WithdrawalReasonCode), "Invalid WithdrawalReasonCode. The reason code can not be negative.");
             }
-            ValidateStopDateForWithdrawal(message.WithdrawalDate, apprentice);
-            await ValidateEndDateOverlap(message.WithdrawalDate, apprentice, default);
+            ValidateStopDateForWithdrawal(withdrawalDate, apprentice);
+            await ValidateEndDateOverlap(withdrawalDate, apprentice, default);
 
-            apprentice.SetIlrWithdrawn(message.WithdrawalDate, message.WithdrawalReasonCode);
+            apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             var historyCommand = new StoreLearningHistoryCommand
