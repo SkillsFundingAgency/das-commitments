@@ -10,10 +10,12 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Testing.Fakes;
 using SFA.DAS.UnitOfWork.Context;
 using System;
@@ -100,6 +102,17 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
             await _fixture.Handle();
             apprentice.MadeRedundant.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var stopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), 12);
+
+            await _fixture.Handle();
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         }
 
         [Test]
@@ -194,6 +207,21 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task When_LearnerWithDrawnEvent_ContainsNegativeReason_Exception_IsThrown()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
+            var newstopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(newstopDate.Year, newstopDate.Month, 1), -1);
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(_fixture.Handle);
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawalReasonCode", ErrorMessage = "Invalid WithdrawalReasonCode. The reason code can not be negative." });
+        }
+
+
+        [Test]
         public async Task Handle_LearnerWithDrawnEvent_ThenShouldResolveDataLocks()
         {
             // Arrange
@@ -226,12 +254,12 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         public class LearnerWithdrawnEventHandlerTestsFixture
         {
             private LearnerWithdrawnEventHandler _handler;
-            private LearnerWithdrawnEvent _event;
+            private LearningWithdrawnEvent _event;
             private ProviderCommitmentsDbContext _dbContext { get; set; }
             private Mock<ICurrentDateTime> _currentDateTime { get; set; }
             private Mock<IOverlapCheckService> _overlapCheckService { get; set; }
             private UnitOfWorkContext _unitOfWorkContext { get; set; }
-            public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
+            private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOLTDRequestService { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<LearnerWithdrawnEventHandler> _logger;
 
@@ -250,19 +278,19 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
                 _logger = new FakeLogger<LearnerWithdrawnEventHandler>();
 
+                _messageHandlerContext = new Mock<IMessageHandlerContext>();
+
                 _handler = new LearnerWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
                     _overlapCheckService.Object, _resolveOLTDRequestService.Object, _logger);
 
-                _messageHandlerContext = new Mock<IMessageHandlerContext>();
-
-                _event = autoFixture.Create<LearnerWithdrawnEvent>();
+                _event = autoFixture.Create<LearningWithdrawnEvent>();
             }
 
-            public LearnerWithdrawnEventHandlerTestsFixture SetEventValues(long apprenticeshipId, DateTime withdrawnDate, int withdrawnReasoncode)
+            public LearnerWithdrawnEventHandlerTestsFixture SetEventValues(long apprenticeshipId, DateTime withdrawnDate, short withdrawnReasoncode)
             {
                 _event.ApprenticeshipId = apprenticeshipId;
-                _event.WithdrawnDate = withdrawnDate;
-                _event.WithdrawnReasonCode = withdrawnReasoncode;
+                _event.WithdrawalDate = withdrawnDate;
+                _event.WithdrawalReasonCode = withdrawnReasoncode;
                 return this;
             }
 
@@ -274,7 +302,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
             public LearnerWithdrawnEventHandlerTestsFixture SetWithdrawnDateEvent(DateTime date)
             {
-                _event.WithdrawnDate = date;
+                _event.WithdrawalDate = date;
                 return this;
             }
 
@@ -292,7 +320,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             public void VerifyStopDateIsAssignedCorrectly()
             {
                 var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
-                apprenticeship.StopDate.Should().Be(_event.WithdrawnDate);
+                apprenticeship.StopDate.Should().Be(_event.WithdrawalDate);
             }
 
             public void VerifyApprenticeshipStopEventIsCorrectlyPublished()
@@ -302,8 +330,8 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 stoppedEvent.Should().NotBeNull();
                 stoppedEvent.AppliedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
                 stoppedEvent.ApprenticeshipId.Should().Be(_event.ApprenticeshipId);
-                stoppedEvent.StopDate.Should().Be(_event.WithdrawnDate);
-                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawnDate);
+                stoppedEvent.StopDate.Should().Be(_event.WithdrawalDate);
+                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawalDate);
                 stoppedEvent.LearnerDataId.Should().Be(apprenticeship.LearnerDataId);
                 stoppedEvent.ProviderId.Should().Be(apprenticeship.Cohort.ProviderId);
                 stoppedEvent.IsWithdrawnViaIlr.Should().BeTrue();
@@ -322,8 +350,8 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 stoppedEvent.Should().NotBeNull();
                 stoppedEvent.ChangedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
                 stoppedEvent.ApprenticeshipId.Should().Be(_event.ApprenticeshipId);
-                stoppedEvent.StopDate.Should().Be(_event.WithdrawnDate);
-                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawnDate);
+                stoppedEvent.StopDate.Should().Be(_event.WithdrawalDate);
+                stoppedEvent.IsWithDrawnAtStartOfCourse.Should().Be(apprenticeship.StartDate.Value == _event.WithdrawalDate);
                 stoppedEvent.LearnerDataId.Should().Be(apprenticeship.LearnerDataId);
                 stoppedEvent.ProviderId.Should().Be(apprenticeship.Cohort.ProviderId);
                 stoppedEvent.IsWithdrawnViaIlr.Should().BeTrue();
@@ -339,7 +367,19 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             public void VerifyWithdrawnReasonCodeIsAssignedCorrectly()
             {
                 var apprenticeship = _dbContext.Apprenticeships.Find(_event.ApprenticeshipId);
-                apprenticeship.WithdrawnReasonCode.Should().Be(_event.WithdrawnReasonCode);
+                apprenticeship.WithdrawnReasonCode.Should().Be(_event.WithdrawalReasonCode);
+            }
+
+            public void VerifyStoreLearnerHistoryCommandIsSent()
+            {
+                _messageHandlerContext.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == _event.ApprenticeshipId &&
+                    c.Source == Types.LearningSourceType.ILRStatusChange &&
+                    c.ChangeType == Types.LearningChangeType.AutoApproved &&
+                    c.LearningKey == _event.LearningKey &&
+                    c.AppliedDate == _event.Created &&
+                    c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawalReasonCode}"
+                ), It.IsAny<SendOptions>()), Times.Once);
             }
 
             public void VerifyDataLocksAreResolvedCorrectly()
