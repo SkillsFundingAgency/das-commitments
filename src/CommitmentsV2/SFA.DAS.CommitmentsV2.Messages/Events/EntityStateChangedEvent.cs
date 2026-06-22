@@ -45,6 +45,8 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         EditEndDateOfCompletedApprentice,
         PauseApprenticeship,
         ResumeApprenticeship,
+        FreezePayments,
+        UnfreezePayments,
         StopApprenticeship,
         UpdateCustomProviderPaymentPriorities,
         UpdateApprenticeshipStopDate,
