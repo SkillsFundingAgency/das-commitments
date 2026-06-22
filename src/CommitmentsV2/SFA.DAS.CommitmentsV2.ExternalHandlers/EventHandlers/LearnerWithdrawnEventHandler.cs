@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -23,6 +24,7 @@ public class LearnerWithdrawnEventHandler(
     ICurrentDateTime currentDate,
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
+    CommitmentsV2Configuration commitmentsV2Configuration,
     ILogger<LearnerWithdrawnEventHandler> logger)
     : IHandleMessages<LearningWithdrawnEvent>
 {
@@ -30,8 +32,13 @@ public class LearnerWithdrawnEventHandler(
     {
         try
         {
+            if (commitmentsV2Configuration.LearnerWithdrawalsIsActive == false)
+            {
+                logger.LogInformation("LearnerWithdrawals feature is not active. Ignoring LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
+                return;
+            }
             logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate} and WithdrawalReasonCode {WithdrawalReasonCode}",
-                message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
+            message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
             
