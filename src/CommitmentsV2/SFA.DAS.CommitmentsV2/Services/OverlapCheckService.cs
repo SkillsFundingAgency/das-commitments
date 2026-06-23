@@ -64,9 +64,10 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
             {
                 break;
             }
-        }
+        }   
+        
 
-        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId);
+        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId, await IsOverlapWithIlrWithdrawnApprenticeship(apprenticeshipId));
     }
 
     private async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations(string uln, long? existingApprenticeshipId, CancellationToken cancellationToken)
@@ -125,4 +126,12 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
 
         return overlapCheckResult.ToList();
     }
+
+    private async Task<bool> IsOverlapWithIlrWithdrawnApprenticeship(long? apprenticeshipId)
+    {
+        return apprenticeshipId.HasValue && await dbContext.Value.Apprenticeships
+            .Where(x => x.Id == apprenticeshipId)
+            .AnyAsync(x => x.WithdrawnReasonCode.HasValue);
+    }
+
 }

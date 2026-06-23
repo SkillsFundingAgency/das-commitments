@@ -29,6 +29,12 @@ public class OverlappingTrainingDateRequestDomainService(
             throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}");
         }
 
+        if (draftApprenticeship.PreviousApprenticeship.WithdrawnReasonCode.HasValue)
+        {
+            throw new InvalidOperationException(
+        $"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} has overlap with a withdrawn apprenticeship.");
+        }       
+
         if (draftApprenticeship.Cohort.IsApprovedByAllParties)
         {
             throw new InvalidOperationException($"Cohort {draftApprenticeship.Cohort.Id} is approved by all parties and can't be modified");
@@ -49,14 +55,14 @@ public class OverlappingTrainingDateRequestDomainService(
         {
             throw new InvalidOperationException(
                 $"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
-        }
+        }      
 
         var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(originatingParty,
             changeOfEmployerOriginalApprenticeId ?? overlapResult.ApprenticeshipId.Value,
             userInfo, currentDateTime.UtcNow);
-        
+
         await dbContext.Value.SaveChangesAsync(cancellationToken);
-        
+
         return result;
     }
 

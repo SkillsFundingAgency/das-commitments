@@ -11,7 +11,12 @@ public class ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService over
 
         var apprenticeshipWithOverlap = await overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(startDate, endDate), null, cancellationToken);
 
-        var result = new ValidateUlnOverlapOnStartDateQueryResult { HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate, HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId };
+        var result = new ValidateUlnOverlapOnStartDateQueryResult
+        {
+            HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate,
+            HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId,
+            HasOverlapWithIlrWithdrawnApprenticeship = apprenticeshipWithOverlap.HasOverlapWithIlrWithdrawnApprenticeship
+        };
 
         return await Task.FromResult(result);
     }
