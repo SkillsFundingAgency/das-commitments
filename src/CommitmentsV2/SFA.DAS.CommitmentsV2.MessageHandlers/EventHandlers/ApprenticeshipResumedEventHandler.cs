@@ -23,9 +23,9 @@ public class ApprenticeshipResumedEventHandler(
         {
             var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-            var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship, message.ResumedOn);
-
-            await context.Send(emailToProviderCommand, new SendOptions());
+            // APPMAN-2561: provider email disabled until new notification templates exist.
+            // var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship, message.ResumedOn);
+            // await context.Send(emailToProviderCommand, new SendOptions());
         }
     }
 

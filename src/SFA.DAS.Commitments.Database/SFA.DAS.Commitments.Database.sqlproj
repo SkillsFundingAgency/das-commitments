@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
+    <None Include="PostDeployment\APPMAN-2561-Migrate-Paused-To-Payment-Freeze.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="PreDeployment\PreDeploymentScript.sql" />

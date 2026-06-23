@@ -316,6 +316,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 VerifyTokens(x.Tokens, tokens)), It.IsAny<SendOptions>()));
         }
 
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ButWithdrawnReasonCodeAlreadySet_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var stopDate = DateTime.UtcNow;
+            var apprenticeship = await SetupApprenticeship();
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            apprenticeship.WithdrawnReasonCode = 1;
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawnReasonCode", ErrorMessage = "Apprenticeship has already been withdrawn via ILR with reason code " + "1" });
+        }
+
         [Test]
         public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenResolveOltd()
         {

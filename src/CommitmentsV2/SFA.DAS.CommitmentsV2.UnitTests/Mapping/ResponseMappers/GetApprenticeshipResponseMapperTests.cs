@@ -144,5 +144,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             _result.EmployerVerificationStatus.Should().BeNull();
             _result.EmployerVerificationNotes.Should().BeNull();
         }
+
+        [Test]
+        public void WithdrawnReasonCodeIsMappedCorrectly()
+        {
+            _result.WithdrawnReasonCode.Should().Be(_source.WithdrawnReasonCode);
+        }
+
+        [Test]
+        public void StopDateIsMappedCorrectly()
+        {
+            _result.StopDate.Should().Be(_source.StopDate);
+        }
+
+        [Test]
+        public async Task PaymentFreezeFieldsAreMappedCorrectly()
+        {
+            _source.PaymentFreezeDate = DateTime.UtcNow.Date;
+            _source.FreezePaymentsReason = FreezePaymentsReason.DisagreeWithAutoApprovedChange;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.PaymentFreezeDate.Should().Be(_source.PaymentFreezeDate);
+            _result.FreezePaymentsReason.Should().Be(_source.FreezePaymentsReason);
+            _result.FreezeStatus.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task FreezeStatusIsDerivedFromPaymentFreezeDate()
+        {
+            _source.PaymentFreezeDate = null;
+            _source.FreezePaymentsReason = null;
+
+            _result = await _mapper.Map(TestHelper.Clone(_source));
+
+            _result.FreezeStatus.Should().BeFalse();
+            _result.PaymentFreezeDate.Should().BeNull();
+        }
     }
 }
