@@ -1,15 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Newtonsoft.Json;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
@@ -25,9 +15,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
-using Newtonsoft.Json;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -203,6 +190,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WhenValidApprenticeship_ButWithdrawnReasonCodeAlreadySet_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var stopDate = DateTime.UtcNow;
+            var apprenticeship = await SetupApprenticeship();
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            apprenticeship.WithdrawnReasonCode = 1;
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo(), Party.Employer);
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawnReasonCode", ErrorMessage = "Apprenticeship has already been withdrawn via ILR with reason code " + "1" });
+        }
+
+        [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInPast_ThenShouldThrowDomainException()
         {
             // Arrange
@@ -257,7 +261,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 AppliedOn = _currentDateTime.Object.UtcNow,
                 ApprenticeshipId = apprenticeship.Id,
-                StopDate = stopDate
+                StopDate = stopDate,
+                IsWithdrawnViaIlr = false,
             });
         }
 

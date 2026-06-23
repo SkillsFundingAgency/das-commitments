@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -65,6 +66,8 @@ public class Startup
             builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
             builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
         });
+
+        services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
 
         services.AddApiConfigurationSections(_configuration)
             .AddApiAuthentication(_configuration, _env.IsDevelopment())

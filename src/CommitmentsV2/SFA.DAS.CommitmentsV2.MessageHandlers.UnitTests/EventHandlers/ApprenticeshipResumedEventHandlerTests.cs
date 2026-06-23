@@ -22,25 +22,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task WhenHandlingApprenticeshipResumeEvent_ThenEncodingServiceIsCalled()
+        public async Task WhenHandlingApprenticeshipResumeEvent_ThenEncodingServiceIsNotCalled()
         {
             await _fixture.Handle();
-            _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
+            _fixture.MockEncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId), Times.Never);
         }
 
         [Test]
-        public async Task WhenHandlingApprenticeshipResumeEvent_ThenSendEmailToProviderIsCalled()
+        public async Task WhenHandlingApprenticeshipResumeEvent_ThenSendEmailToProviderIsNeverCalled()
         {
             await _fixture.Handle();
 
-            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == "ProviderApprenticeshipResumeNotification" &&
-                    c.Tokens["EMPLOYER"] == ApprenticeshipResumedEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipResumedEventHandlerTestsFixture.FirstName} {ApprenticeshipResumedEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["DATE"] == _fixture.Event.ResumedOn.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"{ApprenticeshipResumedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/{ApprenticeshipResumedEventHandlerTestsFixture.ProviderId}/apprentices/{ApprenticeshipResumedEventHandlerTestsFixture.HashedApprenticeshipId}"
-                    )
-                  , It.IsAny<SendOptions>()), Times.Once);
+            // APPMAN-2561: provider emails disabled until new notification templates exist.
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.IsAny<SendEmailToProviderCommand>(), It.IsAny<SendOptions>()), Times.Never);
         }
     }
 
