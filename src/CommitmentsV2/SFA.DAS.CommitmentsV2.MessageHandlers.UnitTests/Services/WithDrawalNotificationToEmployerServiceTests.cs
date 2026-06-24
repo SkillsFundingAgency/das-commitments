@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 
@@ -36,7 +35,6 @@ public class WithDrawalNotificationToEmployerServiceTests
         public Mock<IEncodingService> _service;
         private Mock<CommitmentsV2Configuration> _configuration;
         private Mock<ILogger<WithDrawalNotificationToEmployerService>> _logger;
-        private Mock<LearnerWithdrawalNotificationEvent> _event;
         public Mock<IMessageHandlerContext> _context;
         public Mock<IPipelineContext> _pipelineContext;
         private readonly long _employerEncodedAccountId;
@@ -53,7 +51,6 @@ public class WithDrawalNotificationToEmployerServiceTests
             _service = new Mock<IEncodingService>();
             _logger = new Mock<ILogger<WithDrawalNotificationToEmployerService>>();
             _configuration = new Mock<CommitmentsV2Configuration>();
-            _event = new Mock<LearnerWithdrawalNotificationEvent>();
             _context = new Mock<IMessageHandlerContext>();
             _pipelineContext = _context.As<IPipelineContext>();
             commitmentsV2Configuration = new CommitmentsV2Configuration()
@@ -74,10 +71,10 @@ public class WithDrawalNotificationToEmployerServiceTests
                 Reference = _autoFixture.Create<string>()
             };
 
-            _event.Object.ApprenticeshipId = _autoFixture.Create<long>();
+            var apprenticeshipId = _autoFixture.Create<long>();
             _apprenticeship = new Apprenticeship
             {
-                Id = _event.Object.ApprenticeshipId,
+                Id = apprenticeshipId,
                 Cohort = _cohort,
                 CourseName = _autoFixture.Create<string>()
             };
@@ -99,12 +96,12 @@ public class WithDrawalNotificationToEmployerServiceTests
 
         public async Task SendNotification()
         {
-            await _sut.SendWithdrawalNotificationToEmployer(_event.Object, _context.Object);
+            await _sut.SendWithdrawalNotificationToEmployer(_apprenticeship.Id, _context.Object);
         }
 
         public WithDrawalNotificationToEmployerServiceTestsFixture WithNoMatchingApprenticeship()
         {
-            _event.Object.ApprenticeshipId = _autoFixture.Create<long>();
+            _apprenticeship.Id = _autoFixture.Create<long>();
             return this;
         }
 

@@ -293,7 +293,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 ApprovedOn = approvedOn,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln, 
+                Uln = Uln,
                 LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(learningType, ignoreCase: true)
             });
 
@@ -731,7 +731,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
-
     public void FreezePayments(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo, FreezePaymentsReason freezePaymentsReason)
     {
         var frozenOn = currentDateTime.UtcNow;
@@ -1037,7 +1036,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            if(ChangeTrackingSession != null)
+            if (ChangeTrackingSession != null)
             {
                 ChangeTrackingSession.TrackUpdate(dataLock);
             }

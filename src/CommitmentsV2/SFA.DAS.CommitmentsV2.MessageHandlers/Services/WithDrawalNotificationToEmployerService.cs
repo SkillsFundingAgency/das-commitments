@@ -1,9 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.Services;
@@ -13,10 +11,10 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
          CommitmentsV2Configuration commitmentsV2Configuration,
          ILogger<WithDrawalNotificationToEmployerService> logger) : IWithDrawalNotificationToEmployerService
 {
-    public async Task SendWithdrawalNotificationToEmployer(LearnerWithdrawalNotificationEvent message, IMessageHandlerContext context)
+    public async Task SendWithdrawalNotificationToEmployer(long apprenticeshipId, IMessageHandlerContext context)
     {
         var apprenticeshipDetails = await dbContext.Value.
-                                       Apprenticeships.AsNoTracking().Where(t => t.Id == message.ApprenticeshipId).
+                                       Apprenticeships.AsNoTracking().Where(t => t.Id == apprenticeshipId).
                                        Select(
                                            x => new
                                            {
@@ -34,11 +32,11 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
                                                        x.Cohort.Provider.Name
                                                    }
                                                }
-                                           }).SingleOrDefaultAsync();                                           
+                                           }).SingleOrDefaultAsync();
 
         if (apprenticeshipDetails is null)
         {
-            logger.LogInformation("Apprenticeship details not found for apprenticeship id {apprenticeshipId}", message.ApprenticeshipId);
+            logger.LogInformation("Apprenticeship details not found for apprenticeship id {apprenticeshipId}", apprenticeshipId);
             return;
         }
 
@@ -53,6 +51,6 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
          });
 
         await context.Send(sendEmailToEmployerCommand);
-        logger.LogInformation("Sent Learner Withdrawal Notification to Employer for apprenticeship id {apprenticeshipId}", message.ApprenticeshipId);
+        logger.LogInformation("Sent Learner Withdrawal Notification to Employer for apprenticeship id {apprenticeshipId}", apprenticeshipId);
     }
 }

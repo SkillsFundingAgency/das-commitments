@@ -3,18 +3,17 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class LearnerStoppedDateUpdatedNotificationEventHandler(IWithDrawalNotificationToEmployerService service, ILogger<LearnerStoppedDateUpdatedNotificationEventHandler> logger) : IHandleMessages<LearnerWithdrawalNotificationEvent>
+public class ApprenticeshipStopDateChangedEventHandler(IWithDrawalNotificationToEmployerService service, ILogger<ApprenticeshipStopDateChangedEventHandler> logger) : IHandleMessages<ApprenticeshipStopDateChangedEvent>
 {
-    public async Task Handle(LearnerWithdrawalNotificationEvent message, IMessageHandlerContext context)
-    {       
-
-        if (!message.IsWithdrawalFromIlr)
+    public async Task Handle(ApprenticeshipStopDateChangedEvent message, IMessageHandlerContext context)
+    {
+        if (!message.IsWithdrawnViaIlr)
         {
             logger.LogInformation("LearnerStoppedDateUpdatedNotificationEventHandler received is not withdrawal from ILR for apprenticeship id {ApprenticeshipId}", message.ApprenticeshipId);
             return;
         }
 
         logger.LogInformation("Sending notification for LearnerStoppedDateUpdatedNotificationEventHandler received for apprenticeship id {ApprenticeshipId}", message.ApprenticeshipId);
-        await service.SendWithdrawalNotificationToEmployer(message, context);
+        await service.SendWithdrawalNotificationToEmployer(message.ApprenticeshipId, context);
     }
 }
