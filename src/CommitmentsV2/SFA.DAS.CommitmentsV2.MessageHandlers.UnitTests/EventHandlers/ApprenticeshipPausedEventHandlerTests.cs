@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -32,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.MockEncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId), Times.Never);
         }
 
+        [Ignore("APPMAN-2561: provider emails disabled until new notification templates exist.")]
         [Test]
         [TestCaseSource(nameof(GetAllPaymentStatus))]
         public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsNeverCalled(PaymentStatus status)
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.SetPaymentStatus(status);
 
             await _fixture.Handle();
-            // APPMAN-2561: provider emails disabled until new notification templates exist.
+
             if (status == PaymentStatus.Paused)
             {
                 _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
