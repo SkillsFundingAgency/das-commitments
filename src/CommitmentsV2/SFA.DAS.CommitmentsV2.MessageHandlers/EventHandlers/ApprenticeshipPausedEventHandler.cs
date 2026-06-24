@@ -35,12 +35,13 @@ public class ApprenticeshipPausedEventHandler(
                 return;
             }
 
-            if (!message.PausedViaILR)
-            {
-                var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
+            // APPMAN-2561: provider email disabled until new notification templates exist.
+            //if (!message.PausedViaILR)
+            //{
+            //    var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
 
-                await context.Send(emailToProviderCommand, new SendOptions());
-            }
+            //    await context.Send(emailToProviderCommand, new SendOptions());
+            //}
         }
     }
 

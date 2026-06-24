@@ -25,21 +25,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void TearDown() => _fixture.Dispose();
 
         [Test]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsNotCalled()
         {
             await _fixture.Handle();
 
-            _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
+            _fixture.MockEncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId), Times.Never);
         }
 
         [Test]
         [TestCaseSource(nameof(GetAllPaymentStatus))]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled_OnlyWhen_PaymentStatus_Is_Paused(PaymentStatus status)
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsNeverCalled(PaymentStatus status)
         {
             _fixture.SetPaymentStatus(status);
 
             await _fixture.Handle();
-
+            // APPMAN-2561: provider emails disabled until new notification templates exist.
             if (status == PaymentStatus.Paused)
             {
                 _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>

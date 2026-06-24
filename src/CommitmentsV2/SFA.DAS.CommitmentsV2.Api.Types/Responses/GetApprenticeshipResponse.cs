@@ -33,7 +33,11 @@ public class GetApprenticeshipResponse
     public string ProviderReference { get; set; }
     public ApprenticeshipStatus Status { get; set; }
     public DateTime? StopDate { get; set; }
+    public int? WithdrawnReasonCode { get; set; }
     public DateTime? PauseDate { get; set; }
+    public bool FreezeStatus { get; set; }
+    public FreezePaymentsReason? FreezePaymentsReason { get; set; }
+    public DateTime? PaymentFreezeDate { get; set; }
     public DateTime? CompletionDate { get; set; }
     public string EndpointAssessorName { get; set; }
     public bool HasHadDataLockSuccess { get; set; }
@@ -63,4 +67,5 @@ public class GetApprenticeshipResponse
     public LearningType LearningType { get; set; }
     public int? EmployerVerificationStatus { get; set; }
     public string EmployerVerificationNotes { get; set; }
+    public bool HasChangeHistory { get; set; }
 }

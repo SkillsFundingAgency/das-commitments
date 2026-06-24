@@ -92,6 +92,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             await act.Should().ThrowAsync<DomainException>();
         }
 
+        [TestCase("TNP1", "-100", "10")]
+        [TestCase("TNP1", "100", "-10")]
+        [TestCase("TNP2", "-200", "20")]
+        [TestCase("TNP2", "200", "-20")]
+        public async Task ShouldThrowException_WhenValuesAreNegative(string field, string oldValue, string newValue)
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange(field, oldValue, newValue);
+
+            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+            await act.Should().ThrowAsync<DomainException>();
+        }
+
         [Test]
         public async Task ShouldReturnNullApprenticeship_WhenApprenticeshipNotFound()
         {

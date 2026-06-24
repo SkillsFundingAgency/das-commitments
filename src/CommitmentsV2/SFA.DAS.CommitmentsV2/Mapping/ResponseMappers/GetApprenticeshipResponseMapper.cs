@@ -36,7 +36,11 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             ProviderReference = source.ProviderReference,
             Status = source.Status,
             StopDate = source.StopDate,
+            WithdrawnReasonCode = source.WithdrawnReasonCode,
             PauseDate = source.PauseDate,
+            FreezeStatus = source.PaymentFreezeDate.HasValue,
+            FreezePaymentsReason = source.FreezePaymentsReason,
+            PaymentFreezeDate = source.PaymentFreezeDate,
             CompletionDate = source.CompletionDate,
             EndpointAssessorName = source.EndpointAssessorName,
             HasHadDataLockSuccess = source.HasHadDataLockSuccess,
@@ -62,7 +66,8 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
             LearningType = source.LearningType,
             EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
-            EmployerVerificationNotes = source.EmployerVerificationNotes
+            EmployerVerificationNotes = source.EmployerVerificationNotes,
+            HasChangeHistory = source.HasChangeHistory
         });
     }
 }
