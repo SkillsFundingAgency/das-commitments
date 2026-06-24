@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
             var result = response.Value as ValidateUlnOverlapOnStartDateResponse;
 
             result.Should().NotBeNull();
-            result.HasOverlapWithIlrWithdrawnApprenticeship.Value.Should().Be(HasOverlapWithIlrWithdrawnApprenticeship);
+            result.HasOverlapWithIlrWithdrawnApprenticeship.Should().Be(HasOverlapWithIlrWithdrawnApprenticeship);
         }
 
         private class ValidateUlnOverlapOnStartDateFixture
