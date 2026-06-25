@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -31,6 +32,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public bool? MadeRedundant { get; set; }
     public int? WithdrawnReasonCode { get; set; }
 
+    ILogger<Apprenticeship> logger { get; set; }
+
     [NotMapped] public bool FreezeStatus => PaymentFreezeDate.HasValue;
 
     [NotMapped] public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -40,6 +43,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         DataLockStatus = new List<DataLockStatus>();
         PriceHistory = new List<PriceHistory>();
         ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
+        logger = new LoggerFactory().CreateLogger<Apprenticeship>();
     }
 
     public virtual ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
@@ -976,6 +980,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
+        logger.LogInformation("Inside set ilr withdrawn Apprenticeship {apprenticeshipId} is being withdrawn via ILR with reason code {withdrawnReasonCode} and stop date {stoppedDate}", Id, withdrawnReasonCode, stoppedDate);
+
         var currentStopDate = StopDate;
 
         PaymentStatus = PaymentStatus.Withdrawn;
@@ -991,8 +997,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
         ResolveDatalocks(stoppedDate);
 
+        logger.LogInformation($"publishing the ApprenticeshipStoppedEvent:{currentStopDate == null || currentStopDate == stoppedDate}");
+
         if (currentStopDate == null || currentStopDate == stoppedDate)
         {
+            logger.LogInformation($"condition satisfied publishing stopped event");
             Publish(() => new ApprenticeshipStoppedEvent
             {
                 AppliedOn = DateTime.UtcNow,
@@ -1006,6 +1015,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
         else
         {
+            logger.LogInformation($"condition satisfied publishing stop date changed event");
             Publish(() => new ApprenticeshipStopDateChangedEvent
             {
                 StopDate = stoppedDate,
@@ -1017,6 +1027,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 IsWithdrawnViaIlr = true
             });
         }
+
+        logger.LogInformation($"publishing the ApprenticeshipStoppedEvent completed:{currentStopDate == null || currentStopDate == stoppedDate}");
     }
 
     private void ResolveDatalocks(DateTime stopDate)
