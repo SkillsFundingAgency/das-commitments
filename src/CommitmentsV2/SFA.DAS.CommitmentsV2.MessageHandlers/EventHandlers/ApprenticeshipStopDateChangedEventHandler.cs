@@ -9,11 +9,11 @@ public class ApprenticeshipStopDateChangedEventHandler(IWithDrawalNotificationTo
     {
         if (!message.IsWithdrawnViaIlr)
         {
-            logger.LogInformation("LearnerStoppedDateUpdatedNotificationEventHandler received is not withdrawal from ILR for apprenticeship id {ApprenticeshipId}", message.ApprenticeshipId);
+            logger.LogInformation("{TypeName} received is not withdrawal from ILR for apprenticeship id {ApprenticeshipId}", nameof(ApprenticeshipStopDateChangedEventHandler), message.ApprenticeshipId);
             return;
         }
 
-        logger.LogInformation("Sending notification for LearnerStoppedDateUpdatedNotificationEventHandler received for apprenticeship id {ApprenticeshipId}", message.ApprenticeshipId);
+        logger.LogInformation("Sending notification for {TypeName} received for apprenticeship id {ApprenticeshipId}", nameof(ApprenticeshipStopDateChangedEventHandler), message.ApprenticeshipId);
         await service.SendWithdrawalNotificationToEmployer(message.ApprenticeshipId, context);
     }
 }
