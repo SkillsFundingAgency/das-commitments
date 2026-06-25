@@ -26,7 +26,7 @@ public static class Constants
         public const int Uln = 50;
     }
 
-    public static Dictionary<short, string> IlrWithdrawalReasons = new Dictionary<short, string>
+    public static readonly Dictionary<short, string> IlrWithdrawalReasons = new Dictionary<short, string>
     {
         { 2, "Learner has transferred to another provider" },
         { 3, "Learner injury / illness" },

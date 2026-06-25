@@ -73,7 +73,7 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
         }
     }
 
-    private string BuildWithdrawalReasonDesciption(short withdrawalReasonCode)
+    private static string BuildWithdrawalReasonDesciption(short withdrawalReasonCode)
     {
         if (Constants.IlrWithdrawalReasons.TryGetValue(withdrawalReasonCode, out var description))
         {
