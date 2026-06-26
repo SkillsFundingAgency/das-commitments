@@ -10,7 +10,7 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.ExternalHandlers;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
