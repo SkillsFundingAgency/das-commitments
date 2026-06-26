@@ -22,7 +22,13 @@ public class LearningPausedEventHandler(
     {
         try
         {
-            if (message is null) return;
+            logger.LogInformation(" Started executing {Event}", nameof(LearningPausedEvent));
+
+            if (message is null)
+            {
+                logger.LogInformation(" {Event} received null message : {Event}", nameof(LearningPausedEvent), message == null );
+                return;
+            }
 
             logger.LogInformation("LearningPausedEvent for ApprenticeshipId {ApprenticeshipId} with PauseDate {PauseDate}",
                 message.ApprenticeshipId, message.PauseDate);
@@ -48,6 +54,9 @@ public class LearningPausedEventHandler(
                 Description = $"Learning has been paused on {message.PauseDate}"
             };
             await messageSession.Send(historyCommand);
+
+            logger.LogInformation(" Executing {Event} completed", nameof(LearningPausedEvent));
+
         }
         catch (Exception e)
         {
