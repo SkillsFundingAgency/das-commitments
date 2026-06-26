@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.ExternalHandlers;
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class LearningPausedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
@@ -26,7 +26,7 @@ public class LearningPausedEventHandler(
 
             if (message is null)
             {
-                logger.LogInformation(" {Event} received null message : {Event}", nameof(LearningPausedEvent), message == null );
+                logger.LogInformation(" {Event} received null message : {Event}", nameof(LearningPausedEvent), message == null);
                 return;
             }
 
@@ -56,7 +56,6 @@ public class LearningPausedEventHandler(
             await messageSession.Send(historyCommand);
 
             logger.LogInformation(" Executing {Event} completed", nameof(LearningPausedEvent));
-
         }
         catch (Exception e)
         {
