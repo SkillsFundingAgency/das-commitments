@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLevyStatus;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerFinance.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
@@ -14,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var fixture = new LevyAddedToAccountEventHandlerNewTestsFixture();
             await fixture.Handle();
-            fixture.VerifyUpdateLevyStatusToLevyCommandSent();
+            fixture.VerifyUpdateAccountLevyStatusCommandSent();
         }
     }
 
@@ -38,10 +39,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             return Sut.Handle(ALevyAddedToAccount, Mock.Of<IMessageHandlerContext>());
         }
 
-        public void VerifyUpdateLevyStatusToLevyCommandSent()
+        public void VerifyUpdateAccountLevyStatusCommandSent()
         {
             Mediator.Verify(x =>
-                x.Send(It.Is<UpdateLevyStatusToLevyCommand>(p => p.AccountId == ALevyAddedToAccount.AccountId),
+                x.Send(It.Is<UpdateAccountLevyStatusCommand>(p =>
+                        p.AccountId == ALevyAddedToAccount.AccountId &&
+                        p.LevyStatus == ApprenticeshipEmployerType.Levy),
                     It.IsAny<CancellationToken>()));
         }
     }
