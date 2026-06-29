@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -81,13 +82,4 @@ public class LearningPausedEventHandler(
             throw new DomainException(nameof(pauseDate), "Invalid pause date. Pause date cannot be on or after the end date.");
         }
     }
-}
-
-// Replace this event with SFA.DAS.Learning.Types
-public class LearningPausedEvent
-{
-    public long ApprenticeshipId { get; set; }
-    public DateTime PauseDate { get; set; }
-    public Guid LearningKey { get; set; }
-    public DateTime Created { get; set; }
 }
