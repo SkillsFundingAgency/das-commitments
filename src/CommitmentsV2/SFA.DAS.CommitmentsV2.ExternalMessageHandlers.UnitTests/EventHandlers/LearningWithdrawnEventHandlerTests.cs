@@ -120,15 +120,22 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             apprentice.MadeRedundant.Should().BeFalse();
         }
 
-        [Test]
-        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
+        [TestCase(29, "Learner has been made redundant")]
+        [TestCase(2, "Learner has transferred to another provider")]
+        [TestCase(46, "Exclusion")]
+        [TestCase(97, "Other")]
+        [TestCase(98, "Reason not known")]
+        [TestCase(99, "Unknown Reason Code")]
+        [TestCase(100, "Unknown Reason Code")]
+        [TestCase(0, "Unknown Reason Code")]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished(short code, string description)
         {
             var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
             var stopDate = DateTime.Today.AddMonths(-1);
-            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), 12);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), code);
 
             await _fixture.Handle();
-            _fixture.VerifyStoreLearnerHistoryCommandIsSent();
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent($"ILR Learner status changed from Live to Withdrawn due to {code} - '{description}'");
         }
 
         [Test]
@@ -410,7 +417,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 apprenticeship.WithdrawnReasonCode.Should().NotBe(_event.WithdrawalReasonCode);
             }
 
-            public void VerifyStoreLearnerHistoryCommandIsSent()
+            public void VerifyStoreLearnerHistoryCommandIsSent(string description)
             {
                 _messageHandlerContext.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
                     c.ApprenticeshipId == _event.ApprenticeshipId &&
@@ -418,7 +425,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                     c.ChangeType == Types.LearningChangeType.AutoApproved &&
                     c.LearningKey == _event.LearningKey &&
                     c.AppliedDate == _event.Created &&
-                    c.Description == $"ILR Learner status changed from Live to Withdrawn due to {_event.WithdrawalReasonCode}"
+                    c.Description == description
                 ), It.IsAny<SendOptions>()), Times.Once);
             }
 
