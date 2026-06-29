@@ -32,8 +32,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public bool? MadeRedundant { get; set; }
     public int? WithdrawnReasonCode { get; set; }
 
-    ILogger<Apprenticeship> logger { get; set; }
-
     [NotMapped] public bool FreezeStatus => PaymentFreezeDate.HasValue;
 
     [NotMapped] public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -43,7 +41,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         DataLockStatus = new List<DataLockStatus>();
         PriceHistory = new List<PriceHistory>();
         ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
-        logger = new LoggerFactory().CreateLogger<Apprenticeship>();
     }
 
     public virtual ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
@@ -978,7 +975,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
-    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
+    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode, ILogger logger)
     {
         logger.LogInformation("Inside set ilr withdrawn Apprenticeship {apprenticeshipId} is being withdrawn via ILR with reason code {withdrawnReasonCode} and stop date {stoppedDate}", Id, withdrawnReasonCode, stoppedDate);
 

@@ -52,7 +52,7 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
             ValidateStopDateForWithdrawal(withdrawalDate, apprentice);
             await ValidateEndDateOverlap(withdrawalDate, apprentice, default);
 
-            apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode);
+            apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode,logger);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             var historyCommand = new StoreLearningHistoryCommand
