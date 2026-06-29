@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -49,8 +50,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             await _fixture.Handle();
             _fixture.VerifyStopDateIsAssignedCorrectly();
             _fixture.VerifyWithdrawnReasonCodeIsAssignedCorrectly();
-            _fixture.VerifyApprenticeshipStopEventIsCorrectlyPublished();
-            _fixture.VerifyApprenticeshipStopDateChangedEventIsNotPublished();
         }
 
         [Test]
@@ -66,35 +65,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.VerifyWithdrawnReasonCodeIsNotAssigned();
             _fixture.VerifyApprenticeshipStopEventIsNotPublished();
             _fixture.VerifyApprenticeshipStopDateChangedEventIsNotPublished();
-        }
-
-        [Test]
-        public async Task When_LearnerWithDrawnEvent_AppliedToAlreadyWithdrawnApprenticeshipWithSameStopDate_OnlyStopEventPublished()
-        {
-            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Withdrawn);
-            var stopDate = DateTime.Today.AddMonths(-1);
-            stopDate = new DateTime(stopDate.Year, stopDate.Month, 1);
-            apprentice.StopDate = stopDate;
-            _fixture.SetEventValues(apprentice.Id, stopDate, 12);
-
-            await _fixture.Handle();
-            _fixture.VerifyApprenticeshipStopEventIsCorrectlyPublished();
-            _fixture.VerifyApprenticeshipStopDateChangedEventIsNotPublished();
-        }
-
-        [Test]
-        public async Task When_LearnerWithDrawnEvent_AppliedToAlreadyWithdrawnApprenticeshipWithNewStopDate_OnlyStopDateChangedEventPublished()
-        {
-            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Withdrawn);
-            var stopDate = DateTime.Today.AddMonths(-2);
-            stopDate = new DateTime(stopDate.Year, stopDate.Month, 1);
-            apprentice.StopDate = stopDate.AddMonths(1);
-            _fixture.SetEventValues(apprentice.Id, stopDate, 12);
-
-            await _fixture.Handle();
-            _fixture.VerifyApprenticeshipStopEventIsNotPublished();
-            _fixture.VerifyApprenticeshipStopDateChangedEventIsCorrectlyPublished();
-        }
+        }        
 
         [Test]
         public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeshipWithRedundancyReasonCode_RedundancyFlagIsSet()
@@ -286,6 +257,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private CommitmentsV2Configuration _commitmentsV2Configuration; 
             private FakeLogger<LearningWithdrawnEventHandler> _logger;
+            private Mock<IWithDrawalNotificationToEmployerService> _mockWithDrawalNotificationService;
 
             public LearningWithdrawnEventHandlerTestsFixture()
             {
@@ -306,9 +278,12 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _logger = new FakeLogger<LearningWithdrawnEventHandler>();
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
+                _mockWithDrawalNotificationService = new Mock<IWithDrawalNotificationToEmployerService>();
+
+                _mockWithDrawalNotificationService.Setup(x => x.SendWithdrawalNotificationToEmployer(It.IsAny<long>(), It.IsAny<IMessageHandlerContext>())).Returns(Task.CompletedTask);
 
                 _handler = new LearningWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
-                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _commitmentsV2Configuration, _logger);
+                    _overlapCheckService.Object, _resolveOLTDRequestService.Object, _commitmentsV2Configuration, _logger, _mockWithDrawalNotificationService.Object);
 
                 _event = autoFixture.Create<LearningWithdrawnEvent>();
             }

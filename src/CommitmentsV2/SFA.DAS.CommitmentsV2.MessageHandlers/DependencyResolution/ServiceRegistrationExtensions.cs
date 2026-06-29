@@ -8,8 +8,10 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
+using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Startup;
@@ -71,6 +73,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
 
         services.AddSingleton<IAuthenticationService, MessageHandlerAuthenticationService>();
+        services.AddTransient<IWithDrawalNotificationToEmployerService, WithDrawalNotificationToEmployerService>();
 
 		return services;
     }
