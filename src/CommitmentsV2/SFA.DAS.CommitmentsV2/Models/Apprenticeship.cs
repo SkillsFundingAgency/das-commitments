@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -8,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Common.Domain.Types;
 using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Models;
@@ -975,10 +973,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
-    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode, ILogger logger)
+    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
-        logger.LogInformation("Inside set ilr withdrawn Apprenticeship {apprenticeshipId} is being withdrawn via ILR with reason code {withdrawnReasonCode} and stop date {stoppedDate}", Id, withdrawnReasonCode, stoppedDate);
-
         var currentStopDate = StopDate;
 
         PaymentStatus = PaymentStatus.Withdrawn;
@@ -993,39 +989,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             MadeRedundant = false;
         }
         ResolveDatalocks(stoppedDate);
-
-        logger.LogInformation($"publishing the ApprenticeshipStoppedEvent:{currentStopDate == null || currentStopDate == stoppedDate}");
-
-        if (currentStopDate == null || currentStopDate == stoppedDate)
-        {
-            logger.LogInformation($"condition satisfied publishing stopped event");
-            Publish(() => new ApprenticeshipStoppedEvent
-            {
-                AppliedOn = DateTime.UtcNow,
-                ApprenticeshipId = Id,
-                StopDate = stoppedDate,
-                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
-                LearnerDataId = LearnerDataId,
-                ProviderId = Cohort.ProviderId,
-                IsWithdrawnViaIlr = true
-            });
-        }
-        else
-        {
-            logger.LogInformation($"condition satisfied publishing stop date changed event");
-            Publish(() => new ApprenticeshipStopDateChangedEvent
-            {
-                StopDate = stoppedDate,
-                ApprenticeshipId = Id,
-                ChangedOn = DateTime.UtcNow,
-                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
-                LearnerDataId = LearnerDataId,
-                ProviderId = Cohort.ProviderId,
-                IsWithdrawnViaIlr = true
-            });
-        }
-
-        logger.LogInformation($"publishing the ApprenticeshipStoppedEvent completed:{currentStopDate == null || currentStopDate == stoppedDate}");
     }
 
     private void ResolveDatalocks(DateTime stopDate)
