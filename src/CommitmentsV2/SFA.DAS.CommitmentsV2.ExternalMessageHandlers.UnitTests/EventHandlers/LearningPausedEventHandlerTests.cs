@@ -90,9 +90,8 @@ public class LearningPausedEventHandlerTestsFixture
     public Fixture fixture { get; set; }
     private ProviderCommitmentsDbContext _dbContext;
     private Mock<ILogger<LearningPausedEventHandler>> _mockLogger;
-    private Mock<IMessageSession> _mockSession;
-    private LearningPausedEventHandler _handler;
     private Mock<IMessageHandlerContext> _mockContext;
+    private LearningPausedEventHandler _handler;
     private LearningPausedEvent _event;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
@@ -101,7 +100,6 @@ public class LearningPausedEventHandlerTestsFixture
     {
         fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearningPausedEventHandler>>();
-        _mockSession = new Mock<IMessageSession>();
         _mockContext = new Mock<IMessageHandlerContext>();
         UnitOfWorkContext = new UnitOfWorkContext();
 
@@ -147,7 +145,7 @@ public class LearningPausedEventHandlerTestsFixture
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
 
-        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockSession.Object, _mockLogger.Object);
+        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockLogger.Object);
     }
 
     public LearningPausedEventHandlerTestsFixture SetStartDate(DateTime startDate)
@@ -187,7 +185,7 @@ public class LearningPausedEventHandlerTestsFixture
 
     public void VerifyStoreLearnerHistoryCommandIsSent()
     {
-        _mockSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
+        _mockContext.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(c =>
             c.ApprenticeshipId == _event.ApprenticeshipId &&
             c.Source == Types.LearningSourceType.ILRStatusChange &&
             c.ChangeType == Types.LearningChangeType.AutoApproved &&

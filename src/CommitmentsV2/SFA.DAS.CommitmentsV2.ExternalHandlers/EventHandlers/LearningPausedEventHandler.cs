@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class LearningPausedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    IMessageSession messageSession,
     ILogger<LearningPausedEventHandler> logger)
     : IHandleMessages<LearningPausedEvent>
 {
@@ -54,7 +53,7 @@ public class LearningPausedEventHandler(
                 AppliedDate = message.Created,
                 Description = $"Learning has been paused on {message.PauseDate}"
             };
-            await messageSession.Send(historyCommand);
+            await context.Send(historyCommand);
 
             logger.LogInformation(" Executing {Event} completed", nameof(LearningPausedEvent));
         }
