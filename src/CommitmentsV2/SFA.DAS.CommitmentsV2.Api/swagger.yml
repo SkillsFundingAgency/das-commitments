@@ -274,6 +274,11 @@ components:
           type: string
         uln:
           type: string
+        TNP1:
+          type: string
+        TNP2:
+          type: string
+          format: uuid
         learningKey:
           type: string
           format: uuid
