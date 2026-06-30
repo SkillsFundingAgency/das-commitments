@@ -1,4 +1,6 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace SFA.DAS.CommitmentsV2.Types.Dtos
 {
@@ -34,5 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public long? LearnerDataId { get; set; }
         public int? TrainingTotalHours { get; set; }
         public string ApprenticeshipType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public LearningType? LearningType { get; set; }
     }
 }
