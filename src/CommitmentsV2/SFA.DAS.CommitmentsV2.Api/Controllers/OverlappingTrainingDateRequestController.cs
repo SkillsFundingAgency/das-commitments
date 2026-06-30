@@ -60,7 +60,8 @@ public class OverlappingTrainingDateRequestController(IMediator mediator, IModel
         return Ok(new ValidateUlnOverlapOnStartDateResponse
         {
             HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
-            HasStartDateOverlap = result.HasStartDateOverlap
+            HasStartDateOverlap = result.HasStartDateOverlap,
+            HasOverlapWithIlrWithdrawnApprenticeship = result.HasOverlapWithIlrWithdrawnApprenticeship
         });
     }
 
