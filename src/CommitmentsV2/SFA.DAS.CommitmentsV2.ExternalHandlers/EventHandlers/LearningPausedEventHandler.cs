@@ -33,7 +33,9 @@ public class LearningPausedEventHandler(
             logger.LogInformation("LearningPausedEvent for ApprenticeshipId {ApprenticeshipId} with PauseDate {PauseDate}",
                 message.ApprenticeshipId, message.PauseDate);
             var db = dbContext.Value;
-            var apprentice = await db.Apprenticeships.Where(t => t.Id == message.ApprenticeshipId).SingleOrDefaultAsync();
+            var apprentice = await db.Apprenticeships
+                .Include(a => a.Cohort)
+                .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
             {
