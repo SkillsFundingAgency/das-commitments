@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
@@ -17,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using IAuthenticationService = SFA.DAS.CommitmentsV2.Authentication.IAuthenticationService;
@@ -152,6 +154,25 @@ public class ApprenticeshipController(
             request.MadeRedundant,
             request.UserInfo,
             party));
+
+        return Ok();
+    }
+
+
+    [HttpPatch("{apprenticeshipId:long}/payments")]
+    [Consumes("application/json", "application/json-patch+json", "text/json", "application/*+json")]
+    public async Task<IActionResult> PatchPayments(long apprenticeshipId, [FromBody] PatchApprenticeshipPaymentsRequest request)
+    {
+        logger.LogInformation("Patch apprenticeship payments api endpoint called for : {Id}.", apprenticeshipId);
+
+        await mediator.Send(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            PaymentFreezeDate = request.PaymentFreezeDate,
+            FreezePaymentsReason = request.FreezePaymentsReason,
+            UserInfo = request.UserInfo,
+            Party = (Party)request.Party
+        });
 
         return Ok();
     }
