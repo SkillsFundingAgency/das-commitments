@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             long apprenticeshipId
         )
         {
-            // arrange 
+            // arrange
             var draftApprenticeships = Fixture
                 .Build<DraftApprenticeship>()
                 .With(app => app.Id, Fixture.Create<Generator<long>>().Where(l => l != apprenticeshipId).First())
@@ -143,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock
                 .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new OverlapCheckResultOnStartDate(false, null,false));
+                .ReturnsAsync(new OverlapCheckResultOnStartDate(false, null, false));
 
             // assert
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock
                 .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId,false));
+                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId, false));
 
             // act
             var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, Party.Provider, null,
@@ -205,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock
                 .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId,false));
+                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId, false));
 
             // act
             var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, Party.Provider, null,
@@ -219,7 +219,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task WhenOverlapExists_OverlapRequestNotCreated_IfWithdrawnFromIlr(
            UserInfo userInfo,
            long apprenticeshipId,
-           long previousApprenticeshipId,
            string uln
        )
         {
@@ -236,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock
                 .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId, true));
+                .ReturnsAsync(new OverlapCheckResultOnStartDate(true, null, true));
 
             // assert
             Assert.ThrowsAsync<InvalidOperationException>(async () =>

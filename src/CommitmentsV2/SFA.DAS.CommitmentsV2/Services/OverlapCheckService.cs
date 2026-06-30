@@ -21,9 +21,11 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
                 case OverlapStatus.OverlappingStartDate:
                     overlapStartDate = true;
                     break;
+
                 case OverlapStatus.OverlappingEndDate:
                     overlapEndDate = true;
                     break;
+
                 case OverlapStatus.DateWithin:
                 case OverlapStatus.DateEmbrace:
                     overlapStartDate = true;
@@ -45,7 +47,9 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         var overlapStartDate = false;
         long? apprenticeshipId = null;
 
-        foreach (var utilisation in await GetCandidateUlnUtilisations(uln, existingApprenticeshipId, cancellationToken))
+        var utilisations = await GetCandidateUlnUtilisations(uln, existingApprenticeshipId, cancellationToken);
+
+        foreach (var utilisation in utilisations)
         {
             var overlapStatus = utilisation.DateRange.DetermineOverlap(range);
 
@@ -64,10 +68,9 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
             {
                 break;
             }
-        }   
-        
+        }
 
-        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId, await IsOverlapWithIlrWithdrawnApprenticeship(apprenticeshipId));
+        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId, await IsOverlapWithIlrWithdrawnApprenticeship(utilisations, apprenticeshipId));
     }
 
     private async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations(string uln, long? existingApprenticeshipId, CancellationToken cancellationToken)
@@ -95,9 +98,9 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         var overlappingEmails = await emailOverlapService.GetOverlappingEmails(cohortId, cancellationToken);
 
         var singleEmails = from overlap in overlappingEmails
-            group overlap by overlap.RowId
+                           group overlap by overlap.RowId
             into groups
-            select groups.OrderBy(e => e.RowId).First();
+                           select groups.OrderBy(e => e.RowId).First();
 
         var summary = singleEmails.Select(x => new EmailOverlapCheckResult(x.RowId, x.OverlapStatus, x.IsApproved));
 
@@ -127,11 +130,11 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         return overlapCheckResult.ToList();
     }
 
-    private async Task<bool> IsOverlapWithIlrWithdrawnApprenticeship(long? apprenticeshipId)
+    private async Task<bool> IsOverlapWithIlrWithdrawnApprenticeship(IEnumerable<UlnUtilisation> utilisations, long? excludeId)
     {
-        return apprenticeshipId.HasValue && await dbContext.Value.Apprenticeships
-            .Where(x => x.Id == apprenticeshipId)
-            .AnyAsync(x => x.WithdrawnReasonCode.HasValue);
-    }
+        var apprenticehipIds = utilisations.Where(t => excludeId == null || t.ApprenticeshipId != excludeId).Select(x => x.ApprenticeshipId).ToList();
 
+        return await dbContext.Value.Apprenticeships.AsNoTracking()
+            .AnyAsync(x => apprenticehipIds.Contains(x.Id) && x.WithdrawnReasonCode.HasValue);
+    }
 }

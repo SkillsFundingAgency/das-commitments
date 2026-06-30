@@ -22,18 +22,12 @@ public class OverlappingTrainingDateRequestDomainService(
 
         var draftApprenticeship = await dbContext.Value.DraftApprenticeships
             .Include(a => a.Cohort)
-            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
+            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);        
 
         if (draftApprenticeship == null)
         {
             throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}");
-        }
-
-        if (draftApprenticeship.PreviousApprenticeship.WithdrawnReasonCode.HasValue)
-        {
-            throw new InvalidOperationException(
-        $"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} has overlap with a withdrawn apprenticeship.");
-        }       
+        }             
 
         if (draftApprenticeship.Cohort.IsApprovedByAllParties)
         {
@@ -49,6 +43,12 @@ public class OverlappingTrainingDateRequestDomainService(
         var overlapResult = await overlapCheckService.CheckForOverlapsOnStartDate(draftApprenticeship.Uln,
             new Domain.Entities.DateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value),
             draftApprenticeship.Id, cancellationToken);
+
+        if (overlapResult.HasOverlapWithIlrWithdrawnApprenticeship)
+        {
+            throw new InvalidOperationException(
+        $"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} has overlap with a withdrawn apprenticeship.");
+        }
 
         if (changeOfEmployerOriginalApprenticeId == null &&
             (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null))
