@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions;
+using SFA.DAS.CommitmentsV2.Shared.Startup;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers;
@@ -26,7 +26,7 @@ public class Program
         return new HostBuilder()
             .UseDasEnvironment()
             .ConfigureDasAppConfiguration(args)
-            .ConfigureDasLogging()
+            .ConfigureDasOpenTelemetry()
             .ConfigureExternalHandlerServices()
             .Build();
     }
