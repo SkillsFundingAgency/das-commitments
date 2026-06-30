@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Common.Domain.Types;
 using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Models;
@@ -293,7 +292,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 ApprovedOn = approvedOn,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln, 
+                Uln = Uln,
                 LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(learningType, ignoreCase: true)
             });
 
@@ -1063,5 +1062,24 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
 
         return ConfirmationStatus.Unconfirmed;
+    }
+
+    public void SetIlrPaused(DateTime pausedDate)
+    {
+        StartTrackingSession(UserAction.PauseApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentStatus = PaymentStatus.Paused;
+        PauseDate = pausedDate.Date;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipPausedEvent
+        {
+            ApprenticeshipId = Id,
+            PausedOn = pausedDate,
+            PausedViaILR = true
+        });
     }
 }
