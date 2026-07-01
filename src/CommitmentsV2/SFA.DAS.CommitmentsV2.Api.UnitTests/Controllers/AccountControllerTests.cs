@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Moq;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingLearnerChangeCount;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -56,6 +58,13 @@ public class AccountControllerTests
         _fixture.VerifyGetProviderPaymentsPriorityResponse();
     }
 
+    [Test]
+    public async Task GetPendingLearnerChangeCount_Should_Return_Valid_Result()
+    {
+        await _fixture.GetPendingLearnerChangeCount();
+        _fixture.VerifyGetPendingLearnerChangeCountResponse();
+    }
+
     private class AccountControllerTestsFixture
     {
         private AccountController Controller { get; }
@@ -72,6 +81,7 @@ public class AccountControllerTests
 
         private GetProviderPaymentsPriorityQueryResult ProviderPaymentsPriorityQueryResult { get; }
         private GetProviderPaymentsPriorityResponse GetProviderPaymentsPriorityResponse { get; }
+        private GetPendingLearnerChangeCountsForEmployerQueryResult GetPendingLearnerChangeCountsForEmployerQueryResult { get; }
 
         private IActionResult Result { get; set; }
 
@@ -95,6 +105,10 @@ public class AccountControllerTests
             ApprovedProviderQueryResult = autoFixture.Create<GetApprovedProvidersQueryResult>();
             Mediator.Setup(x => x.Send(It.IsAny<GetApprovedProvidersQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(ApprovedProviderQueryResult);
+
+            GetPendingLearnerChangeCountsForEmployerQueryResult = autoFixture.Create<GetPendingLearnerChangeCountsForEmployerQueryResult>();
+            Mediator.Setup(x => x.Send(It.IsAny<GetPendingLearnerChangeCountsForEmployerQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GetPendingLearnerChangeCountsForEmployerQueryResult);
 
             ModelMapper = new Mock<IModelMapper>();
 
@@ -151,6 +165,12 @@ public class AccountControllerTests
         {
             Result = await Controller.GetProviderPaymentsPriority(AccountId);
         }
+
+        public async Task GetPendingLearnerChangeCount()
+        {
+            Result = await Controller.GetPendingLearnerChangeCount(AccountId);
+        }
+
 
         public void VerifyAccountRepsonse()
         {
@@ -241,6 +261,16 @@ public class AccountControllerTests
                         .Any(a => a.PriorityOrder == p.PriorityOrder && a.ProviderId == p.ProviderId && a.ProviderName == p.ProviderName)));
                 }
             });
+        }
+
+        public void VerifyGetPendingLearnerChangeCountResponse()
+        {
+            Result.Should().BeOfType<OkObjectResult>();
+            var objectResult = (OkObjectResult)Result;
+            objectResult.Value.Should().BeOfType<GetPendingLearnerChangeCountsForEmployerQueryResult>();
+            var response = (GetPendingLearnerChangeCountsForEmployerQueryResult)objectResult.Value;
+            response.ManualPendingChangeCount.Should().Be(GetPendingLearnerChangeCountsForEmployerQueryResult.ManualPendingChangeCount);
+            response.IlrPendingChangeCount.Should().Be(GetPendingLearnerChangeCountsForEmployerQueryResult.IlrPendingChangeCount);
         }
     }
 }

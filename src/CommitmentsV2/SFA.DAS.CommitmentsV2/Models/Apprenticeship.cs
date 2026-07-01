@@ -18,6 +18,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
+    public virtual ICollection<ApprovalRequest> ApprovalRequests { get; set; }
     public virtual ApprenticeshipBase Continuation { get; set; }
     public virtual EmployerVerificationRequest EmployerVerificationRequest { get; set; }
 

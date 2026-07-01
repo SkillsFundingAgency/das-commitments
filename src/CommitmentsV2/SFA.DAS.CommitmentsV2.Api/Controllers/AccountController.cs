@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingApprenticeChanges;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingLearnerChangeCount;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -114,6 +115,17 @@ public class AccountController(IMediator mediator, IModelMapper modelMapper) : C
 
         var response = await modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
         return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("pending-learner-change-counts")]
+    public async Task<IActionResult> GetPendingLearnerChangeCount(long accountId)
+    {
+        var query = new GetPendingLearnerChangeCountsForEmployerQuery(accountId);
+        var result = await mediator.Send(query);
+
+        if (result == null) { return NotFound(); }
+        return Ok(result);
     }
 
     [HttpPost]
