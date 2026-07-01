@@ -13,6 +13,8 @@ public sealed class CreateCsvService : ICreateCsvService, IDisposable
 
     public MemoryStream GenerateCsvContent<T>(IEnumerable<T> results, bool hasHeader)
     {
+        ArgumentNullException.ThrowIfNull(results);
+
         _memoryStream = new MemoryStream();
         _streamWriter = new StreamWriter(_memoryStream);
         _csvWriter = new CsvWriter(_streamWriter, new CsvConfiguration(CultureInfo.InvariantCulture)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Jobs.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Jobs.Extensions;
+using SFA.DAS.CommitmentsV2.Shared.Startup;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.Jobs;
@@ -24,7 +25,7 @@ public class Program
             .UseDasEnvironment()
             .ConfigureDasAppConfiguration(args)
             .ConfigureDasWebJobs()
-            .ConfigureDasLogging()
+            .ConfigureDasOpenTelemetry()
             .UseConsoleLifetime()
             .ConfigureJobsServices()
             .Build();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
+using SFA.DAS.CommitmentsV2.Shared.Startup;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers;
@@ -25,7 +25,7 @@ public class Program
             .UseDasEnvironment()
             .ConfigureDasAppConfiguration(args)
             .UseConsoleLifetime()
-            .ConfigureDasLogging()
+            .ConfigureDasOpenTelemetry()
             .ConfigureMessageHandlerServices()
             .Build();
     }

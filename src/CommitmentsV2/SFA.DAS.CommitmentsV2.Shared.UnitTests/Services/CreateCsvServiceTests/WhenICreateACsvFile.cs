@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Reflection;
-using CsvHelper;
+﻿using FluentAssertions;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.Testing.AutoFixture;
+using System.IO;
+using System.Reflection;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests;
 
@@ -15,13 +15,13 @@ public class WhenICreateACsvFile
     {
         var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<MemoryStream>();
         var actualByteArray = actual.ToArray();
         var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
         var commentLine = fileString.Split("\r\n")[0];
 
-        Assert.That(commentLine, Is.EqualTo("#Data only includes learners with a training end date within the last 12 months"));
+        commentLine.Should().Be(("#Data only includes learners with a training end date within the last 12 months"));
     }
 
     [Test, MoqAutoData]
@@ -31,17 +31,15 @@ public class WhenICreateACsvFile
     {
         var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<MemoryStream>();
+
         var actualByteArray = actual.ToArray();
         var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
         var headerLine = fileString.Split("\r\n")[1];
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(headerLine, Does.Contain(nameof(SomethingToCsv.Id)));
-            Assert.That(headerLine, Does.Not.Contain(nameof(SomethingToCsv.InternalStuff)));
-        });
+        headerLine.Should().Contain(nameof(SomethingToCsv.Id));
+        headerLine.Should().NotContain(nameof(SomethingToCsv.InternalStuff));
     }
 
     [Test, MoqAutoData]
@@ -51,13 +49,14 @@ public class WhenICreateACsvFile
     {
         var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<MemoryStream>();
+
         var actualByteArray = actual.ToArray();
         var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
         var lines = fileString.Split("\r\n");
-        Assert.That(lines, Has.Length.EqualTo(listToWriteToCsv.Count + 3));
-        Assert.That(lines[2].Split(',')[1], Is.EqualTo(listToWriteToCsv[0].Description));
+        lines.Should().HaveCount(listToWriteToCsv.Count + 3);
+        lines[2].Split(',')[1].Should().Be(listToWriteToCsv[0].Description);
     }
 
     [Test, MoqAutoData]
@@ -66,7 +65,9 @@ public class WhenICreateACsvFile
     {
         List<SomethingToCsv> nullList = null;
 
-        Assert.Throws<WriterException>(() => createCsvService.GenerateCsvContent(nullList, false));
+        Action act = () => createCsvService.GenerateCsvContent(nullList, false);
+
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Test, MoqAutoData]
@@ -79,30 +80,24 @@ public class WhenICreateACsvFile
         var csvStreamField = typeof(CreateCsvService).GetField("_csvWriter", BindingFlags.NonPublic | BindingFlags.Instance);
         var streamWriterField = typeof(CreateCsvService).GetField("_streamWriter", BindingFlags.NonPublic | BindingFlags.Instance);
         createCsvService.GenerateCsvContent(listToWriteToCsv, true);
+
         var getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
         var getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(getterMemoryStream.CanWrite, Is.True);
-            Assert.That(getterStream.BaseStream.CanWrite, Is.True);
-        });
-
+        getterMemoryStream.CanWrite.Should().BeTrue();
+        getterStream.BaseStream.CanWrite.Should().BeTrue();
+        
         //Act
         createCsvService.Dispose();
 
         //Assert
         getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
         getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
-        
-        Assert.Multiple(() =>
-        {
-            Assert.That(getterMemoryStream.CanWrite, Is.False);
-            Assert.That(getterStream.BaseStream.CanWrite, Is.False);
-        });
+
+        getterMemoryStream.CanWrite.Should().BeFalse();
+        getterStream.BaseStream.CanWrite.Should().BeFalse();
     }
 }
-
 public abstract class SomethingToCsv
 {
     public int Id { get; set; }
