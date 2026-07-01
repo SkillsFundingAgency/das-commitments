@@ -186,6 +186,7 @@ public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
             .Without(s => s.EmailAddressConfirmed)
             .Without(s => s.ApprenticeshipConfirmationStatus)
             .Without(s => s.EmployerVerificationRequest)
+            .Without(s => s.ApprovalRequests)
             .Create();
         return apprenticeshipDetails1;
     }
