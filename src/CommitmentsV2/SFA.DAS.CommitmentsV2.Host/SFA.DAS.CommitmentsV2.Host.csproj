@@ -5,18 +5,15 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\$(Configuration)\net10.0\**\*"
-         Exclude="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\$(Configuration)\net10.0\runtimes\**\*">
+    <Content Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\bin\$(Configuration)\net10.0\**\*">
   <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.MessageHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 </Content>
-   <Content Include="..\SFA.DAS.CommitmentsV2.Jobs\bin\$(Configuration)\net10.0\**\*"
-         Exclude="..\SFA.DAS.CommitmentsV2.Jobs\bin\$(Configuration)\net10.0\runtimes\**\*">
+   <Content Include="..\SFA.DAS.CommitmentsV2.Jobs\bin\$(Configuration)\net10.0\**\*">
   <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.Jobs\%(RecursiveDir)%(Filename)%(Extension)</Link>
   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 </Content>
-   <Content Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\$(Configuration)\net10.0\**\*"
-         Exclude="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\$(Configuration)\net10.0\runtimes\**\*">
+   <Content Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\bin\$(Configuration)\net10.0\**\*">
   <Link>app_data\Jobs\Continuous\SFA.DAS.CommitmentsV2.ExternalHandlers\%(RecursiveDir)%(Filename)%(Extension)</Link>
   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 </Content>
