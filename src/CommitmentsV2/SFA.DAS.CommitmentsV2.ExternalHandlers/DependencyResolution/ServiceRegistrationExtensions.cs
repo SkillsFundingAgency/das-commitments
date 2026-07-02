@@ -41,6 +41,7 @@ public static class ServiceRegistrationExtensions
                 .AddEntityFramework(commitmentV2Config)
                 .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
 
+            services.AddDatabaseRegistration();
             services.AddNServiceBusClientUnitOfWork();
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
