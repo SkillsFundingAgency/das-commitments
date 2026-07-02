@@ -267,8 +267,8 @@ public class AccountControllerTests
         {
             Result.Should().BeOfType<OkObjectResult>();
             var objectResult = (OkObjectResult)Result;
-            objectResult.Value.Should().BeOfType<GetPendingLearnerChangeCountsForEmployerQueryResult>();
-            var response = (GetPendingLearnerChangeCountsForEmployerQueryResult)objectResult.Value;
+            objectResult.Value.Should().BeOfType<GetPendingLearnerChangeCountsForEmployerQueryResponse>();
+            var response = (GetPendingLearnerChangeCountsForEmployerQueryResponse)objectResult.Value;
             response.ManualPendingChangeCount.Should().Be(GetPendingLearnerChangeCountsForEmployerQueryResult.ManualPendingChangeCount);
             response.IlrPendingChangeCount.Should().Be(GetPendingLearnerChangeCountsForEmployerQueryResult.IlrPendingChangeCount);
         }

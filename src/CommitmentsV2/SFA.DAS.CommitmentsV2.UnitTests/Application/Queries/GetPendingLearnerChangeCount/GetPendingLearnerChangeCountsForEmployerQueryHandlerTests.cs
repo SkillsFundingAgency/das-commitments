@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapRequests
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingLearnerChangeCount
 {
     [TestFixture]
     public class GetPendingLearnerChangeCountsForEmployerQueryHandlerTests
@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
         {
             _fixture = new GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture();
         }
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -68,6 +68,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
             result.IlrPendingChangeCount.Should().Be(0);
         }
 
+        [TestCase(CocApprovalResultStatus.Complete)]
+        [TestCase(CocApprovalResultStatus.Superseded)]
+        [TestCase(CocApprovalResultStatus.Cancelled)]
+        public async Task Handle_ThenShouldNotFindPendingIlrRequestsWhenStatusIs(CocApprovalResultStatus status)
+        {
+            var result = await _fixture.AddIlrUpdates(status).Handle(222);
+
+            result.IlrPendingChangeCount.Should().Be(0);
+        }
+
+        [TestCase(ApprenticeshipUpdateStatus.Approved)]
+        [TestCase(ApprenticeshipUpdateStatus.Rejected)]
+        [TestCase(ApprenticeshipUpdateStatus.Deleted)]
+        [TestCase(ApprenticeshipUpdateStatus.Superceded)]
+        [TestCase(ApprenticeshipUpdateStatus.Expired)]
+        public async Task Handle_ThenShouldNotFindPendingManualRequestsWhenStatusIs(ApprenticeshipUpdateStatus status)
+        {
+            var result = await _fixture.AddApprenticeshipUpdates(status).Handle(222);
+
+            result.ManualPendingChangeCount.Should().Be(0);
+        }
+
         public class GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetPendingLearnerChangeCountsForEmployerQueryHandler _handler;
@@ -81,9 +103,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
                 _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
-                
+
                 SeedData();
-                
+
                 _handler = new GetPendingLearnerChangeCountsForEmployerQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
@@ -127,7 +149,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
                 _db.SaveChanges();
             }
 
-            public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddApprenticeshipUpdates()
+            public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddApprenticeshipUpdates(
+                ApprenticeshipUpdateStatus withStatus = ApprenticeshipUpdateStatus.Pending)
             {
 
                 var apprenticeship1 = _db.Apprenticeships.First();
@@ -138,16 +161,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
                 _db.SaveChanges();
                 return this;
 
-                ApprenticeshipUpdate CreateManualUpdate(Apprenticeship apprenticeship)  => _autoFixture.Build<ApprenticeshipUpdate>()
+                ApprenticeshipUpdate CreateManualUpdate(Apprenticeship apprenticeship) => _autoFixture.Build<ApprenticeshipUpdate>()
                      .With(s => s.ApprenticeshipId, apprenticeship.Id)
                      .With(s => s.Originator, Originator.Provider)
-                     .With(s => s.Status, ApprenticeshipUpdateStatus.Pending)
+                     .With(s => s.Status, withStatus)
                      .With(s => s.Apprenticeship, apprenticeship)
                      .Without(s => s.DataLockStatus)
                      .Create();
             }
 
-            public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddIlrUpdates()
+            public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddIlrUpdates(
+                CocApprovalResultStatus withStatus = CocApprovalResultStatus.Pending)
             {
                 var apprenticeship1 = _db.Apprenticeships.First();
                 _db.ApprovalRequests.Add(CreateIlrUpdate(apprenticeship1));
@@ -159,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
 
                 ApprovalRequest CreateIlrUpdate(Apprenticeship apprenticeship) => _autoFixture.Build<ApprovalRequest>()
                      .With(s => s.ApprenticeshipId, apprenticeship.Id)
-                     .With(s => s.Status, CocApprovalResultStatus.Pending)
+                     .With(s => s.Status, withStatus)
                      .With(s => s.Apprenticeship, apprenticeship)
                      .Create();
             }

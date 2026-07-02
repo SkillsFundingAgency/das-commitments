@@ -14,7 +14,7 @@ public class GetPendingLearnerChangeCountsForEmployerQueryHandler(Lazy<ProviderC
                         && u.Originator == Originator.Provider
             );
 
-        var pendingCocRequests = db.Value.ApprovalRequests.Include(r=>r.Apprenticeship).ThenInclude(a=>a.Cohort)
+        var pendingCocRequests = db.Value.ApprovalRequests
             .Where(r => r.Apprenticeship.Cohort.EmployerAccountId == request.EmployerAccountId)
             .Where(r => r.Status == CocApprovalResultStatus.Pending);
 

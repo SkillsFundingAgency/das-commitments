@@ -125,7 +125,12 @@ public class AccountController(IMediator mediator, IModelMapper modelMapper) : C
         var result = await mediator.Send(query);
 
         if (result == null) { return NotFound(); }
-        return Ok(result);
+
+        return Ok(new GetPendingLearnerChangeCountsForEmployerQueryResponse
+        {
+            ManualPendingChangeCount = result.ManualPendingChangeCount,
+            IlrPendingChangeCount = result.IlrPendingChangeCount
+        });
     }
 
     [HttpPost]
