@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
@@ -15,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -93,6 +95,8 @@ public class LearningPausedEventHandlerTestsFixture
     private Mock<IMessageHandlerContext> _mockContext;
     private LearningPausedEventHandler _handler;
     private LearningPausedEvent _event;
+    private Mock<IEncodingService> _mockEncodingService;
+    private CommitmentsV2Configuration _commitmentsV2Configuration;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
 
@@ -101,7 +105,12 @@ public class LearningPausedEventHandlerTestsFixture
         fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearningPausedEventHandler>>();
         _mockContext = new Mock<IMessageHandlerContext>();
+        _mockEncodingService = new Mock<IEncodingService>();
         UnitOfWorkContext = new UnitOfWorkContext();
+        _commitmentsV2Configuration = new CommitmentsV2Configuration
+        {
+            EmployerCommitmentsBaseUrl = "https://test.com/"
+        };
 
         _event = fixture.Create<LearningPausedEvent>();
       
@@ -145,7 +154,10 @@ public class LearningPausedEventHandlerTestsFixture
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
 
-        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockLogger.Object);
+        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
+            _mockEncodingService.Object,
+            _commitmentsV2Configuration,
+            _mockLogger.Object);
     }
 
     public LearningPausedEventHandlerTestsFixture SetStartDate(DateTime startDate)
