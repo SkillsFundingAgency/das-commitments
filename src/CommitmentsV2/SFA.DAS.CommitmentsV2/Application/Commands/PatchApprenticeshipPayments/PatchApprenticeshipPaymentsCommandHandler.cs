@@ -111,6 +111,3 @@ public class PatchApprenticeshipPaymentsCommandHandler(
 
         await messageSession.Send(sendEmailToProviderCommand);
     }
-
-
-}
