@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -18,31 +21,38 @@ using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
-public class LearnerWithdrawnEventHandler(
+public class LearningWithdrawnEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICurrentDateTime currentDate,
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
-    ILogger<LearnerWithdrawnEventHandler> logger)
+    CommitmentsV2Configuration commitmentsV2Configuration,
+    ILogger<LearningWithdrawnEventHandler> logger)
     : IHandleMessages<LearningWithdrawnEvent>
 {
-    public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
+public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
         {
+            if (commitmentsV2Configuration.LearningWithdrawalsIsActive == false)
+            {
+                logger.LogInformation("LearnerWithdrawals feature is not active. Ignoring LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
+                return;
+            }
             logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate} and WithdrawalReasonCode {WithdrawalReasonCode}",
-                message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
+            message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
             
+            var withdrawalDate = new DateTime(message.WithdrawalDate.Year, message.WithdrawalDate.Month, 1);
             if (message.WithdrawalReasonCode < 0)
             {
                 throw new DomainException(nameof(message.WithdrawalReasonCode), "Invalid WithdrawalReasonCode. The reason code can not be negative.");
             }
-            ValidateStopDateForWithdrawal(message.WithdrawalDate, apprentice);
-            await ValidateEndDateOverlap(message.WithdrawalDate, apprentice, default);
+            ValidateStopDateForWithdrawal(withdrawalDate, apprentice);
+            await ValidateEndDateOverlap(withdrawalDate, apprentice, default);
 
-            apprentice.SetIlrWithdrawn(message.WithdrawalDate, message.WithdrawalReasonCode);
+            apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             var historyCommand = new StoreLearningHistoryCommand
@@ -52,15 +62,24 @@ public class LearnerWithdrawnEventHandler(
                 ChangeType = LearningChangeType.AutoApproved,
                 LearningKey = message.LearningKey,
                 AppliedDate = message.Created,
-                Description = $"ILR Learner status changed from Live to Withdrawn due to {message.WithdrawalReasonCode}"
+                Description = BuildWithdrawalReasonDesciption(message.WithdrawalReasonCode) 
             };
             await context.Send(historyCommand);
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing LearnerWithdrawnEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
+            logger.LogError(e, "Error processing LearningWithdrawnEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
             throw;
         }
+    }
+
+    private static string BuildWithdrawalReasonDesciption(short withdrawalReasonCode)
+    {
+        if (Constants.IlrWithdrawalReasons.TryGetValue(withdrawalReasonCode, out var description))
+        {
+            return $"ILR Learner status changed from Live to Withdrawn due to {withdrawalReasonCode} - '{description}'";
+        }
+        return $"ILR Learner status changed from Live to Withdrawn due to {withdrawalReasonCode} - 'Unknown Reason Code'";
     }
 
     private void ValidateStopDateForWithdrawal(DateTime stopDate, Apprenticeship apprenticeship)
