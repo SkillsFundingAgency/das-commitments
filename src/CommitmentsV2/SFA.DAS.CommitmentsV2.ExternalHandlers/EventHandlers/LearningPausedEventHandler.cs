@@ -105,7 +105,7 @@ public class LearningPausedEventHandler(
                 {"provider_name", providerName},
                 {
                     "link_to_manage_apprenticeships",
-                    $"< href=\"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details\">sign in to your Apprenticeship Service account</a>"
+                    $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
                 }
             });
 
