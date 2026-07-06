@@ -42,6 +42,7 @@ public class LearningPausedEventHandlerTests
         _fixture.VerifyLearnerPaused();
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         _fixture.VerifyLearningPausedEventIsPublished();
+        _fixture.VerifySendEmailToEmployerCommandIsSent();
     }
 
     [Test]
@@ -106,6 +107,9 @@ public class LearningPausedEventHandlerTestsFixture
         _mockLogger = new Mock<ILogger<LearningPausedEventHandler>>();
         _mockContext = new Mock<IMessageHandlerContext>();
         _mockEncodingService = new Mock<IEncodingService>();
+        _mockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns("APP123");
+        _mockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns("ACC123");
+
         UnitOfWorkContext = new UnitOfWorkContext();
         _commitmentsV2Configuration = new CommitmentsV2Configuration
         {
@@ -204,6 +208,20 @@ public class LearningPausedEventHandlerTestsFixture
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
             c.Description == $"Learning has been paused on {_event.PauseDate}"
+        ), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    public void VerifySendEmailToEmployerCommandIsSent()
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+
+        _mockContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
+            c.AccountId == apprenticeship.Cohort.EmployerAccountId &&
+            c.Template == "EmployerApprenticeshipPausedNotification" &&
+            c.Tokens["provider_name"] == apprenticeship.Cohort.Provider.Name &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains(_commitmentsV2Configuration.EmployerCommitmentsBaseUrl) &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains("ACC123/apprentices") &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains("apprentices/APP123")
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 

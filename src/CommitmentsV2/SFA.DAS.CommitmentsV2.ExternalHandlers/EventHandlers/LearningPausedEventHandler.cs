@@ -41,8 +41,6 @@ public class LearningPausedEventHandler(
             var apprentice = await db.Apprenticeships
                 .Include(a => a.Cohort)
                     .ThenInclude(c => c.Provider)
-                .Include(a => a.Cohort)
-                    .ThenInclude(c => c.AccountLegalEntity)
                 .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
@@ -54,7 +52,7 @@ public class LearningPausedEventHandler(
 
             apprentice.SetIlrPaused(message.PauseDate);
 
-            await SendEmailNotification(context, apprentice.Cohort.AccountLegalEntity.AccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
+            await SendEmailNotification(context, apprentice.Cohort.EmployerAccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
 
             var historyCommand = new StoreLearningHistoryCommand
             {
@@ -108,8 +106,7 @@ public class LearningPausedEventHandler(
                 {
                     "link_to_manage_apprenticeships",
                     $"< href=\"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details\">sign in to your Apprenticeship Service account</a>"
-                },
-                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl}notification-settings"  }
+                }
             });
 
         await context.Send(sendEmailToProviderCommand);
