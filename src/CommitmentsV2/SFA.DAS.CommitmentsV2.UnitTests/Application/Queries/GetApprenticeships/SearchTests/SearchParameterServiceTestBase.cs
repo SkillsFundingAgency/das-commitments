@@ -130,28 +130,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
                 DateTime.UtcNow);
         }
-
-        protected static List<LearningChangeHistory> GetLearningChangeHistory()
-        {
-            return
-            [
-                 new LearningChangeHistory()
-                 {
-                      UserId = Guid.NewGuid(),
-                       ApprenticeshipId = 1,
-                       ProviderName = "Test Provider",
-                       EmployerName = "Test Employer",
-                       LearnerName = "Test Learner",
-                       LearningKey = Guid.NewGuid(),
-                       Description = "Test Description",
-                       Source = 1,
-                       ChangeType = 1,
-                       Created = DateTime.UtcNow,
-                       AppliedDate = DateTime.UtcNow,
-                       AccountId = 1,
-                       UKPRN = 1
-                 }
-            ];
-        }
     }
 }
