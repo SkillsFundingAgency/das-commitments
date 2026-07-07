@@ -1,5 +1,4 @@
 ﻿using AutoFixture.NUnit3;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
@@ -31,8 +30,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
-
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);
 
@@ -63,7 +60,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.EmployerAccountId == searchParameters.EmployerAccountId);
@@ -93,7 +89,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var result = await service.Find(searchParameters);
 
@@ -197,7 +192,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -232,7 +226,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -263,7 +256,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -292,7 +284,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -321,7 +312,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -350,7 +340,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -379,7 +368,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -389,6 +377,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.That(actual.TotalAvailableApprenticeships, Is.EqualTo(5));
         }
+
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
@@ -405,7 +394,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -415,6 +403,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.That(actual.TotalApprenticeshipsWithAlertsFound, Is.EqualTo(3));
         }
+
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
@@ -426,6 +415,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageItemCount = 0;
             searchParameters.ReverseSort = false;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
+
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -486,7 +476,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -519,7 +508,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -533,6 +521,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 Assert.That(actual.Apprenticeships, Is.Not.Empty);
             });
         }
+
 
         [Test, MoqAutoData]
         public async Task Then_Will_Return_Page_Number_If_All_Apprenticeships_Are_With_Alerts(
@@ -551,7 +540,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
@@ -647,7 +636,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
@@ -658,75 +646,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.That(actual.TotalApprenticeshipsWithAlertsFound, Is.EqualTo(3));
         }
 
-        [Test, MoqAutoData]
-        public async Task Then_Get_Change_History_Will_Be_True_For_Provider_When_Getting_All_Results(
-           ApprenticeshipSearchParameters searchParameters,
-           List<LearningChangeHistory> changeHistory,
-           [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
-        {
-            //Arrange
-            searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 2;
-            searchParameters.Filters = new ApprenticeshipSearchFilters();
 
-            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId.Value;
-            apprenticeships[0].ProviderRef = null;
-            searchParameters.EmployerAccountId = null;
-
-            foreach (var item in changeHistory)
-            {
-                item.UKPRN = searchParameters.ProviderId.Value;
-            }
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(apprenticeships);
-
-            mockContext
-              .Setup(context => context.LearningChangeHistory)
-              .ReturnsDbSet(changeHistory);
-
-            var service = new ApprenticeshipSearchService(mockContext.Object);
-
-            //Act
-            var actual = await service.Find(searchParameters);
-
-            //Assert
-            actual.HasChangeHistory.Should().BeTrue();
-        }
-
-        [Test, MoqAutoData]
-        public async Task Then_Get_Change_History_Will_Be_False_For_Provider_When_Getting_All_Results(
-           ApprenticeshipSearchParameters searchParameters,
-           List<LearningChangeHistory> changeHistory,
-           [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
-        {
-            //Arrange
-            searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 2;
-            searchParameters.Filters = new ApprenticeshipSearchFilters();
-
-            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId.Value;
-            apprenticeships[0].ProviderRef = null;
-            searchParameters.EmployerAccountId = null;
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(apprenticeships);
-
-            mockContext
-             .Setup(context => context.LearningChangeHistory)
-             .ReturnsDbSet(changeHistory);
-
-            var service = new ApprenticeshipSearchService(mockContext.Object);
-
-            //Act
-            var actual = await service.Find(searchParameters);
-
-            //Assert
-            actual.HasChangeHistory.Should().BeFalse();
-        }
     }
 }

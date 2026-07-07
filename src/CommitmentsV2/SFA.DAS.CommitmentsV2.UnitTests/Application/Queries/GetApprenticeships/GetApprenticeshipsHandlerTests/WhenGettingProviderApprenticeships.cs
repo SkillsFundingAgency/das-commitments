@@ -17,9 +17,8 @@ public class WhenGettingProviderApprenticeships
         List<Apprenticeship> apprenticeships,
         [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        Mock<ProviderCommitmentsDbContext> mockContext,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -36,6 +35,12 @@ public class WhenGettingProviderApprenticeships
             .Setup(context => context.Apprenticeships)
             .ReturnsDbSet(new List<Apprenticeship>());
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
         await handler.Handle(query, CancellationToken.None);
 
         mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp =>
@@ -49,13 +54,11 @@ public class WhenGettingProviderApprenticeships
 
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnsOrderedApprenticeshipsWhenOrdering(
-
         [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        Mock<ProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "test";
         query.ReverseSort = false;
@@ -76,6 +79,12 @@ public class WhenGettingProviderApprenticeships
             .Setup(context => context.Apprenticeships)
             .ReturnsDbSet(new List<Apprenticeship>());
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
         await handler.Handle(query, CancellationToken.None);
 
         mockMapper
@@ -85,13 +94,11 @@ public class WhenGettingProviderApprenticeships
 
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnReverseOrderedApprenticeshipsWhenOrderingInReverse(
-
         [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        Mock<ProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "test";
         query.ReverseSort = true;
@@ -109,6 +116,12 @@ public class WhenGettingProviderApprenticeships
             .Setup(context => context.Apprenticeships)
             .ReturnsDbSet(new List<Apprenticeship>());
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
         await handler.Handle(query, CancellationToken.None);
 
         mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp =>
@@ -125,10 +138,10 @@ public class WhenGettingProviderApprenticeships
         [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         [Frozen] GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        Mock<ProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> search,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        List<LearningChangeHistory> changeHistory,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -150,6 +163,12 @@ public class WhenGettingProviderApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))))
             .ReturnsAsync(apprenticeshipDetails);
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
+
         var result = await handler.Handle(query, CancellationToken.None);
 
         result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
@@ -163,9 +182,9 @@ public class WhenGettingProviderApprenticeships
         GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
         [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> search,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        Mock<ProviderCommitmentsDbContext> mockContext,
+        List<LearningChangeHistory> changeHistory,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -190,6 +209,12 @@ public class WhenGettingProviderApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))))
             .ReturnsAsync(apprenticeshipDetails);
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
+
         var result = await handler.Handle(query, CancellationToken.None);
 
         result.TotalApprenticeshipsFound.Should().Be(totalApprenticeshipsFoundCount);
@@ -202,9 +227,10 @@ public class WhenGettingProviderApprenticeships
         [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         ApprenticeshipSearchResult searchResult,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        Mock<ProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> search,
-        GetApprenticeshipsQueryHandler handler)
+        List<LearningChangeHistory> changeHistory,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -217,6 +243,12 @@ public class WhenGettingProviderApprenticeships
         mockContext
             .Setup(context => context.Apprenticeships)
             .ReturnsDbSet(apprenticeships);
+
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
 
         var result = await handler.Handle(query, CancellationToken.None);
 
@@ -231,9 +263,8 @@ public class WhenGettingProviderApprenticeships
         GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
         [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> search,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler)
+        Mock<ProviderCommitmentsDbContext> mockContext,
+        [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -258,6 +289,12 @@ public class WhenGettingProviderApprenticeships
                 .Where(apprenticeship => apprenticeship.IsProviderSearch))))
             .ReturnsAsync(apprenticeshipDetails);
 
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([new LearningChangeHistory() { UKPRN = query.ProviderId.Value }]);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
+
         var result = await handler.Handle(query, CancellationToken.None);
 
         result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
@@ -268,9 +305,10 @@ public class WhenGettingProviderApprenticeships
         [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         ApprenticeshipSearchResult searchResult,
-        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        Mock<ProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> search,
-        GetApprenticeshipsQueryHandler handler)
+        List<LearningChangeHistory> changeHistory,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -282,7 +320,13 @@ public class WhenGettingProviderApprenticeships
 
         mockContext
             .Setup(context => context.Apprenticeships)
-            .ReturnsDbSet(apprenticeships);
+            .ReturnsDbSet(apprenticeships.AsQueryable().BuildMockDbSet().Object);
+
+        mockContext.Setup(t => t.LearningChangeHistory).Returns(changeHistory.AsQueryable().BuildMockDbSet().Object);
+
+        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
 
         var result = await handler.Handle(query, CancellationToken.None);
 

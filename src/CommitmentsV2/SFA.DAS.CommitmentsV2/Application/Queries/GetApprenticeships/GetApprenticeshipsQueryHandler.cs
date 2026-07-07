@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -7,7 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
 public class GetApprenticeshipsQueryHandler(
     IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> mapper,
-    IApprenticeshipSearch apprenticeshipSearch)
+    IApprenticeshipSearch apprenticeshipSearch,
+    Lazy<ProviderCommitmentsDbContext> dbContext)
     : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
 {
     public async Task<GetApprenticeshipsQueryResult> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
@@ -15,6 +17,8 @@ public class GetApprenticeshipsQueryHandler(
         var matchedApprenticeshipDetails = new List<GetApprenticeshipsQueryResult.ApprenticeshipDetails>();
 
         ApprenticeshipSearchResult searchResult;
+
+        var hasChangeHistory = dbContext.Value.LearningChangeHistory.Any(a => a.UKPRN == query.ProviderId);
 
         if (string.IsNullOrEmpty(query.SortField))
         {
@@ -74,7 +78,7 @@ public class GetApprenticeshipsQueryHandler(
         {
             var details = await mapper.Map(apprenticeship); 
             matchedApprenticeshipDetails.Add(details);
-        }
+        }       
 
         return new GetApprenticeshipsQueryResult
         {
@@ -83,7 +87,7 @@ public class GetApprenticeshipsQueryHandler(
             TotalApprenticeshipsWithAlertsFound = searchResult.TotalApprenticeshipsWithAlertsFound,
             TotalApprenticeships = searchResult.TotalAvailableApprenticeships,
             PageNumber = searchResult.PageNumber,
-            HasChangeHistory = searchResult.HasChangeHistory,
+            HasChangeHistory = hasChangeHistory
         };
     }
 }
