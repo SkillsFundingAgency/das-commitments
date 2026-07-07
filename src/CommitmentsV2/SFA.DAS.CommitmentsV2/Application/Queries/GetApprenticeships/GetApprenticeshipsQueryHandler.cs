@@ -82,7 +82,8 @@ public class GetApprenticeshipsQueryHandler(
             TotalApprenticeshipsFound = searchResult.TotalApprenticeshipsFound,
             TotalApprenticeshipsWithAlertsFound = searchResult.TotalApprenticeshipsWithAlertsFound,
             TotalApprenticeships = searchResult.TotalAvailableApprenticeships,
-            PageNumber = searchResult.PageNumber
+            PageNumber = searchResult.PageNumber,
+            HasChangeHistory = searchResult.HasChangeHistory,
         };
     }
 }

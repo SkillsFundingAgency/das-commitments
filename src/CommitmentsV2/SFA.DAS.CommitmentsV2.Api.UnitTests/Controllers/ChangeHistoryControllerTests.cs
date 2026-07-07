@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAllChangeHistory;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -47,7 +48,7 @@ public class ChangeHistoryControllerTests
         {
             // Arrange
             _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryQuery>(t => t.ApprenticeshipId == apprenticeshipId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetChangeHistoryQueryResult(){ ChangeHistory = new List<ChangeHistory>() });
+                .ReturnsAsync(new GetChangeHistoryQueryResult() { ChangeHistory = new List<ChangeHistory>() });
 
             // Act
             var result = await _controller.GetChangeHistory(apprenticeshipId) as ObjectResult;
@@ -56,7 +57,43 @@ public class ChangeHistoryControllerTests
             // Assert
             model.Should().NotBeNull();
             model.ChangeHistory.Should().BeEmpty();
+        }
+    }
 
+    [Test, MoqAutoData]
+    public async Task GetChangeHistoryForAllLearners_ForGivenProvider_Then_ReturnValidResponse(
+       GetAllChangeHistoryForProviderQueryResult changeHistoryQueryResult,
+       long providerId)
+    {
+        // Arrange
+        _mediator.Setup(m => m.Send(It.Is<GetAllChangeHistoryForProviderQuery>(t => t.ProviderId == providerId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(changeHistoryQueryResult);
+
+        // Act
+        var result = await _controller.GetChangeHistoryForAllLearnersOfProvider(providerId) as OkObjectResult;
+
+        // Assert
+        result.Should().NotBeNull();
+        var jsonResult = result as OkObjectResult;
+        var getAllChangeHistoryResponse = jsonResult?.Value as GetAllChangeHistoryForProviderQueryResponse;
+        getAllChangeHistoryResponse.ChangeHistory.Should().HaveCount(changeHistoryQueryResult.ChangeHistory.Count);
+        getAllChangeHistoryResponse.ChangeHistory.Should().BeEquivalentTo(changeHistoryQueryResult.ChangeHistory);
+    }
+
+    [Test, MoqAutoData]
+    public async Task GetChangeHistoryForAllLearners_ForGivenProvider_Then_ReturnEmptyResponse(long providerId)
+    {
+        {
+            // Arrange
+            _mediator.Setup(m => m.Send(It.Is<GetAllChangeHistoryForProviderQuery>(t => t.ProviderId == providerId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetAllChangeHistoryForProviderQueryResult() { ChangeHistory = new List<ChangeHistory>() });
+
+            // Act
+            var result = await _controller.GetChangeHistoryForAllLearnersOfProvider(providerId) as ObjectResult;
+            var model = result?.Value as GetAllChangeHistoryForProviderQueryResponse;
+            // Assert
+            model.Should().NotBeNull();
+            model.ChangeHistory.Should().BeEmpty();
         }
     }
 }

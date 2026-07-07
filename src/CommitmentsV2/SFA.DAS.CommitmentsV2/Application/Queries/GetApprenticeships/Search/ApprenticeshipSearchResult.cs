@@ -9,4 +9,5 @@ public class ApprenticeshipSearchResult
     public int TotalApprenticeshipsWithAlertsFound { get; set; }
     public int TotalAvailableApprenticeships { get; set; }
     public int PageNumber { get; set; }
+    public bool HasChangeHistory { get; set; }
 }

@@ -17,4 +17,5 @@ public class ChangeHistory
     public string LearnerName { get; set; }
     public DateTime AppliedDate { get; set; }
     public DateTime Created { get; set; }
+    public string EmployerName { get; set; }
 }

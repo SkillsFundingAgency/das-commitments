@@ -15,7 +15,7 @@ public class WhenGettingProviderApprenticeships
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnUnsortedApprenticeshipsWhenNotOrdering(
         List<Apprenticeship> apprenticeships,
-        [Frozen]GetApprenticeshipsQuery query,
+        [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
@@ -38,10 +38,10 @@ public class WhenGettingProviderApprenticeships
 
         await handler.Handle(query, CancellationToken.None);
 
-        mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp => 
+        mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp =>
             sp.ProviderId.Equals(query.ProviderId) &&
             sp.EmployerAccountId == null)), Times.Once);
-            
+
         mockMapper
             .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
@@ -49,8 +49,8 @@ public class WhenGettingProviderApprenticeships
 
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnsOrderedApprenticeshipsWhenOrdering(
-            
-        [Frozen]GetApprenticeshipsQuery query,
+
+        [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
@@ -64,8 +64,8 @@ public class WhenGettingProviderApprenticeships
         apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
         mockSearch.Setup(x => x.Find(
-                It.Is<OrderedApprenticeshipSearchParameters>(sp => 
-                    sp.ProviderId.Equals(query.ProviderId)&&
+                It.Is<OrderedApprenticeshipSearchParameters>(sp =>
+                    sp.ProviderId.Equals(query.ProviderId) &&
                     sp.EmployerAccountId.Equals(null))))
             .ReturnsAsync(new ApprenticeshipSearchResult
             {
@@ -83,11 +83,10 @@ public class WhenGettingProviderApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
     }
 
-
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnReverseOrderedApprenticeshipsWhenOrderingInReverse(
-           
-        [Frozen]GetApprenticeshipsQuery query,
+
+        [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> mockSearch,
@@ -111,21 +110,21 @@ public class WhenGettingProviderApprenticeships
             .ReturnsDbSet(new List<Apprenticeship>());
 
         await handler.Handle(query, CancellationToken.None);
-            
-        mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp => 
+
+        mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp =>
             sp.ProviderId.Equals(query.ProviderId) &&
             sp.EmployerAccountId == null)), Times.Once);
-            
+
         mockMapper
             .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
     }
 
     [Test, RecursiveMoqAutoData]
-    public async Task ThenReturnsMappedApprenticeships( 
-        [Frozen]GetApprenticeshipsQuery query,
+    public async Task ThenReturnsMappedApprenticeships(
+        [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
-        [Frozen]GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+        [Frozen] GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IApprenticeshipSearch> search,
         [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
@@ -154,7 +153,6 @@ public class WhenGettingProviderApprenticeships
         var result = await handler.Handle(query, CancellationToken.None);
 
         result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
-
     }
 
     [Test, RecursiveMoqAutoData]
@@ -163,11 +161,11 @@ public class WhenGettingProviderApprenticeships
         int totalApprenticeshipsFoundCount,
         List<Apprenticeship> apprenticeships,
         GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-        [Frozen]GetApprenticeshipsQuery query,
+        [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> search,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-        GetApprenticeshipsQueryHandler handler) 
+        GetApprenticeshipsQueryHandler handler)
     {
         query.SortField = "";
         query.EmployerAccountId = null;
@@ -201,7 +199,7 @@ public class WhenGettingProviderApprenticeships
 
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnsPageNumber(
-        [Frozen]GetApprenticeshipsQuery query,
+        [Frozen] GetApprenticeshipsQuery query,
         List<Apprenticeship> apprenticeships,
         ApprenticeshipSearchResult searchResult,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
@@ -231,7 +229,7 @@ public class WhenGettingProviderApprenticeships
         int totalApprenticeshipsFoundCount,
         List<Apprenticeship> apprenticeships,
         GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-        [Frozen]GetApprenticeshipsQuery query,
+        [Frozen] GetApprenticeshipsQuery query,
         [Frozen] Mock<IApprenticeshipSearch> search,
         [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
         [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
@@ -263,6 +261,31 @@ public class WhenGettingProviderApprenticeships
         var result = await handler.Handle(query, CancellationToken.None);
 
         result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
+    }
 
+    [Test, RecursiveMoqAutoData]
+    public async Task ThenReturnsHasChangeHistory(
+        [Frozen] GetApprenticeshipsQuery query,
+        List<Apprenticeship> apprenticeships,
+        ApprenticeshipSearchResult searchResult,
+        [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+        [Frozen] Mock<IApprenticeshipSearch> search,
+        GetApprenticeshipsQueryHandler handler)
+    {
+        query.SortField = "";
+        query.EmployerAccountId = null;
+
+        apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
+
+        search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+            .ReturnsAsync(searchResult);
+
+        mockContext
+            .Setup(context => context.Apprenticeships)
+            .ReturnsDbSet(apprenticeships);
+
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        result.HasChangeHistory.Should().Be(searchResult.HasChangeHistory);
     }
 }

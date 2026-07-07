@@ -99,14 +99,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
             }
 
-
             return apprenticeships;
-
         }
 
         protected static void AssignProviderToApprenticeships(long? providerId, IEnumerable<Apprenticeship> apprenticeships)
         {
-
             foreach (var apprenticeship in apprenticeships)
             {
                 apprenticeship.Cohort.ProviderId = providerId.GetValueOrDefault();
@@ -126,11 +123,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 apprenticeship.Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
             }
         }
+
         protected static AccountLegalEntity CreateAccountLegalEntity(string name)
         {
             var account = new Account(1, "", "", name, DateTime.UtcNow);
             return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
                 DateTime.UtcNow);
+        }
+
+        protected static List<LearningChangeHistory> GetLearningChangeHistory()
+        {
+            return
+            [
+                 new LearningChangeHistory()
+                 {
+                      UserId = Guid.NewGuid(),
+                       ApprenticeshipId = 1,
+                       ProviderName = "Test Provider",
+                       EmployerName = "Test Employer",
+                       LearnerName = "Test Learner",
+                       LearningKey = Guid.NewGuid(),
+                       Description = "Test Description",
+                       Source = 1,
+                       ChangeType = 1,
+                       Created = DateTime.UtcNow,
+                       AppliedDate = DateTime.UtcNow,
+                       AccountId = 1,
+                       UKPRN = 1
+                 }
+            ];
         }
     }
 }

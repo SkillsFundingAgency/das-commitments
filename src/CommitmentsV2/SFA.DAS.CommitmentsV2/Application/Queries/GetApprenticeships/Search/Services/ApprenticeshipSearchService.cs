@@ -19,6 +19,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
 
         var selectedPageNumber = searchParameters.PageNumber;
 
+        var hasChangeHistory = await dbContext.LearningChangeHistory.AnyAsync(a => a.UKPRN == searchParameters.ProviderId, searchParameters.CancellationToken);
+
         if (searchParameters.PageNumber > 0 && searchParameters.PageItemCount > 0)
         {
             var maxPageCount = (int)Math.Ceiling((double)totalApprenticeshipsFound / searchParameters.PageItemCount);
@@ -50,7 +52,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                     TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                     TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
                     TotalAvailableApprenticeships = totalApprenticeships,
-                    PageNumber = selectedPageNumber
+                    PageNumber = selectedPageNumber,
+                    HasChangeHistory = hasChangeHistory
                 };
             }
 
@@ -82,7 +85,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                     TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                     TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
                     TotalAvailableApprenticeships = totalApprenticeships,
-                    PageNumber = selectedPageNumber
+                    PageNumber = selectedPageNumber,
+                    HasChangeHistory = hasChangeHistory
                 };
             }
 
@@ -103,7 +107,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
             TotalApprenticeshipsFound = totalApprenticeshipsFound,
             TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
             TotalAvailableApprenticeships = totalApprenticeships,
-            PageNumber = selectedPageNumber
+            PageNumber = selectedPageNumber,
+            HasChangeHistory = hasChangeHistory
         };
     }
 
