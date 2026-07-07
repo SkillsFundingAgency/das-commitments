@@ -15,7 +15,8 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             TotalApprenticeshipsWithAlertsFound = source.TotalApprenticeshipsWithAlertsFound,
             Apprenticeships = source.Apprenticeships.Select(MapApprenticeship),
             TotalApprenticeships = source.TotalApprenticeships,
-            PageNumber = source.PageNumber
+            PageNumber = source.PageNumber,
+            HasChangeHistory = source.HasChangeHistory
         });
     }
 
