@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using SFA.DAS.Common.Domain.Types;
+
+namespace SFA.DAS.CommitmentsV2.Domain.Entities;
 
 public class UlnUtilisation
 {
@@ -12,4 +14,6 @@ public class UlnUtilisation
     public long ApprenticeshipId { get; }
     public string Uln { get; }
     public DateRange DateRange { get; }
+    public DateTime? ActualStartDate { get; set; }
+    public LearningType? LearningType { get; set; }
 }
