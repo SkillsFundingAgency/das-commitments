@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 
@@ -59,7 +59,7 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
     private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
         var overlapCheckResult = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
-            new DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value, true),
             command.ApprenticeshipId,
             cancellationToken);
 
@@ -72,7 +72,7 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
     private async Task CheckEmailOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
         var overlapCheckResult = await overlapCheckService.CheckForEmailOverlaps(apprenticeshipUpdate.Email,
-            new DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value, true),
             command.ApprenticeshipId,
             null,
             cancellationToken);

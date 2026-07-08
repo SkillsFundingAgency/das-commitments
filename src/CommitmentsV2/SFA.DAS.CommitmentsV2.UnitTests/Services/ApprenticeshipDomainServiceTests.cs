@@ -489,7 +489,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                    .EnableSensitiveDataLogging()
                     .Options;
 
                 using (var dbContext = new ProviderCommitmentsDbContext(options))

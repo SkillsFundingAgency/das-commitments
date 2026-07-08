@@ -105,7 +105,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                          .EnableSensitiveDataLogging()
                           .Options);
 
                 currentProxyDateTime = new DateTime(2022, 2, 1);

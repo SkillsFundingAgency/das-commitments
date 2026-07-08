@@ -160,7 +160,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
 
             OverlapCheckService = new Mock<IOverlapCheckService>();
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), ApprenticeshipId, It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(new OverlapCheckResult(HasOverlapErrors, HasOverlapErrors)));
 
             currentDateTimeService = new Mock<ICurrentDateTime>();
             currentDateTimeService.Setup(x => x.UtcNow).Returns(proxyCurrentDateTime);
