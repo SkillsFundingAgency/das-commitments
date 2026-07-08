@@ -146,7 +146,6 @@ public class UlnUtilisationServiceTests
         result.Should().NotBeNull();
         result.DateRange.HasWithdrawn.Should().BeFalse();
     }
-
 }
 
 public class UlnUtilisationServiceFixture
