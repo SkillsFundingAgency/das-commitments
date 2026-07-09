@@ -52,7 +52,6 @@
 
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.6" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.6" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
