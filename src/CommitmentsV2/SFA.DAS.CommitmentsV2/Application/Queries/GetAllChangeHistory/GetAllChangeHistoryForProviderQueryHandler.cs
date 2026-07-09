@@ -7,7 +7,7 @@ public class GetAllChangeHistoryForProviderQueryHandler(Lazy<ProviderCommitments
 {
     public async Task<GetAllChangeHistoryForProviderQueryResult> Handle(GetAllChangeHistoryForProviderQuery request, CancellationToken cancellationToken)
     {
-        var changeHistories = await dbContext.Value.LearningChangeHistory
+        var changeHistories = await dbContext.Value.LearningChangeHistory.AsNoTracking()
            .Where(x => x.UKPRN == request.ProviderId)
            .Select(x => new ChangeHistory
            {
@@ -19,7 +19,9 @@ public class GetAllChangeHistoryForProviderQueryHandler(Lazy<ProviderCommitments
                Created = x.Created,
                Id = x.Id,
                EmployerName = x.EmployerName
-           }).ToListAsync(cancellationToken);
+           }).
+           OrderByDescending(x => x.Created).
+           ToListAsync(cancellationToken);
 
         return new GetAllChangeHistoryForProviderQueryResult
         {

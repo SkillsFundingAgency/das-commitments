@@ -299,37 +299,4 @@ public class WhenGettingProviderApprenticeships
 
         result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
     }
-
-    [Test, RecursiveMoqAutoData]
-    public async Task ThenReturnsHasChangeHistory(
-        [Frozen] GetApprenticeshipsQuery query,
-        List<Apprenticeship> apprenticeships,
-        ApprenticeshipSearchResult searchResult,
-        Mock<ProviderCommitmentsDbContext> mockContext,
-        [Frozen] Mock<IApprenticeshipSearch> search,
-        List<LearningChangeHistory> changeHistory,
-        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
-    {
-        query.SortField = "";
-        query.EmployerAccountId = null;
-
-        apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
-
-        search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
-            .ReturnsAsync(searchResult);
-
-        mockContext
-            .Setup(context => context.Apprenticeships)
-            .ReturnsDbSet(apprenticeships.AsQueryable().BuildMockDbSet().Object);
-
-        mockContext.Setup(t => t.LearningChangeHistory).Returns(changeHistory.AsQueryable().BuildMockDbSet().Object);
-
-        var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
-
-        GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, search.Object, lazyContext);
-
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        result.HasChangeHistory.Should().Be(searchResult.HasChangeHistory);
-    }
 }

@@ -18,7 +18,7 @@ public class GetApprenticeshipsQueryHandler(
 
         ApprenticeshipSearchResult searchResult;
 
-        var hasChangeHistory = dbContext.Value.LearningChangeHistory.Any(a => a.UKPRN == query.ProviderId);
+        var hasChangeHistory = query.ProviderId.HasValue && await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.UKPRN == query.ProviderId, cancellationToken: cancellationToken);
 
         if (string.IsNullOrEmpty(query.SortField))
         {
