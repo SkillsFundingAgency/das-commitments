@@ -16,8 +16,6 @@
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="17.1.103" />
-
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
