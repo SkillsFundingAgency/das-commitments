@@ -29,7 +29,7 @@ public class UlnUtilisationService(IDbContextFactory dbContextFactory) : IUlnUti
                 .Select(x => new UlnUtilisation(x.Id,
                     x.Uln,
                     x.StartDate.Value,
-                    x.EndDate.Value, true)).ToListAsync(cancellationToken);
+                    x.EndDate.Value, false)).ToListAsync(cancellationToken);
 
             var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
 

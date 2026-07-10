@@ -59,7 +59,7 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
     private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
         var overlapCheckResult = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
-            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value, true),
+            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
             command.ApprenticeshipId,
             cancellationToken);
 
@@ -72,7 +72,7 @@ public class AcceptApprenticeshipUpdatesCommandHandler(
     private async Task CheckEmailOverlap(AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate, CancellationToken cancellationToken)
     {
         var overlapCheckResult = await overlapCheckService.CheckForEmailOverlaps(apprenticeshipUpdate.Email,
-            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value, true),
+            new CourseDateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
             command.ApprenticeshipId,
             null,
             cancellationToken);
