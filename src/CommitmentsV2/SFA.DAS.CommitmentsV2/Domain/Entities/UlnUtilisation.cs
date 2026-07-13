@@ -1,6 +1,4 @@
-﻿using SFA.DAS.Common.Domain.Types;
-
-namespace SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities;
 
 public class UlnUtilisation
 {
