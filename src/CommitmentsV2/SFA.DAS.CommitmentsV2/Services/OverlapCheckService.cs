@@ -70,7 +70,7 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
             }
         }
 
-        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId, await IsOverlapWithIlrWithdrawnApprenticeship(utilisations, apprenticeshipId));
+        return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId, await IsOverlapWithIlrWithdrawnApprenticeship(apprenticeshipId));
     }
 
     private async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations(string uln, long? existingApprenticeshipId, CancellationToken cancellationToken)
@@ -130,11 +130,14 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         return overlapCheckResult.ToList();
     }
 
-    private async Task<bool> IsOverlapWithIlrWithdrawnApprenticeship(IEnumerable<UlnUtilisation> utilisations, long? excludeId)
+    private async Task<bool> IsOverlapWithIlrWithdrawnApprenticeship(long? apprenticeshipId)
     {
-        var apprenticehipIds = utilisations.Where(t => excludeId == null || t.ApprenticeshipId != excludeId).Select(x => x.ApprenticeshipId).ToList();
+        if (!apprenticeshipId.HasValue)
+        {
+            return false;
+        }
 
         return await dbContext.Value.Apprenticeships.AsNoTracking()
-            .AnyAsync(x => apprenticehipIds.Contains(x.Id) && x.WithdrawnReasonCode.HasValue);
+            .AnyAsync(x => x.Id == apprenticeshipId.Value && x.WithdrawnReasonCode.HasValue);
     }
 }
