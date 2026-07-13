@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
+using ApprenticeshipEmployerType = SFA.DAS.Common.Domain.Types.ApprenticeshipEmployerType;
 using SFA.DAS.EmployerAccounts.Types.Models;
 using SFA.DAS.EmployerFinance.Messages.Events;
 using SFA.DAS.Payments.ProviderPayments.Messages;
@@ -63,6 +64,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("Z - ApprenticeshipStopDateChangedEvent Event");
                 Console.WriteLine("1 - ChangeOfPartyRequestCreatedEvent Event");
                 Console.WriteLine("2 - ApprenticeshipStartDateChangedEvent Event");
+                Console.WriteLine("3 - ApprenticeshipEmployerTypeChangeEvent (NonLevy)");
                 Console.WriteLine("X - Exit");
 				Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -229,6 +231,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ChangeOfPartyRequestCreatedEvent(12345, new UserInfo(), false));
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCreatedEvent)}");
+                            break;
+                        case ConsoleKey.D3:
+                            await _publisher.Publish(new ApprenticeshipEmployerTypeChangeEvent
+                            {
+                                AccountId = accountId,
+                                ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy,
+                                Created = DateTime.UtcNow
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(ApprenticeshipEmployerTypeChangeEvent)} (NonLevy)");
                             break;
 					}
                 }
