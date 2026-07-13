@@ -22,35 +22,38 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers;
 [Parallelizable(ParallelScope.All)]
 public class ApprenticeshipEmployerTypeChangeEventHandlerTests
 {
+    private const long SenderAccountId = 1001;
+    private const long FirstTransferRequestId = 501;
+    private const long SecondTransferRequestId = 502;
+
+    private static bool IsRejectCommand(object message, long transferRequestId) =>
+        message is RejectTransferRequestCommand command
+        && command.TransferRequestId == transferRequestId
+        && command.UserInfo.IsSystem();
+
     [Test]
     public async Task Handle_WhenEmployerBecomesNonLevy_ThenRejectTransferRequestCommandsAreSentForPendingSenderRequests()
     {
         // Arrange
         var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
-            .WithPendingTransferRequestForSender(1001, 501)
-            .WithPendingTransferRequestForSender(1001, 502)
+            .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
+            .WithPendingTransferRequestForSender(SenderAccountId, SecondTransferRequestId)
             .WithPendingTransferRequestForSender(9999, 503);
+
+        var sentCommands = new List<RejectTransferRequestCommand>();
+        fixture.MessageHandlerContext
+            .Setup(m => m.Send(
+                It.Is<object>(o => o is RejectTransferRequestCommand),
+                It.Is<SendOptions>(_ => true)))
+            .Callback<object, SendOptions>((command, _) => sentCommands.Add((RejectTransferRequestCommand)command))
+            .Returns(Task.CompletedTask);
 
         // Act
         await fixture.Handle();
 
         // Assert
-        fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.Is<RejectTransferRequestCommand>(c =>
-                    c.TransferRequestId == 501 &&
-                    c.UserInfo.IsSystem()),
-                It.IsAny<SendOptions>()),
-            Times.Once);
-
-        fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.Is<RejectTransferRequestCommand>(c => c.TransferRequestId == 502),
-                It.IsAny<SendOptions>()),
-            Times.Once);
-
-        fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.IsAny<RejectTransferRequestCommand>(),
-                It.IsAny<SendOptions>()),
-            Times.Exactly(2));
+        Assert.That(sentCommands.Select(c => c.TransferRequestId), Is.EquivalentTo(new[] { FirstTransferRequestId, SecondTransferRequestId }));
+        Assert.That(sentCommands, Has.All.Matches<RejectTransferRequestCommand>(c => c.UserInfo.IsSystem()));
     }
 
     [Test]
@@ -58,7 +61,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTests
     {
         // Arrange
         var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
-            .WithPendingTransferRequestForSender(1001, 501)
+            .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
             .WithEmployerType(ApprenticeshipEmployerType.Levy);
 
         // Act
@@ -66,8 +69,8 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTests
 
         // Assert
         fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.IsAny<RejectTransferRequestCommand>(),
-                It.IsAny<SendOptions>()),
+                It.Is<object>(o => IsRejectCommand(o, FirstTransferRequestId)),
+                It.Is<SendOptions>(_ => true)),
             Times.Never);
     }
 
@@ -76,7 +79,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTests
     {
         // Arrange
         var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
-            .WithPendingTransferRequestForSender(1001, 501)
+            .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
             .WithEmployerType(ApprenticeshipEmployerType.Unknown);
 
         // Act
@@ -84,8 +87,8 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTests
 
         // Assert
         fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.IsAny<RejectTransferRequestCommand>(),
-                It.IsAny<SendOptions>()),
+                It.Is<object>(o => IsRejectCommand(o, FirstTransferRequestId)),
+                It.Is<SendOptions>(_ => true)),
             Times.Never);
     }
 
@@ -94,16 +97,21 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTests
     {
         // Arrange
         var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
-            .WithTransferRequestForSender(1001, 601, TransferApprovalStatus.Approved)
-            .WithTransferRequestForSender(1001, 602, TransferApprovalStatus.Rejected);
+            .WithTransferRequestForSender(SenderAccountId, 601, TransferApprovalStatus.Approved)
+            .WithTransferRequestForSender(SenderAccountId, 602, TransferApprovalStatus.Rejected);
 
         // Act
         await fixture.Handle();
 
         // Assert
         fixture.MessageHandlerContext.Verify(m => m.Send(
-                It.IsAny<RejectTransferRequestCommand>(),
-                It.IsAny<SendOptions>()),
+                It.Is<object>(o => IsRejectCommand(o, 601)),
+                It.Is<SendOptions>(_ => true)),
+            Times.Never);
+
+        fixture.MessageHandlerContext.Verify(m => m.Send(
+                It.Is<object>(o => IsRejectCommand(o, 602)),
+                It.Is<SendOptions>(_ => true)),
             Times.Never);
     }
 }
