@@ -22,7 +22,7 @@ paths:
   
   /approvals/{learningKey}:
     put:
-      summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
+      summary: Request an approval for the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
