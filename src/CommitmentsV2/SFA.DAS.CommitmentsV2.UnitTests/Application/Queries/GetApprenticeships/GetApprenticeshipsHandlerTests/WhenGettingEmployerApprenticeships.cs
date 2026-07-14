@@ -15,11 +15,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task ThenQueriesApprenticeshipsWithEmployerIdWhenNotOrdering(
             List<Apprenticeship> apprenticeships,
-            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] GetApprenticeshipsQuery query,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsQueryHandler handler)
+            Mock<ProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
         {
             query.SortField = "";
             query.ProviderId = null;
@@ -36,23 +35,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(new List<Apprenticeship>());
 
+            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+
+            var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+            GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
             await handler.Handle(query, CancellationToken.None);
 
-            mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp => 
+            mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp =>
                 sp.EmployerAccountId.Equals(query.EmployerAccountId) &&
                 sp.ProviderId == null)), Times.Once);
         }
 
         [Test, RecursiveMoqAutoData]
         public async Task ThenQueriesApprenticeshipsWithEmployerIdWhenOrdering(
-            
-            [Frozen]GetApprenticeshipsQuery query,
+
+            [Frozen] GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<ProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsQueryHandler handler)
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
         {
             query.SortField = "test";
             query.ReverseSort = false;
@@ -70,24 +74,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(new List<Apprenticeship>());
 
+            var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+            GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
             await handler.Handle(query, CancellationToken.None);
 
-            mockSearch.Verify(x => x.Find(It.Is<OrderedApprenticeshipSearchParameters>(sp => 
+            mockSearch.Verify(x => x.Find(It.Is<OrderedApprenticeshipSearchParameters>(sp =>
                 sp.EmployerAccountId.Equals(query.EmployerAccountId) &&
                 sp.ProviderId == null)), Times.Once);
         }
 
-
         [Test, RecursiveMoqAutoData]
         public async Task ThenQueriesApprenticeshipsWithEmployerIdWhenOrderingInReverse(
-           
-            [Frozen]GetApprenticeshipsQuery query,
+
+            [Frozen] GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<ProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsQueryHandler handler)
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
         {
             query.SortField = "test";
             query.ReverseSort = true;
@@ -105,22 +111,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(new List<Apprenticeship>());
 
+            var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+            GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
+
             await handler.Handle(query, CancellationToken.None);
 
-            mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp => 
+            mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp =>
                 sp.EmployerAccountId.Equals(query.EmployerAccountId) &&
                 sp.ProviderId == null)), Times.Once);
         }
 
         [Test, RecursiveMoqAutoData]
         public async Task ThenWillReturnCurrentSelectedPage(
-            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipSearchResult searchResult,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<ProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsQueryHandler handler)
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
         {
             query.SortField = "test";
             query.ReverseSort = true;
@@ -140,6 +149,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
                 .ReturnsAsync(searchResult);
+            var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
+
+            GetApprenticeshipsQueryHandler handler = new(mockMapper.Object, mockSearch.Object, lazyContext);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
