@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -7,7 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
 public class GetApprenticeshipsQueryHandler(
     IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> mapper,
-    IApprenticeshipSearch apprenticeshipSearch)
+    IApprenticeshipSearch apprenticeshipSearch,
+    Lazy<ProviderCommitmentsDbContext> dbContext)
     : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
 {
     public async Task<GetApprenticeshipsQueryResult> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
@@ -15,6 +17,13 @@ public class GetApprenticeshipsQueryHandler(
         var matchedApprenticeshipDetails = new List<GetApprenticeshipsQueryResult.ApprenticeshipDetails>();
 
         ApprenticeshipSearchResult searchResult;
+
+        bool hasChangeHistory = false;
+
+        if(query.ProviderId.HasValue) hasChangeHistory = await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.UKPRN == query.ProviderId, 
+            cancellationToken: cancellationToken);
+        if (query.EmployerAccountId.HasValue) hasChangeHistory = await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.AccountId == query.EmployerAccountId,
+            cancellationToken: cancellationToken);
 
         if (string.IsNullOrEmpty(query.SortField))
         {
@@ -46,7 +55,7 @@ public class GetApprenticeshipsQueryHandler(
                     FieldName = query.SortField,
                     CancellationToken = cancellationToken
                 };
-                    
+
                 searchResult = await apprenticeshipSearch.Find(searchParameters);
             }
             else
@@ -72,7 +81,7 @@ public class GetApprenticeshipsQueryHandler(
 
         foreach (var apprenticeship in searchResult.Apprenticeships)
         {
-            var details = await mapper.Map(apprenticeship); 
+            var details = await mapper.Map(apprenticeship);
             matchedApprenticeshipDetails.Add(details);
         }
 
@@ -82,7 +91,8 @@ public class GetApprenticeshipsQueryHandler(
             TotalApprenticeshipsFound = searchResult.TotalApprenticeshipsFound,
             TotalApprenticeshipsWithAlertsFound = searchResult.TotalApprenticeshipsWithAlertsFound,
             TotalApprenticeships = searchResult.TotalAvailableApprenticeships,
-            PageNumber = searchResult.PageNumber
+            PageNumber = searchResult.PageNumber,
+            HasChangeHistory = hasChangeHistory
         };
     }
 }
