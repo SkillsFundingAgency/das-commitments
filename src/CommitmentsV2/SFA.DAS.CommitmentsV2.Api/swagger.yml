@@ -39,38 +39,6 @@ paths:
           $ref: "#/components/responses/notFound"
         "400":
           $ref: "#/components/responses/errorNoPendingChangeResponse"
-    post:
-      summary: Request to start a new approval for the record on learning. This allows metrics on whether we are synchronised between systems
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
-        schema:
-          type: string
-          format: uuid
-      requestBody:
-        $ref: "#/components/requestBodies/approvalRequest"
-      responses:
-        "201":
-          $ref: "#/components/responses/approvalResponse"          
-        "404":
-          $ref: "#/components/responses/notFound"
-        "400":
-          $ref: "#/components/responses/errorPendingChangeExistsResponse"
-    delete:
-      summary: Request to delete the current pending approval on this record
-      parameters:
-      - in: path
-        name: learningKey
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: An approval was deleted
-        "400":
-          description: An approval was not found in pending state for this learningkey
 
   /approvals/{learningKey}/status:
     patch:
