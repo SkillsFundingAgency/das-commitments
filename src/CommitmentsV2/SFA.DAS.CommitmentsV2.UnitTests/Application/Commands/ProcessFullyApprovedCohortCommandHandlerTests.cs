@@ -293,7 +293,6 @@ public class ProcessFullyApprovedCohortCommandFixture
         return this;
     }
 
-
     public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeshipAsContinuation()
     {
         var provider = new Provider { Name = "Test Provider" };
