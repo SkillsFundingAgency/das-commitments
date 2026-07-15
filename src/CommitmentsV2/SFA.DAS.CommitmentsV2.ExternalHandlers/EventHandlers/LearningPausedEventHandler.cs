@@ -109,6 +109,7 @@ public class LearningPausedEventHandler(
                 }
             });
 
+        logger.LogInformation("Sending EmployerApprenticeshipPausedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
         await context.Send(sendEmailToProviderCommand);
     }
 }
