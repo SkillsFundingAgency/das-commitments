@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
@@ -93,15 +94,43 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .SetApprovedApprenticeshipAsContinuation()
             .Handle();
 
-            fixture.Apprenticeships.ForEach(
-                a => fixture.EventPublisher.Verify(
-                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
-                    Times.Once));
-        }
+        fixture.Apprenticeships.ForEach(
+            a => fixture.EventPublisher.Verify(
+                p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                    e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
+                Times.Once));
     }
 
-    public class ProcessFullyApprovedCohortCommandFixture
+    [Test]
+    public async Task Handle_WhenHandlingCommand_And_NoApprenticeship_ThenShouldThrowException()
+    {
+        var fixture = new ProcessFullyApprovedCohortCommandFixture()
+            .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy);
+        var act = async () => await fixture.Handle();
+
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage($"No ApprenticeshipCreatedEvent(s) generated for Cohort {fixture.Command.CohortId}.");
+    }
+
+    [Test]
+    public async Task Handle_WhenHandlingCommand_And_NoCoursesMatch_ThenShouldThrowException()
+    {
+        var fixture = new ProcessFullyApprovedCohortCommandFixture()
+            .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
+            .SetApprovedApprenticeships(false);
+
+        var apprenticeship = fixture.Apprenticeships.First();
+        apprenticeship.CourseCode = "INVALID_COURSE_CODE";
+
+        var act = async () => await fixture.Handle();
+
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage($"Mismatch between generated ApprenticeshipCreatedEvent(s) and apprenticeships for Cohort {fixture.Command.CohortId}.");
+    }
+}
+
+
+public class ProcessFullyApprovedCohortCommandFixture
     {
         public IFixture AutoFixture { get; set; }
         public ProcessFullyApprovedCohortCommand Command { get; set; }
@@ -134,16 +163,9 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             PreviousApprenticeshipId = AutoFixture.Create<long>();
         }
 
-    public async Task Handle()
+    public Task Handle()
     {
-        try
-        {
-            await Handler.Handle(Command, CancellationToken.None);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Error handling ProcessFullyApprovedCohortCommand: {ex.Message}", ex);
-        }
+        return Handler.Handle(Command, CancellationToken.None);
     }
 
     public ProcessFullyApprovedCohortCommandFixture SetApprenticeshipEmployerType(ApprenticeshipEmployerType apprenticeshipEmployerType)
