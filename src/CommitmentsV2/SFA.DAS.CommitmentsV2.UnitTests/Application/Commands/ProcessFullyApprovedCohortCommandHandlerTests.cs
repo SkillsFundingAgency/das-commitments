@@ -51,34 +51,21 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                 p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
                     e => ProcessFullyApprovedCohortCommandFixture.IsValid(apprenticeshipEmployerType, apprenticeship, e))),
                 Times.Once);
-
-        //fixture.Apprenticeships.ForEach(
-        //    a => fixture.EventPublisher.Verify(
-        //        p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-        //            e => e.ApprenticeshipId == a.Id && ProcessFullyApprovedCohortCommandFixture.IsValid(apprenticeshipEmployerType, a, e))),
-        //        Times.Once));
     }
 
-    [TestCase(Common.Domain.Types.LearningType.ApprenticeshipUnit)]
-    [TestCase(Common.Domain.Types.LearningType.FoundationApprenticeship)]
-    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEvents(Common.Domain.Types.LearningType expectedLearningType)
+    [Test]
+    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEventsWithLearningTypeAsAppUnit()
     {
         var fixture = new ProcessFullyApprovedCohortCommandFixture();
         await fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
-            .SetApprovedApprenticeships(false)
+            .SetApprovedApprenticeships(false, LearningType.ApprenticeshipUnit)
             .Handle();
 
-        fixture.EventPublisher.Verify(
+        fixture.Apprenticeships.Where(a=>a.Cohort.Id == fixture.Command.CohortId).ToList().ForEach(
+            a => fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                    e => e.ApprenticeshipId == fixture.Apprenticeships.First().Id && e.LearningType == expectedLearningType)),
-                Times.Once);
-
-
-        //fixture.Apprenticeships.ForEach(
-        //    a => fixture.EventPublisher.Verify(
-        //        p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-        //            e => e.ApprenticeshipId == a.Id && e.LearningType == expectedLearningType)),
-        //        Times.Once));
+                    e => e.ApprenticeshipId == a.Id && e.LearningType == Common.Domain.Types.LearningType.ApprenticeshipUnit)),
+                Times.Once));
     }
 
     [Test]
@@ -90,21 +77,11 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .SetApprovedApprenticeships(false)
             .Handle();
 
-        fixture.EventPublisher.Verify(
+        fixture.Apprenticeships.Where(a=>a.Cohort.Id == fixture.Command.CohortId).ToList().ForEach(
+            a => fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
-                    e => fixture.IsValidChangeOfPartyEvent(fixture.Apprenticeships.First(), e))),
-                Times.Once);
-
-        fixture.EventPublisher.Verify(
-                p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
-                    e => fixture.IsValidChangeOfPartyEvent(fixture.Apprenticeships.Last(), e))),
-                Times.Once);
-
-        //fixture.Apprenticeships.ForEach(
-        //    a => fixture.EventPublisher.Verify(
-        //        p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
-        //            e => fixture.IsValidChangeOfPartyEvent(a, e))),
-        //        Times.Once));
+                    e => fixture.IsValidChangeOfPartyEvent(a, e))),
+                Times.Once));
     }
 
     [Test]
@@ -132,8 +109,8 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public Mock<IEventPublisher> EventPublisher { get; set; }
         public Mock<IEncodingService> EncodingService { get; set; }
-        public List<Apprenticeship> Apprenticeships { get; set; }
-        public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
+        public List<Apprenticeship> Apprenticeships => Db.Object.Apprenticeships.ToList();
+    public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
         public string ExpectedApprenticeshipHashedId { get; set; }
 
@@ -148,7 +125,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
-            Apprenticeships = new List<Apprenticeship>();
             Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, 
             EncodingService.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
             
@@ -187,7 +163,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         return this;
     }
 
-    public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer = false)
+    public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer = false, LearningType learningType = LearningType.FoundationApprenticeship)
     {
         var provider = new CommitmentsV2.Models.Provider {Name = "Test Provider"};
         var account = new Account(1, "", "", "", DateTime.UtcNow);
@@ -227,18 +203,17 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         var courseBuilder = AutoFixture.Build<Course>();
         var course1 = courseBuilder
             .With(s => s.LarsCode, apprenticeship1.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
         var course2 = courseBuilder
             .With(s => s.LarsCode, apprenticeship2.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
         var course3 = courseBuilder
             .With(s => s.LarsCode, apprenticeship3.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
 
-        Apprenticeships.AddRange(apprenticeships2);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships2);
@@ -286,7 +261,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .With(s => s.LearningType, LearningType.FoundationApprenticeship)
             .Create();
 
-        Apprenticeships.Add(apprenticeship);
         Db.Object.Apprenticeships.Add(apprenticeship);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
@@ -336,7 +310,6 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
 
         var apprenticeships = new[] { apprenticeshipNew };
 
-        Apprenticeships.AddRange(apprenticeships);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships);
