@@ -107,7 +107,8 @@ public class LearningPausedEventHandler(
                     "link_to_manage_apprenticeships",
                     $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
                 }
-            });
+            },
+            "Paul2.GRAHAM@EDUCATION.GOV.UK");
 
         logger.LogInformation("Sending EmployerApprenticeshipPausedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
         await context.Send(sendEmailToProviderCommand);
