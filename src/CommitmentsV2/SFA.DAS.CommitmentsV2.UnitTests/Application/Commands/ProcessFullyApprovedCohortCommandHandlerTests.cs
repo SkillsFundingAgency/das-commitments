@@ -1,4 +1,3 @@
-using Azure.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
@@ -54,18 +53,20 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
                 Times.Once);
     }
 
-    [Test]
-    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEventsWithLearningTypeAsAppUnit()
+    [TestCase(LearningType.ApprenticeshipUnit, Common.Domain.Types.LearningType.ApprenticeshipUnit)]
+    [TestCase(LearningType.Apprenticeship, Common.Domain.Types.LearningType.Apprenticeship)]
+    [TestCase(LearningType.FoundationApprenticeship, Common.Domain.Types.LearningType.FoundationApprenticeship)]
+    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEventsWithLearningTypeAsAppUnit(LearningType learningType, Common.Domain.Types.LearningType expectedLearningType)
     {
         var fixture = new ProcessFullyApprovedCohortCommandFixture();
         await fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
-            .SetApprovedApprenticeships(false, LearningType.ApprenticeshipUnit)
+            .SetApprovedApprenticeships(false, learningType)
             .Handle();
 
         fixture.Apprenticeships.Where(a=>a.Cohort.Id == fixture.Command.CohortId).ToList().ForEach(
             a => fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                    e => e.ApprenticeshipId == a.Id && e.LearningType == Common.Domain.Types.LearningType.ApprenticeshipUnit)),
+                    e => e.ApprenticeshipId == a.Id && e.LearningType == expectedLearningType)),
                 Times.Once));
     }
 

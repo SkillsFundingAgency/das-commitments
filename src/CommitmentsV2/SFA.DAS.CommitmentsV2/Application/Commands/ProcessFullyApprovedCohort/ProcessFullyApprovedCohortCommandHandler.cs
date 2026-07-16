@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -48,7 +47,7 @@ public class ProcessFullyApprovedCohortCommandHandler(
                 x.a,
                 creationDate,
                 apprenticeshipEmployerType,
-                _ => x.c.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship))
+                _ => x.c.LearningType.ToCommonLearningType() ?? Common.Domain.Types.LearningType.Apprenticeship))
             .ToList();
 
         if(!events.Any())
