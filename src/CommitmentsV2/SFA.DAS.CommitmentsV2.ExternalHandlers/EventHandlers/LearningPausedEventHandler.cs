@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -105,9 +106,12 @@ public class LearningPausedEventHandler(
                 {"provider_name", providerName},
                 {
                     "link_to_manage_apprenticeships",
-                    $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
+                    $"< href=\"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details\">sign in to your Apprenticeship Service account</a>"
                 }
-            });
+            },
+            null,
+            "Name"
+            );
 
         logger.LogInformation("Sending EmployerApprenticeshipPausedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
         await context.Send(sendEmailToProviderCommand);
