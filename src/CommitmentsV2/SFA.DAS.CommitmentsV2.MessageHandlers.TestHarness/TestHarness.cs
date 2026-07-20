@@ -6,6 +6,7 @@ using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using CommonEmployerType = SFA.DAS.Common.Domain.Types.ApprenticeshipEmployerType;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using ApprenticeshipEmployerType = SFA.DAS.Common.Domain.Types.ApprenticeshipEmployerType;
 using SFA.DAS.EmployerAccounts.Types.Models;
@@ -56,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("R - ApprenticeshipEmailAddressConfirmedEvent Event");
                 Console.WriteLine("S - LevyAddedToAccount");
+                Console.WriteLine("3 - ApprenticeshipEmployerTypeChangeEvent");
                 Console.WriteLine("T - CohortWithChangeOfPartyCreatedEvent Event");
                 Console.WriteLine("U - ApprenticeshipPausedEvent Event");
                 Console.WriteLine("V - ApprenticeshipConfirmationCommencedEvent Event");
@@ -172,6 +174,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(ApprenticeshipEmailAddressConfirmedEvent)}");
                             break;
 
+                        case ConsoleKey.D3:
+                            await _publisher.Publish(new ApprenticeshipEmployerTypeChangeEvent
+                            {
+                                AccountId = accountId,
+                                ApprenticeshipEmployerType = CommonEmployerType.NonLevy,
+                                Created = DateTime.UtcNow
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(ApprenticeshipEmployerTypeChangeEvent)}");
+                            break;
                         case ConsoleKey.S:
                             await _publisher.Publish(new LevyAddedToAccount { AccountId = accountId, Amount = 10, Created = DateTime.UtcNow });
                             Console.WriteLine();
