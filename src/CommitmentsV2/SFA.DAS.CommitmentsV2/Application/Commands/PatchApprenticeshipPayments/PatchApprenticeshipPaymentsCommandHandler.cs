@@ -104,7 +104,7 @@ public class PatchApprenticeshipPaymentsCommandHandler(
                 {"employer_name", employerName},
                 {
                     "link_to_manage_apprenticeships",
-                    $"< href=\"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices/{encodedApprenticeshipId}\">sign in to your Apprenticeship Service account</a>"
+                    $"<a href=\"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices/{encodedApprenticeshipId}\">sign in to your Apprenticeship Service account</a>"
                 },
                 { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl}notification-settings"  }
             });
