@@ -62,7 +62,7 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
 
         LearningType? GetLearningType(string courseCode)
         {
-            if (!courseCode.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(courseCode))
             {
                 var course = courses.Where(c => c.LarsCode == courseCode).SingleOrDefault();
                 return course?.LearningType;
