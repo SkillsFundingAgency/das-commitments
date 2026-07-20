@@ -6,5 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long ApprenticeshipId { get; set; }
         public DateTime PausedOn { get; set; }
+        public bool PausedViaILR { get; set; }
     }
 }
