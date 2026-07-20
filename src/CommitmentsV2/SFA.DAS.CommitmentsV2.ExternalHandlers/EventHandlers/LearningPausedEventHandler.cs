@@ -115,7 +115,6 @@ public class LearningPausedEventHandler(
 
         logger.LogInformation("link_to_manage_apprenticeships : {0}", sendEmailToProviderCommand.Tokens["link_to_manage_apprenticeships"]);
 
-
         logger.LogInformation("Sending EmployerApprenticeshipPausedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
         await context.Send(sendEmailToProviderCommand);
     }
