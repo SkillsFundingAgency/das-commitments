@@ -6,9 +6,9 @@ using ApprenticeshipEmployerType = SFA.DAS.Common.Domain.Types.ApprenticeshipEmp
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 
-public class ApprenticeshipEmployerTypeChangeEventHandler(
+public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfers(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    ILogger<ApprenticeshipEmployerTypeChangeEventHandler> logger)
+    ILogger<ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfers> logger)
     : IHandleMessages<ApprenticeshipEmployerTypeChangeEvent>
 {
     public async Task Handle(ApprenticeshipEmployerTypeChangeEvent message, IMessageHandlerContext context)
