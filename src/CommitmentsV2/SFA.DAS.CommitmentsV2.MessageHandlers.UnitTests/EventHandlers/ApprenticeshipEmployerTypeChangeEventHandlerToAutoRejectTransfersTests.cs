@@ -35,7 +35,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTe
     public async Task Handle_WhenEmployerBecomesNonLevy_ThenRejectTransferRequestCommandsAreSentForPendingSenderRequests()
     {
         // Arrange
-        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
+        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture()
             .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
             .WithPendingTransferRequestForSender(SenderAccountId, SecondTransferRequestId)
             .WithPendingTransferRequestForSender(9999, 503);
@@ -60,7 +60,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTe
     public async Task Handle_WhenEmployerBecomesLevy_ThenNoRejectTransferRequestCommandsAreSent()
     {
         // Arrange
-        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
+        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture()
             .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
             .WithEmployerType(ApprenticeshipEmployerType.Levy);
 
@@ -78,7 +78,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTe
     public async Task Handle_WhenEmployerTypeIsUnknown_ThenNoRejectTransferRequestCommandsAreSent()
     {
         // Arrange
-        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
+        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture()
             .WithPendingTransferRequestForSender(SenderAccountId, FirstTransferRequestId)
             .WithEmployerType(ApprenticeshipEmployerType.Unknown);
 
@@ -96,7 +96,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTe
     public async Task Handle_WhenTransferRequestIsApprovedOrRejected_ThenNoRejectTransferRequestCommandIsSent()
     {
         // Arrange
-        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
+        var fixture = new ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture()
             .WithTransferRequestForSender(SenderAccountId, 601, TransferApprovalStatus.Approved)
             .WithTransferRequestForSender(SenderAccountId, 602, TransferApprovalStatus.Rejected);
 
@@ -116,7 +116,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTe
     }
 }
 
-public class ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture : IDisposable
+public class ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture : IDisposable
 {
     private readonly ProviderCommitmentsDbContext _db;
     private readonly ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfers _handler;
@@ -129,7 +129,7 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture : IDisposa
         Created = DateTime.UtcNow
     };
 
-    public ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture()
+    public ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture()
     {
         _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -140,18 +140,18 @@ public class ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture : IDisposa
             Mock.Of<ILogger<ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfers>>());
     }
 
-    public ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture WithEmployerType(ApprenticeshipEmployerType employerType)
+    public ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture WithEmployerType(ApprenticeshipEmployerType employerType)
     {
         Event.ApprenticeshipEmployerType = employerType;
         return this;
     }
 
-    public ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture WithPendingTransferRequestForSender(long senderAccountId, long transferRequestId)
+    public ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture WithPendingTransferRequestForSender(long senderAccountId, long transferRequestId)
     {
         return WithTransferRequestForSender(senderAccountId, transferRequestId, TransferApprovalStatus.Pending);
     }
 
-    public ApprenticeshipEmployerTypeChangeEventHandlerTestsFixture WithTransferRequestForSender(
+    public ApprenticeshipEmployerTypeChangeEventHandlerToAutoRejectTransfersTestsFixture WithTransferRequestForSender(
         long senderAccountId,
         long transferRequestId,
         TransferApprovalStatus status)

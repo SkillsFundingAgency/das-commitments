@@ -174,16 +174,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(ApprenticeshipEmailAddressConfirmedEvent)}");
                             break;
 
-                        case ConsoleKey.D3:
-                            await _publisher.Publish(new ApprenticeshipEmployerTypeChangeEvent
-                            {
-                                AccountId = accountId,
-                                ApprenticeshipEmployerType = CommonEmployerType.NonLevy,
-                                Created = DateTime.UtcNow
-                            });
-                            Console.WriteLine();
-                            Console.WriteLine($"Published {nameof(ApprenticeshipEmployerTypeChangeEvent)}");
-                            break;
                         case ConsoleKey.S:
                             await _publisher.Publish(new LevyAddedToAccount { AccountId = accountId, Amount = 10, Created = DateTime.UtcNow });
                             Console.WriteLine();
@@ -254,7 +244,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(ApprenticeshipEmployerTypeChangeEvent)} (NonLevy)");
                             break;
-					}
+                    }
                 }
                 catch (Exception e)
                 {
