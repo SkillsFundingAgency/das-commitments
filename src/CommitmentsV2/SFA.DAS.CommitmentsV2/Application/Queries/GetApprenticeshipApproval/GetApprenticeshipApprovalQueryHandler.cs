@@ -19,7 +19,8 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
 
         if (approvalRequest.ApprenticeshipId != request.ApprenticeshipId)
         {
-            throw new BadRequestException($"ApprenticeshipId {request.ApprenticeshipId} does not match on Approval Request record");
+            //throw new BadRequestException($"ApprenticeshipId {request.ApprenticeshipId} does not match on Approval Request record");
+            return null;
         }
 
         var apprenticeship = await dbContext.Value.Apprenticeships
@@ -32,20 +33,21 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
         {
             ApprenticeshipId = apprenticeship.Id,
             Name = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
-            Uln = apprenticeship.Uln,
-            ProviderId = apprenticeship.Cohort.Provider.Id,
+            ULN = apprenticeship.Uln,
+            UKPRN = apprenticeship.Cohort.Provider.UkPrn,
             ProviderName = apprenticeship.Cohort.Provider.Name,
             AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntity.Id,
             AccountLegalEntityName = apprenticeship.Cohort.AccountLegalEntity.Name,
-            TrainingCode = apprenticeship.TrainingCode,
-            TrainingName = apprenticeship.TrainingName,
-            Cost = apprenticeship.Cost,
-            StartDate = apprenticeship.StartDate,
-            EndDate = apprenticeship.EndDate,
-            DeliveryModel = (DeliveryModel)apprenticeship.DeliveryModel,
-            OriginatorReference = apprenticeship.OriginatorReference,
-            ReservationId = apprenticeship.ReservationId,
-            EmployerReference = apprenticeship.EmployerReference
+            CourseName = apprenticeship.CourseName,
+            ApprovalRequestStatus = approvalRequest.Status,
+            ApprovalRequestId = approvalRequest.Id,
+            Items = approvalRequest.Items.Select(i => new GetApprenticeshipApprovalQueryResult.ChangeItem
+            {
+                FieldName = i.Field,
+                OldValue = i.Old,
+                NewValue = i.New,
+                EffectiveFromDate = i.EffectiveFromDate
+            }).ToList()
         };
     }
 }
