@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllChangeHistory;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistoryForEmployer;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers;
@@ -91,6 +92,42 @@ public class ChangeHistoryControllerTests
             // Act
             var result = await _controller.GetChangeHistoryForAllLearnersOfProvider(providerId) as ObjectResult;
             var model = result?.Value as GetAllChangeHistoryForProviderQueryResponse;
+            // Assert
+            model.Should().NotBeNull();
+            model.ChangeHistory.Should().BeEmpty();
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task GetChangeHistoryForEmployer_Then_ReturnValidResponse(
+       GetChangeHistoryForEmployerQueryResult changeHistoryQueryResult,
+       long accountId)
+    {
+        // Arrange
+        _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryForEmployerQuery>(t => t.AccountId == accountId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(changeHistoryQueryResult);
+
+        // Act
+        var result = await _controller.GetChangeHistoryForEmployer(accountId) as OkObjectResult;
+        // Assert
+        result.Should().NotBeNull();
+        var jsonResult = result as OkObjectResult;
+        var getAllChangeHistoryResponse = jsonResult?.Value as GetChangeHistoryForEmployerResponse;
+        getAllChangeHistoryResponse.ChangeHistory.Should().HaveCount(changeHistoryQueryResult.ChangeHistory.Count);
+        getAllChangeHistoryResponse.ChangeHistory.Should().BeEquivalentTo(changeHistoryQueryResult.ChangeHistory);
+    }
+
+    [Test, MoqAutoData]
+    public async Task GetChangeHistoryForEmployer_Then_ReturnEmptyResponse(long accountId)
+    {
+        {
+            // Arrange
+            _mediator.Setup(m => m.Send(It.Is<GetChangeHistoryForEmployerQuery>(t => t.AccountId == accountId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetChangeHistoryForEmployerQueryResult() { ChangeHistory = new List<ChangeHistory>() });
+
+            // Act
+            var result = await _controller.GetChangeHistoryForEmployer(accountId) as ObjectResult;
+            var model = result?.Value as GetChangeHistoryForEmployerResponse;
             // Assert
             model.Should().NotBeNull();
             model.ChangeHistory.Should().BeEmpty();

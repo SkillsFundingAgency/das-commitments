@@ -18,7 +18,12 @@ public class GetApprenticeshipsQueryHandler(
 
         ApprenticeshipSearchResult searchResult;
 
-        var hasChangeHistory = query.ProviderId.HasValue && await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.UKPRN == query.ProviderId, cancellationToken: cancellationToken);
+        bool hasChangeHistory = false;
+
+        if(query.ProviderId.HasValue) hasChangeHistory = await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.UKPRN == query.ProviderId, 
+            cancellationToken: cancellationToken);
+        if (query.EmployerAccountId.HasValue) hasChangeHistory = await dbContext.Value.LearningChangeHistory.AnyAsync(a => a.AccountId == query.EmployerAccountId,
+            cancellationToken: cancellationToken);
 
         if (string.IsNullOrEmpty(query.SortField))
         {
@@ -50,7 +55,7 @@ public class GetApprenticeshipsQueryHandler(
                     FieldName = query.SortField,
                     CancellationToken = cancellationToken
                 };
-                    
+
                 searchResult = await apprenticeshipSearch.Find(searchParameters);
             }
             else
@@ -76,7 +81,7 @@ public class GetApprenticeshipsQueryHandler(
 
         foreach (var apprenticeship in searchResult.Apprenticeships)
         {
-            var details = await mapper.Map(apprenticeship); 
+            var details = await mapper.Map(apprenticeship);
             matchedApprenticeshipDetails.Add(details);
         }       
 

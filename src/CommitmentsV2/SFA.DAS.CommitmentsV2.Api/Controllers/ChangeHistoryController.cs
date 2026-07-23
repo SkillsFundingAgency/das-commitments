@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllChangeHistory;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistoryForEmployer;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
@@ -53,5 +54,27 @@ public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryCo
         logger.LogInformation("Successfully retrieved change history for all learners of provider with id {ProviderId}", providerId);
 
         return Ok(new GetAllChangeHistoryForProviderQueryResponse { ChangeHistory = result.ChangeHistory });
+    }
+
+    [Authorize]
+    [HttpGet]
+    [Route("employer/{accountId:long}/change-history")]
+    public async Task<IActionResult> GetChangeHistoryForEmployer(long accountId)
+    {
+        logger.LogInformation("Received request to get change history for all learners of employer with id {accountId}", accountId);
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState.CreateErrorResponse());
+        }
+
+        var result = await mediator.Send(new GetChangeHistoryForEmployerQuery
+        {
+            AccountId = accountId
+        });
+
+        logger.LogInformation("Successfully retrieved change history for all learners of employer with id {AccountId}", accountId);
+
+        return Ok(new GetChangeHistoryForEmployerResponse { ChangeHistory = result.ChangeHistory });
     }
 }
