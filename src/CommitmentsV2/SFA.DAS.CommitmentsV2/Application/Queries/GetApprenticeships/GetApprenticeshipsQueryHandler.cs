@@ -83,7 +83,7 @@ public class GetApprenticeshipsQueryHandler(
         {
             var details = await mapper.Map(apprenticeship);
             matchedApprenticeshipDetails.Add(details);
-        }
+        }       
 
         return new GetApprenticeshipsQueryResult
         {

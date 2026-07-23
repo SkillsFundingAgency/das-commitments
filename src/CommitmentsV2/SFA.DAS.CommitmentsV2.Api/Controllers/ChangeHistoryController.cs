@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAllChangeHistory;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistory;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeHistoryForEmployer;
 
@@ -31,6 +32,28 @@ public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryCo
         logger.LogInformation("Successfully retrieved change history for apprenticeship with id {ApprenticeshipId}", apprenticeshipId);
 
         return Ok(new GetChangeHistoryResponse { ChangeHistory = result.ChangeHistory });
+    }
+
+    [Authorize]
+    [HttpGet]
+    [Route("{providerId:long}/Get-all-change-history")]
+    public async Task<IActionResult> GetChangeHistoryForAllLearnersOfProvider(long providerId)
+    {
+        logger.LogInformation("Received request to get change history for all learners of provider with id {ProviderId}", providerId);
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState.CreateErrorResponse());
+        }
+
+        var result = await mediator.Send(new GetAllChangeHistoryForProviderQuery
+        {
+            ProviderId = providerId
+        });
+
+        logger.LogInformation("Successfully retrieved change history for all learners of provider with id {ProviderId}", providerId);
+
+        return Ok(new GetAllChangeHistoryForProviderQueryResponse { ChangeHistory = result.ChangeHistory });
     }
 
     [Authorize]

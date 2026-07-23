@@ -130,6 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             List<Apprenticeship> apprenticeships,
             ApprenticeshipSearchResult searchResult,
             Mock<ProviderCommitmentsDbContext> mockContext,
+            List<LearningChangeHistory> changeHistory,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
         {
