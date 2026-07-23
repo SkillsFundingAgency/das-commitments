@@ -1,6 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Exceptions;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipApproval;
 
@@ -19,7 +17,6 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
 
         if (approvalRequest.ApprenticeshipId != request.ApprenticeshipId)
         {
-            //throw new BadRequestException($"ApprenticeshipId {request.ApprenticeshipId} does not match on Approval Request record");
             return null;
         }
 
@@ -27,7 +24,6 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
             .Include(x => x.Cohort).ThenInclude(x => x.Provider)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .FirstOrDefaultAsync(x => x.Id == request.ApprenticeshipId, cancellationToken);
-
 
         return new GetApprenticeshipApprovalQueryResult
         {
@@ -51,5 +47,3 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
         };
     }
 }
-
-
