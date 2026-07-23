@@ -16,7 +16,6 @@ public class GetApprenticeshipApprovalQueryResult
     public string AccountLegalEntityName { get; set; }
     public long AccountLegalEntityId { get; set; }
 
-
     public class ChangeItem
     {
         public string FieldName { get; set; }
