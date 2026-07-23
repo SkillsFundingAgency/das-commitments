@@ -63,6 +63,17 @@ public class CocApprovalRulesEngineTests
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Pending);
     }
+
+    [Test]
+    public void Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToCompleteIfAutoRejected()
+    {
+        var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoRejected);
+
+        var result = fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+
+        result.Should().NotBeNull();
+        result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Complete);
+    }
 }
 
 public class CocApprovalRulesEngineTestsFixture
@@ -149,5 +160,5 @@ public class CocApprovalRulesEngineTestsFixture
                 Reason = status.Reason
             }
         ).ToList();
-    }
+    }   
 }

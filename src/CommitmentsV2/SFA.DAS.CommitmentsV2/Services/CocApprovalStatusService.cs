@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -16,12 +17,12 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             throw new ArgumentNullException(nameof(updates));
         }
 
-        if(apprenticeship == null)
+        if (apprenticeship == null)
         {
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
-        if(updates.TNP1 != null || updates.TNP2 != null)
+        if (updates.TNP1 != null || updates.TNP2 != null)
         {
             logger.LogInformation("Change of TNP1 or TNP2 detected");
             updateResults.AddRange(DetermineApprovalStatusesForCostFields(updates, apprenticeship));
@@ -41,9 +42,13 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             logger.LogWarning("Old total cost from changes does not match apprenticeship cost");
         }
 
-        if (newTotalCost <= oldTotalCost)
+        if (updates.TNP1?.New == 0)
         {
-            if(updates.TNP1 != null)
+            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
+        }
+        else if (newTotalCost <= oldTotalCost)
+        {
+            if (updates.TNP1 != null)
             {
                 yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoApproved };
             }
@@ -51,6 +56,12 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             {
                 yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoApproved };
             }
+        }
+        else if (newTotalCost > Constants.MaximumTotalTrainingCost)
+        {
+            yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
+
+            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
         }
         else
         {
