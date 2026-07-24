@@ -31,6 +31,7 @@ public class WhenDownloadingApprentices : SearchParameterServiceTestBase
         mockContext
             .Setup(context => context.Apprenticeships)
             .ReturnsDbSet(apprenticeships);
+        mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
         var service = new ApprenticeshipSearchService(mockContext.Object);
 
