@@ -15,6 +15,7 @@ public class GetApprenticeshipApprovalQueryResult
     public long UKPRN { get; set; }
     public string AccountLegalEntityName { get; set; }
     public long AccountLegalEntityId { get; set; }
+    public long AccountId { get; set; }
 
     public class ChangeItem
     {
