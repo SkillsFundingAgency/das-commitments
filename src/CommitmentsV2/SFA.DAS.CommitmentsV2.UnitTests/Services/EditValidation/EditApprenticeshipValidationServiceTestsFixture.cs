@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
-using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
+using CourseDateRange = SFA.DAS.CommitmentsV2.Domain.Entities.CourseDateRange;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation;
@@ -52,7 +52,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
             _currentDateTime.Object,
             _authenticationService.Object);
 
-        _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
+        _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long>(), CancellationToken.None))
             .Returns(Task.FromResult(new OverlapCheckResult(false, false)));
 
         _currentDateTime.Setup(x => x.UtcNow).Returns(() => new DateTime(2021, 3, 19));
@@ -103,7 +103,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
 
     public EditApprenticeshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
     {
-        _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
+        _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long>(), CancellationToken.None))
             .Returns(Task.FromResult(new OverlapCheckResult(startDateOverlaps, endDateOverlaps)));
         return this;
     }
@@ -201,7 +201,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
     {
         var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);
         _overlapCheckService.Setup(x =>
-            x.CheckForEmailOverlaps(email, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
+            x.CheckForEmailOverlaps(email, It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long?>(),
                 It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return this;
     }
@@ -222,21 +222,21 @@ public class EditApprenticeshipValidationServiceTestsFixture
     {
         var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);
         _overlapCheckService.Verify(x =>
-            x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
+            x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long?>(),
                 It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     public void VerifyCheckForEmailOverlapsIsCalledWithExpectedStartDate(DateTime startDate)
     {
         _overlapCheckService.Verify(x =>
-            x.CheckForEmailOverlaps(It.IsAny<string>(), It.Is<DateRange>(dr => dr.From == startDate), It.IsAny<long?>(),
+            x.CheckForEmailOverlaps(It.IsAny<string>(), It.Is<CourseDateRange>(dr => dr.From == startDate), It.IsAny<long?>(),
                 It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     public void VerifyCheckForOverlapsIsCalledWithExpectedStartDate(DateTime startDate)
     {
         _overlapCheckService.Verify(x =>
-            x.CheckForOverlaps(It.IsAny<string>(), It.Is<DateRange>(dr => dr.From == startDate), It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Once);
+            x.CheckForOverlaps(It.IsAny<string>(), It.Is<CourseDateRange>(dr => dr.From == startDate), It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     public void VerifyReservationValidationServiceIsCalledWithExpectedStartDate(DateTime startDate)
