@@ -9,9 +9,9 @@ public static class DateTimeExtensions
         return new DateTime(value.Year, value.Month, 1);
     }
 
-    public static DateRange To(this DateTime self, DateTime to)
+    public static CourseDateRange To(this DateTime self, DateTime to, bool isWithdrawn = false)
     {
-        return new DateRange(self.Date, to);
+        return new CourseDateRange(self.Date, to, isWithdrawn);
     }
 
     public static bool IsBeforeMonth(this DateTime self, DateTime value)

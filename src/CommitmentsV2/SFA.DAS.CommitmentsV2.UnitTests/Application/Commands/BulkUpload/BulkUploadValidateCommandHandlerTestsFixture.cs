@@ -58,7 +58,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         OverlapCheckService = new Mock<IOverlapCheckService>();
         OverlapCheckResult = new OverlapCheckResult(false, false);
 
-        OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, CancellationToken.None))
+        OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, CancellationToken.None))
             .ReturnsAsync(() => OverlapCheckResult);
 
         var listUlnOverlap = new List<OverlapCheckResult>
@@ -69,7 +69,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             .ReturnsAsync(() => listUlnOverlap);
 
         EmailOverlapCheckResult = new EmailOverlapCheckResult(1, OverlapStatus.None, false);
-        OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, null, CancellationToken.None))
+        OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, null, CancellationToken.None))
             .ReturnsAsync(() => EmailOverlapCheckResult);
 
         var listEmailOverlap = new List<EmailOverlapCheckResult>

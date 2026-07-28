@@ -97,7 +97,7 @@ public class UpdateApprenticeshipStopDateCommandHandler(
     {
         if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate, true), apprenticeship.Id, cancellationToken);
 
         if (!overlapResult.Result.HasOverlaps) return;
 
