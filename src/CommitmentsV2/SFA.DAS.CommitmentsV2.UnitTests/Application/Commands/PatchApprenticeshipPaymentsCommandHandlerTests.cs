@@ -109,17 +109,22 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     [Test]
     public async Task Handle_WhenFreezePaymentsReasonMissing_ThrowsDomainException()
     {
+        // Arrange
         var apprenticeship = await SetupApprenticeship();
         _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
 
-        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        var act = () => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = apprenticeship.Id,
             PaymentFreezeDate = DateTime.UtcNow.Date,
             UserInfo = new UserInfo()
-        }, CancellationToken.None));
+        }, CancellationToken.None);
 
-        exception.DomainErrors.Should().ContainEquivalentOf(new
+        // Act
+        var exception = await act.Should().ThrowAsync<DomainException>();
+
+        // Assert
+        exception.Which.DomainErrors.Should().ContainEquivalentOf(new
         {
             PropertyName = nameof(PatchApprenticeshipPaymentsCommand.FreezePaymentsReason),
             ErrorMessage = "A reason for pausing payments must be provided"
@@ -131,19 +136,24 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     [TestCase(Party.Provider)]
     [TestCase(Party.TransferSender)]
     [TestCase(Party.None)]
-    public void Handle_WhenFreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
+    public async Task Handle_WhenFreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
+        // Arrange
         _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
 
-        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        var act = () => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = 1,
             PaymentFreezeDate = DateTime.UtcNow.Date,
             FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
             UserInfo = new UserInfo()
-        }, CancellationToken.None));
+        }, CancellationToken.None);
 
-        exception.DomainErrors.Should().ContainEquivalentOf(new
+        // Act
+        var exception = await act.Should().ThrowAsync<DomainException>();
+
+        // Assert
+        exception.Which.DomainErrors.Should().ContainEquivalentOf(new
         {
             ErrorMessage = $"Only employers are allowed to freeze payments - {party} is invalid"
         });
@@ -169,24 +179,92 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     }
 
     [TestCase(Party.Provider)]
-    public void Handle_WhenUnfreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
+    public async Task Handle_WhenUnfreezingAndPartyIsNotEmployer_ThrowsDomainException(Party party)
     {
+        // Arrange
         _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
 
-        var exception = Assert.ThrowsAsync<DomainException>(() => _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        var act = () => _handler.Handle(new PatchApprenticeshipPaymentsCommand
         {
             ApprenticeshipId = 1,
             PaymentFreezeDate = null,
             UserInfo = new UserInfo()
-        }, CancellationToken.None));
+        }, CancellationToken.None);
 
-        exception.DomainErrors.Should().ContainEquivalentOf(new
+        // Act
+        var exception = await act.Should().ThrowAsync<DomainException>();
+
+        // Assert
+        exception.Which.DomainErrors.Should().ContainEquivalentOf(new
         {
             ErrorMessage = $"Only employers are allowed to unfreeze payments - {party} is invalid"
         });
     }
 
-    private async Task<Apprenticeship> SetupApprenticeship(bool frozen = false)
+    [Test]
+    public async Task Handle_WhenApprenticeshipUnitCourse_ThrowsDomainExceptionWhenFreezing()
+    {
+        // Arrange
+        const string courseCode = "APP-UNIT-01";
+        var apprenticeship = await SetupApprenticeship(courseCode: courseCode);
+        await SetupCourse(courseCode, LearningType.ApprenticeshipUnit);
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+
+        var act = () => _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            PaymentFreezeDate = DateTime.UtcNow.Date,
+            FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
+            UserInfo = new UserInfo()
+        }, CancellationToken.None);
+
+        // Act
+        var exception = await act.Should().ThrowAsync<DomainException>();
+
+        // Assert
+        exception.Which.DomainErrors.Should().ContainEquivalentOf(new
+        {
+            PropertyName = nameof(LearningType),
+            ErrorMessage = "Payments cannot be frozen for apprenticeship units"
+        });
+
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenApprenticeshipUnitCourse_AllowsUnfreezing()
+    {
+        // Arrange
+        const string courseCode = "APP-UNIT-01";
+        var apprenticeship = await SetupApprenticeship(frozen: true, courseCode: courseCode);
+        await SetupCourse(courseCode, LearningType.ApprenticeshipUnit);
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+
+        // Act
+        await _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            PaymentFreezeDate = null,
+            UserInfo = new UserInfo()
+        }, CancellationToken.None);
+
+        // Assert
+        var updated = await _dbContext.Apprenticeships.FindAsync(apprenticeship.Id);
+        updated.FreezeStatus.Should().BeFalse();
+    }
+
+    private async Task SetupCourse(string courseCode, LearningType learningType)
+    {
+        _dbContext.Courses.Add(new Course
+        {
+            LarsCode = courseCode,
+            Title = "Test course",
+            LearningType = learningType
+        });
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task<Apprenticeship> SetupApprenticeship(bool frozen = false, string courseCode = "STD-001")
     {
         var fixture = new Fixture();
         var apprenticeship = new Apprenticeship
@@ -200,7 +278,8 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             PaymentStatus = PaymentStatus.Active,
             StartDate = DateTime.UtcNow.AddMonths(-2),
             PaymentFreezeDate = frozen ? DateTime.UtcNow.Date.AddDays(-2) : null,
-            FreezePaymentsReason = frozen ? FreezePaymentsReason.LearnerWithdrawn : null
+            FreezePaymentsReason = frozen ? FreezePaymentsReason.LearnerWithdrawn : null,
+            CourseCode = courseCode
         };
 
         _dbContext.Apprenticeships.Add(apprenticeship);
