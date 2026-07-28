@@ -1,20 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class LearningPausedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
+    IEncodingService encodingService,
+    CommitmentsV2Configuration commitmentsV2Configuration,
     ILogger<LearningPausedEventHandler> logger)
     : IHandleMessages<LearningPausedEvent>
 {
@@ -35,6 +41,7 @@ public class LearningPausedEventHandler(
             var db = dbContext.Value;
             var apprentice = await db.Apprenticeships
                 .Include(a => a.Cohort)
+                    .ThenInclude(c => c.Provider)
                 .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
@@ -45,6 +52,8 @@ public class LearningPausedEventHandler(
             ValidatePauseDate(message.PauseDate, apprentice);
 
             apprentice.SetIlrPaused(message.PauseDate);
+
+            await SendEmailNotification(context, apprentice.Cohort.EmployerAccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
 
             var historyCommand = new StoreLearningHistoryCommand
             {
@@ -82,5 +91,29 @@ public class LearningPausedEventHandler(
         {
             throw new DomainException(nameof(pauseDate), "Invalid pause date. Pause date cannot be on or after the end date.");
         }
+    }
+
+    private async Task SendEmailNotification(IMessageHandlerContext context, long accountId, string providerName, long apprenticeshipId)
+    {
+        var encodedApprenticeshipId = encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId);
+        var encodedAccountId = encodingService.Encode(accountId, EncodingType.AccountId);
+
+        var sendEmailToProviderCommand = new SendEmailToEmployerCommand(
+            accountId,
+            "EmployerApprenticeshipPausedNotification",
+            new Dictionary<string, string>
+            {
+                {"provider_name", providerName},
+                {
+                    "link_to_manage_apprenticeships",
+                    $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
+                }
+            },
+            null,
+            "Name"
+            );
+
+        logger.LogInformation("Sending EmployerApprenticeshipPausedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
+        await context.Send(sendEmailToProviderCommand);
     }
 }
