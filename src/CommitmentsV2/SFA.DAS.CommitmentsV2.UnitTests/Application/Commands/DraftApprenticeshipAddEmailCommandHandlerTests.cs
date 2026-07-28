@@ -172,7 +172,7 @@ public class DraftApprenticeshipAddEmailCommandHandlerTestsFixture : IDisposable
 
     public async Task<ViewEditDraftApprenticeshipEmailValidationResult> ValidateOverlap()
     {
-        OverlapCheckService.Setup(t => t.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), It.IsAny<long>(), CancellationToken.None)).
+        OverlapCheckService.Setup(t => t.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long>(), It.IsAny<long>(), CancellationToken.None)).
             ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, false));
         return await Handler.Validate(Command, draftApprenticeship, CancellationToken.None);
     }

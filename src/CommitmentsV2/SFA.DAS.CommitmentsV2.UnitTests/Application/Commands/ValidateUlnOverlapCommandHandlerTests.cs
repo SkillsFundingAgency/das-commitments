@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public ValidateUlnOverlapCommandHandlerTestsFixture SetUlnOverlap(bool hasOverlap)
         {
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long>(), CancellationToken.None))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.OverlapCheckResult(hasOverlap, hasOverlap));
 
             return this;
