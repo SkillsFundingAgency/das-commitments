@@ -99,14 +99,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
             }
 
-
             return apprenticeships;
-
         }
 
         protected static void AssignProviderToApprenticeships(long? providerId, IEnumerable<Apprenticeship> apprenticeships)
         {
-
             foreach (var apprenticeship in apprenticeships)
             {
                 apprenticeship.Cohort.ProviderId = providerId.GetValueOrDefault();
@@ -126,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 apprenticeship.Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
             }
         }
+
         protected static AccountLegalEntity CreateAccountLegalEntity(string name)
         {
             var account = new Account(1, "", "", name, DateTime.UtcNow);
