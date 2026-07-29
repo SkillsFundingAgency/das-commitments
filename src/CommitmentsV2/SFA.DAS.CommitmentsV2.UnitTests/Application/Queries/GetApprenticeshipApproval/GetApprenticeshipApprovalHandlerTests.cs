@@ -29,12 +29,24 @@ public class GetApprenticeshipApprovalHandlerTests
         result.AccountId.Should().Be(_fixture.AccountLegalEntity.AccountId);
         result.Name.Should().Be($"{_fixture.Apprenticeship.FirstName} {_fixture.Apprenticeship.LastName}");
         result.ULN.Should().Be(_fixture.Apprenticeship.Uln);
+        result.StartDate.Should().Be(_fixture.Apprenticeship.StartDate);
         result.CourseCode.Should().Be(_fixture.Apprenticeship.CourseCode);
         result.CourseName.Should().Be(_fixture.Apprenticeship.CourseName);
         result.ProviderName.Should().Be(_fixture.Provider.Name);
         result.UKPRN.Should().Be(_fixture.Provider.UkPrn);
         result.ApprovalRequestStatus.Should().Be(_fixture.ApprovalRequest.Status);
         result.Items.Should().HaveCount(_fixture.ApprovalFieldRequests.Count);
+    }
+
+    [Test]
+    public async Task Handle_ForContinuationApprenticeship_ThenShouldReturn_OriginalStartDate()
+    {
+        _fixture.Apprenticeship.ContinuationOfId = 123;
+        _fixture.Apprenticeship.OriginalStartDate = DateTime.Now.AddYears(-2); 
+        var result = await _fixture.Handle();
+
+        result.Should().NotBeNull();
+        result.StartDate.Should().Be(_fixture.Apprenticeship.OriginalStartDate);
     }
 
     [Test]
