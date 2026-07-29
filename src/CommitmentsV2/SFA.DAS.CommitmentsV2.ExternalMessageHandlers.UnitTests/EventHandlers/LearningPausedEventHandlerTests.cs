@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
@@ -15,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -40,6 +42,7 @@ public class LearningPausedEventHandlerTests
         _fixture.VerifyLearnerPaused();
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         _fixture.VerifyLearningPausedEventIsPublished();
+        _fixture.VerifySendEmailToEmployerCommandIsSent();
     }
 
     [Test]
@@ -93,6 +96,8 @@ public class LearningPausedEventHandlerTestsFixture
     private Mock<IMessageHandlerContext> _mockContext;
     private LearningPausedEventHandler _handler;
     private LearningPausedEvent _event;
+    private Mock<IEncodingService> _mockEncodingService;
+    private CommitmentsV2Configuration _commitmentsV2Configuration;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
 
@@ -101,7 +106,15 @@ public class LearningPausedEventHandlerTestsFixture
         fixture = new Fixture();
         _mockLogger = new Mock<ILogger<LearningPausedEventHandler>>();
         _mockContext = new Mock<IMessageHandlerContext>();
+        _mockEncodingService = new Mock<IEncodingService>();
+        _mockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns("APP123");
+        _mockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns("ACC123");
+
         UnitOfWorkContext = new UnitOfWorkContext();
+        _commitmentsV2Configuration = new CommitmentsV2Configuration
+        {
+            EmployerCommitmentsBaseUrl = "https://test.com/"
+        };
 
         _event = fixture.Create<LearningPausedEvent>();
       
@@ -145,7 +158,10 @@ public class LearningPausedEventHandlerTestsFixture
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
 
-        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockLogger.Object);
+        _handler = new LearningPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
+            _mockEncodingService.Object,
+            _commitmentsV2Configuration,
+            _mockLogger.Object);
     }
 
     public LearningPausedEventHandlerTestsFixture SetStartDate(DateTime startDate)
@@ -192,6 +208,20 @@ public class LearningPausedEventHandlerTestsFixture
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
             c.Description == $"Learning has been paused on {_event.PauseDate}"
+        ), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    public void VerifySendEmailToEmployerCommandIsSent()
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+
+        _mockContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
+            c.AccountId == apprenticeship.Cohort.EmployerAccountId &&
+            c.Template == "EmployerApprenticeshipPausedNotification" &&
+            c.Tokens["provider_name"] == apprenticeship.Cohort.Provider.Name &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains(_commitmentsV2Configuration.EmployerCommitmentsBaseUrl) &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains("ACC123/apprentices") &&
+            c.Tokens["link_to_manage_apprenticeships"].Contains("apprentices/APP123")
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 

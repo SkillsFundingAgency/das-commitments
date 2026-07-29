@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -6,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
@@ -36,6 +38,8 @@ public class PatchApprenticeshipPaymentsCommandHandler(
             {
                 throw new DomainException(nameof(command.FreezePaymentsReason), "A reason for pausing payments must be provided");
             }
+
+            await CheckPaymentsCanBeFrozen(apprenticeship, cancellationToken);
 
             apprenticeship.FreezePayments(currentDate, party, command.UserInfo, command.FreezePaymentsReason.Value);
         }
@@ -79,6 +83,20 @@ public class PatchApprenticeshipPaymentsCommandHandler(
         {
             var action = isFreeze ? "freeze" : "unfreeze";
             throw new DomainException(nameof(party), $"Only employers are allowed to {action} payments - {party} is invalid");
+        }
+    }
+
+    private async Task CheckPaymentsCanBeFrozen(Apprenticeship apprenticeship, CancellationToken cancellationToken)
+    {
+        var courseLearningType = await dbContext.Value.Courses
+            .Where(c => c.LarsCode == apprenticeship.CourseCode)
+            .Select(c => c.LearningType)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? LearningType.Apprenticeship;
+
+        if (courseLearningType == LearningType.ApprenticeshipUnit)
+        {
+            throw new DomainException(nameof(LearningType), "Payments cannot be frozen for apprenticeship units");
         }
     }
 
