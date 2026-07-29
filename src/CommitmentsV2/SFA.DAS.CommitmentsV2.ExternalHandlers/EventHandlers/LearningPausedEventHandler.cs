@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -62,7 +63,7 @@ public class LearningPausedEventHandler(
                 ChangeType = LearningChangeType.AutoApproved,
                 LearningKey = message.LearningKey,
                 AppliedDate = message.Created,
-                Description = $"Learning has been paused on {message.PauseDate}"
+                Description = $"Learning has been paused on {message.PauseDate.ToGdsFormat()}"
             };
             await context.Send(historyCommand);
 
