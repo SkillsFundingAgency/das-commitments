@@ -29,6 +29,7 @@ public class GetApprenticeshipApprovalHandlerTests
         result.AccountId.Should().Be(_fixture.AccountLegalEntity.AccountId);
         result.Name.Should().Be($"{_fixture.Apprenticeship.FirstName} {_fixture.Apprenticeship.LastName}");
         result.ULN.Should().Be(_fixture.Apprenticeship.Uln);
+        result.CourseCode.Should().Be(_fixture.Apprenticeship.CourseCode);
         result.CourseName.Should().Be(_fixture.Apprenticeship.CourseName);
         result.ProviderName.Should().Be(_fixture.Provider.Name);
         result.UKPRN.Should().Be(_fixture.Provider.UkPrn);
