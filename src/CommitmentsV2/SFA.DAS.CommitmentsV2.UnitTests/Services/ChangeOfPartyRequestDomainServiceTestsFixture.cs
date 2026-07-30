@@ -98,7 +98,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                .EnableSensitiveDataLogging()
                 .Options)
             { CallBase = true };
 
@@ -201,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             OverlapCheckResult = new OverlapCheckResult(hasOverlappingStartDate, hasOverlappingEndDate);
 
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(),
-                    It.IsAny<SFA.DAS.CommitmentsV2.Domain.Entities.DateRange>(),
+                    It.IsAny<CourseDateRange>(),
                     It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OverlapCheckResult);
 

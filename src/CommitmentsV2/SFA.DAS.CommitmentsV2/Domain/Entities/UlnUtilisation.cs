@@ -2,14 +2,14 @@
 
 public class UlnUtilisation
 {
-    public UlnUtilisation(long apprenticeshipId, string uln, DateTime startDate, DateTime endDate)
+    public UlnUtilisation(long apprenticeshipId, string uln, DateTime startDate, DateTime endDate, bool isWithdrawn)
     {
         ApprenticeshipId = apprenticeshipId;
         Uln = uln;
-        DateRange = new DateRange(startDate, endDate);
+        DateRange = new CourseDateRange(startDate, endDate, isWithdrawn);
     }
 
     public long ApprenticeshipId { get; }
     public string Uln { get; }
-    public DateRange DateRange { get; }
+    public CourseDateRange DateRange { get; }
 }
