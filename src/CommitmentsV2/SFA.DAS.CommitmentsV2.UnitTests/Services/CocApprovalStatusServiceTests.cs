@@ -1,7 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -144,9 +144,7 @@ public class CocApprovalStatusServiceTests
         var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
         result.Should().HaveCount(2);
-
         result.Where(r => r.Field == CocChangeField.TNP1).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
-
         result.Where(r => r.Field == CocChangeField.TNP2).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
     }
 
@@ -163,10 +161,9 @@ public class CocApprovalStatusServiceTests
 
         var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
-        result.Should().HaveCount(1);
-
-        result[0].Field.Should().Be(CocChangeField.TNP1);
-
-        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result.Should().HaveCount(2);
+        result[0].Field.Should().Be(CocChangeField.TNP1);        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[1].Field.Should().Be(CocChangeField.TNP2);
+        result[1].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
     }
 }

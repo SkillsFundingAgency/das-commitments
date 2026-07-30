@@ -10,12 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 public class PostCocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICocApprovalRulesEngine cocApprovalRules,
-    ILogger<PostCocApprovalCommandHandler> logger,
-    INotifyProviderService notifyProviderService)
+    ILogger<PostCocApprovalCommandHandler> logger)
     : IRequestHandler<PostCocApprovalCommand, CocApprovalResult>
 {
-    private const string ProviderRequestRejectedNotificationEmailTemplate = "ProviderRequestRejectedNotification";
-
     public async Task<CocApprovalResult> Handle(PostCocApprovalCommand postCommand, CancellationToken cancellationToken)
     {
         logger.LogInformation("PostCocApprovalCommandHandler.Handle called");
@@ -35,14 +32,7 @@ public class PostCocApprovalCommandHandler(
             throw new DomainException("LearningKey", "An approval request for this learning key already exists.");
         }
 
-        var approvalState = cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
-
-        if (approvalState.ApprovalResult.Items.Any(i => i.Status == CocApprovalItemStatus.AutoRejected))
-        {
-            var providerName = db.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefault();
-
-            await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, cocApprovalDetails.ApprenticeshipId, providerName, ProviderRequestRejectedNotificationEmailTemplate);
-        }
+        var approvalState = await cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 

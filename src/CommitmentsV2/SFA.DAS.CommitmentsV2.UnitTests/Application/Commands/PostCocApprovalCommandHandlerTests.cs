@@ -41,19 +41,7 @@ public class PostCocApprovalCommandHandlerTests
         var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
 
         result.Should().BeEquivalentTo(fixture.CocApprovalState.ApprovalResult);
-    }
-
-    [Test]
-    public async Task Handle_WhenHandlingCommandAndAutoRejectedApprovalRequest_ThenShouldNotifyProvider()
-    {
-        var fixture = new PostCocApprovalCommandHandlerTestsFixture().WithAutoRejectedApprovalRequest();
-
-        var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
-
-        result.Should().BeEquivalentTo(fixture.CocApprovalState.ApprovalResult);
-
-        fixture.NotifyProviderService.Verify(x => x.NotifyProvider(It.Is<long>(p => p == fixture.Command.CocApprovalDetails.ProviderId), It.IsAny<long>(), It.IsAny<string>(),It.IsAny<string>()), Times.Once);
-    }
+    }   
 }
 
 public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
@@ -86,12 +74,12 @@ public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
         Command = new PostCocApprovalCommand { CocApprovalDetails = approvalDetails };
 
         CocApprovalRules = new Mock<ICocApprovalRulesEngine>();
-        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).Returns(CocApprovalState);
+        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).ReturnsAsync(CocApprovalState);
 
         NotifyProviderService = new Mock<INotifyProviderService>();
 
         Handler = new PostCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object,
-            Mock.Of<ILogger<PostCocApprovalCommandHandler>>(), NotifyProviderService.Object);
+            Mock.Of<ILogger<PostCocApprovalCommandHandler>>());
     }
 
     public PostCocApprovalCommandHandlerTestsFixture WithExistingApprovalRequest()

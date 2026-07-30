@@ -1,21 +1,33 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocApprovalRulesEngine(
     ICocApprovalStatusService cocApprovalService,
-    ILogger<CocApprovalRulesEngine> logger) : ICocApprovalRulesEngine
+    ILogger<CocApprovalRulesEngine> logger,
+    INotifyProviderService notifyProviderService,
+    Lazy<ProviderCommitmentsDbContext> dbContext) : ICocApprovalRulesEngine
 {
-    public CocApprovalState DetermineApprovalState(CocApprovalDetails cocApprovalDetails)
+    private const string ProviderRequestRejectedNotificationEmailTemplate = "ProviderRequestRejectedNotification";
+
+    public async Task<CocApprovalState> DetermineApprovalState(CocApprovalDetails cocApprovalDetails)
     {
         logger.LogInformation("Determining Approval State");
         var updateStatuses = cocApprovalService.DetermineCocUpdateStatuses(cocApprovalDetails.Updates, cocApprovalDetails.Apprenticeship);
         var approvalRequestStatus = DetermineApprovalRequestStatus(updateStatuses);
         IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(cocApprovalDetails, updateStatuses);
+
+        if (updateStatuses.Any(i => i.Status == CocApprovalItemStatus.AutoRejected))
+        {
+            var providerName = dbContext.Value.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefault();
+
+            await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, cocApprovalDetails.ApprenticeshipId, providerName, ProviderRequestRejectedNotificationEmailTemplate);
+        }
 
         return new CocApprovalState
         {
@@ -36,6 +48,7 @@ public class CocApprovalRulesEngine(
             }
         };
     }
+
     private static IEnumerable<ApprovalFieldRequest> MapToApprovalFieldRequests(CocApprovalDetails command, List<CocUpdateResult> updateStatuses)
     {
         return command.ApprovalFieldChanges.Join(

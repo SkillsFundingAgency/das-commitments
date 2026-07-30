@@ -55,18 +55,6 @@ public class PutCocApprovalCommandHandlerTests
         oldRequest.Status.Should().Be(CocApprovalResultStatus.Superseded);
         oldRequest.Updated.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
-
-    [Test]
-    public async Task Handle_WhenHandlingCommandAndAutoRejectedApprovalRequest_ThenShouldNotifyProvider()
-    {
-        var fixture = new PutCocApprovalCommandHandlerTestsFixture().WithExistingApprovalRequest().WithAutoRejectedApprovalRequest();
-
-        var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
-
-        result.Should().BeEquivalentTo(fixture.CocApprovalState.ApprovalResult);
-
-        fixture.NotifyProviderService.Verify(x => x.NotifyProvider(It.Is<long>(p => p == fixture.Command.CocApprovalDetails.ProviderId), It.IsAny<long>(), It.IsAny<string>(),It.IsAny<string>()), Times.Once);
-    }
 }
 
 public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
@@ -80,8 +68,6 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
     public CancellationToken CancellationToken { get; set; }
 
     public Mock<INotifyProviderService> NotifyProviderService { get; set; }
-
-    private const string ProviderCommitmentsBaseUrl = "https://approvals";
 
     public PutCocApprovalCommandHandlerTestsFixture()
     {
@@ -99,13 +85,12 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
         Command = new PutCocApprovalCommand { CocApprovalDetails = approvalDetails };
 
         CocApprovalRules = new Mock<ICocApprovalRulesEngine>();
-        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).Returns(CocApprovalState);
+        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).ReturnsAsync(CocApprovalState);
 
         NotifyProviderService = new Mock<INotifyProviderService>();
 
-        Handler = new PutCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object, 
-            Mock.Of<ILogger<PostCocApprovalCommandHandler>>(),
-            NotifyProviderService.Object);
+        Handler = new PutCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object,
+            Mock.Of<ILogger<PutCocApprovalCommandHandler>>());
         CancellationToken = new CancellationToken();
     }
 
@@ -117,12 +102,6 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
             Status = CocApprovalResultStatus.Pending
         });
         DbContext.SaveChanges();
-        return this;
-    }
-
-    public PutCocApprovalCommandHandlerTestsFixture WithAutoRejectedApprovalRequest()
-    {
-        CocApprovalState.ApprovalResult.Items.FirstOrDefault().Status = CocApprovalItemStatus.AutoRejected;
         return this;
     }
 

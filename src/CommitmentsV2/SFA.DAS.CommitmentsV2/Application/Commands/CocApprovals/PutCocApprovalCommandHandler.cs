@@ -10,8 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 public class PutCocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICocApprovalRulesEngine cocApprovalRules,
-    ILogger<PostCocApprovalCommandHandler> logger,
-    INotifyProviderService notifyProviderService)
+    ILogger<PutCocApprovalCommandHandler> logger)
     : IRequestHandler<PutCocApprovalCommand, CocApprovalResult>
 {
     public async Task<CocApprovalResult> Handle(PutCocApprovalCommand putCommand, CancellationToken cancellationToken)
@@ -35,14 +34,7 @@ public class PutCocApprovalCommandHandler(
 
         MarkAsSuperseded(db, existingApprovalRequests);
 
-        var approvalState = cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
-
-        if (approvalState.ApprovalResult.Items.Any(i => i.Status == CocApprovalItemStatus.AutoRejected))
-        {
-            var providerName = db.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefault();
-
-            await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, cocApprovalDetails.ApprenticeshipId, providerName, "ProviderRequestRejectedNotification");
-        }
+        var approvalState = await cocApprovalRules.DetermineApprovalState(cocApprovalDetails);
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 

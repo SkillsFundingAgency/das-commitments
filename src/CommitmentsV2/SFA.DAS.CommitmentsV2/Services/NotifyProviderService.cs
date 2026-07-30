@@ -22,7 +22,7 @@ public class NotifyProviderService(IMessageHandlerContext messageHandlerContext,
                 }
             });
 
-        logger.LogInformation("Sending email to provider: {ProviderId}", providerId);
+        logger.LogInformation("Sending {Template} email to provider: {ProviderId}", template, providerId);
         await messageHandlerContext.Send(sendEmailToProviderCommand);
     }
 }
