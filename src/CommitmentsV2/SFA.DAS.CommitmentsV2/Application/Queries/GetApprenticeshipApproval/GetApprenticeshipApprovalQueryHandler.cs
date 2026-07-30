@@ -35,6 +35,8 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
             AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntity.Id,
             AccountLegalEntityName = apprenticeship.Cohort.AccountLegalEntity.Name,
             AccountId = apprenticeship.Cohort.AccountLegalEntity.AccountId,
+            StartDate = apprenticeship.OriginalStartDate ?? apprenticeship.StartDate,
+            CourseCode = apprenticeship.CourseCode,
             CourseName = apprenticeship.CourseName,
             ApprovalRequestStatus = approvalRequest.Status,
             ApprovalRequestId = approvalRequest.Id,
