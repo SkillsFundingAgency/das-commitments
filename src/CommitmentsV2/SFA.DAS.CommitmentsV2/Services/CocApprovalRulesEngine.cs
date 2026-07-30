@@ -24,7 +24,7 @@ public class CocApprovalRulesEngine(
 
         if (updateStatuses.Any(i => i.Status == CocApprovalItemStatus.AutoRejected))
         {
-            var providerName = dbContext.Value.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefault();
+            var providerName = await dbContext.Value.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefaultAsync();
 
             await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, cocApprovalDetails.ApprenticeshipId, providerName, ProviderRequestRejectedNotificationEmailTemplate);
         }

@@ -162,7 +162,8 @@ public class CocApprovalStatusServiceTests
         var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
         result.Should().HaveCount(2);
-        result[0].Field.Should().Be(CocChangeField.TNP1);        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[0].Field.Should().Be(CocChangeField.TNP1);
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
         result[1].Field.Should().Be(CocChangeField.TNP2);
         result[1].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
     }
