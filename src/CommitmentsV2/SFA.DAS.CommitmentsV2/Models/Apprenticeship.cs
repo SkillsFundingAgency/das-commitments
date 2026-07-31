@@ -730,7 +730,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
-
     public void FreezePayments(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo, FreezePaymentsReason freezePaymentsReason)
     {
         var frozenOn = currentDateTime.UtcNow;
@@ -1036,7 +1035,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            if(ChangeTrackingSession != null)
+            if (ChangeTrackingSession != null)
             {
                 ChangeTrackingSession.TrackUpdate(dataLock);
             }
@@ -1080,6 +1079,26 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             ApprenticeshipId = Id,
             PausedOn = pausedDate,
             PausedViaILR = true
+        });
+    }
+
+    public void SetIlrResumed(DateTime resumedDate)
+    {
+        StartTrackingSession(UserAction.ResumeApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentStatus = PaymentStatus.Active;
+        PauseDate = null;
+        ApprenticeshipStatus = ApprenticeshipStatus.Live;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipResumedEvent
+        {
+            ApprenticeshipId = Id,
+            ResumedOn = resumedDate,
+            ResumedViaILR = true
         });
     }
 }
