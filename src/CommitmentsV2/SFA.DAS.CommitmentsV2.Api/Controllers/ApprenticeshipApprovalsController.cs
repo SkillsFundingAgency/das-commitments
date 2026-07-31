@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipApproval;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -20,4 +22,20 @@ public class ApprenticeshipApprovalsController(IMediator mediator) : ControllerB
 
         return Ok(result);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> PostApprenticeshipApproval(long apprenticeshipId, Guid approvalRequestId, [FromBody] ProcessApprenticeshipApprovalRequest request)
+    {
+        await mediator.Send(new ProcessApprenticeshipApprovalCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            ApprovalRequestId = approvalRequestId,
+            ApplyChanges = request.ApplyChanges,
+            UserInfo = request.UserInfo
+        });
+
+        return Ok();
+    }
+
+
 }
