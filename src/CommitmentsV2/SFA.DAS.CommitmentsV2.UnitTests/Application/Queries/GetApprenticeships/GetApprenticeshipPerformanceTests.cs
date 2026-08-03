@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
+            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
@@ -55,6 +56,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
 
             AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
+
+            mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
 
             mockContext
                 .Setup(context => context.Apprenticeships)

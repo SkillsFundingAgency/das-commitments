@@ -1035,4 +1035,23 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         return ConfirmationStatus.Unconfirmed;
     }
+
+    public void SetIlrPaused(DateTime pausedDate)
+    {
+        StartTrackingSession(UserAction.PauseApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentStatus = PaymentStatus.Paused;
+        PauseDate = pausedDate.Date;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipPausedEvent
+        {
+            ApprenticeshipId = Id,
+            PausedOn = pausedDate,
+            PausedViaILR = true
+        });
+    }
 }

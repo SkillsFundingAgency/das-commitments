@@ -133,7 +133,7 @@ public class ResolveOverlappingTrainingDateRequestService(
     {
         var apprenticeship = overlappingTrainingDateRequestAggregate.PreviousApprenticeship;
         var result = await overlapCheckService.CheckForOverlapsOnStartDate(apprenticeship.Uln,
-            new Domain.Entities.DateRange(overlappingTrainingDateRequestAggregate.DraftApprenticeship.StartDate.Value, overlappingTrainingDateRequestAggregate.DraftApprenticeship.EndDate.Value),
+            new Domain.Entities.CourseDateRange(overlappingTrainingDateRequestAggregate.DraftApprenticeship.StartDate.Value, overlappingTrainingDateRequestAggregate.DraftApprenticeship.EndDate.Value),
             null,
             CancellationToken.None);
 

@@ -124,7 +124,7 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
     {
         if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-        var overlapResult = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(stopDate), apprenticeship.Id, cancellationToken);
+        var overlapResult = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(stopDate, true), apprenticeship.Id, cancellationToken);
 
         if (!overlapResult.HasOverlaps) return;
 
