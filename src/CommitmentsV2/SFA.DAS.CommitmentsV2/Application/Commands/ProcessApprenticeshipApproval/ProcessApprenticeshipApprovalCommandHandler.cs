@@ -1,14 +1,16 @@
-﻿using System.Runtime.Loader;
-using System.Security.Cryptography;
-using System.Threading.Channels;
-using Newtonsoft.Json;
+﻿using System.Globalization;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 
 public class ProcessApprenticeshipApprovalCommandHandler(
-    Lazy<ProviderCommitmentsDbContext> dbContext)
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+     IMessageSession messageSession)
     : IRequestHandler<ProcessApprenticeshipApprovalCommand>
 {
     public async Task Handle(ProcessApprenticeshipApprovalCommand command, CancellationToken cancellationToken)
@@ -19,7 +21,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
         if (approval == null)
         {
-            throw new Exception($"Approval request {command.ApprovalRequestId} not found ");
+            throw new Exception($"Approval request {command.ApprovalRequestId} not found");
         }
         if (approval.ApprenticeshipId != command.ApprenticeshipId)
         {
@@ -27,47 +29,105 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         }
         if (approval.Status != CocApprovalResultStatus.Pending)
         {
-            throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It#s status is {approval.Status}");
+            throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
         }
 
-        if (command.ApplyChanges)
+        if(command.ApplyChanges)
         {
             approval.Status = CocApprovalResultStatus.Complete;
-
+            var approved = new LearningChangeApprovedEvent
+            {
+                LearningKey = approval.LearningKey,
+                ApprenticeshipId = approval.ApprenticeshipId,
+                Changes = ConvertItemsToChangeDictionary(approval.Items)
+            };
+            await messageSession.Publish(approved);
         }
         else
         {
             approval.Status = CocApprovalResultStatus.Cancelled;
+            var rejected = new LearningChangeRejectedEvent
+            {
+                LearningKey = approval.LearningKey,
+                ApprenticeshipId = approval.ApprenticeshipId,
+                Changes = ConvertItemsToChangeDictionary(approval.Items)
+            };
+            await messageSession.Publish(rejected);
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-
-
-
+        await RecordCocUpdatesInLearnerHistory(approval, command.UserInfo, command.ApplyChanges);
     }
 
-    private void SendAppliedMessage(ApprovalRequest approvalRequest)
+    private async Task RecordCocUpdatesInLearnerHistory(ApprovalRequest approval, UserInfo userInfo, bool applyChanges)
     {
 
-        var jsonObject = new
+        if(approval.Items != null && approval.Items.Any(x=>x.Field == "TNP1" || x.Field == "TNP2"))
         {
-            approvalRequest.LearningKey,
-            approvalRequest.ApprenticeshipId,
+            var totalOldValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
+            var totalNewValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
 
-            Changes = approvalRequest.Items.ToDictionary(
-                x => x.Field,
-                x => new
-                {
-                    x.Old,
-                    x.New,
-                    x.EffectiveFromDate
-                })
+            await messageSession.Send(new StoreLearningHistoryCommand
+            {
+                ApprenticeshipId = approval.ApprenticeshipId,
+                Source = LearningSourceType.ApprovalAPI,
+                ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
+                AppliedDate = DateTime.UtcNow,
+                Description = $"Total price change from {ToCurrency(totalOldValues)} to {ToCurrency(totalNewValues)}",
+                UserId = GetUserId(userInfo)
+            });
+        }
+    }
 
+    public static string ToCurrency(int input)
+    {
+        var culture = new CultureInfo("en-GB");
+        return input.ToString("C0", culture);
+    }
+
+    private int SumStringList(List<string> list)
+    {
+        int total = 0;
+
+        foreach (var s in list)
+        {
+            if (int.TryParse(s, out int value))
+                total += value;
+        }
+        return total;
+    }
+
+    private static Guid? GetUserId(UserInfo userInfo)
+    {
+        if (userInfo?.UserId != null && Guid.TryParse(userInfo.UserId, out var userId))
+        {
+            return userId;
+        }
+
+        return null;
+    }
+
+    private Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<ApprovalFieldRequest> items)
+    {
+        var changes = new Dictionary<string, LearningChangeEvent.Change>();
+        foreach (var item in items)
+        {
+            changes[MapToLearningFieldName(item.Field)] = new LearningChangeEvent.Change
+            {
+                Old = item.Old,
+                New = item.New,
+                EffectiveFromDate = item.EffectiveFromDate
+            };
+        }
+        return changes;
+    }
+
+    private string MapToLearningFieldName(string fieldName)
+    {
+        return fieldName switch
+        {
+            "TNP1" => "TrainingPrice",
+            "TNP2" => "AssessmentPrice",
+            _ => fieldName
         };
-        var json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
-
-
-
-
     }
 }
