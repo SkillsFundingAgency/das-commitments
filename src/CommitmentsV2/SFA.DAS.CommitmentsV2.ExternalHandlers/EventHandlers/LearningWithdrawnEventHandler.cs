@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -30,7 +28,7 @@ public class LearningWithdrawnEventHandler(
     ILogger<LearningWithdrawnEventHandler> logger)
     : IHandleMessages<LearningWithdrawnEvent>
 {
-public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
+    public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
         {
@@ -39,11 +37,10 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
                 logger.LogInformation("LearnerWithdrawals feature is not active. Ignoring LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
                 return;
             }
-            logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate} and WithdrawalReasonCode {WithdrawalReasonCode}",
-            message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
+            logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate}", message.ApprenticeshipId, message.WithdrawalDate);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-            
+
             var withdrawalDate = new DateTime(message.WithdrawalDate.Year, message.WithdrawalDate.Month, 1);
             if (message.WithdrawalReasonCode < 0)
             {
@@ -62,7 +59,7 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
                 ChangeType = LearningChangeType.AutoApproved,
                 LearningKey = message.LearningKey,
                 AppliedDate = message.Created,
-                Description = BuildWithdrawalReasonDesciption(message.WithdrawalReasonCode) 
+                Description = BuildWithdrawalReasonDescription()
             };
             await context.Send(historyCommand);
         }
@@ -73,13 +70,9 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
         }
     }
 
-    private static string BuildWithdrawalReasonDesciption(short withdrawalReasonCode)
+    private string BuildWithdrawalReasonDescription()
     {
-        if (Constants.IlrWithdrawalReasons.TryGetValue(withdrawalReasonCode, out var description))
-        {
-            return $"ILR Learner status changed from Live to Withdrawn due to {withdrawalReasonCode} - '{description}'";
-        }
-        return $"ILR Learner status changed from Live to Withdrawn due to {withdrawalReasonCode} - 'Unknown Reason Code'";
+        return "ILR Learner status changed from Live to Stopped";
     }
 
     private void ValidateStopDateForWithdrawal(DateTime stopDate, Apprenticeship apprenticeship)
@@ -110,7 +103,7 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
             }
         }
 
-        if(stopDate.Day != 1)
+        if (stopDate.Day != 1)
         {
             throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date must be the 1st of the month.");
         }
