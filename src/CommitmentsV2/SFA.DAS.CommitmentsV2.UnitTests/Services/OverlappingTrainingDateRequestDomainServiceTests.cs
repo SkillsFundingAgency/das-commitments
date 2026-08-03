@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _dbContext.Setup(db => db.DraftApprenticeships).ReturnsDbSet(draftApprenticeships);
 
             _overlapCheckServiceMock
-                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
+                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CourseDateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OverlapCheckResultOnStartDate(false, null));
 
@@ -170,7 +170,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _dbContext.Setup(db => db.DraftApprenticeships).ReturnsDbSet(draftApprenticeships);
 
             _overlapCheckServiceMock
-                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
+                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CourseDateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId));
 
@@ -201,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _dbContext.Setup(db => db.DraftApprenticeships).ReturnsDbSet(draftApprenticeships);
 
             _overlapCheckServiceMock
-                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(),
+                .Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CourseDateRange>(),
                     apprenticeshipId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId));
 

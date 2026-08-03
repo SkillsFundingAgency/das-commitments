@@ -98,7 +98,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                .EnableSensitiveDataLogging()
                 .Options)
             { CallBase = true };
 
@@ -128,6 +127,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Db
                 .Setup(context => context.Cohorts)
                 .ReturnsDbSet(new List<Cohort> { Cohort });
+
+            Db
+                .Setup(context => context.Courses)
+                .ReturnsDbSet(new List<Course>());
         }
 
         public ChangeOfPartyRequestDomainServiceTestsFixture WithOriginatingParty(Party party)
@@ -165,6 +168,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithApprenticeshipUnitCourseAndChangeOfProvider()
+        {
+            ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
+            const string courseCode = "AU123";
+            Apprenticeship.Object.CourseCode = courseCode;
+            Db.Setup(context => context.Courses)
+                .ReturnsDbSet(new List<Course>
+                {
+                    new()
+                    {
+                        LarsCode = courseCode,
+                        LearningType = LearningType.ApprenticeshipUnit
+                    }
+                });
+
+            return this;
+        }
+
         public ChangeOfPartyRequestDomainServiceTestsFixture WithDeliveryModelAsFlexiJobAndChangeOfProvider()
         {
             ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
@@ -179,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             OverlapCheckResult = new OverlapCheckResult(hasOverlappingStartDate, hasOverlappingEndDate);
 
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(),
-                    It.IsAny<SFA.DAS.CommitmentsV2.Domain.Entities.DateRange>(),
+                    It.IsAny<CourseDateRange>(),
                     It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OverlapCheckResult);
 
