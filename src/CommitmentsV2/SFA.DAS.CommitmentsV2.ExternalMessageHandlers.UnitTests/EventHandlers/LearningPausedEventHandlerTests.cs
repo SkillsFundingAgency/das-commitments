@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -207,7 +208,7 @@ public class LearningPausedEventHandlerTestsFixture
             c.ChangeType == Types.LearningChangeType.AutoApproved &&
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
-            c.Description == $"Learning has been paused on {_event.PauseDate}"
+            c.Description == $"Learning has been paused on {_event.PauseDate.ToGdsFormat()}"
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 
