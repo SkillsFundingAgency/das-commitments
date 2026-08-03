@@ -36,6 +36,4 @@ public class ApprenticeshipApprovalsController(IMediator mediator) : ControllerB
 
         return Ok();
     }
-
-
 }
