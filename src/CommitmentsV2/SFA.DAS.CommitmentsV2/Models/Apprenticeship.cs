@@ -975,8 +975,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
-        var currentStopDate = StopDate;
-
         PaymentStatus = PaymentStatus.Withdrawn;
         StopDate = stoppedDate;
         WithdrawnReasonCode = withdrawnReasonCode;
