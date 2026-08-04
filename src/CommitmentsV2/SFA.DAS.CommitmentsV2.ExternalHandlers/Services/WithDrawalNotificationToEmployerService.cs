@@ -27,6 +27,7 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
                                            {
                                                x.Id,
                                                x.CourseName,
+                                               x.FirstName, x.LastName,
                                                Cohort = new
                                                {
                                                    x.Cohort.EmployerAccountId,
@@ -54,6 +55,7 @@ public class WithDrawalNotificationToEmployerService(Lazy<ProviderCommitmentsDbC
                 {"employer_name", apprenticeshipDetails.Cohort.AccountLegalEntity.Name},
                 {"course_name", apprenticeshipDetails.CourseName},
                 {"provider_name", apprenticeshipDetails.Cohort.Provider.Name},
+                { "learner_name", $"{apprenticeshipDetails.FirstName} {apprenticeshipDetails.LastName}" },
                 {"url", $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{employerEncodedAccountId}/apprentices" }
          });
 
