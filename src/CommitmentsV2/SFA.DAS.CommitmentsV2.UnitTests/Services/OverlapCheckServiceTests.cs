@@ -489,7 +489,7 @@ public class OverlapCheckServiceTests
 
         public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate()
         {
-            return await _overlapCheckService.CheckForOverlapsOnStartDate("", new SFA.DAS.CommitmentsV2.Domain.Entities.DateRange(_startDate, _endDate), _apprenticeshipId, CancellationToken.None);
+            return await _overlapCheckService.CheckForOverlapsOnStartDate("", new SFA.DAS.CommitmentsV2.Domain.Entities.CourseDateRange(_startDate, _endDate), _apprenticeshipId, CancellationToken.None);
         }
 
         public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps()
