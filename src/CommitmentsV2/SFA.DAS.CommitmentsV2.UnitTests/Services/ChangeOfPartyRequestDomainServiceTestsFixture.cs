@@ -127,6 +127,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Db
                 .Setup(context => context.Cohorts)
                 .ReturnsDbSet(new List<Cohort> { Cohort });
+
+            Db
+                .Setup(context => context.Courses)
+                .ReturnsDbSet(new List<Course>());
         }
 
         public ChangeOfPartyRequestDomainServiceTestsFixture WithOriginatingParty(Party party)
@@ -160,6 +164,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
             NewPartyId = Cohort.ProviderId;
+
+            return this;
+        }
+
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithApprenticeshipUnitCourseAndChangeOfProvider()
+        {
+            ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
+            const string courseCode = "AU123";
+            Apprenticeship.Object.CourseCode = courseCode;
+            Db.Setup(context => context.Courses)
+                .ReturnsDbSet(new List<Course>
+                {
+                    new()
+                    {
+                        LarsCode = courseCode,
+                        LearningType = LearningType.ApprenticeshipUnit
+                    }
+                });
 
             return this;
         }

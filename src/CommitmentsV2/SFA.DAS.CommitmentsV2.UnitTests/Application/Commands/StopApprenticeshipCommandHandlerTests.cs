@@ -385,22 +385,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
 
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WithApprenticeshipUnit_AndEmployerUser_ThenShouldThrowDomainException()
+        {
+            var apprenticeship = await SetupApprenticeship(courseCode: "AU123", learningType: LearningType.ApprenticeshipUnit);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo { UserId = "user", UserDisplayName = "User", UserEmail = "a@b.com" }, Party.Employer);
+
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "apprenticeshipId" });
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WithApprenticeshipUnit_AndSystemUser_ThenShouldStop()
+        {
+            var apprenticeship = await SetupApprenticeship(courseCode: "AU123", learningType: LearningType.ApprenticeshipUnit);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, UserInfo.System, Party.Employer);
+
+            await _handler.Handle(command, new CancellationToken());
+            await _dbContext.SaveChangesAsync();
+
+            var apprenticeshipAssertion = await _confirmationDbContext.Apprenticeships.FirstAsync(a => a.Id == apprenticeship.Id);
+            apprenticeshipAssertion.StopDate.Should().Be(stopDate);
+            apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+        }
+
         private static bool VerifyTokens(IDictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
         {
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;
         }
 
-        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
+        private async Task<Apprenticeship> SetupApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null, string courseCode = null, LearningType? learningType = null)
         {
             var today = DateTime.UtcNow;
             _currentDateTime.Setup(a => a.UtcNow).Returns(today);
 
             var fixture = new Fixture();
             var apprenticeshipId = fixture.Create<long>();
+            var resolvedCourseCode = courseCode ?? fixture.Create<string>();
             var apprenticeship = new Apprenticeship
             {
                 Id = apprenticeshipId,
+                CourseCode = resolvedCourseCode,
                 Cohort = new Cohort
                 {
                     EmployerAccountId = fixture.Create<long>(),
@@ -412,6 +441,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             };
 
             _dbContext.Apprenticeships.Add(apprenticeship);
+
+            if (learningType.HasValue)
+            {
+                _dbContext.Courses.Add(new Course
+                {
+                    LarsCode = resolvedCourseCode,
+                    LearningType = learningType
+                });
+            }
+
             await _dbContext.SaveChangesAsync();
 
             return apprenticeship;

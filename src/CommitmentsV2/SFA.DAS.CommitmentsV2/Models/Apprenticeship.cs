@@ -730,7 +730,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
-
     public void FreezePayments(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo, FreezePaymentsReason freezePaymentsReason)
     {
         var frozenOn = currentDateTime.UtcNow;
@@ -976,8 +975,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
     {
-        var currentStopDate = StopDate;
-
         PaymentStatus = PaymentStatus.Withdrawn;
         StopDate = stoppedDate;
         WithdrawnReasonCode = withdrawnReasonCode;
@@ -990,33 +987,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             MadeRedundant = false;
         }
         ResolveDatalocks(stoppedDate);
-
-        if (currentStopDate == null || currentStopDate == stoppedDate)
-        {
-            Publish(() => new ApprenticeshipStoppedEvent
-            {
-                AppliedOn = DateTime.UtcNow,
-                ApprenticeshipId = Id,
-                StopDate = stoppedDate,
-                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
-                LearnerDataId = LearnerDataId,
-                ProviderId = Cohort.ProviderId,
-                IsWithdrawnViaIlr = true
-            });
-        }
-        else
-        {
-            Publish(() => new ApprenticeshipStopDateChangedEvent
-            {
-                StopDate = stoppedDate,
-                ApprenticeshipId = Id,
-                ChangedOn = DateTime.UtcNow,
-                IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stoppedDate.Date,
-                LearnerDataId = LearnerDataId,
-                ProviderId = Cohort.ProviderId,
-                IsWithdrawnViaIlr = true
-            });
-        }
     }
 
     private void ResolveDatalocks(DateTime stopDate)
@@ -1036,7 +1006,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            if(ChangeTrackingSession != null)
+            if (ChangeTrackingSession != null)
             {
                 ChangeTrackingSession.TrackUpdate(dataLock);
             }
