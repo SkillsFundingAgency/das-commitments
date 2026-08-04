@@ -621,17 +621,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 },
             };
 
-           apprenticeships.AddRange(withExpiredDataLock);
+            apprenticeships.AddRange(withExpiredDataLock);
 
-           if (searchParameters.ProviderId.HasValue)
-           {
-               AssignProviderToApprenticeships(searchParameters.ProviderId.Value, apprenticeships);
-           }
+            if (searchParameters.ProviderId.HasValue)
+            {
+                AssignProviderToApprenticeships(searchParameters.ProviderId.Value, apprenticeships);
+            }
 
-           if (searchParameters.EmployerAccountId.HasValue)
-           {
-               AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
-           }
+            if (searchParameters.EmployerAccountId.HasValue)
+            {
+                AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
+            }
 
             mockContext
                 .Setup(context => context.Apprenticeships)

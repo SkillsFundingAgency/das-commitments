@@ -41,7 +41,7 @@ public class OverlappingTrainingDateRequestDomainService(
         }
 
         var overlapResult = await overlapCheckService.CheckForOverlapsOnStartDate(draftApprenticeship.Uln,
-            new Domain.Entities.DateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value),
+            new Domain.Entities.CourseDateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value),
             draftApprenticeship.Id, cancellationToken);
 
         if (overlapResult.HasOverlapWithIlrWithdrawnApprenticeship)

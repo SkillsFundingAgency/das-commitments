@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Services;
 public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, IEmailOverlapService emailOverlapService, Lazy<ProviderCommitmentsDbContext> dbContext)
     : IOverlapCheckService
 {
-    public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
+    public async Task<OverlapCheckResult> CheckForOverlaps(string uln, CourseDateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
     {
         var overlapStartDate = false;
         var overlapEndDate = false;
@@ -42,7 +42,7 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         return new OverlapCheckResult(overlapStartDate, overlapEndDate);
     }
 
-    public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
+    public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate(string uln, CourseDateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
     {
         var overlapStartDate = false;
         long? apprenticeshipId = null;
@@ -79,7 +79,7 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
         return existingApprenticeshipId.HasValue ? utilisations.Where(x => x.ApprenticeshipId != existingApprenticeshipId.Value) : utilisations;
     }
 
-    public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, DateRange range, long? existingApprenticeshipId, long? cohortId,
+    public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, CourseDateRange range, long? existingApprenticeshipId, long? cohortId,
         CancellationToken cancellationToken)
     {
         var overlappingEmails = await emailOverlapService.GetOverlappingEmails(new EmailToValidate(email, range.From, range.To, existingApprenticeshipId), cohortId, cancellationToken);
@@ -121,7 +121,7 @@ public class OverlapCheckService(IUlnUtilisationService ulnUtilisationService, I
             if (apprentice.StartDate.HasValue && apprentice.EndDate.HasValue)
             {
                 overlapCheckResult.Add(await CheckForOverlaps(apprentice.Uln,
-                    new DateRange(apprentice.StartDate ?? apprentice.StartDate.Value, apprentice.EndDate ?? apprentice.EndDate.Value),
+                    new CourseDateRange(apprentice.StartDate ?? apprentice.StartDate.Value, apprentice.EndDate ?? apprentice.EndDate.Value),
                     apprentice.Id,
                     CancellationToken.None));
             }

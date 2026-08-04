@@ -256,7 +256,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _overlapCheckService = new Mock<IOverlapCheckService>();
                 _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(false, null,false);
 
-                _overlapCheckService.Setup(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>())).ReturnsAsync(() => _overlapCheckResultOnStartDate);
+                _overlapCheckService.Setup(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, It.IsAny<CancellationToken>())).ReturnsAsync(() => _overlapCheckResultOnStartDate);
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -408,12 +408,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             internal void VerifyOverlappingServiceIsCalled()
             {
-                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>()), Times.Once);
+                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, It.IsAny<CancellationToken>()), Times.Once);
             }
 
             internal void VerifyOverlappingServiceIsNotCalled()
             {
-                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>()), Times.Never);
+                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, It.IsAny<CancellationToken>()), Times.Never);
             }
 
             internal void AddSecondDraftApprenticeshipWithOverlap()

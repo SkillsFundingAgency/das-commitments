@@ -21,4 +21,5 @@ END
 
 GRANT SELECT ON SCHEMA :: DashboardReporting TO DashboardReporting
 
+:r .\APPMAN-2561-Migrate-Paused-To-Payment-Freeze.sql
 

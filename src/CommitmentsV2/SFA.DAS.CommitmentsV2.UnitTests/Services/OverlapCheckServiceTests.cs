@@ -33,7 +33,6 @@ public class OverlapCheckServiceTests
 
     [TestCase("2017-01-01", "2017-12-31", Description = "Before any apprenticeships")]
     [TestCase("2021-01-01", "2021-12-31", Description = "After any apprenticeships")]
-    [TestCase("2018-03-01", "2018-03-01", Description = "Zero-length candidate")]
     [TestCase("2018-02-01", "2018-02-14", Description = "Same month but not overlapping (before)")]
     [TestCase("2018-04-16", "2018-04-30", Description = "Same month but not overlapping (after)")]
     public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate, DateTime endDate)
@@ -42,7 +41,33 @@ public class OverlapCheckServiceTests
             WithDateRange(startDate, endDate)
             .CheckForOverlaps();
 
-        Assert.That(result.HasOverlaps, Is.False);
+        result.HasOverlaps.Should().BeFalse();
+    }
+
+    [TestCase("2018-03-01", "2018-03-01", false, true, Description = "Active Zero-length course")]
+    [TestCase("2018-03-01", "2018-03-01", true, false, Description = "Inactive Zero-length course")]
+    public async Task ThenIfCourseIsOneMonthLongAndDatesFallWithinRangeOfExistingApprenticeshipThenOverlappingDependsOnWithdrawnFlag(DateTime startDate, DateTime endDate, 
+        bool isWithdrawn, bool expectedOverlap)
+    {
+        var result = await _fixture
+            .WithDateRange(startDate, endDate)
+            .WithIsWithdrawnSetTo(isWithdrawn)
+            .CheckForOverlaps();
+
+        result.HasOverlaps.Should().Be(expectedOverlap);
+    }
+
+    [TestCase("2018-03-01", "2018-04-01", false, true, Description = "Active course")]
+    [TestCase("2018-03-01", "2018-04-01", true, true, Description = "Inactive course")]
+    public async Task ThenIfCourseMoreThanAMonthAndDatesFallWithinRangeOfExistingApprenticeshipThenOverlappingIndependentOfActiveFlag(DateTime startDate, DateTime endDate,
+    bool isWithdrawn, bool expectedOverlap)
+    {
+        var result = await _fixture
+            .WithDateRange(startDate, endDate)
+            .WithIsWithdrawnSetTo(isWithdrawn)
+            .CheckForOverlaps();
+
+        result.HasOverlaps.Should().Be(expectedOverlap);
     }
 
     [Test]
@@ -65,7 +90,6 @@ public class OverlapCheckServiceTests
             .CheckForOverlaps();
         Assert.That(result.HasOverlaps, Is.False);
     }
-
 
     [Test]
     public async Task ThenIfStartDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
@@ -324,6 +348,7 @@ public class OverlapCheckServiceTests
         private readonly ProviderCommitmentsDbContext _db;
         private DateTime _startDate;
         private DateTime _endDate;
+        private bool _isWithdrawn = false;
         private long? _apprenticeshipId;
         private long? _cohortId;
         private readonly string _email;
@@ -353,6 +378,12 @@ public class OverlapCheckServiceTests
         {
             _startDate = startDate;
             _endDate = endDate;
+            return this;
+        }
+
+        public OverlapCheckServiceTestFixture WithIsWithdrawnSetTo(bool isWithdrawn)
+        {
+            _isWithdrawn = isWithdrawn;
             return this;
         }
 
@@ -390,7 +421,7 @@ public class OverlapCheckServiceTests
         {
             var mockData = new List<UlnUtilisation>
             {
-                new(1, "", new DateTime(2018, 03, 01), new DateTime(2018, 03, 01))
+                new(1, "", new DateTime(2018, 03, 01), new DateTime(2018, 03, 01), true)
             };
 
             _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -453,7 +484,7 @@ public class OverlapCheckServiceTests
 
         public async Task<OverlapCheckResult> CheckForOverlaps()
         {
-            return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate), _apprenticeshipId, new CancellationToken());
+            return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate, _isWithdrawn), _apprenticeshipId, new CancellationToken());
         }
 
         public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate()
@@ -463,7 +494,7 @@ public class OverlapCheckServiceTests
 
         public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps()
         {
-            return await _overlapCheckService.CheckForEmailOverlaps(_email, _startDate.To(_endDate), _apprenticeshipId, _cohortId, new CancellationToken());
+            return await _overlapCheckService.CheckForEmailOverlaps(_email, _startDate.To(_endDate, _isWithdrawn), _apprenticeshipId, _cohortId, new CancellationToken());
         }
         public async Task<List<EmailOverlapCheckResult>> CheckForEmailOverlapsInCohort()
         {
@@ -484,13 +515,12 @@ public class OverlapCheckServiceTests
         {
             var mockData = new List<UlnUtilisation>
             {
-                new(1, "", new DateTime(2018,02,15), new DateTime(2018,04,15)),
-                new(2, "", new DateTime(2018,06,15), new DateTime(2018,08,15)),
-                new(3, "", new DateTime(2020,01,15), new DateTime(2020,12,15))
+                new(1, "", new DateTime(2018,02,15), new DateTime(2018,04,15), false),
+                new(2, "", new DateTime(2018,06,15), new DateTime(2018,08,15), false),
+                new(3, "", new DateTime(2020,01,15), new DateTime(2020,12,15), false)
             };
 
             return mockData.ToArray();
         }
-
     }
 }
