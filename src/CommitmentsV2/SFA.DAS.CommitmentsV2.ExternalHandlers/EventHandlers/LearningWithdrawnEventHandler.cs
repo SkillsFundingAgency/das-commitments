@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -27,7 +28,8 @@ public class LearningWithdrawnEventHandler(
     IOverlapCheckService overlapCheckService,
     IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService,
     CommitmentsV2Configuration commitmentsV2Configuration,
-    ILogger<LearningWithdrawnEventHandler> logger)
+    ILogger<LearningWithdrawnEventHandler> logger,
+    IWithDrawalNotificationToEmployerService service)
     : IHandleMessages<LearningWithdrawnEvent>
 {
 public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
@@ -53,6 +55,8 @@ public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext 
             await ValidateEndDateOverlap(withdrawalDate, apprentice, default);
 
             apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode);
+
+            await service.SendWithdrawalNotificationToEmployer(apprentice.Id, context);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             var historyCommand = new StoreLearningHistoryCommand
