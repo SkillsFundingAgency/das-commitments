@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
-public class NotifyProviderService(IMessageHandlerContext messageHandlerContext,
+public class NotifyProviderService(IMessageSession messageSession,
     CommitmentsV2Configuration commitmentsV2Configuration,
     ILogger<NotifyProviderService> logger):INotifyProviderService
 {
@@ -23,6 +23,6 @@ public class NotifyProviderService(IMessageHandlerContext messageHandlerContext,
             });
 
         logger.LogInformation("Sending {Template} email to provider: {ProviderId}", template, providerId);
-        await messageHandlerContext.Send(sendEmailToProviderCommand);
+        await messageSession.Send(sendEmailToProviderCommand);
     }
 }

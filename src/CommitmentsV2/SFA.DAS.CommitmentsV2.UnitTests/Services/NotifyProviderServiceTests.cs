@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 public class NotifyProviderServiceTests
 {
     private Mock<ILogger<NotifyProviderService>> _loggerMock;
-    private Mock<IMessageHandlerContext> _messageHandlerContextMock;
+    private Mock<IMessageSession> _messageSessionMock;
     private Mock<CommitmentsV2Configuration> _configurationMock;
     private NotifyProviderService _service;
 
@@ -17,9 +17,9 @@ public class NotifyProviderServiceTests
     public void Setup()
     {
         _loggerMock = new Mock<ILogger<NotifyProviderService>>();
-        _messageHandlerContextMock = new Mock<IMessageHandlerContext>();
+        _messageSessionMock = new Mock<IMessageSession>();
         _configurationMock = new Mock<CommitmentsV2Configuration>();
-        _service = new NotifyProviderService(_messageHandlerContextMock.Object, _configurationMock.Object, _loggerMock.Object);
+        _service = new NotifyProviderService(_messageSessionMock.Object, _configurationMock.Object, _loggerMock.Object);
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class NotifyProviderServiceTests
     {
         await _service.NotifyProvider(123, 456, "Test Provider", "TestTemplate");
 
-        _messageHandlerContextMock.Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(cmd =>
+        _messageSessionMock.Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(cmd =>
             cmd.ProviderId == 123 &&
             cmd.Template == "TestTemplate" &&
             cmd.Tokens["provider_name"] == "Test Provider" &&
