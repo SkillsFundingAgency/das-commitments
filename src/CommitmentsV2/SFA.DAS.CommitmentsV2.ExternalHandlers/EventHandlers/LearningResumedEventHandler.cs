@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -45,22 +44,29 @@ public class LearningResumedEventHandler(
                 throw new DomainException(nameof(apprentice), $"Apprenticeship with Id {message.ApprenticeshipId} not found.");
             }
 
-            ValidateResumeDate(message.ResumeDate, apprentice);
-
-            apprentice.SetIlrResumed(message.ResumeDate);
-
-            var historyCommand = new StoreLearningHistoryCommand
+            if (apprentice.PaymentStatus == PaymentStatus.Active && !apprentice.PauseDate.HasValue)
             {
-                ApprenticeshipId = message.ApprenticeshipId,
-                Source = LearningSourceType.ILRStatusChange,
-                ChangeType = LearningChangeType.AutoApproved,
-                LearningKey = message.LearningKey,
-                AppliedDate = message.Created,
-                Description = $"Learning has been resumed on {message.ResumeDate.ToGdsFormat()}"
-            };
-            await context.Send(historyCommand);
+                logger.LogInformation("Apprenticeship {ApprenticeshipId} is already active and resumed.", apprentice.Id);
+            }
+            else
+            {
+                ValidateResumeDate(message.ResumeDate, apprentice);
 
-            logger.LogInformation(" Executing {Event} completed", nameof(LearningResumedEvent));
+                apprentice.SetIlrResumed(message.ResumeDate);
+
+                var historyCommand = new StoreLearningHistoryCommand
+                {
+                    ApprenticeshipId = message.ApprenticeshipId,
+                    Source = LearningSourceType.ILRStatusChange,
+                    ChangeType = LearningChangeType.AutoApproved,
+                    LearningKey = message.LearningKey,
+                    AppliedDate = message.Created,
+                    Description = $"Learning has been resumed on {message.ResumeDate.ToGdsFormat()}"
+                };
+                await context.Send(historyCommand);
+
+                logger.LogInformation(" Executing {Event} completed", nameof(LearningResumedEvent));
+            }
         }
         catch (Exception e)
         {
@@ -91,9 +97,9 @@ public class LearningResumedEventHandler(
             throw new DomainException(nameof(resumeDate), "Invalid resume date. Resume date cannot be before the pausedate.");
         }
 
-        if(!apprenticeship.PauseDate.HasValue && resumeDate.Date != DateTime.MinValue)
+        if (!apprenticeship.PauseDate.HasValue && resumeDate.Date != DateTime.MinValue)
         {
-            logger.LogInformation("apprenticeship paused date is missing for apprenticeship {ApprenticeshipId}.", apprenticeship.Id);
+            logger.LogInformation("Apprenticeship paused date is missing for apprenticeship {ApprenticeshipId}.", apprenticeship.Id);
         }
     }
 }

@@ -109,7 +109,7 @@ public class LearningResumedEventHandlerTests
         _fixture.VerifyLearnerResumed();
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         _fixture.VerifyLearningResumedEventIsPublished();
-        _fixture.VerifyLoggerLoggedInformation($"apprenticeship paused date is missing for apprenticeship");
+        _fixture.VerifyLoggerLoggedInformation($"Apprenticeship paused date is missing for apprenticeship");
     }
 
     [Test]
@@ -120,6 +120,16 @@ public class LearningResumedEventHandlerTests
         var act = async () => await _fixture.SetPaymentStatus(status).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("Learning cannot be Resumed if Payment Status is Completed or Withdrawn"));
         _fixture.VerifyLearningResumedEventIsNotPublished();
+    }
+
+    [Test]
+    public async Task ThenLogstheInformation_WhenStatusIsActive()
+    {
+         await _fixture.SetPaymentStatus(PaymentStatus.Active).Handle();
+        _fixture.VerifyLearningResumedEventIsNotPublished();
+        _fixture.VerifyStoreLearningHistoryCommandIsNotSent();
+        _fixture.VerifyLoggerLoggedInformation($"Apprenticeship {_fixture.apprenticeshipId} is already active and resumed.");
+
     }
 }
 
@@ -267,6 +277,11 @@ public class LearningResumedEventHandlerTestsFixture
     {
         var resumedEvent = UnitOfWorkContext.GetEvents().OfType<ApprenticeshipResumedEvent>().FirstOrDefault();
         resumedEvent.Should().BeNull();
+    }
+
+    public void VerifyStoreLearningHistoryCommandIsNotSent()
+    {
+        _mockContext.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
     public void VerifyLearnerResumed()
