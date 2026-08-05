@@ -8,9 +8,8 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -24,6 +23,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
     {
         var fixture = new ProcessFullyApprovedCohortCommandFixture();
         await fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
+            .SetApprovedApprenticeships()
             .Handle();
             
         fixture.Db.Verify(d => d.ExecuteSqlCommandAsync(
@@ -38,31 +38,32 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
     [TestCase(ApprenticeshipEmployerType.NonLevy, true)]
     [TestCase(ApprenticeshipEmployerType.Levy, false)]
     [TestCase(ApprenticeshipEmployerType.Levy, true)]
-    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEvents(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer)
+    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEventsForSingleApprenticeship(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer)
     {
         var fixture = new ProcessFullyApprovedCohortCommandFixture();
         await fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
-            .SetApprovedApprenticeships(isFundedByTransfer)
+            .SetApprovedSingleApprenticeship(isFundedByTransfer)
             .Handle();
-            
-        fixture.Apprenticeships.ForEach(
-            a => fixture.EventPublisher.Verify(
+
+        var apprenticeship = fixture.Apprenticeships.First();
+
+        fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                    e => ProcessFullyApprovedCohortCommandFixture.IsValid(apprenticeshipEmployerType, a, e))),
-                Times.Once));
+                    e => ProcessFullyApprovedCohortCommandFixture.IsValid(apprenticeshipEmployerType, apprenticeship, e))),
+                Times.Once);
     }
 
-    [TestCase(false, Common.Domain.Types.LearningType.ApprenticeshipUnit)]
-    [TestCase(true, Common.Domain.Types.LearningType.FoundationApprenticeship)]
-    public async Task Handle_WhenHandlingCommandWithShortCourseOrWithout_ThenShouldPublishEvents(bool hasShortCourse, Common.Domain.Types.LearningType expectedLearningType)
+    [TestCase(LearningType.ApprenticeshipUnit, Common.Domain.Types.LearningType.ApprenticeshipUnit)]
+    [TestCase(LearningType.Apprenticeship, Common.Domain.Types.LearningType.Apprenticeship)]
+    [TestCase(LearningType.FoundationApprenticeship, Common.Domain.Types.LearningType.FoundationApprenticeship)]
+    public async Task Handle_WhenHandlingCommand_ThenShouldPublishEventsWithLearningTypeAsAppUnit(LearningType learningType, Common.Domain.Types.LearningType expectedLearningType)
     {
         var fixture = new ProcessFullyApprovedCohortCommandFixture();
-        await fixture.SetShortCourse(hasShortCourse)
-            .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
-            .SetApprovedApprenticeships(false)
+        await fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
+            .SetApprovedApprenticeships(false, learningType)
             .Handle();
 
-        fixture.Apprenticeships.ForEach(
+        fixture.Apprenticeships.Where(a=>a.Cohort.Id == fixture.Command.CohortId).ToList().ForEach(
             a => fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
                     e => e.ApprenticeshipId == a.Id && e.LearningType == expectedLearningType)),
@@ -78,7 +79,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .SetApprovedApprenticeships(false)
             .Handle();
 
-        fixture.Apprenticeships.ForEach(
+        fixture.Apprenticeships.Where(a=>a.Cohort.Id == fixture.Command.CohortId).ToList().ForEach(
             a => fixture.EventPublisher.Verify(
                 p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
                     e => fixture.IsValidChangeOfPartyEvent(a, e))),
@@ -94,15 +95,43 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .SetApprovedApprenticeshipAsContinuation()
             .Handle();
 
-            fixture.Apprenticeships.ForEach(
-                a => fixture.EventPublisher.Verify(
-                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
-                    Times.Once));
-        }
+        fixture.Apprenticeships.ForEach(
+            a => fixture.EventPublisher.Verify(
+                p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                    e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
+                Times.Once));
     }
 
-    public class ProcessFullyApprovedCohortCommandFixture
+    [Test]
+    public async Task Handle_WhenHandlingCommand_And_NoApprenticeship_ThenShouldThrowException()
+    {
+        var fixture = new ProcessFullyApprovedCohortCommandFixture()
+            .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy);
+        var act = async () => await fixture.Handle();
+
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage($"No ApprenticeshipCreatedEvent(s) generated for Cohort {fixture.Command.CohortId}.");
+    }
+
+    [Test]
+    public async Task Handle_WhenHandlingCommand_And_NoCoursesMatch_ThenShouldThrowException()
+    {
+        var fixture = new ProcessFullyApprovedCohortCommandFixture()
+            .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
+            .SetApprovedApprenticeships(false);
+
+        var apprenticeship = fixture.Apprenticeships.First();
+        apprenticeship.CourseCode = "INVALID_COURSE_CODE";
+
+        var act = async () => await fixture.Handle();
+
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage($"Mismatch between generated ApprenticeshipCreatedEvent(s) and apprenticeships for Cohort {fixture.Command.CohortId}.");
+    }
+}
+
+
+public class ProcessFullyApprovedCohortCommandFixture
     {
         public IFixture AutoFixture { get; set; }
         public ProcessFullyApprovedCohortCommand Command { get; set; }
@@ -110,11 +139,10 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public Mock<IEventPublisher> EventPublisher { get; set; }
         public Mock<IEncodingService> EncodingService { get; set; }
-        public List<Apprenticeship> Apprenticeships { get; set; }
-        public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
+        public List<Apprenticeship> Apprenticeships => Db.Object.Apprenticeships.ToList();
+    public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
         public string ExpectedApprenticeshipHashedId { get; set; }
-        public CommitmentsV2Configuration Configuration { get; set; }
 
         public ProcessFullyApprovedCohortCommandFixture()
         {
@@ -127,10 +155,8 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
-            Apprenticeships = new List<Apprenticeship>();
-            Configuration = new CommitmentsV2Configuration { IgnoreShortCourses = true };
             Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, 
-            EncodingService.Object, Configuration, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
+            EncodingService.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
             
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
@@ -138,16 +164,9 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             PreviousApprenticeshipId = AutoFixture.Create<long>();
         }
 
-    public async Task Handle()
+    public Task Handle()
     {
-        try
-        {
-            await Handler.Handle(Command, CancellationToken.None);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Error handling ProcessFullyApprovedCohortCommand: {ex.Message}", ex);
-        }
+        return Handler.Handle(Command, CancellationToken.None);
     }
 
     public ProcessFullyApprovedCohortCommandFixture SetApprenticeshipEmployerType(ApprenticeshipEmployerType apprenticeshipEmployerType)
@@ -161,21 +180,15 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         return this;
     }
 
-    public ProcessFullyApprovedCohortCommandFixture SetShortCourse(bool hasShortCourses)
-    {
-        Configuration.IgnoreShortCourses = !hasShortCourses;
-        return this;
-    }
-
     public ProcessFullyApprovedCohortCommandFixture SetChangeOfPartyRequest(bool isChangeOfParty)
     {
         Command.SetValue(x => x.ChangeOfPartyRequestId, isChangeOfParty ? 123 : default(long?));
         return this;
     }
 
-    public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer)
+    public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer = false, LearningType learningType = LearningType.FoundationApprenticeship)
     {
-        var provider = new Provider {Name = "Test Provider"};
+        var provider = new CommitmentsV2.Models.Provider {Name = "Test Provider"};
         var account = new Account(1, "", "", "", DateTime.UtcNow);
         var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
 
@@ -213,40 +226,71 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         var courseBuilder = AutoFixture.Build<Course>();
         var course1 = courseBuilder
             .With(s => s.LarsCode, apprenticeship1.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
         var course2 = courseBuilder
             .With(s => s.LarsCode, apprenticeship2.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
         var course3 = courseBuilder
             .With(s => s.LarsCode, apprenticeship3.CourseCode)
-            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .With(s => s.LearningType, learningType)
             .Create();
 
-        var standardBuilder = AutoFixture.Build<Standard>();
-        var standard1 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship1.StandardUId)
-            .With(s => s.ApprenticeshipType, "ApprenticeshipUnit")
-            .Create();
-        var standard2 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship2.StandardUId)
-            .With(s => s.ApprenticeshipType, "ApprenticeshipUnit")
-            .Create();
-        var standard3 = standardBuilder
-            .With(s => s.StandardUId, apprenticeship3.StandardUId)
-            .With(s => s.ApprenticeshipType, "ApprenticeshipUnit")
-            .Create();
-
-        Apprenticeships.AddRange(apprenticeships1);
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships2);
         Db.Object.Courses.AddRange(new[] { course1, course2, course3 });
-        Db.Object.Standards.AddRange(new[] { standard1, standard2, standard3 });
 
         Db.Object.SaveChanges();
             
+        return this;
+    }
+
+    public ProcessFullyApprovedCohortCommandFixture SetApprovedSingleApprenticeship(bool isFundedByTransfer = false)
+    {
+        var provider = new CommitmentsV2.Models.Provider { Name = "Test Provider" };
+        var account = new Account(1, "", "", "", DateTime.UtcNow);
+        var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
+
+        AutoFixture.Inject(account);
+
+        var cohortBuilder = AutoFixture.Build<Cohort>()
+            .Without(c => c.Apprenticeships)
+            .With(c => c.AccountLegalEntity, accountLegalEntity)
+            .With(c => c.Provider, provider)
+            .With(x => x.IsDeleted, false);
+
+        if (!isFundedByTransfer)
+        {
+            cohortBuilder.Without(c => c.TransferSenderId).Without(c => c.TransferApprovalActionedOn);
+        }
+
+        var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>()
+            .Without(a => a.DataLockStatus)
+            .Without(a => a.EpaOrg)
+            .Without(a => a.ApprenticeshipUpdate)
+            .Without(a => a.Continuation)
+            .Without(s => s.ApprenticeshipConfirmationStatus)
+            .Without(a => a.PreviousApprenticeship);
+
+        var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
+
+        var apprenticeship = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
+
+        var courseBuilder = AutoFixture.Build<Course>();
+        var course = courseBuilder
+            .With(s => s.LarsCode, apprenticeship.CourseCode)
+            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .Create();
+
+        Db.Object.Apprenticeships.Add(apprenticeship);
+        Db.Object.AccountLegalEntities.Add(accountLegalEntity);
+        Db.Object.Providers.Add(provider);
+        Db.Object.Courses.Add(course);
+
+        Db.Object.SaveChanges();
+
         return this;
     }
 
@@ -280,11 +324,18 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .Without(s => s.ApprenticeshipConfirmationStatus)
             .Create();
 
+        var courseBuilder = AutoFixture.Build<Course>();
+        var course1 = courseBuilder
+            .With(s => s.LarsCode, apprenticeshipNew.CourseCode)
+            .With(s => s.LearningType, LearningType.FoundationApprenticeship)
+            .Create();
+
         var apprenticeships = new[] { apprenticeshipNew };
 
         Db.Object.AccountLegalEntities.Add(accountLegalEntity);
         Db.Object.Providers.Add(provider);
         Db.Object.Apprenticeships.AddRange(apprenticeships);
+        Db.Object.Courses.Add(course1);
 
         Db.Object.SaveChanges();
 
