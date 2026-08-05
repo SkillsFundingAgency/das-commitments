@@ -1,7 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -128,5 +128,43 @@ public class CocApprovalStatusServiceTests
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+    }
+
+    [Test]
+    public void DetermineCocUpdateStatuses_ShouldReturnAutoRejected_WhenTotalCost_ExceedsMaximumTotalTrainingCost()
+    {
+        var updates = new CocUpdates
+        {
+            TNP1 = new CocUpdate<int> { Old = 100, New = 20000 },
+            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+        };
+
+        var apprenticeship = new Apprenticeship { Cost = 100 };
+
+        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+
+        result.Should().HaveCount(2);
+        result.Where(r => r.Field == CocChangeField.TNP1).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result.Where(r => r.Field == CocChangeField.TNP2).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+    }
+
+    [Test]
+    public void DetermineCocUpdateStatuses_ShouldReturnAutoRejected_WhenTNP1_IsZero()
+    {
+        var updates = new CocUpdates
+        {
+            TNP1 = new CocUpdate<int> { Old = 100, New = 0 },
+            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+        };
+
+        var apprenticeship = new Apprenticeship { Cost = 100 };
+
+        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+
+        result.Should().HaveCount(2);
+        result[0].Field.Should().Be(CocChangeField.TNP1);
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[1].Field.Should().Be(CocChangeField.TNP2);
+        result[1].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
     }
 }
