@@ -13,6 +13,7 @@ public static class Constants
     public const int MaximumApprenticeshipCost = 100000;
     public const string ServiceName = "SFA.DAS.CommitmentsV2";
     public const string IntegrationTestEnvironment = "IntegrationTest";
+    public const int MaximumTotalTrainingCost = 100000;
 
     /// <summary>
     ///     The maximum lengths of various fields (as defined in the database).

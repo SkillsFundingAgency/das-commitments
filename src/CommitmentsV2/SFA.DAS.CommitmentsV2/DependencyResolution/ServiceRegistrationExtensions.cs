@@ -117,6 +117,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
         services.AddTransient<ICocApprovalStatusService, CocApprovalStatusService>();
         services.AddTransient<ICocApprovalRulesEngine, CocApprovalRulesEngine>();
+        services.AddTransient<INotifyProviderService, NotifyProviderService>();
 
         return services;
     }
