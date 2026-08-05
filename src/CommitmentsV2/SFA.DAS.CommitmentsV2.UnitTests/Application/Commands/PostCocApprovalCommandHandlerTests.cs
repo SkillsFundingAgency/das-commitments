@@ -41,7 +41,7 @@ public class PostCocApprovalCommandHandlerTests
         var result = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
 
         result.Should().BeEquivalentTo(fixture.CocApprovalState.ApprovalResult);
-    }
+    }   
 }
 
 public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
@@ -53,6 +53,10 @@ public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
     public PostCocApprovalCommand Command { get; set; }
     public CocApprovalState CocApprovalState { get; set; }
     public CancellationToken CancellationToken { get; set; }
+
+    public Mock<INotifyProviderService> NotifyProviderService { get; set; }
+
+    private const string ProviderCommitmentsBaseUrl = "https://approvals";
 
     public PostCocApprovalCommandHandlerTestsFixture()
     {
@@ -70,10 +74,12 @@ public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
         Command = new PostCocApprovalCommand { CocApprovalDetails = approvalDetails };
 
         CocApprovalRules = new Mock<ICocApprovalRulesEngine>();
-        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).Returns(CocApprovalState);
+        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).ReturnsAsync(CocApprovalState);
 
-        Handler = new PostCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object, Mock.Of<ILogger<PostCocApprovalCommandHandler>>());
-        CancellationToken = new CancellationToken();
+        NotifyProviderService = new Mock<INotifyProviderService>();
+
+        Handler = new PostCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object,
+            Mock.Of<ILogger<PostCocApprovalCommandHandler>>());
     }
 
     public PostCocApprovalCommandHandlerTestsFixture WithExistingApprovalRequest()
@@ -84,6 +90,12 @@ public class PostCocApprovalCommandHandlerTestsFixture : IDisposable
             Status = CocApprovalResultStatus.Pending
         });
         DbContext.SaveChanges();
+        return this;
+    }    
+
+    public PostCocApprovalCommandHandlerTestsFixture WithAutoRejectedApprovalRequest()
+    {
+        CocApprovalState.ApprovalResult.Items.FirstOrDefault().Status = CocApprovalItemStatus.AutoRejected;
         return this;
     }
 

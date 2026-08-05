@@ -5,5 +5,5 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 public interface ICocApprovalRulesEngine
 {
-    CocApprovalState DetermineApprovalState(CocApprovalDetails cocApprovalDetails);
+    Task<CocApprovalState> DetermineApprovalState(CocApprovalDetails cocApprovalDetails);
 }
