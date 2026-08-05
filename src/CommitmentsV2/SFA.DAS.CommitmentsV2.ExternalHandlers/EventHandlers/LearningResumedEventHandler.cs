@@ -27,7 +27,7 @@ public class LearningResumedEventHandler(
 
             if (message is null)
             {
-                logger.LogInformation(" {Event} received null message : {Event}", nameof(LearningResumedEvent), message == null);
+                logger.LogInformation("Event received null message : {Event}", nameof(LearningResumedEvent));
                 return;
             }
 
@@ -70,7 +70,7 @@ public class LearningResumedEventHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing LearningResumedEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
+            logger.LogError(e, "Error processing LearningResumedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
     }

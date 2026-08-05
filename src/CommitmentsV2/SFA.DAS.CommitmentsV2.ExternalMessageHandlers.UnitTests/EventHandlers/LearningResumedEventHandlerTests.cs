@@ -125,11 +125,17 @@ public class LearningResumedEventHandlerTests
     [Test]
     public async Task ThenLogstheInformation_WhenStatusIsActive()
     {
-         await _fixture.SetPaymentStatus(PaymentStatus.Active).Handle();
+        await _fixture.SetPaymentStatus(PaymentStatus.Active).Handle();
         _fixture.VerifyLearningResumedEventIsNotPublished();
         _fixture.VerifyStoreLearningHistoryCommandIsNotSent();
         _fixture.VerifyLoggerLoggedInformation($"Apprenticeship {_fixture.apprenticeshipId} is already active and resumed.");
+    }
 
+    [Test]
+    public async Task ThenLogstheInformation_WhenEventIsNull()
+    {
+        await _fixture.SetEventAsNull().Handle();
+        _fixture.VerifyLoggerLoggedInformation($"Event received null message : {nameof(LearningResumedEvent)}");
     }
 }
 
@@ -243,6 +249,12 @@ public class LearningResumedEventHandlerTestsFixture
     public LearningResumedEventHandlerTestsFixture SetEventApprenticeshipId(long id)
     {
         _event.ApprenticeshipId = id;
+        return this;
+    }
+
+    public LearningResumedEventHandlerTestsFixture SetEventAsNull()
+    {
+        _event = null;
         return this;
     }
 
