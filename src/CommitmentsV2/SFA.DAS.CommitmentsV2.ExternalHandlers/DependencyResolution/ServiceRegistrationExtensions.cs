@@ -14,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution;
 
@@ -28,6 +28,7 @@ public static class ServiceRegistrationExtensions
                 .Get<CommitmentsV2Configuration>();
 
             services.AddConfigurationSections(context.Configuration);
+            services.AddCurrentDateTimeService(context.Configuration);
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddSingleton<IEncodingService, EncodingService>();
@@ -40,7 +41,7 @@ public static class ServiceRegistrationExtensions
                 .AddEntityFramework(commitmentV2Config)
                 .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
 
-            services.AddNServiceBusClientUnitOfWork();
+            services.AddNServiceBusUnitOfWork();
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
                 .AddMemoryCache()

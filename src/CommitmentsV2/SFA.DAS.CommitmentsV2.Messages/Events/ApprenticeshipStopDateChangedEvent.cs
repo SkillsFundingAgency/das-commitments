@@ -10,5 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public bool IsWithDrawnAtStartOfCourse { get; set; }
         public long? LearnerDataId { get; set; }
         public long ProviderId { get; set; }
+        public bool IsWithdrawnViaIlr { get; set; } = false;
     }
 }

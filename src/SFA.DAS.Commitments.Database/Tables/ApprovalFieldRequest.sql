@@ -5,6 +5,7 @@
 	[Field] [nvarchar](100) NOT NULL,
 	[Old] [nvarchar](255) NOT NULL,
 	[New] [nvarchar](255) NOT NULL,
+	[EffectiveFromDate] DATETIME2 NULL,
     [ApprovalRequestId] UNIQUEIDENTIFIER NOT NULL,							
 	[Status] TINYINT NULL,						
 	[ApproverId] [nvarchar](100) NULL,

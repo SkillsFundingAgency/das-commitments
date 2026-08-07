@@ -7,13 +7,13 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Common.Domain.Types;
 using LearningType = SFA.DAS.Common.Domain.Types.LearningType;
 
 namespace SFA.DAS.CommitmentsV2.Models;
 
 public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 {
+    public const int WithdrawalReasonCode_MadeRedundant = 29;
     public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
     public virtual ICollection<PriceHistory> PriceHistory { get; set; }
     public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
@@ -22,10 +22,15 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public DateTime? StopDate { get; set; }
     public DateTime? PauseDate { get; set; }
+    public DateTime? PaymentFreezeDate { get; set; }
+    public FreezePaymentsReason? FreezePaymentsReason { get; set; }
     public bool HasHadDataLockSuccess { get; set; }
     public Originator? PendingUpdateOriginator { get; set; }
     public DateTime? CompletionDate { get; set; }
     public bool? MadeRedundant { get; set; }
+    public int? WithdrawnReasonCode { get; set; }
+
+    [NotMapped] public bool FreezeStatus => PaymentFreezeDate.HasValue;
 
     [NotMapped] public string ApprenticeName => string.Concat(FirstName, " ", LastName);
 
@@ -287,7 +292,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
                 ApprovedOn = approvedOn,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln, 
+                Uln = Uln,
                 LearningType = Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(learningType, ignoreCase: true)
             });
 
@@ -725,6 +730,66 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         });
     }
 
+    public void FreezePayments(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo, FreezePaymentsReason freezePaymentsReason)
+    {
+        var frozenOn = currentDateTime.UtcNow;
+
+        if (GetApprenticeshipStatus(null) != ApprenticeshipStatus.Live)
+        {
+            throw new DomainException(nameof(PaymentStatus), "Only live apprenticeships can have payments frozen");
+        }
+
+        if (PaymentFreezeDate.HasValue)
+        {
+            throw new DomainException(nameof(PaymentFreezeDate), "Payments are already frozen");
+        }
+
+        if (!Enum.IsDefined(typeof(FreezePaymentsReason), freezePaymentsReason))
+        {
+            throw new DomainException(nameof(FreezePaymentsReason), "A valid reason for pausing payments must be provided");
+        }
+
+        StartTrackingSession(UserAction.FreezePayments, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentFreezeDate = frozenOn.Date;
+        FreezePaymentsReason = freezePaymentsReason;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipPausedEvent
+        {
+            ApprenticeshipId = Id,
+            PausedOn = frozenOn
+        });
+    }
+
+    public void UnfreezePayments(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo)
+    {
+        var unfrozenOn = currentDateTime.UtcNow;
+
+        if (!PaymentFreezeDate.HasValue)
+        {
+            throw new DomainException(nameof(PaymentFreezeDate), "Payments are not frozen");
+        }
+
+        StartTrackingSession(UserAction.UnfreezePayments, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentFreezeDate = null;
+        FreezePaymentsReason = null;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipResumedEvent
+        {
+            ApprenticeshipId = Id,
+            ResumedOn = unfrozenOn
+        });
+    }
+
     public void ConfirmEmailAddress(string email)
     {
         if (EmailAddressConfirmed == true)
@@ -754,6 +819,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
     {
+        if (PaymentStatus == PaymentStatus.Withdrawn && WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode.ToString());
+        }
+
         if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
         {
             throw new DomainException(nameof(PaymentStatus), "Apprenticeship must be Active or Paused. Unable to stop apprenticeship");
@@ -808,7 +878,8 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             StopDate = stopDate,
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == stopDate.Date,
             LearnerDataId = LearnerDataId,
-            ProviderId = Cohort.ProviderId
+            ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
     }
 
@@ -873,6 +944,11 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
     public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command, ICurrentDateTime currentDate, Party party)
     {
+        if (WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + WithdrawnReasonCode);
+        }
+
         StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
 
         ChangeTrackingSession.TrackUpdate(this);
@@ -893,7 +969,24 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             IsWithDrawnAtStartOfCourse = StartDate.Value.Date == command.StopDate.Date,
             LearnerDataId = LearnerDataId,
             ProviderId = Cohort.ProviderId,
+            IsWithdrawnViaIlr = false
         });
+    }
+
+    public void SetIlrWithdrawn(DateTime stoppedDate, int withdrawnReasonCode)
+    {
+        PaymentStatus = PaymentStatus.Withdrawn;
+        StopDate = stoppedDate;
+        WithdrawnReasonCode = withdrawnReasonCode;
+        if (WithdrawnReasonCode == WithdrawalReasonCode_MadeRedundant)
+        {
+            MadeRedundant = true;
+        }
+        else
+        {
+            MadeRedundant = false;
+        }
+        ResolveDatalocks(stoppedDate);
     }
 
     private void ResolveDatalocks(DateTime stopDate)
@@ -913,7 +1006,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
 
         foreach (var dataLock in dataLocks)
         {
-            ChangeTrackingSession.TrackUpdate(dataLock);
+            if (ChangeTrackingSession != null)
+            {
+                ChangeTrackingSession.TrackUpdate(dataLock);
+            }
             dataLock.Resolve();
         }
     }
@@ -936,5 +1032,24 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         }
 
         return ConfirmationStatus.Unconfirmed;
+    }
+
+    public void SetIlrPaused(DateTime pausedDate)
+    {
+        StartTrackingSession(UserAction.PauseApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentStatus = PaymentStatus.Paused;
+        PauseDate = pausedDate.Date;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipPausedEvent
+        {
+            ApprenticeshipId = Id,
+            PausedOn = pausedDate,
+            PausedViaILR = true
+        });
     }
 }

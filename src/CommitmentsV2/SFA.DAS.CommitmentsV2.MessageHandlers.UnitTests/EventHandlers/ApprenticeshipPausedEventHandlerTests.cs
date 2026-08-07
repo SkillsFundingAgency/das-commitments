@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -25,21 +24,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void TearDown() => _fixture.Dispose();
 
         [Test]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsNotCalled()
         {
             await _fixture.Handle();
 
-            _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
+            _fixture.MockEncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId), Times.Never);
         }
 
+        [Ignore("APPMAN-2561: provider emails disabled until new notification templates exist.")]
         [Test]
         [TestCaseSource(nameof(GetAllPaymentStatus))]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled_OnlyWhen_PaymentStatus_Is_Paused(PaymentStatus status)
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsNeverCalled(PaymentStatus status)
         {
             _fixture.SetPaymentStatus(status);
 
             await _fixture.Handle();
-            
+
             if (status == PaymentStatus.Paused)
             {
                 _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
@@ -60,6 +60,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
                 ), It.IsAny<SendOptions>()), Times.Never);
             }
+        }
+
+        [Test]
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsNotCalled_WhenPausedViaIlr_Is_True()
+        {
+            _fixture.Event.PausedViaILR = true;
+
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+            ), It.IsAny<SendOptions>()), Times.Never);
         }
 
         private static List<PaymentStatus> GetAllPaymentStatus() => Enum.GetValues(typeof(PaymentStatus)).Cast<PaymentStatus>().ToList();
@@ -88,6 +104,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var autoFixture = new Fixture();
 
             Event = autoFixture.Create<ApprenticeshipPausedEvent>();
+            Event.PausedViaILR = false;
             var accountLegalEntity = new AccountLegalEntity();
             accountLegalEntity.SetValue(x => x.Name, EmployerName);
 

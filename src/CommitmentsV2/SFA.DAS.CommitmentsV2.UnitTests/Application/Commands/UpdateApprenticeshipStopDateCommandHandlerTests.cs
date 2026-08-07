@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Setup(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()))
                 .Returns(Task.CompletedTask);
 
-            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
             _logger = new Mock<ILogger<UpdateApprenticeshipStopDateCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
             commitmentsV2Configuration = new CommitmentsV2Configuration()
@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             apprenticeship.Uln = "X";
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
-            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(() => new OverlapCheckResult(false, true));
 
             // Act
@@ -314,6 +314,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 x.ProviderId == apprenticeship.Cohort.ProviderId &&
                 x.Template == templateName &&
                 VerifyTokens(x.Tokens, tokens)), It.IsAny<SendOptions>()));
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ButWithdrawnReasonCodeAlreadySet_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var stopDate = DateTime.UtcNow;
+            var apprenticeship = await SetupApprenticeship();
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            apprenticeship.WithdrawnReasonCode = 1;
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "WithdrawnReasonCode", ErrorMessage = "Apprenticeship has already been withdrawn via ILR with reason code " + "1" });
         }
 
         [Test]

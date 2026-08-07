@@ -26,8 +26,8 @@ public class CommitmentsV2Configuration
     public string ProviderCommitmentsBaseUrl { get; set; }
     public string EmployerCommitmentsBaseUrl { get; set; }
     public DateTime ExpireInactiveEmployerCohortImplementationDate { get; set; }
-    public bool IgnoreShortCourses { get; set; }
     public string ReplayApprenticeshipCreatedEventsJobSchedule { get; set; }
     public bool ReplayApprenticeshipCreatedEventsDryRun { get; set; } = true;
+    public bool LearningWithdrawalsIsActive { get; set; }
     public bool CoCApprovalsActive { get; set; }
 }

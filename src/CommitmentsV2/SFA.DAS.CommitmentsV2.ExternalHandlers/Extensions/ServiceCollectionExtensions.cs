@@ -4,7 +4,9 @@ using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
@@ -42,6 +44,8 @@ public static class ServiceCollectionExtensions
                 endpointConfiguration.Conventions().DefiningEventsAs(t =>
                     t == typeof(RecordedAct1CompletionPayment) ||
                     t == typeof(EntityStateChangedEvent) ||
+                    t == typeof(LearningWithdrawnEvent) ||
+                    t == typeof(LearningPausedEvent) ||
                     t.Name.EndsWith("Event"));
 
                 if (isDevelopment)

@@ -25,4 +25,5 @@ public class CocUpdate<T> where T : struct
 {
     public T? New { get; set; }
     public T? Old { get; set; }
+    public DateTime? EffectiveFromDate { get; set; }
 }

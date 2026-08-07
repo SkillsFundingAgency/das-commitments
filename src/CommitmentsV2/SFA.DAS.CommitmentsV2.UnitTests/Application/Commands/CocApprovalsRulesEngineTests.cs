@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -13,11 +15,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 public class CocApprovalRulesEngineTests
 {
     [Test]
-    public void Handle_WhenDeterminingApprovalState_ThenShouldMapApprovalResultCorrectly()
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldMapApprovalResultCorrectly()
     {
         var fixture = new CocApprovalRulesEngineTestsFixture();
 
-        var result = fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
 
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Pending);
@@ -25,11 +27,11 @@ public class CocApprovalRulesEngineTests
     }
 
     [Test]
-    public void Handle_WhenDeterminingApprovalState_ThenShouldMapApprovalRequestCorrectly()
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldMapApprovalRequestCorrectly()
     {
         var fixture = new CocApprovalRulesEngineTestsFixture();
 
-        var result = fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
 
         result.Should().NotBeNull();
         result.ApprovalRequest.LearningKey.Should().Be(fixture.ApprovalDetails.LearningKey);
@@ -42,26 +44,49 @@ public class CocApprovalRulesEngineTests
     }
 
     [Test]
-    public void Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToCompleteIfNoPending()
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToCompleteIfNoPending()
     {
         var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoApproved);
 
-        var result = fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
 
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Complete);
     }
 
     [Test]
-    public void Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToPendingIfAnyPending()
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToPendingIfAnyPending()
     {
         var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoApproved);
         fixture.CocUpdateStatuses.First().Status = CocApprovalItemStatus.Pending;
 
-        var result = fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
 
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Pending);
+    }
+
+    [Test]
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToCompleteIfAutoRejected()
+    {
+        var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoRejected);
+
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+
+        result.Should().NotBeNull();
+        result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Complete);
+    }
+
+    [Test]
+    public async Task Handle_WhenDeterminingApprovalState_ThenShouldNotifyProviderIfAutoRejected()
+    {
+        var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoRejected);
+
+        var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+
+        result.Should().NotBeNull();
+        result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Complete);
+        fixture.NotifyProviderService.Verify(x => x.NotifyProvider(It.Is<long>(p => p == fixture.ApprovalDetails.ProviderId), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 }
 
@@ -73,6 +98,8 @@ public class CocApprovalRulesEngineTestsFixture
     public CocApprovalDetails ApprovalDetails { get; set; }
     public List<CocUpdateResult> CocUpdateStatuses { get; set; }
     public List<CocApprovalFieldChange> ApprovalFieldChanges { get; set; }
+    public ProviderCommitmentsDbContext DbContext { get; set; }
+    public Mock<INotifyProviderService> NotifyProviderService { get; set; }
 
     public CocApprovalRulesEngineTestsFixture()
     {
@@ -116,16 +143,21 @@ public class CocApprovalRulesEngineTestsFixture
             }
         };
 
+        DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+           .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+           .Options);
+
         ApprovalDetails = AutoFixture.Build<CocApprovalDetails>().Without(c => c.Apprenticeship).With(c => c.ApprovalFieldChanges, ApprovalFieldChanges).Create();
         CocApprovalStatusService = new Mock<ICocApprovalStatusService>();
         CocApprovalStatusService.Setup(x => x.DetermineCocUpdateStatuses(ApprovalDetails.Updates, ApprovalDetails.Apprenticeship)).Returns(CocUpdateStatuses);
 
-        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>());
+        NotifyProviderService = new Mock<INotifyProviderService>();
+        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), NotifyProviderService.Object, new Mock<IEncodingService>().Object);
     }
 
     public CocApprovalRulesEngineTestsFixture SetCocUpdateStatuses(CocApprovalItemStatus status)
     {
-        foreach(var update in CocUpdateStatuses)
+        foreach (var update in CocUpdateStatuses)
         {
             update.Status = status;
         }
@@ -134,7 +166,6 @@ public class CocApprovalRulesEngineTestsFixture
 
     public List<ApprovalFieldRequest> ExpectedApprovalFields()
     {
-
         return ApprovalFieldChanges.Join(
             CocUpdateStatuses,
             change => change.ChangeType,
@@ -144,6 +175,7 @@ public class CocApprovalRulesEngineTestsFixture
                 Field = change.ChangeType,
                 Old = change.Data.Old,
                 New = change.Data.New,
+                EffectiveFromDate = change.Data.EffectiveFromDate,
                 Status = status.Status,
                 Reason = status.Reason
             }

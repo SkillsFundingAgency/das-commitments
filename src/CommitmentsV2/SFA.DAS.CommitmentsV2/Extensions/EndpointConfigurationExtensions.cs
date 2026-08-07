@@ -17,7 +17,7 @@ public static class EndpointConfigurationExtensions
         }
         else
         {
-            config.UseLearningTransport(learningTransportFolderPath: nServiceBusConfiguration.LearningTransportFolderPath);
+            config.UseLearningTransport(s => s.AddRouting(), learningTransportFolderPath: nServiceBusConfiguration.LearningTransportFolderPath);
         }
 
         config.UseMessageConventions();

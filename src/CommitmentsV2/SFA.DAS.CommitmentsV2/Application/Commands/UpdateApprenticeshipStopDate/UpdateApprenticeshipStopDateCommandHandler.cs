@@ -73,6 +73,11 @@ public class UpdateApprenticeshipStopDateCommandHandler(
             throw new ArgumentException(null, nameof(apprenticeship));
         }
 
+        if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn && apprenticeship.WithdrawnReasonCode != null)
+        {
+            throw new DomainException(nameof(apprenticeship.WithdrawnReasonCode), "Apprenticeship has already been withdrawn via ILR with reason code " + apprenticeship.WithdrawnReasonCode.ToString());
+        }
+
         if (apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
         {
             throw new DomainException(nameof(newStopDate), "Apprenticeship must be stopped in order to update stop date");
@@ -92,7 +97,7 @@ public class UpdateApprenticeshipStopDateCommandHandler(
     {
         if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+        var overlapResult = overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate, true), apprenticeship.Id, cancellationToken);
 
         if (!overlapResult.Result.HasOverlaps) return;
 

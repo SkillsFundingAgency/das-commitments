@@ -24,5 +24,6 @@ public class CocData
 {
     public string Old { get; set; }
     public string New { get; set; }
+    public DateTime? EffectiveFromDate { get; set; }
 }
 
