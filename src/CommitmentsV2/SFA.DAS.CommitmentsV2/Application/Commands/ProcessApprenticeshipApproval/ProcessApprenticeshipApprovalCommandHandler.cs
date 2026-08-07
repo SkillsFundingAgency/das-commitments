@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -30,6 +31,11 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         if (approval.Status != CocApprovalResultStatus.Pending)
         {
             throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
+        }
+
+        if(TotalPriceExceedsLimit(approval))
+        {
+            throw new DomainException("ApproveChanges", "The total cost must be £100,000 or less");
         }
 
         if(command.ApplyChanges)
@@ -76,6 +82,11 @@ public class ProcessApprenticeshipApprovalCommandHandler(
                 UserId = GetUserId(userInfo)
             });
         }
+    }
+
+    private bool TotalPriceExceedsLimit(ApprovalRequest approval)
+    {
+        return SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
     }
 
     public static string ToCurrency(int input)

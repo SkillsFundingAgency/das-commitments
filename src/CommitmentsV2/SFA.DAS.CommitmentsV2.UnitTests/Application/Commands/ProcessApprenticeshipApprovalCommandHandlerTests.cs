@@ -1,6 +1,7 @@
 ﻿using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -45,6 +46,16 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
         await act.Should().ThrowAsync<Exception>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} is no longer pending. It's status is {_fixture.ApprovalRequest.Status}");
+    }
+
+    [Test]
+    public async Task When_HandlingCommand_And_ApprovalRequest_TNPValues_Exceed_Upper_Limit_Throw_DomainException()
+    {
+        var items = new List<ApprovalFieldRequest>();
+        await _fixture.SeedData();
+        _fixture.ApprovalRequest.Items.First(x => x.Field == "TNP1").New = "100001";
+        var act = async () => await _fixture.Handle();
+        await act.Should().ThrowAsync<DomainException>();
     }
 
     [Test]
