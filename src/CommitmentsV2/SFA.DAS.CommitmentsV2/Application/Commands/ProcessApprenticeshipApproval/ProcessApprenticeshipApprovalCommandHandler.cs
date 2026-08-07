@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using UserInfo = SFA.DAS.CommitmentsV2.Types.UserInfo;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 
@@ -41,6 +42,12 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         if(command.ApplyChanges)
         {
             approval.Status = CocApprovalResultStatus.Complete;
+            foreach (var item in approval.Items)
+            {
+                item.Status = CocApprovalItemStatus.EmployerApproved;
+                item.ApproverId = command.UserInfo?.UserId;
+            }
+
             var approved = new LearningChangeApprovedEvent
             {
                 LearningKey = approval.LearningKey,
@@ -51,7 +58,13 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         }
         else
         {
-            approval.Status = CocApprovalResultStatus.Cancelled;
+            approval.Status = CocApprovalResultStatus.Complete;
+            foreach (var item in approval.Items)
+            {
+                item.Status = CocApprovalItemStatus.EmployerRejected;
+                item.ApproverId = command.UserInfo?.UserId;
+            }
+
             var rejected = new LearningChangeRejectedEvent
             {
                 LearningKey = approval.LearningKey,
@@ -86,6 +99,8 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private bool TotalPriceExceedsLimit(ApprovalRequest approval)
     {
+        if(approval.Items == null)
+            return false;
         return SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
     }
 

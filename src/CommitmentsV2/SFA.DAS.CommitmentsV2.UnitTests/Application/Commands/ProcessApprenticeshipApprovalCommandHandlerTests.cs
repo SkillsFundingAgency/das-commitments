@@ -71,6 +71,37 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             ), It.IsAny<SendOptions>()), Times.Once);
     }
 
+    [Test]
+    public async Task When_HandlingCommand_Should_SaveRequestAsApproved()
+    {
+        _fixture.Command.ApplyChanges = true;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+
+        request.Status.Should().Be(CocApprovalResultStatus.Complete);
+        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
+        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
+        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+    }
+
+    [Test]
+    public async Task When_HandlingCommand_Should_SaveRequestAsRejected()
+    {
+        _fixture.Command.ApplyChanges = false;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+
+        request.Status.Should().Be(CocApprovalResultStatus.Complete);
+        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
+        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
+        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+    }
 
     [Test]
     public async Task When_HandlingCommand_Should_Publish_LearningChangeApprovedEvent()
