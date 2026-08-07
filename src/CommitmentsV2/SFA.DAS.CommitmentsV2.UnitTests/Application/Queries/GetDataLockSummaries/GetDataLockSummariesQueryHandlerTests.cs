@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
                 _request = new GetDataLockSummariesQuery(_apprenticeshipId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).EnableSensitiveDataLogging().Options);
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 _handler = new GetDataLockSummariesQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 

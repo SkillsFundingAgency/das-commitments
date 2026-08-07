@@ -2,15 +2,17 @@
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities;
 
-public class DateRange
+public class CourseDateRange
 {
     public DateTime From { get; }
     public DateTime To { get; }
+    public bool HasWithdrawn { get; }
 
-    public DateRange(DateTime from, DateTime to)
+    public CourseDateRange(DateTime from, DateTime to, bool hasWithdrawn = false)
     {
         From = from;
         To = to;
+        HasWithdrawn = hasWithdrawn;
     }
 
     public bool IsZeroDays => From.Equals(To);
@@ -22,10 +24,9 @@ public class DateRange
         return From.IsBeforeMonth(value) && To.IsAfterMonth(value);
     }
 
-    public OverlapStatus DetermineOverlap(DateRange range)
+    public OverlapStatus DetermineOverlap(CourseDateRange range)
     {
-        //Zero-length ranges (effectively deleted) should not overlap
-        if (IsZeroDays || range.IsZeroDays)
+        if (CourseIsCompletelyCancelled() || range.CourseIsCompletelyCancelled())
         {
             return OverlapStatus.None;
         }
@@ -70,5 +71,10 @@ public class DateRange
         }
 
         return OverlapStatus.None;
+    }
+
+    public bool CourseIsCompletelyCancelled()
+    {
+        return IsZeroDays && HasWithdrawn;
     }
 }

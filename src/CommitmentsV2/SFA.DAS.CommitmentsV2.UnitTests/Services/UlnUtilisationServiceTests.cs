@@ -101,6 +101,51 @@ public class UlnUtilisationServiceTests
 
         UlnUtilisationServiceFixture.Assert_CorrectEndDateWasUsed(result, expectedUln, expectedEndDate);
     }
+
+    [Test]
+    public async Task WhenGetUlnUtilisations_AndApprenticeshipWithdrawn_ThenHasWithdrawnIsTrue()
+    {
+        var expectedUln = _fixture.WithdrawnApprenticeship.Uln;
+
+        _fixture
+            .WithApprenticeshipsInDb();
+
+        var records = await _fixture.Act(expectedUln);
+
+        var result = records.FirstOrDefault(x => x.Uln == expectedUln);
+        result.Should().NotBeNull();
+        result.DateRange.HasWithdrawn.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task WhenGetUlnUtilisations_AndApprenticeshipComplete_ThenHasWithdrawnIsFalse()
+    {
+        var expectedUln = _fixture.CompletedApprenticeshipBeforeEndDate.Uln;
+
+        _fixture
+            .WithApprenticeshipsInDb();
+
+        var records = await _fixture.Act(expectedUln);
+
+        var result = records.FirstOrDefault(x => x.Uln == expectedUln);
+        result.Should().NotBeNull();
+        result.DateRange.HasWithdrawn.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task WhenGetUlnUtilisations_AndApprenticeshipIsCurrent_ThenHasWithdrawnIsFalse()
+    {
+        var expectedUln = _fixture.LiveApprenticeship.Uln;
+
+        _fixture
+            .WithApprenticeshipsInDb();
+
+        var records = await _fixture.Act(expectedUln);
+
+        var result = records.FirstOrDefault(x => x.Uln == expectedUln);
+        result.Should().NotBeNull();
+        result.DateRange.HasWithdrawn.Should().BeFalse();
+    }
 }
 
 public class UlnUtilisationServiceFixture

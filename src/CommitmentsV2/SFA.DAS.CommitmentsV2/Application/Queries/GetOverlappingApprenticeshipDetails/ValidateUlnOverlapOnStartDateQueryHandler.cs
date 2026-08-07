@@ -9,7 +9,7 @@ public class ValidateUlnOverlapOnStartDateQueryHandler(IOverlapCheckService over
         var startDate = DateTime.ParseExact(request.StartDate, "dd-MM-yyyy", null);
         var endDate = DateTime.ParseExact(request.EndDate, "dd-MM-yyyy", null);
 
-        var apprenticeshipWithOverlap = await overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.DateRange(startDate, endDate), null, cancellationToken);
+        var apprenticeshipWithOverlap = await overlapCheckService.CheckForOverlapsOnStartDate(request.Uln, new Domain.Entities.CourseDateRange(startDate, endDate), null, cancellationToken);
 
         var result = new ValidateUlnOverlapOnStartDateQueryResult { HasStartDateOverlap = apprenticeshipWithOverlap.HasOverlappingStartDate, HasOverlapWithApprenticeshipId = apprenticeshipWithOverlap.ApprenticeshipId };
 
