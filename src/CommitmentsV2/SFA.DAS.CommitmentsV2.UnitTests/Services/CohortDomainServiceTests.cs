@@ -18,7 +18,7 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
-using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
+using CourseDateRange = SFA.DAS.CommitmentsV2.Domain.Entities.CourseDateRange;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
@@ -893,7 +893,6 @@ public class CohortDomainServiceTests
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                .EnableSensitiveDataLogging()
                 .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
                 .Options);
 
@@ -1002,7 +1001,7 @@ public class CohortDomainServiceTests
                 .ReturnsAsync(() => new ReservationValidationResult(Array.Empty<ReservationValidationError>()));
 
             OverlapCheckService = new Mock<IOverlapCheckService>();
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OverlapCheckResult(false, false));
             OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
@@ -1161,7 +1160,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new OverlapCheckResult(true, false));
 
             return this;
@@ -1173,7 +1172,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new OverlapCheckResult(true, false));
 
             return this;
@@ -1185,7 +1184,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new OverlapCheckResult(false, true));
 
             return this;
@@ -1197,7 +1196,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == DraftApprenticeshipDetails.Uln), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == DraftApprenticeshipDetails.Uln), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new OverlapCheckResult(true, true));
 
             return this;
@@ -1209,7 +1208,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.OverlappingEndDate, isApproved));
 
             return this;
@@ -1230,7 +1229,7 @@ public class CohortDomainServiceTests
             DraftApprenticeshipDetails.ActualStartDate = new DateTime(2020, 1, 1);
             DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.OverlappingEndDate, isApproved));
 
             return this;
@@ -1248,7 +1247,7 @@ public class CohortDomainServiceTests
         public void VerifyCheckForEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship()
         {
             OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(DraftApprenticeshipDetails.Email,
-                It.Is<DateRange>(p =>
+                It.Is<CourseDateRange>(p =>
                     p.From == DraftApprenticeshipDetails.StartDate && p.To == DraftApprenticeshipDetails.EndDate),
                 0, null, It.IsAny<CancellationToken>()));
         }
@@ -1256,7 +1255,7 @@ public class CohortDomainServiceTests
         public void VerifyCheckForActualStartDateEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship()
         {
             OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(DraftApprenticeshipDetails.Email,
-                It.Is<DateRange>(p =>
+                It.Is<CourseDateRange>(p =>
                     p.From == DraftApprenticeshipDetails.ActualStartDate && p.To == DraftApprenticeshipDetails.EndDate),
                 0, null, It.IsAny<CancellationToken>()));
         }
@@ -1618,7 +1617,7 @@ public class CohortDomainServiceTests
 
         public CohortDomainServiceTestFixture WithUlnOverlap(bool hasOverlap)
         {
-            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new OverlapCheckResult(hasOverlap, hasOverlap));
 
             return this;

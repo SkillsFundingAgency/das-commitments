@@ -35,6 +35,8 @@ public class StopApprenticeshipCommandHandler(
 
             var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
+            await EnsureApprenticeshipUnitCanBeStopped(apprenticeship.CourseCode, request.ApprenticeshipId, request.UserInfo, cancellationToken);
+
             apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, currentDate, request.Party);
             await dbContext.Value.SaveChangesAsync(cancellationToken);
 
@@ -88,6 +90,26 @@ public class StopApprenticeshipCommandHandler(
         {
             throw new DomainException(nameof(party),
                 $"StopApprenticeship is restricted to Employers only - {party} is invalid");
+        }
+    }
+
+    private async Task EnsureApprenticeshipUnitCanBeStopped(string courseCode, long apprenticeshipId, UserInfo userInfo,
+        CancellationToken cancellationToken)
+    {
+        if (userInfo.IsSystem())
+        {
+            return;
+        }
+
+        var learningType = await dbContext.Value.Courses
+            .Where(c => c.LarsCode == courseCode)
+            .Select(c => c.LearningType)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (learningType == LearningType.ApprenticeshipUnit)
+        {
+            throw new DomainException(nameof(apprenticeshipId),
+                $"Apprenticeship {apprenticeshipId} is an Apprenticeship Unit and cannot be stopped via the service");
         }
     }
 }

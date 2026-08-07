@@ -44,6 +44,8 @@ public class ChangeOfPartyRequestDomainService(
             CheckEmployerHasNotSelectedTheirCurrentProvider(apprenticeship.Cohort.ProviderId, newPartyId,
                 apprenticeship.Id);
             CheckApprenticeIsNotAFlexiJob(apprenticeship.DeliveryModel, apprenticeshipId);
+            await CheckApprenticeshipIsNotAnApprenticeshipUnit(apprenticeship.CourseCode, apprenticeshipId,
+                cancellationToken);
         }
 
         if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
@@ -149,6 +151,21 @@ public class ChangeOfPartyRequestDomainService(
         {
             throw new DomainException("DeliveryModel",
                 $"Apprenticeship {apprenticeshipId} is a Portable Flexi-Job and cannot change training provider");
+        }
+    }
+
+    private async Task CheckApprenticeshipIsNotAnApprenticeshipUnit(string courseCode, long apprenticeshipId,
+        CancellationToken cancellationToken)
+    {
+        var learningType = await dbContext.Value.Courses
+            .Where(c => c.LarsCode == courseCode)
+            .Select(c => c.LearningType)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (learningType == LearningType.ApprenticeshipUnit)
+        {
+            throw new DomainException("LearningType",
+                $"Apprenticeship {apprenticeshipId} is an Apprenticeship Unit and cannot change training provider");
         }
     }
 }

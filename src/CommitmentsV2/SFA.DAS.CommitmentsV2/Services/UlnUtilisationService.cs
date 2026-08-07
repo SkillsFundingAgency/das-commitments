@@ -17,7 +17,8 @@ public class UlnUtilisationService(IDbContextFactory dbContextFactory) : IUlnUti
                 .Select(x => new UlnUtilisation(x.Id,
                     x.Uln,
                     x.StartDate.Value,
-                    CalculateOverlapApprenticeshipEndDate(x))).ToListAsync(cancellationToken);
+                    CalculateOverlapApprenticeshipEndDate(x),
+                    HasWithdrawnFromLearning(x))).ToListAsync(cancellationToken);
 
             var draftApprenticeshipWithTransferSender = await db.DraftApprenticeships.Include(y => y.Cohort)
                 .Where(da => da.Uln == uln
@@ -28,7 +29,7 @@ public class UlnUtilisationService(IDbContextFactory dbContextFactory) : IUlnUti
                 .Select(x => new UlnUtilisation(x.Id,
                     x.Uln,
                     x.StartDate.Value,
-                    x.EndDate.Value)).ToListAsync(cancellationToken);
+                    x.EndDate.Value, false)).ToListAsync(cancellationToken);
 
             var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
 
@@ -53,5 +54,10 @@ public class UlnUtilisationService(IDbContextFactory dbContextFactory) : IUlnUti
             default:
                 return apprenticeship.EndDate.Value;
         }
+    }
+
+    private static bool HasWithdrawnFromLearning(Apprenticeship apprenticeship)
+    {
+        return apprenticeship.PaymentStatus == PaymentStatus.Withdrawn;
     }
 }

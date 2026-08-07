@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Pending);
 
                 _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options)
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
                     {CallBase = true};
 
                 _handler = new GetApprenticeshipUpdateQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db.Object));
