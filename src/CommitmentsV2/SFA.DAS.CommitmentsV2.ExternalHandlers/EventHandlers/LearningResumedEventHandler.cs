@@ -1,22 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class LearningResumedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    ILogger<LearningResumedEventHandler> logger)
+    ILogger<LearningResumedEventHandler> logger,
+    IEncodingService encodingService,
+    CommitmentsV2Configuration commitmentsV2Configuration)
     : IHandleMessages<LearningResumedEvent>
 {
     public async Task Handle(LearningResumedEvent message, IMessageHandlerContext context)
@@ -53,6 +58,9 @@ public class LearningResumedEventHandler(
                 ValidateResumeDate(message.ResumeDate, apprentice);
 
                 apprentice.SetIlrResumed(message.ResumeDate);
+
+                logger.LogInformation("{Event} : Notification Email Sending to Employer for apprenticeship: {apprenticeshipId}", nameof(LearningResumedEvent), message.ApprenticeshipId);
+                await SendEmailNotificationToEmployer(context, apprentice.Cohort.EmployerAccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
 
                 var historyCommand = new StoreLearningHistoryCommand
                 {
@@ -101,5 +109,29 @@ public class LearningResumedEventHandler(
         {
             logger.LogInformation("Apprenticeship paused date is missing for apprenticeship {ApprenticeshipId}.", apprenticeship.Id);
         }
+    }
+
+    private async Task SendEmailNotificationToEmployer(IMessageHandlerContext context, long accountId, string providerName, long apprenticeshipId)
+    {
+        var encodedApprenticeshipId = encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId);
+        var encodedAccountId = encodingService.Encode(accountId, EncodingType.AccountId);
+
+        var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(
+            accountId,
+            "EmployerApprenticeshipResumedNotification",
+            new Dictionary<string, string>
+            {
+                {"provider_name", providerName},
+                {
+                    "url",
+                    $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
+                }
+            },
+            null,
+            "Name"
+            );
+
+        logger.LogInformation("Sending EmployerApprenticeshipResumedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
+        await context.Send(sendEmailToEmployerCommand);
     }
 }
