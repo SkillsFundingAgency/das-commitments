@@ -128,7 +128,7 @@ public class LearningResumedEventHandler(
                 }
             },
             null,
-            "Name"
+            "name"
             );
 
         logger.LogInformation("Sending EmployerApprenticeshipResumedNotification Email for id {0} hashed as {1}", apprenticeshipId, encodedApprenticeshipId);
