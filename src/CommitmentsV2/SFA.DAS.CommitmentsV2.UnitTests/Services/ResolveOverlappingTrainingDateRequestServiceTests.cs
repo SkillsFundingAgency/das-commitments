@@ -335,6 +335,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                    .Without(s => s.ApprenticeshipConfirmationStatus)
                    .Without(s => s.OverlappingTrainingDateRequests)
                    .Without(s => s.EmployerVerificationRequest)
+                   .Without(s => s.ApprovalRequests)
                    .Create();
 
                 Db.Apprenticeships.Add(ApprenticeshipDetails);
