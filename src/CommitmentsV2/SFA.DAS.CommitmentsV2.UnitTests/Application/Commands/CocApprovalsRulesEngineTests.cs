@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -85,7 +86,7 @@ public class CocApprovalRulesEngineTests
 
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Complete);
-        fixture.NotifyProviderService.Verify(x => x.NotifyProvider(It.Is<long>(p => p == fixture.ApprovalDetails.ProviderId), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        fixture.NotifyProviderService.Verify(x => x.NotifyProvider(It.Is<long>(p => p == fixture.ApprovalDetails.ProviderId), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 }
 
@@ -151,7 +152,7 @@ public class CocApprovalRulesEngineTestsFixture
         CocApprovalStatusService.Setup(x => x.DetermineCocUpdateStatuses(ApprovalDetails.Updates, ApprovalDetails.Apprenticeship)).Returns(CocUpdateStatuses);
 
         NotifyProviderService = new Mock<INotifyProviderService>();
-        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), NotifyProviderService.Object, new Lazy<ProviderCommitmentsDbContext>(DbContext));
+        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), NotifyProviderService.Object, new Mock<IEncodingService>().Object);
     }
 
     public CocApprovalRulesEngineTestsFixture SetCocUpdateStatuses(CocApprovalItemStatus status)
