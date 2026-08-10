@@ -330,7 +330,8 @@ public class LearningResumedEventHandlerTestsFixture
             c.Tokens["provider_name"] == apprenticeship.Cohort.Provider.Name &&
             c.Tokens["url"].Contains(_commitmentsV2Configuration.EmployerCommitmentsBaseUrl) &&
             c.Tokens["url"].Contains("ACC123/apprentices") &&
-            c.Tokens["url"].Contains("apprentices/APP123")
+            c.Tokens["url"].Contains("apprentices/APP123") && 
+            c.NameToken == "name"
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 
