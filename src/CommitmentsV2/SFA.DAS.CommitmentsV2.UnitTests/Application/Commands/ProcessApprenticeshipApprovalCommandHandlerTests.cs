@@ -1,6 +1,7 @@
 ﻿using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -48,6 +49,16 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
     }
 
     [Test]
+    public async Task When_HandlingCommand_And_ApprovalRequest_TNPValues_Exceed_Upper_Limit_Throw_DomainException()
+    {
+        var items = new List<ApprovalFieldRequest>();
+        await _fixture.SeedData();
+        _fixture.ApprovalRequest.Items.First(x => x.Field == "TNP1").New = "100001";
+        var act = async () => await _fixture.Handle();
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [Test]
     public async Task When_HandlingCommand_Should_Send_Command_ToChangeHistory()
     {
         await _fixture.SeedData();
@@ -60,6 +71,37 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             ), It.IsAny<SendOptions>()), Times.Once);
     }
 
+    [Test]
+    public async Task When_HandlingCommand_Should_SaveRequestAsApproved()
+    {
+        _fixture.Command.ApplyChanges = true;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+
+        request.Status.Should().Be(CocApprovalResultStatus.Complete);
+        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
+        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
+        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+    }
+
+    [Test]
+    public async Task When_HandlingCommand_Should_SaveRequestAsRejected()
+    {
+        _fixture.Command.ApplyChanges = false;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+
+        request.Status.Should().Be(CocApprovalResultStatus.Complete);
+        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
+        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
+        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+    }
 
     [Test]
     public async Task When_HandlingCommand_Should_Publish_LearningChangeApprovedEvent()
