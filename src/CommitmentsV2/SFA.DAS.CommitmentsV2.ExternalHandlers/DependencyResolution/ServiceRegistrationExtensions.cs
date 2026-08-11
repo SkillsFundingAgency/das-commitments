@@ -9,6 +9,8 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Encoding;
@@ -59,6 +61,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IUlnUtilisationService, UlnUtilisationService>();
         services.AddTransient<IOverlapCheckService, OverlapCheckService>();
         services.AddTransient<IEmailOverlapService, EmailOverlapService>();
+        services.AddTransient<IWithDrawalNotificationToEmployerService, WithDrawalNotificationToEmployerService>();
 
         return services;
     }
