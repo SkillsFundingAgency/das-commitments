@@ -1,4 +1,5 @@
-﻿using NServiceBus;
+﻿using AutoFixture.Kernel;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -11,13 +12,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 [TestFixture]
 public class ProcessApprenticeshipApprovalCommandHandlerTests
 {
-    private Fixture _autoFixture;
-    private ProcessApprenticeshipApprovalCommandHandlerTestsFixture _fixture;
+   private ProcessApprenticeshipApprovalCommandHandlerTestsFixture _fixture;
 
     [SetUp]
     public void Arrange()
-    {
-        _autoFixture = new Fixture();
+    {       
         _fixture = new ProcessApprenticeshipApprovalCommandHandlerTestsFixture();
     }
 
@@ -142,10 +141,16 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         public ApprovalRequest ApprovalRequest;
         public List<ApprovalFieldRequest> Items;
         public Mock<IMessageSession> MessageSession;
+        public AccountLegalEntity AccountLegalEntity;
 
         public ProcessApprenticeshipApprovalCommandHandlerTestsFixture()
         {
             var autoFixture = new Fixture();
+            autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            autoFixture.Customizations.Add(
+                new TypeRelay(
+                    typeof(SFA.DAS.CommitmentsV2.Models.ApprenticeshipBase),
+                    typeof(Apprenticeship)));
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
@@ -180,7 +185,13 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 .With(x => x.Items, Items)
                 .With(x => x.Id, Command.ApprovalRequestId)
                 .With(x => x.ApprenticeshipId, Command.ApprenticeshipId)
-                .With(x => x.Status, CocApprovalResultStatus.Pending).Create();
+                .With(x => x.Status, CocApprovalResultStatus.Pending)
+                .Without(x=>x.Apprenticeship)
+                .Create();
+
+            AccountLegalEntity = autoFixture.Build<AccountLegalEntity>()
+                .Create();
+
         }
 
         public async Task Handle()
