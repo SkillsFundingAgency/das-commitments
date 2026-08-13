@@ -24,7 +24,7 @@ public class ApprovedLearningUpdatedEventHandler(
 
             if (message is null)
             {
-                logger.LogInformation(" {Event} received null message : {Event}", nameof(ApprovedLearningUpdatedEvent), message == null);
+                logger.LogInformation(" {Event} received null message : {Isnull}", nameof(ApprovedLearningUpdatedEvent), message == null);
                 return;
             }
 
@@ -103,7 +103,7 @@ public class ApprovedLearningUpdatedEventHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
+            logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
     }
