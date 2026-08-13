@@ -25,12 +25,11 @@ public class NotifyProviderServiceTests
     [Test]
     public async Task VerifyProviderNotification()
     {
-        await _service.NotifyProvider(123, 456, "Test Provider", "TestTemplate");
+        await _service.NotifyProvider(123, "456", "TestTemplate");
 
         _messageSessionMock.Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(cmd =>
             cmd.ProviderId == 123 &&
             cmd.Template == "TestTemplate" &&
-            cmd.Tokens["provider_name"] == "Test Provider" &&
             cmd.Tokens["URL"] == $"{_configurationMock.Object.ProviderCommitmentsBaseUrl}/123/apprentices/456"), It.IsAny<SendOptions>()), Times.Once);
     }
 }
