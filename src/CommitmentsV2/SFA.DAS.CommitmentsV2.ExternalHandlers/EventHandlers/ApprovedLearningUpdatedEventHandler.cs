@@ -24,7 +24,7 @@ public class ApprovedLearningUpdatedEventHandler(
 
             if (message is null)
             {
-                logger.LogInformation(" {Event} received null message : {Isnull}", nameof(ApprovedLearningUpdatedEvent), message == null);
+                logger.LogInformation(" {Event} received null message", nameof(ApprovedLearningUpdatedEvent));
                 return;
             }
 
@@ -43,60 +43,7 @@ public class ApprovedLearningUpdatedEventHandler(
 
             foreach (var change in message.Changes)
             {
-                if (change?.Data == null) continue;
-
-                if (Enum.TryParse<ApprovedLearnerChangeType>(change.ChangeType, ignoreCase: true, out var changeType))
-                {
-                    switch (changeType)
-                    {
-                        case ApprovedLearnerChangeType.Firstname:
-                            apprentice.FirstName = change.Data.New;
-                            break;
-
-                        case ApprovedLearnerChangeType.Surname:
-                            apprentice.LastName = change.Data.New;
-                            break;
-
-                        case ApprovedLearnerChangeType.DOB:
-                            var parsedDOB = ParseDate(change.Data.New);
-                            if (parsedDOB == null)
-                            {
-                                logger.LogWarning("Invalid date for DOB change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
-                                continue;
-                            }
-                            apprentice.DateOfBirth = parsedDOB;
-                            break;
-
-                        case ApprovedLearnerChangeType.PlannedStartDate:
-                            var parsedStartDate = ParseDate(change.Data.New);
-                            if (parsedStartDate == null)
-                            {
-                                logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
-                                continue;
-                            }
-
-                            apprentice.StartDate = ParseFirstDayOfMonth(ParseDate(change.Data.New)) ?? apprentice.StartDate;
-                            break;
-
-                        case ApprovedLearnerChangeType.PlannedEndDate:
-                            var parsedEndDate = ParseDate(change.Data.New);
-                            if (parsedEndDate == null)
-                            {
-                                logger.LogWarning("Invalid date for PlannedEndDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
-                                continue;
-                            }
-                            apprentice.EndDate = ParseFirstDayOfMonth(parsedEndDate);
-                            break;
-
-                        case ApprovedLearnerChangeType.Email:
-                            apprentice.Email = change.Data.New;
-                            break;
-                    }
-                }
-                else
-                {
-                    logger.LogWarning("Unknown change type '{ChangeType}' for ApprenticeshipId {ApprenticeshipId}", change.ChangeType, message.ApprenticeshipId);
-                }
+                ApplyChange(message, apprentice, change);
             }
 
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
@@ -106,6 +53,72 @@ public class ApprovedLearningUpdatedEventHandler(
             logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
+    }
+
+    private void ApplyChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
+    {
+        if (change?.Data == null) return;
+
+        if (Enum.TryParse<ApprovedLearnerChangeType>(change.ChangeType, ignoreCase: true, out var changeType))
+        {
+            switch (changeType)
+            {
+                case ApprovedLearnerChangeType.Firstname:
+                    apprentice.FirstName = change.Data.New;
+                    break;
+
+                case ApprovedLearnerChangeType.Surname:
+                    apprentice.LastName = change.Data.New;
+                    break;
+
+                case ApprovedLearnerChangeType.DOB:
+                    ApplyDOBChange(message, apprentice, change);
+                    break;
+
+                case ApprovedLearnerChangeType.PlannedStartDate:
+                    var parsedStartDate = ParseDate(change.Data.New);
+                    if (parsedStartDate == null)
+                    {
+                        logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                        return;
+                    }
+
+                    apprentice.StartDate = ParseFirstDayOfMonth(ParseDate(change.Data.New)) ?? apprentice.StartDate;
+                    break;
+
+                case ApprovedLearnerChangeType.PlannedEndDate:
+                    var parsedEndDate = ParseDate(change.Data.New);
+                    if (parsedEndDate == null)
+                    {
+                        logger.LogWarning("Invalid date for PlannedEndDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                        return;
+                    }
+                    apprentice.EndDate = ParseFirstDayOfMonth(parsedEndDate);
+                    break;
+
+                case ApprovedLearnerChangeType.Email:
+                    apprentice.Email = change.Data.New;
+                    break;
+            }
+        }
+        else
+        {
+            logger.LogWarning("Unknown change type '{ChangeType}' for ApprenticeshipId {ApprenticeshipId}", change.ChangeType, message?.ApprenticeshipId);
+        }
+
+        return;
+    }
+
+    private void ApplyDOBChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
+    {
+        var parsedDOB = ParseDate(change.Data.New);
+        if (parsedDOB == null)
+        {
+            logger.LogWarning("Invalid date for DOB change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+            return;
+        }
+        apprentice.DateOfBirth = parsedDOB;
+        return;
     }
 
     private static DateTime? ParseDate(string dateString)
