@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.LearningEvents;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -13,10 +13,10 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class ApprovedLearningUpdatedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    ILogger<ApprovedLearningUpdatedEventHandler> logger)
+    ILogger<ApprovedLearningUpdatedEventHandler> logger) : IHandleMessages<ApprovedLearningUpdatedEvent>
 
 {
-    public async Task Handle(ApprovedLearningUpdatedEvent message)
+    public async Task Handle(ApprovedLearningUpdatedEvent message, IMessageHandlerContext context)
     {
         try
         {
@@ -58,15 +58,34 @@ public class ApprovedLearningUpdatedEventHandler(
                             break;
 
                         case ApprovedLearnerChangeType.DOB:
-                            apprentice.DateOfBirth = ParseDate(change.Data.New);
+                            var parsedDOB = ParseDate(change.Data.New);
+                            if (parsedDOB == null)
+                            {
+                                logger.LogWarning("Invalid date for DOB change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                                continue;
+                            }
+                            apprentice.DateOfBirth = parsedDOB;
                             break;
 
                         case ApprovedLearnerChangeType.PlannedStartDate:
-                            apprentice.StartDate = ParseDate(change.Data.New);
+                            var parsedStartDate = ParseDate(change.Data.New);
+                            if (parsedStartDate == null)
+                            {
+                                logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                                continue;
+                            }
+
+                            apprentice.StartDate = ParseFirstDayOfMonth(ParseDate(change.Data.New)) ?? apprentice.StartDate;
                             break;
 
                         case ApprovedLearnerChangeType.PlannedEndDate:
-                            apprentice.EndDate = ParseDate(change.Data.New);
+                            var parsedEndDate = ParseDate(change.Data.New);
+                            if (parsedEndDate == null)
+                            {
+                                logger.LogWarning("Invalid date for PlannedEndDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                                continue;
+                            }
+                            apprentice.EndDate = ParseFirstDayOfMonth(parsedEndDate);
                             break;
 
                         case ApprovedLearnerChangeType.Email:
@@ -101,5 +120,10 @@ public class ApprovedLearningUpdatedEventHandler(
             return parsedDate;
         }
         return null;
+    }
+
+    private static DateTime? ParseFirstDayOfMonth(DateTime? date)
+    {
+        return date.HasValue ? new DateTime(date.Value.Year, date.Value.Month, 1) : null;
     }
 }

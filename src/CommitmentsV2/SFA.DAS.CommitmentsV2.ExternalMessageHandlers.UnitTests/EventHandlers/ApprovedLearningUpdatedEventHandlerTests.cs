@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -54,8 +55,22 @@ public class ApprovedLearningUpdatedEventHandlerTests
     [Test]
     public async Task ThenThrowsDomainException_WhenApprenticeshipNotfound()
     {
-        var act = async () => await _fixture.SetEventApprenticeshipId(_fixture.fixture.Create<long>()).Handle();
+        var act = async () => await _fixture.SetEvent().SetEventApprenticeshipId(_fixture.fixture.Create<long>()).Handle();
         await act.Should().ThrowAsync<DomainException>().Where(ex => ex.DomainErrors.First().ErrorMessage.Contains("not found"));
+    }
+
+    [Test]
+    public async Task ThenLogsWarning_WhenInvalidDOBReceived()
+    {
+        await _fixture.SetEventWithInvalidDOB().Handle();
+        _fixture.VerifyLoggerWarning("Invalid date for DOB change");
+    }
+
+    [Test]
+    public async Task ThenLogsWarning_WhenInvalidStartDateReceived()
+    {
+        await _fixture.SetEventWithInvalidStartDate().Handle();
+        _fixture.VerifyLoggerWarning("Invalid date for PlannedStartDate change");
     }
 }
 
@@ -66,6 +81,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     private readonly Mock<ILogger<ApprovedLearningUpdatedEventHandler>> _mockLogger;
     private ApprovedLearningUpdatedEventHandler _handler;
     private ApprovedLearningUpdatedEvent _event;
+    private Mock<IMessageHandlerContext> _mockContext;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
 
@@ -74,6 +90,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         fixture = new Fixture();
         _mockLogger = new Mock<ILogger<ApprovedLearningUpdatedEventHandler>>();
         UnitOfWorkContext = new UnitOfWorkContext();
+        _mockContext = new Mock<IMessageHandlerContext>();
 
         _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -118,7 +135,6 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventApprenticeshipId(long id)
     {
-        SetEvent();
         _event.ApprenticeshipId = id;
         return this;
     }
@@ -185,9 +201,51 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         return this;
     }
 
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithInvalidDOB()
+    {
+        _event = new ApprovedLearningUpdatedEvent()
+        {
+            ApprenticeshipId = apprenticeshipId,
+            LearningKey = Guid.NewGuid(),
+            Changes =
+            [
+                new() {
+                     ChangeType = "DOB",
+                     Data = new ApprenticeshipData
+                     {
+                         Old = DateTime.UtcNow.ToShortDateString(),
+                         New = "20!6-01-01"
+                     }
+                 }]
+        };
+
+        return this;
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithInvalidStartDate()
+    {
+        _event = new ApprovedLearningUpdatedEvent()
+        {
+            ApprenticeshipId = apprenticeshipId,
+            LearningKey = Guid.NewGuid(),
+            Changes =
+            [
+                new() {
+                     ChangeType = "PlannedStartDate",
+                     Data = new ApprenticeshipData
+                     {
+                         Old = DateTime.UtcNow.ToShortDateString(),
+                         New = "20!6-01-01"
+                     }
+                 }]
+        };
+
+        return this;
+    }
+
     public async Task Handle()
     {
-        await _handler.Handle(_event);
+        await _handler.Handle(_event, _mockContext.Object);
     }
 
     public void VerifyLearnerUpdated()
@@ -198,8 +256,8 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         updatedApprenticeship.LastName.Should().Be(GetValue(ApprovedLearnerChangeType.Surname));
         updatedApprenticeship.Email.Should().Be(GetValue(ApprovedLearnerChangeType.Email));
         updatedApprenticeship.DateOfBirth.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.DOB)));
-        updatedApprenticeship.StartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate)));
-        updatedApprenticeship.EndDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate)));
+        updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate))));
+        updatedApprenticeship.EndDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate))));
     }
 
     private string GetValue(ApprovedLearnerChangeType changeType)
@@ -236,5 +294,10 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
             return parsedDate;
         }
         return null;
+    }
+
+    public DateTime? ParseFirstDayOfMonth(DateTime? date)
+    {
+        return date.HasValue ? new DateTime(date.Value.Year, date.Value.Month, 1) : null;
     }
 }
