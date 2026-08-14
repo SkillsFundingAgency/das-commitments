@@ -30,7 +30,7 @@ public class LearningWithdrawnEventHandler(
     IWithDrawalNotificationToEmployerService service)
     : IHandleMessages<LearningWithdrawnEvent>
 {
-    private const string WithdrawalReasonDescription = "Status change from Live to Stopped";
+    private const string WithdrawalDescription = "Status change from Live to Stopped";
 
     public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
@@ -41,7 +41,8 @@ public class LearningWithdrawnEventHandler(
                 logger.LogInformation("LearnerWithdrawals feature is not active. Ignoring LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
                 return;
             }
-            logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate}", message.ApprenticeshipId, message.WithdrawalDate);
+            logger.LogInformation("LearningWithdrawnEvent for ApprenticeshipId {ApprenticeshipId} with WithdrawalDate {WithdrawalDate} and WithdrawalReasonCode {WithdrawalReasonCode}",
+                message.ApprenticeshipId, message.WithdrawalDate, message.WithdrawalReasonCode);
             var db = dbContext.Value;
             var apprentice = await db.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
@@ -65,7 +66,7 @@ public class LearningWithdrawnEventHandler(
                 ChangeType = LearningChangeType.AutoApproved,
                 LearningKey = message.LearningKey,
                 AppliedDate = message.Created,
-                Description = WithdrawalReasonDescription
+                Description = WithdrawalDescription
             };
             await context.Send(historyCommand);
         }

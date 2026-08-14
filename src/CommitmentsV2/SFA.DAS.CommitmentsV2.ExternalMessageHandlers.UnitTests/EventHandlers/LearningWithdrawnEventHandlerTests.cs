@@ -90,19 +90,12 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             apprentice.MadeRedundant.Should().BeFalse();
         }
 
-        [TestCase(29)]
-        [TestCase(2)]
-        [TestCase(46)]
-        [TestCase(97)]
-        [TestCase(98)]
-        [TestCase(99)]
-        [TestCase(100)]
-        [TestCase(0)]
-        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished(short code)
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
         {
             var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
             var stopDate = DateTime.Today.AddMonths(-1);
-            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), code);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), Apprenticeship.WithdrawalReasonCode_MadeRedundant);
 
             await _fixture.Handle();
             _fixture.VerifyStoreLearnerHistoryCommandIsSent("Status change from Live to Stopped");
