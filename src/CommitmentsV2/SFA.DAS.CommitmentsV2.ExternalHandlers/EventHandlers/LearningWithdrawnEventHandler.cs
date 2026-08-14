@@ -30,6 +30,8 @@ public class LearningWithdrawnEventHandler(
     IWithDrawalNotificationToEmployerService service)
     : IHandleMessages<LearningWithdrawnEvent>
 {
+    private const string WithdrawalReasonDescription = "Status change from Live to Stopped";
+
     public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
@@ -63,7 +65,7 @@ public class LearningWithdrawnEventHandler(
                 ChangeType = LearningChangeType.AutoApproved,
                 LearningKey = message.LearningKey,
                 AppliedDate = message.Created,
-                Description = BuildWithdrawalReasonDescription()
+                Description = WithdrawalReasonDescription
             };
             await context.Send(historyCommand);
         }
@@ -72,11 +74,6 @@ public class LearningWithdrawnEventHandler(
             logger.LogError(e, "Error processing LearningWithdrawnEventHandler for ApprenticeshipId {0}", message.ApprenticeshipId);
             throw;
         }
-    }
-
-    private string BuildWithdrawalReasonDescription()
-    {
-        return "ILR Learner status changed from Live to Stopped";
     }
 
     private void ValidateStopDateForWithdrawal(DateTime stopDate, Apprenticeship apprenticeship)

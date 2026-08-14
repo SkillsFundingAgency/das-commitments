@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), code);
 
             await _fixture.Handle();
-            _fixture.VerifyStoreLearnerHistoryCommandIsSent("ILR Learner status changed from Live to Stopped");
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent("Status change from Live to Stopped");
         }
 
         [Test]
