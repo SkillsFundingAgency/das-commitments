@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -18,7 +17,6 @@ public class ProcessFullyApprovedCohortCommandHandler(
     Lazy<ProviderCommitmentsDbContext> db,
     IEventPublisher eventPublisher,
     IEncodingService encodingService,
-    CommitmentsV2Configuration configuration,
     ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
     : IRequestHandler<ProcessFullyApprovedCohortCommand>
 {
@@ -35,43 +33,35 @@ public class ProcessFullyApprovedCohortCommandHandler(
 
         await db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
 
-        var apprenticeships = await db.Value.Apprenticeships.Include(x=>x.PriceHistory).Include(x => x.Cohort).ThenInclude(x => x.AccountLegalEntity).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+        var apprenticeships = await db.Value.Apprenticeships.Include(x => x.PriceHistory).Include(x => x.Cohort).ThenInclude(x => x.AccountLegalEntity).Where(a => a.Cohort.Id == request.CohortId).ToListAsync(cancellationToken);
+        var courses = await db.Value.Courses.ToListAsync(cancellationToken);
 
-        List<ApprenticeshipCreatedEvent> events;
-        if (configuration.IgnoreShortCourses)
-        {
-            var matches = apprenticeships
-            .Where(a => a.Cohort.Id == request.CohortId)
-            .Join(db.Value.Standards,
-                a => a.StandardUId,
-                s => s.StandardUId,
-                (a, s) => new { a, s })
+        var matches = apprenticeships
+            .Join(courses,
+                a => a.CourseCode,
+                c => c.LarsCode,
+                (a, c) => new { a, c })
             .ToList();
             
-            events = matches.Select(x => MapToApprenticeshipCreatedEvent(
+        var events = matches.Select(x => MapToApprenticeshipCreatedEvent(
                 x.a,
                 creationDate,
                 apprenticeshipEmployerType,
-                _ => Enum.Parse<SFA.DAS.Common.Domain.Types.LearningType>(x.s.ApprenticeshipType, true)))
+                _ => x.c.LearningType.ToCommonLearningType() ?? Common.Domain.Types.LearningType.Apprenticeship))
             .ToList();
-        }
-        else
+
+        if(!events.Any())
         {
-            var matches = apprenticeships
-                .Where(a => a.Cohort.Id == request.CohortId)
-                .Join(db.Value.Courses,
-                    a => a.CourseCode,
-                    c => c.LarsCode,
-                    (a, c) => new { a, c })
-                .ToList();
-            
-            events = matches.Select(x => MapToApprenticeshipCreatedEvent(
-                    x.a,
-                    creationDate,
-                    apprenticeshipEmployerType,
-                    _ => x.c.LearningType.ToCommonLearningType() ?? SFA.DAS.Common.Domain.Types.LearningType.Apprenticeship))
-                .ToList();
+            logger.LogError("No ApprenticeshipCreatedEvent(s) generated for Cohort {CohortId}.", request.CohortId);
+            throw new ApplicationException($"No ApprenticeshipCreatedEvent(s) generated for Cohort {request.CohortId}.");
         }
+
+        if (events.Count != apprenticeships.Count)
+        {
+            logger.LogError("Mismatch between generated ApprenticeshipCreatedEvent(s) and apprenticeships for Cohort {CohortId}.", request.CohortId);
+            throw new ApplicationException($"Mismatch between generated ApprenticeshipCreatedEvent(s) and apprenticeships for Cohort {request.CohortId}.");
+        }
+
         logger.LogInformation("Created {EventsCount} ApprenticeshipCreatedEvent(s) for Cohort {CohortId}.", events.Count, request.CohortId);
 
         var tasks = events.Select(apprenticeshipCreatedEvent =>

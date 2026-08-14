@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -68,6 +67,8 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
     public CocApprovalState CocApprovalState { get; set; }
     public CancellationToken CancellationToken { get; set; }
 
+    public Mock<INotifyProviderService> NotifyProviderService { get; set; }
+
     public PutCocApprovalCommandHandlerTestsFixture()
     {
         AutoFixture = new Fixture();
@@ -84,9 +85,12 @@ public class PutCocApprovalCommandHandlerTestsFixture : IDisposable
         Command = new PutCocApprovalCommand { CocApprovalDetails = approvalDetails };
 
         CocApprovalRules = new Mock<ICocApprovalRulesEngine>();
-        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).Returns(CocApprovalState);
+        CocApprovalRules.Setup(x => x.DetermineApprovalState(Command.CocApprovalDetails)).ReturnsAsync(CocApprovalState);
 
-        Handler = new PutCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object, Mock.Of<ILogger<PostCocApprovalCommandHandler>>());
+        NotifyProviderService = new Mock<INotifyProviderService>();
+
+        Handler = new PutCocApprovalCommandHandler(new Lazy<ProviderCommitmentsDbContext>(DbContext), CocApprovalRules.Object,
+            Mock.Of<ILogger<PutCocApprovalCommandHandler>>());
         CancellationToken = new CancellationToken();
     }
 
