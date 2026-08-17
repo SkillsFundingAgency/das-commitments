@@ -2,5 +2,5 @@
 
 public interface INotifyProviderService
 {
-    Task NotifyProvider(long providerId, long apprenticeshipId, string providerName, string template);
+    Task NotifyProvider(long providerId, string apprenticeshipHashedId, string template);
 }
