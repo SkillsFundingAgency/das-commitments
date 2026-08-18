@@ -1053,4 +1053,24 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             PausedViaILR = true
         });
     }
+
+    public void SetIlrResumed(DateTime resumedDate)
+    {
+        StartTrackingSession(UserAction.ResumeApprenticeship, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+
+        ChangeTrackingSession.TrackUpdate(this);
+
+        PaymentStatus = PaymentStatus.Active;
+        PauseDate = null;
+        ApprenticeshipStatus = ApprenticeshipStatus.Live;
+
+        ChangeTrackingSession.CompleteTrackingSession();
+
+        Publish(() => new ApprenticeshipResumedEvent
+        {
+            ApprenticeshipId = Id,
+            ResumedOn = resumedDate,
+            ResumedViaILR = true
+        });
+    }
 }
