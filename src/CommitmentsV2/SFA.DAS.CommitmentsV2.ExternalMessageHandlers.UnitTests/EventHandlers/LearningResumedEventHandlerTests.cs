@@ -43,6 +43,7 @@ public class LearningResumedEventHandlerTests
         _fixture.VerifyLearnerResumed();
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         _fixture.VerifyLearningResumedEventIsPublished();
+        _fixture.VerifySendEmailToEmployerCommandIsSent();
     }
 
     [Test]
@@ -200,12 +201,17 @@ public class LearningResumedEventHandlerTestsFixture
             EndDate = DateTime.UtcNow.AddMonths(13)
         };
 
+        _commitmentsV2Configuration = new CommitmentsV2Configuration
+        {
+            EmployerCommitmentsBaseUrl = "https://test123.com/"
+        };
+
         _dbContext.Cohorts.Add(cohort);
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
 
-        _handler = new LearningResumedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
-            _mockLogger.Object);
+        _handler = new LearningResumedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _mockLogger.Object, _mockEncodingService.Object,
+            _commitmentsV2Configuration);
     }
 
     public LearningResumedEventHandlerTestsFixture SetStartDate(DateTime startDate)
@@ -312,6 +318,21 @@ public class LearningResumedEventHandlerTestsFixture
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(message)),
             null,
             It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.AtLeastOnce);
+    }
+
+    public void VerifySendEmailToEmployerCommandIsSent()
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+
+        _mockContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
+            c.AccountId == apprenticeship.Cohort.EmployerAccountId &&
+            c.Template == "EmployerApprenticeshipResumedNotification" &&
+            c.Tokens["provider_name"] == apprenticeship.Cohort.Provider.Name &&
+            c.Tokens["url"].Contains(_commitmentsV2Configuration.EmployerCommitmentsBaseUrl) &&
+            c.Tokens["url"].Contains("ACC123/apprentices") &&
+            c.Tokens["url"].Contains("apprentices/APP123") && 
+            c.NameToken == "name"
+        ), It.IsAny<SendOptions>()), Times.Once);
     }
 
     public void Dispose() => _dbContext?.Dispose();
