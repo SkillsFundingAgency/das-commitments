@@ -32,43 +32,6 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         return Created("", MapToApprovalFieldChangeList(result.Items));
     }
 
-    //[Authorize]
-    //[HttpDelete("{learningKey}")]
-    //public async Task<ActionResult> DeleteApprovals([FromRoute] Guid learningKey)
-    //{
-    //    var command = new CocDeleteCommand { LearningKey = learningKey };
-    //    var result = await mediator.Send(command);
-
-    //    return result.Status switch
-    //    {
-    //        DeleteValidationState.Cancelled => Ok(result.Message),
-    //        DeleteValidationState.NotFound => NotFound(result.Message),
-    //        DeleteValidationState.NotPending => BadRequest(result.Message),
-    //        _ => StatusCode((int)result.Status, result.Message)
-    //    };
-    //}
-
-    //[HttpPut("{learningKey}")]
-    //public async Task<ActionResult> PutApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
-    //{
-    //    try
-    //    {
-    //        if (learningKey != request.LearningKey)
-    //        {
-    //            return BadRequest("LearningKey in route does not match LearningKey in body");
-    //        }
-    //        var details = await modelMapper.Map<CocApprovalDetails>(request);
-    //        var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
-    //        logger.LogInformation("PutApprovals completed Returning status of {0}", result?.Status);
-    //        return Created("", MapToApprovalFieldChangeList(result.Items));
-    //    }
-    //    catch (PendingApprovalNotFoundException ex)
-    //    {
-    //        logger.LogWarning(ex, "PutApprovals failed with PendingApprovalNotFoundException");
-    //        return NotFound(ex.Message);
-    //    }
-    //}
-
     private List<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items)
     {
         return items.Select(x => new ApprovalFieldChange
