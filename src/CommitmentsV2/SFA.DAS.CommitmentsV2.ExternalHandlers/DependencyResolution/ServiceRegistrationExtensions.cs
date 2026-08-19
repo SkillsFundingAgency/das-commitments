@@ -9,12 +9,14 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Extensions;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution;
 
@@ -41,7 +43,7 @@ public static class ServiceRegistrationExtensions
                 .AddEntityFramework(commitmentV2Config)
                 .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
 
-            services.AddNServiceBusClientUnitOfWork();
+            services.AddNServiceBusUnitOfWork();
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
                 .AddMemoryCache()
@@ -59,6 +61,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IUlnUtilisationService, UlnUtilisationService>();
         services.AddTransient<IOverlapCheckService, OverlapCheckService>();
         services.AddTransient<IEmailOverlapService, EmailOverlapService>();
+        services.AddTransient<IWithDrawalNotificationToEmployerService, WithDrawalNotificationToEmployerService>();
 
         return services;
     }
