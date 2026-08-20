@@ -1,12 +1,14 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
@@ -20,6 +22,9 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
     private Mock<ICurrentDateTime> _currentDateTime;
     private Mock<IMessageSession> _messageSession;
     private UnitOfWorkContext _unitOfWorkContext;
+    private Mock<IEncodingService> _encodingService;
+    private CommitmentsV2Configuration _commitmentsV2Configuration;
+
     private PatchApprenticeshipPaymentsCommandHandler _handler;
 
     [SetUp]
@@ -33,13 +38,21 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
         _currentDateTime = new Mock<ICurrentDateTime>();
         _currentDateTime.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
         _messageSession = new Mock<IMessageSession>();
+        _encodingService = new Mock<IEncodingService>();
+        _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns("ABC123");
+        _commitmentsV2Configuration = new CommitmentsV2Configuration();
+        _commitmentsV2Configuration.ProviderUrl = new ProviderUrlConfiguration();
+        _commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl = "https://test.local";
         _unitOfWorkContext = new UnitOfWorkContext();
 
         _handler = new PatchApprenticeshipPaymentsCommandHandler(
             new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _currentDateTime.Object,
             _authenticationService.Object,
-            _messageSession.Object);
+            _messageSession.Object,
+            _encodingService.Object,
+            _commitmentsV2Configuration
+           );
     }
 
     [TearDown]
@@ -103,6 +116,30 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
                 c.ChangeType == LearningChangeType.ManualUpdate &&
                 c.AppliedDate == _currentDateTime.Object.UtcNow &&
                 c.Description == "Payments resumed"),
+            It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [TestCase(true, "ProviderApprenticeshipPaymentFrozenNotification")]
+    [TestCase(false, "ProviderApprenticeshipPaymentUnfrozenNotification")]
+    public async Task Handle_WhenPaymentFreezeDateProvided_SendsNotificationEmail(bool freeze, string template)
+    {
+        var apprenticeship = await SetupApprenticeship(frozen: !freeze);
+        _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+
+        await _handler.Handle(new PatchApprenticeshipPaymentsCommand
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            PaymentFreezeDate = freeze ? DateTime.UtcNow.Date : null,
+            FreezePaymentsReason = freeze ? FreezePaymentsReason.LearnerOnBreak : null,
+            UserInfo = new UserInfo()
+        }, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+            It.Is<SendEmailToProviderCommand>(c => c.ProviderId == apprenticeship.Cohort.ProviderId &&
+                c.Template == template &&
+                c.Tokens["employer_name"] == apprenticeship.Cohort.AccountLegalEntity.Name &&
+                c.Tokens["link_to_manage_apprenticeships"].Contains($"{apprenticeship.Cohort.ProviderId}/apprentices/ABC123")
+                ),
             It.IsAny<SendOptions>()), Times.Once);
     }
 
@@ -273,7 +310,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
             {
                 EmployerAccountId = fixture.Create<long>(),
                 ProviderId = fixture.Create<long>(),
-                AccountLegalEntity = new AccountLegalEntity()
+                AccountLegalEntity = new AccountLegalEntity(new Account(), 123, 1234, "XXXXX", "XXX123", "Test", CommitmentsV2.Models.OrganisationType.Other, null, DateTime.Today)
             },
             PaymentStatus = PaymentStatus.Active,
             StartDate = DateTime.UtcNow.AddMonths(-2),

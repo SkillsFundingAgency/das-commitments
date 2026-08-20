@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -9,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
 
@@ -16,7 +18,9 @@ public class PatchApprenticeshipPaymentsCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICurrentDateTime currentDate,
     IAuthenticationService authenticationService,
-    IMessageSession messageSession)
+    IMessageSession messageSession,
+    IEncodingService encodingService,
+    CommitmentsV2Configuration commitmentsV2Configuration)
     : IRequestHandler<PatchApprenticeshipPaymentsCommand>
 {
     public async Task Handle(PatchApprenticeshipPaymentsCommand command, CancellationToken cancellationToken)
@@ -45,6 +49,8 @@ public class PatchApprenticeshipPaymentsCommandHandler(
         }
 
         await dbContext.Value.SaveChangesAsync(cancellationToken);
+
+        await SendEmail(isFreeze, apprenticeship.Cohort.ProviderId, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.Id);
 
         await messageSession.Send(new StoreLearningHistoryCommand
         {
@@ -102,5 +108,25 @@ public class PatchApprenticeshipPaymentsCommandHandler(
         }
 
         return null;
+    }
+
+    private async Task SendEmail(bool isFreeze, long providerId, string employerName, long apprenticeshipId)
+    {
+        var encodedApprenticeshipId = encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId);
+
+        var sendEmailToProviderCommand = new SendEmailToProviderCommand(
+            providerId,
+            isFreeze ? "ProviderApprenticeshipPaymentFrozenNotification" : "ProviderApprenticeshipPaymentUnfrozenNotification",
+            new Dictionary<string, string>
+            {
+                {"employer_name", employerName},
+                {
+                    "link_to_manage_apprenticeships",
+                    $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices/{encodedApprenticeshipId}\""
+                },
+                { "link_to_unsubscribe", $"{commitmentsV2Configuration.ProviderUrl.ProviderApprenticeshipServiceBaseUrl}notification-settings"  }
+            });
+
+        await messageSession.Send(sendEmailToProviderCommand);
     }
 }
