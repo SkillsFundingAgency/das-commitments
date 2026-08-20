@@ -206,28 +206,72 @@ components:
           description: The new value to be applied
           type: string
 
-    approvalsResult:
-      type: array
-      items:
-        type: object
-        properties:
-          changeType:
-            description: The field being changed. An enumerated type to be agreed across the service for each field
-            type: string
-            enum: [TrainingPrice, AssessmentPrice]
-          approvalStatus:
-            description: The status of an approval request on an individual piece of data
-            type: string
-            enum:
-              - autoApproved
-              - autoRejected
-              - employerApprovalRequired
-          reason:
-            type: string
-            description: A reason for the approval result
-        required:
-          - changeType
-          - approvalStatus
+        approvalsResult:
+      type: object
+      description: >
+        The result of evaluating this approval request, split to mirror
+        the shape of the request: field-level results for anything
+        submitted via changes, and price-level results for anything
+        submitted via priceHistory.
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/fieldApprovalResult"
+        prices:
+          description: >
+            One entry per price point evaluated from the submitted
+            priceHistory — whether it came from trainingPrice,
+            assessmentPrice, or both on a given date. Only the field(s)
+            that actually differed from their baseline appear here, so a
+            date where only one of the two changed produces one entry,
+            not two.
+          type: array
+          items:
+            $ref: "#/components/schemas/priceApprovalResult"
+
+    fieldApprovalResult:
+      type: object
+      properties:
+        changeType:
+          type: string
+          enum: [TrainingPrice, AssessmentPrice]
+        approvalStatus:
+          type: string
+          enum: [autoApproved, autoRejected, employerApprovalRequired]
+        reason:
+          type: string
+      required:
+        - changeType
+        - approvalStatus
+
+    priceApprovalResult:
+      type: object
+      description: >
+        The evaluated result for a single price point — one entry per
+        field per effective date that differed from its baseline.
+      properties:
+        field:
+          type: string
+          enum: [TrainingPrice, AssessmentPrice]
+        old:
+          type: string
+        new:
+          type: string
+        effectiveFromDate:
+          type: string
+          format: date
+        approvalStatus:
+          type: string
+          enum: [autoApproved, autoRejected, employerApprovalRequired]
+        reason:
+          type: string
+      required:
+        - field
+        - old
+        - new
+        - effectiveFromDate
+        - approvalStatus
 
     approvalRequest:
       type: object
