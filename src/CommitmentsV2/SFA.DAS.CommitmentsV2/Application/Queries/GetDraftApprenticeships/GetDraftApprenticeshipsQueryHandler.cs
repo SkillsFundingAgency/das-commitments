@@ -17,15 +17,22 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
         .Where(x => x.Id == query.CohortId)
         .Select(x => new { DraftApprenticeships = x.Apprenticeships });
         
-        var cohort = await cohortQuery.SingleOrDefaultAsync();
+        var cohort = await cohortQuery.SingleOrDefaultAsync(cancellationToken);
 
-        var courseIds = cohort?.DraftApprenticeships.Where(x => x.StandardUId != null).Select(x => x.StandardUId).Distinct().ToList();
-        var standards = db.Standards.Where(x => courseIds.Contains(x.StandardUId)).ToList();
-        var courses = await db.Courses.ToListAsync();
+        if (cohort == null)
+        {
+            return new GetDraftApprenticeshipsQueryResult { DraftApprenticeships = null };
+        }
+
+        var courseIds = cohort.DraftApprenticeships.Where(x => x.StandardUId != null).Select(x => x.StandardUId).Distinct().ToList();
+        var standards = courseIds.Count == 0
+            ? []
+            : await db.Standards.Where(x => courseIds.Contains(x.StandardUId)).ToListAsync(cancellationToken);
+        var courses = await db.Courses.ToListAsync(cancellationToken);
 
         return new GetDraftApprenticeshipsQueryResult
         {
-            DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
+            DraftApprenticeships = cohort.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
             {
                 Id = a.Id,
                 FirstName = a.FirstName,
