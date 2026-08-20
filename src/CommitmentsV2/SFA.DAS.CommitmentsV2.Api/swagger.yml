@@ -300,8 +300,6 @@ components:
         priceRecords:
           type: object
           properties: 
-            changesDetected:
-              type: boolean
             records:    
               $ref: "#/components/schemas/priceRecordArray"
 
