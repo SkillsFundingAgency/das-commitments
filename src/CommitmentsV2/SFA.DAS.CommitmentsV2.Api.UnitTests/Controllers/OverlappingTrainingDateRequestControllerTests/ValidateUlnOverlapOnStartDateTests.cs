@@ -1,6 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
+﻿using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.CommitmentsV2.Api.Controllers;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -19,8 +19,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
         [Test]
         public async Task ValidateUlnOverlapOnStartDate_VerifyQuerySent()
         {
-            await _fixture.ValidateUlnOverlapOnStartDate();
+            var response = await _fixture.ValidateUlnOverlapOnStartDate();
             _fixture.VerifyQuerySent();
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ValidateUlnOverlapOnStartDate_HasOverlapWithIlrWithdrawnApprenticeship(bool HasOverlapWithIlrWithdrawnApprenticeship)
+        {
+            var response = await _fixture.withHasOverlapWithIlrWithdrawnApprenticeship(HasOverlapWithIlrWithdrawnApprenticeship).ValidateUlnOverlapOnStartDate();
+            var result = response.Value as ValidateUlnOverlapOnStartDateResponse;
+
+            result.Should().NotBeNull();
+            result.HasOverlapWithIlrWithdrawnApprenticeship.Should().Be(HasOverlapWithIlrWithdrawnApprenticeship);
         }
 
         private class ValidateUlnOverlapOnStartDateFixture
@@ -33,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
             public string Uln;
             public string StartDate;
             public string EndDate;
+            private ValidateUlnOverlapOnStartDateQueryResult queryResult;
 
             public ValidateUlnOverlapOnStartDateFixture()
             {
@@ -44,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                 StartDate = "Jan 2022";
                 EndDate = "Dec 2022";
 
-                var queryResult = _autoFixture.Create<ValidateUlnOverlapOnStartDateQueryResult>();
+                queryResult = _autoFixture.Create<ValidateUlnOverlapOnStartDateQueryResult>();
                 _mediator
                     .Setup(x => x.Send(It.IsAny<ValidateUlnOverlapOnStartDateQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(queryResult);
@@ -52,9 +65,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                 _controller = new OverlappingTrainingDateRequestController(_mediator.Object, _mapper.Object);
             }
 
-            public async Task ValidateUlnOverlapOnStartDate()
+            public async Task<OkObjectResult> ValidateUlnOverlapOnStartDate()
             {
-                await _controller.ValidateUlnOverlapOnStartDate(ProviderId, Uln, StartDate, EndDate);
+                var response = await _controller.ValidateUlnOverlapOnStartDate(ProviderId, Uln, StartDate, EndDate) as OkObjectResult;
+                return response;
+            }
+
+            public ValidateUlnOverlapOnStartDateFixture withHasOverlapWithIlrWithdrawnApprenticeship(bool value)
+            {
+                queryResult.HasOverlapWithIlrWithdrawnApprenticeship = value;
+                return this;
             }
 
             public void VerifyQuerySent()

@@ -102,6 +102,43 @@ public class OverlapCheckServiceTests
     }
 
     [Test]
+    public async Task WhenOverlappingApprenticeshipHasIlrWithdrawal_HasOverlapWithIlrWithdrawnApprenticeshipIsTrue()
+    {
+        var result = await _fixture
+            .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 05, 15))
+            .WithApprenticeshipWithdrawnReasonCode(1, 40)
+            .CheckForOverlapsOnStartDate();
+
+        result.HasOverlappingStartDate.Should().BeTrue();
+        result.ApprenticeshipId.Should().Be(1);
+        result.HasOverlapWithIlrWithdrawnApprenticeship.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task WhenOverlappingApprenticeshipHasNoIlrWithdrawal_HasOverlapWithIlrWithdrawnApprenticeshipIsFalse()
+    {
+        var result = await _fixture
+            .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 05, 15))
+            .WithApprenticeshipWithdrawnReasonCode(1, null)
+            .CheckForOverlapsOnStartDate();
+
+        result.HasOverlapWithIlrWithdrawnApprenticeship.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task WhenDifferentApprenticeshipOnUlnHasIlrWithdrawal_OverlappingRecordIsNotFlagged()
+    {
+        var result = await _fixture
+            .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 05, 15))
+            .WithApprenticeshipWithdrawnReasonCode(1, null)
+            .WithApprenticeshipWithdrawnReasonCode(2, 40)
+            .CheckForOverlapsOnStartDate();
+
+        result.ApprenticeshipId.Should().Be(1);
+        result.HasOverlapWithIlrWithdrawnApprenticeship.Should().BeFalse();
+    }
+
+    [Test]
     public async Task ThenIfEndDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
     {
         var result = await _fixture
@@ -356,6 +393,22 @@ public class OverlapCheckServiceTests
             return this;
         }
 
+        public OverlapCheckServiceTestFixture WithApprenticeshipWithdrawnReasonCode(long id, int? withdrawnReasonCode)
+        {
+            var existing = _db.Apprenticeships.Local.FirstOrDefault(a => a.Id == id);
+            if (existing != null)
+            {
+                existing.WithdrawnReasonCode = withdrawnReasonCode;
+            }
+            else
+            {
+                _db.Apprenticeships.Add(new Apprenticeship { Id = id, WithdrawnReasonCode = withdrawnReasonCode });
+            }
+
+            _db.SaveChanges();
+            return this;
+        }
+
         public OverlapCheckServiceTestFixture WithNoMatchingUlnUtilisations()
         {
             _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -432,6 +485,11 @@ public class OverlapCheckServiceTests
         public async Task<OverlapCheckResult> CheckForOverlaps()
         {
             return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate, _isWithdrawn), _apprenticeshipId, new CancellationToken());
+        }
+
+        public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate()
+        {
+            return await _overlapCheckService.CheckForOverlapsOnStartDate("", new SFA.DAS.CommitmentsV2.Domain.Entities.CourseDateRange(_startDate, _endDate), _apprenticeshipId, CancellationToken.None);
         }
 
         public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps()
