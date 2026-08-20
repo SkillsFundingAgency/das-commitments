@@ -22,7 +22,7 @@ paths:
   
   /approvals/{learningKey}:
     put:
-      summary: Request an approval for the record on learning
+      summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
       parameters:
       - in: path
         name: learningKey
@@ -205,10 +205,6 @@ components:
         new:
           description: The new value to be applied
           type: string
-        effectiveFromDate:
-          description: The date this change will take effect
-          type: string
-          format: date
 
     approvalsResult:
       type: array
@@ -218,7 +214,7 @@ components:
           changeType:
             description: The field being changed. An enumerated type to be agreed across the service for each field
             type: string
-            enum: [TNP1, TNP2]
+            enum: [TrainingPrice, AssessmentPrice]
           approvalStatus:
             description: The status of an approval request on an individual piece of data
             type: string
@@ -242,11 +238,6 @@ components:
           type: string
         uln:
           type: string
-        TNP1:
-          type: string
-        TNP2:
-          type: string
-          format: uuid
         learningKey:
           type: string
           format: uuid
@@ -262,6 +253,13 @@ components:
           format: uri
         changes:
           $ref: "#/components/schemas/learningChangeArray"
+        priceRecords:
+          type: object
+          properties: 
+            changesDetected:
+              type: boolean
+            records:    
+              $ref: "#/components/schemas/priceRecordArray"
 
     approvalStatusRequest:
       type: object
@@ -286,15 +284,33 @@ components:
       items:
         $ref: "#/components/schemas/learningChange"
 
+    priceRecordArray:
+      type: array
+      description: This will be sent if there is a detected change in the price information from the ILR          
+      items:
+        $ref: "#/components/schemas/priceChange"
+
     learningChange:
       type: object
       required: [changeType, data]
       properties:
         changeType:
           type: string
-          enum: [TNP1, TNP2]
+          enum: [Name, DOB, Course]
         data:
           $ref: "#/components/schemas/change"
+
+    priceChange:
+      type: object
+      required: [trainingPrice, assessmentPrice, effectiveFrom]
+      properties:
+        trainingPrice:
+          type: string
+        assessmentPrice:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
 
     pendingApprovalEmployerSummary:
       type: object
