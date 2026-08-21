@@ -9,7 +9,9 @@
 	[Status] TINYINT NULL,						
 	[UKPRN] [nvarchar](8) NOT NULL,
 	[ULN] [nvarchar](10) NOT NULL,
-    [Reason] NVARCHAR(250) NULL, 
+    [Reason] NVARCHAR(250) NULL,
+    [ProviderAcknowledgedAt] DATETIME2 NULL,
+    [ProviderAcknowledgedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_ApprovalRequest] PRIMARY KEY CLUSTERED ([Id] ASC),
 )
 GO
