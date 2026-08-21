@@ -69,6 +69,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
             fixture.AssertTransferRequestAutoApprovalEquals(false);
         }
+
+        [Test]
+        public async Task Handle_WhenTransferSenderIsNonLevy_ThenTransferRequestIsRejected()
+        {
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture()
+                .SetupCohortWithTransferSender(ApprenticeshipEmployerType.NonLevy);
+
+            await fixture.Handle();
+
+            fixture.AssertTransferRequestStatusEquals(TransferApprovalStatus.Rejected);
+            fixture.AssertTransferRequestRejectedEventWasPublished();
+        }
+
+        [Test]
+        public async Task Handle_WhenTransferSenderIsNonLevyAndCohortIsLinkedToPledgeApplication_ThenAutoApprovalIsFalseAndRequestIsRejected()
+        {
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture()
+                .SetupCohortWithTransferSender(ApprenticeshipEmployerType.NonLevy)
+                .SetupPledgeApplication(true);
+
+            await fixture.Handle();
+
+            fixture.AssertTransferRequestAutoApprovalEquals(false);
+            fixture.AssertTransferRequestStatusEquals(TransferApprovalStatus.Rejected);
+            fixture.AssertPledgeApplicationWasNotRequested();
+            fixture.AssertTransferRequestRejectedEventWasPublished();
+        }
+
+        [Test]
+        public async Task Handle_WhenTransferSenderIsLevy_ThenTransferRequestRemainsPending()
+        {
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture()
+                .SetupCohortWithTransferSender(ApprenticeshipEmployerType.Levy);
+
+            await fixture.Handle();
+
+            fixture.AssertTransferRequestStatusEquals(TransferApprovalStatus.Pending);
+            fixture.AssertTransferRequestRejectedEventWasNotPublished();
+        }
     }
 
     public class AddTransferRequestCommandHandlerTestFixture : IDisposable
@@ -119,11 +158,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public AddTransferRequestCommandHandlerTestFixture SetupCohort()
         {
+            return SetupCohort(null);
+        }
+
+        public AddTransferRequestCommandHandlerTestFixture SetupCohortWithTransferSender(ApprenticeshipEmployerType levyStatus)
+        {
+            var transferSenderId = Fixture.Create<long>();
+            SetupCohort(transferSenderId);
+
+            Db.Accounts.Add(new Account(transferSenderId, "HASH", "PUBLIC", "Sender", DateTime.UtcNow)
+            {
+                LevyStatus = levyStatus
+            });
+            Db.SaveChanges();
+
+            return this;
+        }
+
+        private AddTransferRequestCommandHandlerTestFixture SetupCohort(long? transferSenderId)
+        {
             Cohort = new Cohort(
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
-                null,
+                transferSenderId,
                 null,
                 Party.Employer,
                 "",
@@ -194,6 +252,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
             Assert.That(transferRequest.AutoApproval, Is.EqualTo(autoApproval));
+        }
+
+        public void AssertTransferRequestStatusEquals(TransferApprovalStatus status)
+        {
+            var transferRequest = Db.TransferRequests.Single();
+            Assert.That(transferRequest.Status, Is.EqualTo(status));
+        }
+
+        public void AssertTransferRequestRejectedEventWasPublished()
+        {
+            var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestRejectedEvent>().SingleOrDefault();
+            Assert.That(@event, Is.Not.Null);
+            Assert.That(@event.CohortId, Is.EqualTo(CohortId));
+        }
+
+        public void AssertTransferRequestRejectedEventWasNotPublished()
+        {
+            var events = UnitOfWorkContext.GetEvents().OfType<TransferRequestRejectedEvent>();
+            Assert.That(events, Is.Empty);
+        }
+
+        public void AssertPledgeApplicationWasNotRequested()
+        {
+            LevyTransferMatchingApiClient.Verify(
+                x => x.Get<PledgeApplication>(It.IsAny<GetPledgeApplicationRequest>()),
+                Times.Never);
         }
 
         public void Dispose()
