@@ -207,6 +207,8 @@ public static class QueryableApprenticeshipsExtensions
                                                                                                         && (c.Originator == Originator.Employer || c.Originator == Originator.Provider))
                                                            ||
                                                            apprenticeship.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending)
+                                                           ||
+                                                           apprenticeship.ApprovalRequests.Any(request => request.Status == CocApprovalResultStatus.Pending)
             );
         }
 
@@ -219,7 +221,9 @@ public static class QueryableApprenticeshipsExtensions
             &&
             (apprenticeship.ApprenticeshipUpdate.Count == 0 || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending))
             &&
-            (apprenticeship.OverlappingTrainingDateRequests.Count == 0 || apprenticeship.OverlappingTrainingDateRequests.All(c => c.Status != OverlappingTrainingDateRequestStatus.Pending)));
+            (apprenticeship.OverlappingTrainingDateRequests.Count == 0 || apprenticeship.OverlappingTrainingDateRequests.All(c => c.Status != OverlappingTrainingDateRequestStatus.Pending))
+            &&
+            !apprenticeship.ApprovalRequests.Any(request => request.Status == CocApprovalResultStatus.Pending));
     }
 
     public static IQueryable<Apprenticeship> WithProviderOrEmployerId(this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)

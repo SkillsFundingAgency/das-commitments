@@ -97,6 +97,10 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
             && approvalRequest.ProviderAcknowledgedAt == null
             && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
 
+        result.HasPendingIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
+            approvalRequest.ApprenticeshipId == request.ApprenticeshipId
+            && approvalRequest.Status == Models.CocApprovalResultStatus.Pending, cancellationToken);
+
         return result;
     }   
 }
