@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using NLog;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -90,7 +89,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             .Select(x => new { x.Cohort.ProviderId, x.Cohort.AccountLegalEntity.Name })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (details != null)
+        if (details == null)
         {
             throw new Exception($"Apprenticeship {approval.ApprenticeshipId} not found");
         }
