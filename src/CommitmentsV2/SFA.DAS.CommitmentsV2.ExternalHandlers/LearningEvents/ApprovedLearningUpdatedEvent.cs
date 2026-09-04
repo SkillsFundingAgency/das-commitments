@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace SFA.DAS.CommitmentsV2.ExternalHandlers.LearningEvents;
+namespace SFA.DAS.Learning.Types;
 
 public class ApprovedLearningUpdatedEvent
 {

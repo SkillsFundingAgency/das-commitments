@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.LearningEvents;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 

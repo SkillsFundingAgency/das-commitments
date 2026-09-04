@@ -12,9 +12,9 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.LearningEvents;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
@@ -293,7 +293,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
     public DateTime? ParseDate(string dateString)
     {
-        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd",CultureInfo.InvariantCulture, DateTimeStyles.None,out var parsedDate))
+        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
         {
             return parsedDate;
         }
