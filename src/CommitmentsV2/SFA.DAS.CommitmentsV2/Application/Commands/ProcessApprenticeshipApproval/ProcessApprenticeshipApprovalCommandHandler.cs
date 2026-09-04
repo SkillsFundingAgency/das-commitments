@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using NLog;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -37,12 +38,12 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
         }
 
-        if(TotalPriceExceedsLimit(approval))
+        if (TotalPriceExceedsLimit(approval))
         {
             throw new DomainException("ApproveChanges", "The total cost must be £100,000 or less");
         }
 
-        if(command.ApplyChanges)
+        if (command.ApplyChanges)
         {
             approval.Status = CocApprovalResultStatus.Complete;
             foreach (var item in approval.Items)
@@ -89,6 +90,16 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             .Select(x => new { x.Cohort.ProviderId, x.Cohort.AccountLegalEntity.Name })
             .FirstOrDefaultAsync(cancellationToken);
 
+        if (details != null)
+        {
+            throw new Exception($"Apprenticeship {approval.ApprenticeshipId} not found");
+        }
+
+        if (details.ProviderId <= 0 || details.Name is null)
+        {
+            throw new Exception($"Cohort details for apprenticeship {approval.ApprenticeshipId} not found");
+        }
+
         var apprencticeshipIdEncoded = encodingService.Encode(approval.ApprenticeshipId, EncodingType.ApprenticeshipId);
 
         await notifyProviderService.NotifyProvider(details.ProviderId, apprencticeshipIdEncoded, "ProviderLearningChangeRejectedNotification", details.Name);
@@ -96,8 +107,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private async Task RecordCocUpdatesInLearnerHistory(ApprovalRequest approval, UserInfo userInfo, bool applyChanges)
     {
-
-        if(approval.Items != null && approval.Items.Any(x=>x.Field == "TNP1" || x.Field == "TNP2"))
+        if (approval.Items != null && approval.Items.Any(x => x.Field == "TNP1" || x.Field == "TNP2"))
         {
             var totalOldValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
             var totalNewValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
@@ -116,7 +126,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private bool TotalPriceExceedsLimit(ApprovalRequest approval)
     {
-        if(approval.Items == null)
+        if (approval.Items == null)
             return false;
         return SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
     }
@@ -172,5 +182,5 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             "TNP2" => "AssessmentPrice",
             _ => fieldName
         };
-    }   
+    }
 }
