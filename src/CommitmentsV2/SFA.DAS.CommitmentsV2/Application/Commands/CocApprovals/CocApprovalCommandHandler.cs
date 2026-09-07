@@ -1,16 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
 public class CocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICocApprovalRulesEngine cocApprovalRules,
-    ILogger<CocApprovalCommandHandler> logger)
+    ILogger<CocApprovalCommandHandler> logger,
+    IMessageSession messageSession,
+    ICurrentDateTime currentDateTime)
     : IRequestHandler<CocApprovalCommand, CocApprovalResult>
 {
     public async Task<CocApprovalResult> Handle(CocApprovalCommand command, CancellationToken cancellationToken)
@@ -60,7 +66,34 @@ public class CocApprovalCommandHandler(
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 
+        await StoreAutoRejectedChangeHistory(command.CocApprovalDetails, approvalState.ApprovalRequest);
+
         return approvalState.ApprovalResult;
+    }
+
+    private async Task StoreAutoRejectedChangeHistory(CocApprovalDetails details, ApprovalRequest approvalRequest)
+    {
+        var items = approvalRequest?.Items;
+        if (items == null || items.All(item => item.Status != CocApprovalItemStatus.AutoRejected))
+        {
+            return;
+        }
+
+        var description = LearningChangeHistoryDescriptionBuilder.Build(items);
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            return;
+        }
+
+        await messageSession.Send(new StoreLearningHistoryCommand
+        {
+            ApprenticeshipId = details.ApprenticeshipId,
+            LearningKey = details.LearningKey,
+            Source = LearningSourceType.ApprovalAPI,
+            ChangeType = LearningChangeType.AutoRejected,
+            AppliedDate = currentDateTime.UtcNow,
+            Description = description
+        });
     }
 
     private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)

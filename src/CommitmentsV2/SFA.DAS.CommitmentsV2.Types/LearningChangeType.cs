@@ -17,5 +17,8 @@ public enum LearningChangeType : byte
     EmployerRejected = 3,
 
     [Description("Manual update")]
-    ManualUpdate = 4
+    ManualUpdate = 4,
+
+    [Description("Auto-rejected")]
+    AutoRejected = 5
 }
