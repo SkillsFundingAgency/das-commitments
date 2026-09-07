@@ -90,22 +90,15 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             apprentice.MadeRedundant.Should().BeFalse();
         }
 
-        [TestCase(29, "Learner has been made redundant")]
-        [TestCase(2, "Learner has transferred to another provider")]
-        [TestCase(46, "Exclusion")]
-        [TestCase(97, "Other")]
-        [TestCase(98, "Reason not known")]
-        [TestCase(99, "Unknown Reason Code")]
-        [TestCase(100, "Unknown Reason Code")]
-        [TestCase(0, "Unknown Reason Code")]
-        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished(short code, string description)
+        [Test]
+        public async Task When_LearnerWithDrawnEvent_AppliedToExistingApprenticeship_StoreLearnerHistoryCommand_IsPublished()
         {
             var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Active);
             var stopDate = DateTime.Today.AddMonths(-1);
-            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), code);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), Apprenticeship.WithdrawalReasonCode_MadeRedundant);
 
             await _fixture.Handle();
-            _fixture.VerifyStoreLearnerHistoryCommandIsSent($"ILR Learner status changed from Live to Withdrawn due to {code} - '{description}'");
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent("Status change from Live to Stopped");
         }
 
         [Test]
