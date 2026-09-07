@@ -1,8 +1,8 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipApproval;
+﻿using AutoFixture.Kernel;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.UnitTests;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipApproval;
 
@@ -118,7 +118,10 @@ public class GetApprenticeshipApprovalHandlerTests
         {
             _autoFixture = new Fixture();
             _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _autoFixture.Customizations.Add(new ModelSpecimenBuilder());
+            _autoFixture.Customizations.Add(
+                new TypeRelay(
+                    typeof(SFA.DAS.CommitmentsV2.Models.ApprenticeshipBase),
+                    typeof(Apprenticeship)));
 
             ApprenticeshipId = _autoFixture.Create<long>();
 
