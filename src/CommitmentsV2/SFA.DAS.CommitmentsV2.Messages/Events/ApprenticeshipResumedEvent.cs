@@ -6,5 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long ApprenticeshipId { get; set; }
         public DateTime ResumedOn { get; set; }
+        public bool ResumedViaILR { get; set; } = false;
     }
 }
