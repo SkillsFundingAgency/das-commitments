@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -21,28 +22,80 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrow_WhenUpdatesIsNull()
     {
-        Action act = () => _service.DetermineCocUpdateStatuses(null, new Apprenticeship());
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = null,
+            Apprenticeship = new Apprenticeship()
+        };
+
+        Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
 
         act.Should().Throw<ArgumentNullException>()
-            .WithParameterName("updates");
+            .WithParameterName("Updates");
     }
 
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrow_WhenApprenticeshipIsNull()
     {
-        Action act = () => _service.DetermineCocUpdateStatuses(new CocUpdates(), null);
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = null
+        };
+
+        Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
 
         act.Should().Throw<ArgumentNullException>()
-            .WithParameterName("apprenticeship");
+            .WithParameterName("Apprenticeship");
+    }
+
+    [Test]
+    public void DetermineCocUpdateStatuses_ShouldLogInformation_WhenFirstnameFieldIsPresent()
+    {
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 1000
+            },
+            ApprovalFieldChanges = new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange
+                {
+                    ChangeType = "Firstname",
+                    Data = new CocData
+                    {
+                        Old = "Bob",
+                        New = "Bobby"
+                    }
+
+                }
+            }
+        };
+
+        _service.DetermineCocUpdateStatuses(approvalDetails);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Change of Firstname detected")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnEmpty_WhenNoTnpFieldsPresent()
     {
-        var updates = new CocUpdates();
-        var apprenticeship = new Apprenticeship { Cost = 1000 };
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = new Apprenticeship { Cost = 1000 }
+        };
 
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().BeEmpty();
     }
@@ -50,14 +103,19 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldLogInformation_WhenTnpFieldsPresent()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 90 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 90 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 1000
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 1000 };
-
-        _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        _service.DetermineCocUpdateStatuses(approvalDetails);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -72,15 +130,20 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnAutoApproved_WhenOverallCourseCostRemainsTheSame()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 80 },
-            TNP2 = new CocUpdate<int> { Old = 200, New = 220 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 80 },
+                TNP2 = new CocUpdate<int> { Old = 200, New = 220 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 300
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 300 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result.Should().OnlyContain(r => r.Status == CocApprovalItemStatus.AutoApproved);
@@ -89,15 +152,20 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnPending_WhenCostIncreases()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 200 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 202 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 200 },
+                TNP2 = new CocUpdate<int> { Old = 102, New = 202 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 100
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 100 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -109,15 +177,20 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldLogWarning_WhenOldCostDoesNotMatchApprenticeshipCost()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 10, New = 5 },
-            TNP2 = new CocUpdate<int> { Old = 20, New = 15 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 10, New = 5 },
+                TNP2 = new CocUpdate<int> { Old = 20, New = 15 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 500
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 500 };
-
-        _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        _service.DetermineCocUpdateStatuses(approvalDetails);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -133,15 +206,20 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnAutoRejected_WhenTotalCost_ExceedsMaximumTotalTrainingCost()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 20000 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 20000 },
+                TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 100
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 100 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result.Where(r => r.Field == CocChangeField.TNP1).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -151,20 +229,55 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnAutoRejected_WhenTNP1_IsZero()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 0 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 0 },
+                TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 100
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 100 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result[0].Field.Should().Be(CocChangeField.TNP1);
         result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
         result[1].Field.Should().Be(CocChangeField.TNP2);
         result[1].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+    }
+
+    [Test]
+    public void DetermineCocUpdateStatuses_ShouldReturnAutoApproved_WhenFirstname_IsAValidChange()
+    {
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = new Apprenticeship(),
+            ApprovalFieldChanges = new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange
+                {
+                    ChangeType = "Firstname",
+                    Data = new CocData()
+                    {
+                        Old = "Bob",
+                        New = "Bobby"
+                    }
+                }
+            }
+
+        };
+
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
+
+        result.Should().HaveCount(1);
+        result[0].Field.Should().Be(CocChangeField.Firstname);
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
+        result[0].Reason.Should().BeNullOrEmpty();
     }
 }
