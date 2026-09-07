@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Exceptions;
-using SFA.DAS.CommitmentsV2.Application.Commands.CocDelete;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -14,64 +12,51 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 [ApiController]
 public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprovalsController> logger) : ControllerBase
 {
-    [HttpPost("{learningKey}")]
-    public async Task<ActionResult> PostApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
+    [HttpPut("{learningKey}")]
+    public async Task<ActionResult> PutApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
     {
         if (learningKey != request.LearningKey)
         {
             return BadRequest("LearningKey in route does not match LearningKey in body");
         }
-        var details = await modelMapper.Map<CocApprovalDetails>(request);
-        var result = await mediator.Send(new PostCocApprovalCommand { CocApprovalDetails = details });
-        logger.LogInformation("PostApprovals completed Returning status of {0}", result?.Status);
-        return Created("", MapToApprovalFieldChangeList(result.Items));
-    }
 
-    [Authorize]
-    [HttpDelete("{learningKey}")]
-    public async Task<ActionResult> DeleteApprovals([FromRoute] Guid learningKey)
-    {
-        var command = new CocDeleteCommand { LearningKey = learningKey };
+        var command = await modelMapper.Map<CocApprovalCommand>(request);
+
         var result = await mediator.Send(command);
-
-        return result.Status switch
+        logger.LogInformation("PostApprovals completed Returning status of {0}", result?.Status);
+        if (command.Action == AggregrationAction.CancelPrevious)
         {
-            DeleteValidationState.Cancelled => Ok(result.Message),
-            DeleteValidationState.NotFound => NotFound(result.Message),
-            DeleteValidationState.NotPending => BadRequest(result.Message),
-            _ => StatusCode((int)result.Status, result.Message)
-        };
+            return Ok(MapToApprovalFieldChangeList(new List<CocUpdateResult>(), request.Changes).ToList());
+        }
+            
+        return Created("", MapToApprovalFieldChangeList(result.Items, request.Changes).ToList());
     }
 
-    [HttpPut("{learningKey}")]
-    public async Task<ActionResult> PutApprovals([FromRoute] Guid learningKey, [FromBody] CocApprovalRequest request)
+    private IEnumerable<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items, List<CocApprovalFieldChange> changes)
     {
-        try
+        foreach(var item in items)
         {
-            if(learningKey != request.LearningKey)
+            yield return new ApprovalFieldChange
             {
-                return BadRequest("LearningKey in route does not match LearningKey in body");
+                ChangeType = item.Field.GetEnumDescription(),
+                ApprovalStatus = GetApprovalStatus(item.Status),
+                Reason = item.Reason
+            };
+        }
+
+        foreach (var change in changes)
+        {
+            if (items.Any(x => x.Field.GetEnumDescription() == change.ChangeType))
+            {
+                continue;
             }
-            var details = await modelMapper.Map<CocApprovalDetails>(request);
-            var result = await mediator.Send(new PutCocApprovalCommand { CocApprovalDetails = details });
-            logger.LogInformation("PutApprovals completed Returning status of {0}", result?.Status);
-            return Created("", MapToApprovalFieldChangeList(result.Items));
+            yield return new ApprovalFieldChange
+            {
+                ChangeType = change.ChangeType,
+                ApprovalStatus = CocApprovalItemStatus.AutoApproved.GetEnumDescription(),
+                Reason = null
+            };
         }
-        catch (PendingApprovalNotFoundException ex)
-        {
-            logger.LogWarning(ex, "PutApprovals failed with PendingApprovalNotFoundException");
-            return NotFound(ex.Message);
-        }
-    }
-    
-    private List<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items)
-    {
-        return items.Select(x => new ApprovalFieldChange
-        {
-            ChangeType = x.Field.GetEnumDescription(),
-            ApprovalStatus = GetApprovalStatus(x.Status),
-            Reason = x.Reason
-        }).ToList();
     }
 
     private string GetApprovalStatus(CocApprovalItemStatus status)
