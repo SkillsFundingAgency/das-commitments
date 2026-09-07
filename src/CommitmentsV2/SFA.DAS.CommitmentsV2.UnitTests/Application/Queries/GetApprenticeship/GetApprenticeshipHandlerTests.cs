@@ -29,6 +29,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             _fixture.VerifyResultMapping();
         }
 
+        [Test]
+        public async Task Handle_WhenApprovalRequestIsPending_ThenShouldReturnPendingApprovalRequestId()
+        {
+            await _fixture.SetApprovalRequestStatus(CocApprovalResultStatus.Pending);
+
+            var result = await _fixture.Handle();
+            result.PendingApprovalRequestId.Should().Be(_fixture.ApprovalRequest.Id);
+        }
+
         [TestCase(LearningType.Apprenticeship)]
         [TestCase(LearningType.FoundationApprenticeship)]
         [TestCase(LearningType.ApprenticeshipUnit)]
@@ -45,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             private Fixture _autoFixture;
             public long ApprenticeshipId { get; private set; }
             public long AccountLegalEntityId { get; private set; }
+            public ApprovalRequest ApprovalRequest {  get; private set; }
             public Apprenticeship Apprenticeship { get; private set; }
             public Cohort Cohort { get; private set; }
             public Provider Provider { get; private set; }
@@ -63,6 +73,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _autoFixture = new Fixture();
 
                 AccountLegalEntityId = _autoFixture.Create<long>();
+                ApprovalRequest = new ApprovalRequest
+                {
+                    Id = _autoFixture.Create<Guid>(),
+                    ApprenticeshipId = ApprenticeshipId,
+                    Status = CocApprovalResultStatus.Complete,
+                    Items = new List<ApprovalFieldRequest>()
+                };
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 SeedData();
@@ -177,6 +194,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     WithdrawnReasonCode = _autoFixture.Create<int?>(),
                     PaymentFreezeDate = DateTime.UtcNow.Date.AddDays(-7),
                     FreezePaymentsReason = FreezePaymentsReason.LearnerOnBreak,
+                    ApprovalRequests = new List<ApprovalRequest>
+                    {
+                        ApprovalRequest
+                    }   
                 };
 
                 switch (Apprenticeship.PaymentStatus)
@@ -199,6 +220,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
                 _db.SaveChanges();
             }
+
             public async Task SetCourseLearningType(LearningType learningType)
             {
                 Course.LearningType = learningType;
@@ -206,6 +228,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 await _db.SaveChangesAsync();
             }
 
+            public async Task SetApprovalRequestStatus(CocApprovalResultStatus status)
+            {
+                ApprovalRequest.Status = status;
+                _db.ApprovalRequests.Update(ApprovalRequest);
+                await _db.SaveChangesAsync();
+            }
 
             public async Task<GetApprenticeshipQueryResult> Handle()
             {
@@ -261,6 +289,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _result.ApprenticeshipPriorLearning.IsDurationReducedByRpl.Should().Be(Apprenticeship.PriorLearning.IsDurationReducedByRpl);
                 _result.EmployerVerificationStatus.Should().BeNull();
                 _result.EmployerVerificationNotes.Should().BeNull();
+                _result.PendingApprovalRequestId.Should().BeNull();
             }
 
             public void Dispose()

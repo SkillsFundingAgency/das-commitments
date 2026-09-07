@@ -187,5 +187,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             _result.FreezeStatus.Should().BeFalse();
             _result.PaymentFreezeDate.Should().BeNull();
         }
+
+        [Test]
+        public void PendingApprovalRequestIdIsMappedCorrectly()
+        {
+            _result.PendingApprovalRequestId.Should().Be(_source.PendingApprovalRequestId);
+        }
     }
 }

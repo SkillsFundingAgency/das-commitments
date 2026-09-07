@@ -1,6 +1,5 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
@@ -97,9 +96,14 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
             && approvalRequest.ProviderAcknowledgedAt == null
             && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
 
-        result.HasPendingIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
+        var approvalRequest = await db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(approvalRequest =>
             approvalRequest.ApprenticeshipId == request.ApprenticeshipId
             && approvalRequest.Status == Models.CocApprovalResultStatus.Pending, cancellationToken);
+
+        if (approvalRequest != null)
+        {
+            result.PendingApprovalRequestId = approvalRequest.Id;
+        }
 
         return result;
     }   

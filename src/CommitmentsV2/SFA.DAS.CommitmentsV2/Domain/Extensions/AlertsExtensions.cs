@@ -61,9 +61,8 @@ public static class AlertsExtensions
 
         if (HasPendingIlrChanges(source))
         {
-            result.Add(Alerts.ChangesRequested);
+            result.Add(Alerts.IlrChangesPending);
         }
-
 
         return result;
     }
