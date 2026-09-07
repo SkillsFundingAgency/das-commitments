@@ -273,7 +273,16 @@ public class CocApprovalCommandHandlerTests
     public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoRejected_SendsStoreLearningHistoryCommand()
     {
         var learningKey = Guid.NewGuid();
-        var details = new CocApprovalDetails { LearningKey = learningKey, ApprenticeshipId = 12345 };
+        var details = new CocApprovalDetails
+        {
+            LearningKey = learningKey,
+            ApprenticeshipId = 12345,
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 5000, New = 0 },
+                TNP2 = new CocUpdate<int> { Old = 3000, New = 0 }
+            }
+        };
         var command = new CocApprovalCommand
         {
             Action = AggregrationAction.CreateNew,
@@ -305,7 +314,7 @@ public class CocApprovalCommandHandlerTests
 
         result.Should().BeSameAs(expectedResult);
 
-        var expectedDescription = $"Total price change from {8000m.ToGdsCostFormat()} to {0m.ToGdsCostFormat()}";
+        var expectedDescription = $"Total price change from {8000.ToGdsCostFormat()} to {0.ToGdsCostFormat()}";
         _messageSession.Verify(x => x.Send(
             It.Is<StoreLearningHistoryCommand>(c =>
                 c.ApprenticeshipId == details.ApprenticeshipId &&

@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -73,17 +73,13 @@ public class CocApprovalCommandHandler(
 
     private async Task StoreAutoRejectedChangeHistory(CocApprovalDetails details, ApprovalRequest approvalRequest)
     {
-        var items = approvalRequest?.Items;
-        if (items == null || items.All(item => item.Status != CocApprovalItemStatus.AutoRejected))
+        if (approvalRequest?.Items == null || approvalRequest.Items.All(item => item.Status != CocApprovalItemStatus.AutoRejected))
         {
             return;
         }
 
-        var description = LearningChangeHistoryDescriptionBuilder.Build(items);
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return;
-        }
+        var oldTotal = (details.Updates?.TNP1?.Old ?? 0) + (details.Updates?.TNP2?.Old ?? 0);
+        var newTotal = (details.Updates?.TNP1?.New ?? 0) + (details.Updates?.TNP2?.New ?? 0);
 
         await messageSession.Send(new StoreLearningHistoryCommand
         {
@@ -92,7 +88,7 @@ public class CocApprovalCommandHandler(
             Source = LearningSourceType.ApprovalAPI,
             ChangeType = LearningChangeType.AutoRejected,
             AppliedDate = currentDateTime.UtcNow,
-            Description = description
+            Description = $"Total price change from {oldTotal.ToGdsCostFormat()} to {newTotal.ToGdsCostFormat()}"
         });
     }
 

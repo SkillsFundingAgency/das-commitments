@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.UnitTests;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipApproval;
 
@@ -117,6 +118,7 @@ public class GetApprenticeshipApprovalHandlerTests
         {
             _autoFixture = new Fixture();
             _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            _autoFixture.Customizations.Add(new ModelSpecimenBuilder());
 
             ApprenticeshipId = _autoFixture.Create<long>();
 
@@ -199,6 +201,7 @@ public class GetApprenticeshipApprovalHandlerTests
 
             ApprovalFieldRequests = _autoFixture.Build<ApprovalFieldRequest>()
                 .With(afr => afr.ApprovalRequestId, ApprovalRequestId)
+                .Without(afr => afr.ApprovalRequest)
                 .CreateMany(3).ToList();
 
             ApprovalRequest = _autoFixture.Build<ApprovalRequest>()
@@ -206,6 +209,7 @@ public class GetApprenticeshipApprovalHandlerTests
                 .With(ar => ar.ApprenticeshipId, ApprenticeshipId)
                 .With(ar => ar.Status, CocApprovalResultStatus.Pending)
                 .With(ar => ar.Items, ApprovalFieldRequests)
+                .Without(ar => ar.Apprenticeship)
                 .Create();
             _db.ApprovalRequests.Add(ApprovalRequest);
 
