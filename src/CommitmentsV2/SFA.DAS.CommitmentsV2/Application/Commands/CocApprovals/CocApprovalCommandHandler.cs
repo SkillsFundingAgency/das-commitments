@@ -66,18 +66,17 @@ public class CocApprovalCommandHandler(
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 
-        await StoreAutoRejectedChangeHistory(command.CocApprovalDetails, approvalState.ApprovalRequest);
+        if (approvalState.ApprovalRequest?.Items != null &&
+            approvalState.ApprovalRequest.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))
+        {
+            await StoreAutoRejectedChangeHistory(command.CocApprovalDetails);
+        }
 
         return approvalState.ApprovalResult;
     }
 
-    private async Task StoreAutoRejectedChangeHistory(CocApprovalDetails details, ApprovalRequest approvalRequest)
+    private async Task StoreAutoRejectedChangeHistory(CocApprovalDetails details)
     {
-        if (approvalRequest?.Items == null || approvalRequest.Items.All(item => item.Status != CocApprovalItemStatus.AutoRejected))
-        {
-            return;
-        }
-
         var oldTotal = (details.Updates?.TNP1?.Old ?? 0) + (details.Updates?.TNP2?.Old ?? 0);
         var newTotal = (details.Updates?.TNP1?.New ?? 0) + (details.Updates?.TNP2?.New ?? 0);
 
