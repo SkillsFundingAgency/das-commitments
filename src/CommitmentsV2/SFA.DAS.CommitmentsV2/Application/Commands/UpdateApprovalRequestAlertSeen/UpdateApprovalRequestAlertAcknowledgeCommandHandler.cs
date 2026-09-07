@@ -43,7 +43,7 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
                     continue;
                 }
                 approvalRequest.EmployerAcknowledgedBy = request?.UserInfo?.UserId;
-                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow;
+                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow.Date;
             }
 
             await dbContext.Value.SaveChangesAsync(cancellationToken);
