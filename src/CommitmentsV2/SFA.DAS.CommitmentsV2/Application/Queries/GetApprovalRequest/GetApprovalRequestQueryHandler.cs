@@ -7,14 +7,24 @@ public class GetApprovalRequestQueryHandler(Lazy<ProviderCommitmentsDbContext> d
 {
     public async Task<GetApprovalRequestQueryResult> Handle(GetApprovalRequestQuery query, CancellationToken cancellationToken)
     {
-        var context = dbContext.Value;
+        var apprenticeship = await dbContext.Value.Apprenticeships
+           .AsNoTracking()
+           .Include(a => a.Cohort)
+           .Include(a => a.ApprovalRequests)
+           .ThenInclude(request => request.Items)
+           .SingleOrDefaultAsync(a => a.Id == query.ApprenticeshipId, cancellationToken);
 
-        var name = await context.Apprenticeships.AsNoTracking().
-                   Where(x => x.Id == query.ApprenticeshipId).
-                   Select(x => $"{x.FirstName} {x.LastName}").
-                   FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        if (apprenticeship == null)
+        {
+            return null;
+        }
 
-        var approvalRequests = await dbContext.Value.ApprovalRequests.AsNoTracking()
+        if (apprenticeship.Cohort.EmployerAccountId != query.AccountId)
+        {
+            throw new UnauthorizedAccessException($"Employer {query.AccountId} cannot access apprenticeship {query.ApprenticeshipId}");
+        }
+
+        var approvalRequests = (apprenticeship.ApprovalRequests ?? [])
             .Where(x => x.ApprenticeshipId == query.ApprenticeshipId
             && x.EmployerAcknowledgedBy == null
             && x.EmployerAcknowledgedAt == null
@@ -36,11 +46,11 @@ public class GetApprovalRequestQueryHandler(Lazy<ProviderCommitmentsDbContext> d
                 Created = x.Created
             })
             .OrderByDescending(x => x.Created).
-            ToListAsync(cancellationToken);
+            ToList();
 
         return new GetApprovalRequestQueryResult
         {
-            ApprenticeName = name,
+            ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
             ApprovalRequests = approvalRequests
         };
     }

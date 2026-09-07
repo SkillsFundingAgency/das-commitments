@@ -59,7 +59,7 @@ public static class AlertsExtensions
 
     private static bool HasAutoApprovedApprovalRequests(Apprenticeship source)
     {
-        return source.ApprovalRequests.Any(t => t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null
+        return !source.IsProviderSearch && source.ApprovalRequests != null && source.ApprovalRequests.Any(t => t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null
         && t.Items.Any(c => c.Status == CocApprovalItemStatus.AutoApproved));
     }
 

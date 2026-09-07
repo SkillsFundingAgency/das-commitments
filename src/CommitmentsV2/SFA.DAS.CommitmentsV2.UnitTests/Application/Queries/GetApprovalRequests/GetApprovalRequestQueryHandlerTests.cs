@@ -36,7 +36,7 @@ public class GetApprovalRequestQueryHandlerTests
     public async Task Handle_WithNoMatchingApprenticeshipId_ShouldReturnEmptyApprovalRequests()
     {
         var response = await _fixture.GenerateApprovalRequestsForApprenticeshipId(0).Handle();
-        response.ApprovalRequests.Should().BeEmpty();
+        response.Should().BeNull();
     }
 
     [Test]
@@ -51,6 +51,7 @@ public class GetApprovalRequestQueryHandlerTests
         public long ApprenticeshipId { get; private set; }
         public Guid ApprovalRequestId { get; private set; } = Guid.NewGuid();
         public long AccountLegalEntityId { get; private set; }
+        public long AccountId { get; private set; }
         public ApprovalRequest ApprovalRequest { get; private set; }
         public List<ApprovalFieldRequest> ApprovalFieldRequests { get; private set; }
         public Apprenticeship Apprenticeship { get; private set; }
@@ -70,7 +71,7 @@ public class GetApprovalRequestQueryHandlerTests
         {
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             SeedData();
-            Request = new GetApprovalRequestQuery() { ApprenticeshipId = ApprenticeshipId, CocApprovalItemStatus = (byte)CocApprovalItemStatus.AutoApproved };
+            Request = new GetApprovalRequestQuery() { ApprenticeshipId = ApprenticeshipId, CocApprovalItemStatus = (byte)CocApprovalItemStatus.AutoApproved, AccountId = AccountId };
 
             _handler = new GetApprovalRequestQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
         }
@@ -91,6 +92,7 @@ public class GetApprovalRequestQueryHandlerTests
                     typeof(Apprenticeship)));
 
             ApprenticeshipId = _autoFixture.Create<long>();
+            AccountId = _autoFixture.Create<long>();
 
             Provider = new Provider
             {
@@ -114,7 +116,7 @@ public class GetApprovalRequestQueryHandlerTests
             {
                 Id = _autoFixture.CreateMany<long>().Last(),
                 AccountLegalEntity = AccountLegalEntity,
-                EmployerAccountId = _autoFixture.Create<long>(),
+                EmployerAccountId = AccountId,
                 ProviderId = Provider.UkPrn,
                 Provider = Provider,
                 ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprovalRequestAlertSeen;
@@ -14,15 +15,35 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
         {
             logger.LogInformation("UpdateApprovalRequestAlertAcknowledgeCommand  called for ApprenticeshipId : {ApprenticeshipId} ", command.ApprenticeshipId);
 
-            var approvalRequests = await dbContext.Value.ApprovalRequests
-                .Where(ar => ar.ApprenticeshipId == command.ApprenticeshipId && ar.EmployerAcknowledgedBy == null && ar.EmployerAcknowledgedAt == null).ToListAsync(cancellationToken);
+            var apprenticeship = await dbContext.Value.Apprenticeships
+           .Include(a => a.Cohort)
+           .Include(a => a.ApprovalRequests)
+           .ThenInclude(request => request.Items)
+           .SingleOrDefaultAsync(a => a.Id == command.ApprenticeshipId, cancellationToken);
+
+            if (apprenticeship == null)
+            {
+                throw new UnauthorizedAccessException($"Apprenticeship {command.ApprenticeshipId} was not found");
+            }
+
+            if (apprenticeship.Cohort.EmployerAccountId != command.AccountId)
+            {
+                throw new UnauthorizedAccessException($"Employer {command.AccountId} cannot access apprenticeship {command.ApprenticeshipId}");
+            }
+
+            var approvalRequests = (apprenticeship.ApprovalRequests ?? [])
+                .Where(ar => ar.ApprenticeshipId == command.ApprenticeshipId
+                && ar.EmployerAcknowledgedBy == null && ar.EmployerAcknowledgedAt == null).ToList();
 
             foreach (var approvalRequest in approvalRequests)
             {
-                var request = command.ApprovalRequests.FirstOrDefault(ar => ar.ApprovalRequestId == approvalRequest.Id);
-
-                approvalRequest.EmployerAcknowledgedBy = request?.EmployerAcknowledgedBy;
-                approvalRequest.EmployerAcknowledgedAt = request?.EmployerAcknowledgedAt;
+                var request = command.ApprovalRequests.FirstOrDefault(ar => ar.ApprovalRequestId == approvalRequest.Id && ar.Acknowledged == true);
+                if (request == null)
+                {
+                    continue;
+                }
+                approvalRequest.EmployerAcknowledgedBy = request?.UserInfo?.UserId;
+                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow;
             }
 
             await dbContext.Value.SaveChangesAsync(cancellationToken);

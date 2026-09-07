@@ -485,6 +485,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
            ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.ApprenticeshipUpdate = null;
+            source.IsProviderSearch = false;
+            source.OverlappingTrainingDateRequests = null;
             foreach (var item in source.ApprovalRequests)
             {
                 item.EmployerAcknowledgedAt = null;

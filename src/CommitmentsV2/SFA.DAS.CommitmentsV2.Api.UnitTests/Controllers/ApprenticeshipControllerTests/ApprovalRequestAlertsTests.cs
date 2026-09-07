@@ -5,36 +5,43 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprovalRequestAlertSeen;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovalRequest;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers;
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests;
 
-public class ApprovalRequestControllerTests
+public class ApprovalRequestAlertsTests
 {
     private Mock<IMediator> _mediator;
-    private ApprovalRequestController _controller;
-    private Mock<ILogger<ApprovalRequestController>> _logger;
+    private ApprenticeshipController _controller;
+    private Mock<IModelMapper> _modelMapper;
+    private Mock<IAuthenticationService> _authenticationService;
+    private Mock<ILogger<ApprenticeshipController>> _logger;
 
     [SetUp]
     public void Init()
     {
         _mediator = new Mock<IMediator>();
-        _logger = new Mock<ILogger<ApprovalRequestController>>();
-        _controller = new ApprovalRequestController(_logger.Object, _mediator.Object);
+        _logger = new Mock<ILogger<ApprenticeshipController>>();
+        _modelMapper = new Mock<IModelMapper>();
+        _authenticationService = new Mock<IAuthenticationService>();
+        _controller = new ApprenticeshipController(_mediator.Object, _modelMapper.Object, _authenticationService.Object, _logger.Object);
     }
 
     [Test, MoqAutoData]
     public async Task GetApprovalRequest_Then_ReturnValidResponse(
         GetApprovalRequestQueryResult approvalRequestresult,
-        long apprenticeshipId)
+        long apprenticeshipId,
+        long accountId)
     {
         // Arrange
-        _mediator.Setup(m => m.Send(It.Is<GetApprovalRequestQuery>(t => t.ApprenticeshipId == apprenticeshipId), It.IsAny<CancellationToken>()))
+        _mediator.Setup(m => m.Send(It.Is<GetApprovalRequestQuery>(t => t.ApprenticeshipId == apprenticeshipId && t.AccountId == accountId), It.IsAny<CancellationToken>()))
             .ReturnsAsync(approvalRequestresult);
 
         // Act
-        var result = await _controller.GetApprovalRequestsForApprenticeship(apprenticeshipId, (byte)CocApprovalItemStatus.AutoApproved) as OkObjectResult;
+        var result = await _controller.GetApprovalRequestsForApprenticeship(apprenticeshipId, (byte)CocApprovalItemStatus.AutoApproved, accountId) as OkObjectResult;
 
         // Assert
         result.Should().NotBeNull();
@@ -46,15 +53,15 @@ public class ApprovalRequestControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task GetApprovalRequest_Then_ReturnEmptyResponse(long apprenticeshipId)
+    public async Task GetApprovalRequest_Then_ReturnEmptyResponse(long apprenticeshipId, long accountId)
     {
         {
             // Arrange
-            _mediator.Setup(m => m.Send(It.Is<GetApprovalRequestQuery>(t => t.ApprenticeshipId == apprenticeshipId), It.IsAny<CancellationToken>()))
+            _mediator.Setup(m => m.Send(It.Is<GetApprovalRequestQuery>(t => t.ApprenticeshipId == apprenticeshipId && t.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprovalRequestQueryResult() { ApprovalRequests = [] });
 
             // Act
-            var result = await _controller.GetApprovalRequestsForApprenticeship(apprenticeshipId, (byte)CocApprovalItemStatus.AutoApproved) as ObjectResult;
+            var result = await _controller.GetApprovalRequestsForApprenticeship(apprenticeshipId, (byte)CocApprovalItemStatus.AutoApproved, accountId) as ObjectResult;
             var model = result?.Value as GetApprovalRequestQueryResponse;
 
             // Assert
@@ -79,8 +86,7 @@ public class ApprovalRequestControllerTests
         _mediator.Verify(p => p.Send(It.Is<UpdateApprovalRequestAlertAcknowledgeCommand>(c =>
                    c.ApprenticeshipId == apprenticeshipId && c.ApprovalRequests.All(a => request.ApprovalRequestAlerts.Any(
                        b => b.ApprovalRequestId == a.ApprovalRequestId
-                   && a.EmployerAcknowledgedAt == b.EmployerAcknowledgedAt &&
-                   a.EmployerAcknowledgedBy == b.EmployerAcknowledgedBy))),
+                   && a.UserInfo == b.UserInfo))),
                    It.IsAny<CancellationToken>()), Times.Once);
     }
 }
