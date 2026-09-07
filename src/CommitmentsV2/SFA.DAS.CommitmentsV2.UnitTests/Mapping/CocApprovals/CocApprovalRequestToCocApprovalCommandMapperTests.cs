@@ -80,7 +80,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             command.Should().NotBeNull();
             command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Firstname));
             command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
-            command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
             command.ApprovalFieldChanges[0].Data.New.Should().Be("Bobby");
             command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
         }
