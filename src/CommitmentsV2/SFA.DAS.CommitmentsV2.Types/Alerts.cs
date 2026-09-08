@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Types
         [Description("Changes declined")]
         ChangesDeclined = 6,
 
-        [Description("Ilr changes pending")]
+        [Description("ILR changes pending")]
         IlrChangesPending = 7
     }
 }
