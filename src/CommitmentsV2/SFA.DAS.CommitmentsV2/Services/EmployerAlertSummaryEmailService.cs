@@ -62,13 +62,13 @@ public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailServic
             {
                 {
                     "total_count_text", alertSummary.TotalCount == 1
-                        ? "You have 1 item that needs your attention"
-                        : $"You have {alertSummary.TotalCount} items that need your attention"
+                        ? "You have 1 item that needs your attention:"
+                        : $"You have {alertSummary.TotalCount} items that need your attention:"
                 },
                 { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReviewCount) },
                 { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
                 { "ilrchanges_to_confirm", IlrChangesToConfirmText(alertSummary.PendingIlrChangesCount) },
-                { "link_to_mange_apprenticeships", $"<a href=\"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices\">Sign into your Apprenticeship Service Account</a>"  },
+                { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices" },
                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
             };
 
