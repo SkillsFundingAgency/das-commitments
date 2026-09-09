@@ -8,17 +8,16 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public class NotifyProviderService(IMessageSession messageSession,
     CommitmentsV2Configuration commitmentsV2Configuration,
-    ILogger<NotifyProviderService> logger):INotifyProviderService
+    ILogger<NotifyProviderService> logger) : INotifyProviderService
 {
-    public async Task NotifyProvider(long providerId, long apprenticeshipId, string providerName, string template)
+    public async Task NotifyProvider(long providerId, string apprenticeshipHashedId, string template)
     {
         var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, template,
             new Dictionary<string, string>
             {
-                {"provider_name", providerName},
                 {
                     "URL",
-                    $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{apprenticeshipId}"
+                    $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{apprenticeshipHashedId}"
                 }
             });
 

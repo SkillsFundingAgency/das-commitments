@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
@@ -11,7 +12,7 @@ public class CocApprovalRulesEngine(
     ICocApprovalStatusService cocApprovalService,
     ILogger<CocApprovalRulesEngine> logger,
     INotifyProviderService notifyProviderService,
-    Lazy<ProviderCommitmentsDbContext> dbContext) : ICocApprovalRulesEngine
+    IEncodingService encodingService) : ICocApprovalRulesEngine
 {
     private const string ProviderRequestRejectedNotificationEmailTemplate = "ProviderRequestRejectedNotification";
 
@@ -23,10 +24,9 @@ public class CocApprovalRulesEngine(
         IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(cocApprovalDetails, updateStatuses);
 
         if (updateStatuses.Any(i => i.Status == CocApprovalItemStatus.AutoRejected))
-        {
-            var providerName = await dbContext.Value.Providers.Where(p => p.UkPrn == cocApprovalDetails.ProviderId).Select(p => p.Name).FirstOrDefaultAsync();
-
-            await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, cocApprovalDetails.ApprenticeshipId, providerName, ProviderRequestRejectedNotificationEmailTemplate);
+        {         
+            var apprenticeship = encodingService.Encode(cocApprovalDetails.ApprenticeshipId, EncodingType.ApprenticeshipId);
+            await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, apprenticeship, ProviderRequestRejectedNotificationEmailTemplate);
         }
 
         return new CocApprovalState

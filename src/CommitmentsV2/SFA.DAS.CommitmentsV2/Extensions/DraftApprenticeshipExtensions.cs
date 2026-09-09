@@ -161,7 +161,7 @@ public static class DraftApprenticeshipExtensions
     {
         if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < minimumAgeAtApprenticeshipStart)
         {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {minimumAgeAtApprenticeshipStart} years old at the start of their training");
+            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The learner must be at least {minimumAgeAtApprenticeshipStart} years old at the start of their training");
             yield break;
         }
 
@@ -172,7 +172,7 @@ public static class DraftApprenticeshipExtensions
 
         if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value >= maximumAgeAtApprenticeshipStart)
         {
-            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be {maximumAgeAtApprenticeshipStart-1} years or under at the start of their training");
+            yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The learner must be {maximumAgeAtApprenticeshipStart-1} years or under at the start of their training");
             yield break;
         }
 

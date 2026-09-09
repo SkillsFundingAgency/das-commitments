@@ -254,7 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _fixture = new Fixture();
                 UnitOfWorkContext = new UnitOfWorkContext();
                 _overlapCheckService = new Mock<IOverlapCheckService>();
-                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(false, null);
+                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(false, null,false);
 
                 _overlapCheckService.Setup(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CourseDateRange>(), null, It.IsAny<CancellationToken>())).ReturnsAsync(() => _overlapCheckResultOnStartDate);
 
@@ -271,7 +271,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public ResolveOverlappingTrainingDateRequestServiceTestsFixture SetupOverlapCheckService(bool hasStartDateOverlap, long? apprneticeshipId)
             {
-                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(hasStartDateOverlap, apprneticeshipId);
+                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(hasStartDateOverlap, apprneticeshipId,false);
                 return this;
             }
 
@@ -335,6 +335,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                    .Without(s => s.ApprenticeshipConfirmationStatus)
                    .Without(s => s.OverlappingTrainingDateRequests)
                    .Without(s => s.EmployerVerificationRequest)
+                   .Without(s => s.ApprovalRequests)
                    .Create();
 
                 Db.Apprenticeships.Add(ApprenticeshipDetails);

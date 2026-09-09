@@ -15,5 +15,10 @@ public class ApprovalRequestConfiguration : IEntityTypeConfiguration<ApprovalReq
             .WithOne(x => x.ApprovalRequest)
             .HasForeignKey(x => x.ApprovalRequestId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(ar => ar.Apprenticeship)
+            .WithMany(a => a.ApprovalRequests)
+            .HasForeignKey(ar => ar.ApprenticeshipId)
+            .HasPrincipalKey(a => a.Id);
     }
 }

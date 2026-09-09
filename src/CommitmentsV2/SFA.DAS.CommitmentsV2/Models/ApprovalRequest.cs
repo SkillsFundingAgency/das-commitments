@@ -17,4 +17,5 @@ public class ApprovalRequest
     public string ULN { get; set; }
     public CocApprovalResultStatus? Status { get; set; }
     public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
+    public virtual Apprenticeship Apprenticeship { get; set; }
 }
