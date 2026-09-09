@@ -59,6 +59,11 @@ public static class AlertsExtensions
             result.Add(Alerts.ChangesDeclined);
         }
 
+        if (HasPendingIlrChanges(source))
+        {
+            result.Add(Alerts.IlrChangesPending);
+        }
+
         return result;
     }
 
@@ -70,6 +75,12 @@ public static class AlertsExtensions
     public static bool HasUnacknowledgedDeclinedChanges(this Apprenticeship source)
     {
         return HasUnacknowledgedApprovalChanges(source, CocApprovalItemStatus.EmployerRejected);
+    }
+
+    public static bool HasPendingIlrChanges(this Apprenticeship source)
+    {
+        return source.ApprovalRequests != null &&
+               source.ApprovalRequests.Any(request => request.Status == CocApprovalResultStatus.Pending);
     }
 
     public static bool IsUnacknowledgedAutoRejected(this ApprovalRequest request)

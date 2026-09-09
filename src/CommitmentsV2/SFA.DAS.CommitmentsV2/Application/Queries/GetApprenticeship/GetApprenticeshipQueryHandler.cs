@@ -1,6 +1,5 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
@@ -85,17 +84,26 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 
         result.HasChangeHistory = await db.LearningChangeHistory.AsNoTracking().AnyAsync(t => t.ApprenticeshipId == request.ApprenticeshipId, cancellationToken);
 
-        result.HasUnacknowledgedInvalidIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
-            approvalRequest.ApprenticeshipId == request.ApprenticeshipId
-            && approvalRequest.Status == Models.CocApprovalResultStatus.Complete
-            && approvalRequest.ProviderAcknowledgedAt == null
-            && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
+        result.HasUnacknowledgedInvalidIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Complete
+            && ar.ProviderAcknowledgedAt == null
+            && ar.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
 
-        result.HasUnacknowledgedDeclinedChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
-            approvalRequest.ApprenticeshipId == request.ApprenticeshipId
-            && approvalRequest.Status == Models.CocApprovalResultStatus.Complete
-            && approvalRequest.ProviderAcknowledgedAt == null
-            && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
+        result.HasUnacknowledgedDeclinedChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Complete
+            && ar.ProviderAcknowledgedAt == null
+            && ar.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
+
+        var approvalRequest = await db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Pending, cancellationToken);
+
+        if (approvalRequest != null)
+        {
+            result.PendingApprovalRequestId = approvalRequest.Id;
+        }
 
         return result;
     }   
