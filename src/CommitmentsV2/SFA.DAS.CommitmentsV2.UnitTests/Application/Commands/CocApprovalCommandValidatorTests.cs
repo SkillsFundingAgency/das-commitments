@@ -1,0 +1,455 @@
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Models;
+using System.Linq.Expressions;
+using FluentValidation.TestHelper;
+using SFA.DAS.CommitmentsV2.Types;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
+{
+    [TestFixture]
+    [Parallelizable]
+    public class CocApprovalCommandValidatorTests
+    {
+        [Test]
+        public void Validate_ApprenticeshipPasses_WhenNotNull()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        }
+                    }
+                }
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship, command, true);
+        }
+
+        [Test]
+        public void Validate_CocApprovalCommandFails_WhenNull()
+        {
+            var command = new CocApprovalCommand();
+
+            AssertValidationResult(r => r.CocApprovalDetails, command, false);
+        }
+
+        [Test]
+        public void Validate_ApprenticeshipFails_WhenNull()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    Apprenticeship = null
+                }
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails.Apprenticeship, command, false);
+        }
+
+        [Test]
+        public void Validate_ULN_ShouldBeValid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        Uln = "1234567890",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                    {
+                        new CocApprovalFieldChange
+                        {
+                            ChangeType = "TNP1",
+                            Data = new CocData
+                            {
+                                Old = "10",
+                                New = "20",
+                                EffectiveFromDate = DateTime.Today.AddDays(-1)
+                            }
+                        }
+                    }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ULN", command, true);
+        }
+
+        [Test]
+        public void Validate_ULN_ShouldBeInvalid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        Uln = "123456789",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                    {
+                        new CocApprovalFieldChange
+                        {
+                            ChangeType = "TNP1",
+                            Data = new CocData
+                            {
+                                Old = "10",
+                                New = "20",
+                                EffectiveFromDate = DateTime.Today.AddDays(-1)
+                            }
+                        }
+                    }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ULN", command, false);
+        }
+
+        [Test]
+        public void Validate_LearningType_ShouldBeValid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        Uln = "1234567890",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                    {
+                        new CocApprovalFieldChange
+                        {
+                            ChangeType = "TNP1",
+                            Data = new CocData
+                            {
+                                Old = "10",
+                                New = "20",
+                                EffectiveFromDate = DateTime.Today.AddDays(-1)
+                            }
+                        }
+                    }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.LearningType", command, true);
+        }
+
+        [Test]
+        public void Validate_LearningType_ShouldBeInvalid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        Uln = "123456789",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.FoundationApprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                    {
+                        new CocApprovalFieldChange
+                        {
+                            ChangeType = "TNP1",
+                            Data = new CocData
+                            {
+                                Old = "10",
+                                New = "20",
+                                EffectiveFromDate = DateTime.Today.AddDays(-1)
+                            }
+                        }
+                    }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.LearningType", command, false);
+        }
+
+        [Test]
+        public void Validate_ApprenticeshipId_ShouldBeValidated()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 1234
+                        }
+                    }
+                }
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails.ProviderId, command, false);
+        }
+
+        [Test]
+        public void Validate_DataWithNoEffectiveFromDate_ShouldBeValid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        }
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = null
+                        }
+                    }
+                }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, true);
+        }
+
+        [Test]
+        public void Validate_DataWithEffectiveFromDateBefore_ShouldBeInvalid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        Uln = "1234567890",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = DateTime.Today.AddDays(-1)
+                        }
+                    }
+                }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, false);
+        }
+
+        [Test]
+        public void Validate_DataWithEffectiveFromDateAfterStart_ShouldBeValid()
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = DateTime.Today,
+                        EndDate = DateTime.Today.AddMonths(10),
+                        Uln = "1234567890",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = DateTime.Today.AddDays(1)
+                        }
+                    }
+                }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, true);
+        }
+
+        [TestCase("2026-04-01", null, null, "2026-09-01", true)]
+        [TestCase("2026-04-01", null, null, "2026-03-01", false)]
+        [TestCase("2026-04-01", null, "2026-05-01", "2026-03-01", true)]
+        [TestCase("2026-04-01", null, "2026-03-29", "2026-09-01", false)]
+        [TestCase("2026-04-01", "2026-06-01", "2026-03-01", "2026-03-01", true)]
+        [TestCase("2026-04-01", "2026-06-01", null, "2026-03-01", true)]
+        [TestCase("2026-04-01", "2026-03-28", "2026-06-01", "2026-06-01", false)]
+        [TestCase("2026-04-01", "2026-03-28", null, "2026-06-01", false)]
+        public void Validate_DataWithEffectiveFromDateBeforeBestEndDate_ShouldBeHaveExpectedValidState(DateTime? effectiveFromDate, DateTime? completionDate, DateTime? stopDate, DateTime endDate, bool isValid)
+        {
+            var command = new CocApprovalCommand
+            {
+                CocApprovalDetails = new CocApprovalDetails
+                {
+                    ProviderId = 12345,
+                    ULN = "1234567890",
+                    Apprenticeship = new Apprenticeship
+                    {
+                        Cohort = new Cohort
+                        {
+                            ProviderId = 12345
+                        },
+                        StartDate = endDate.AddYears(-1),
+                        EndDate = endDate,
+                        StopDate = stopDate,
+                        CompletionDate = completionDate,
+                        Uln = "1234567890",
+                        CourseCode = "LarsCode"
+                    },
+                    Course = new Course
+                    {
+                        LarsCode = "LarsCode",
+                        LearningType = LearningType.Apprenticeship
+                    },
+                    ApprovalFieldChanges = new List<CocApprovalFieldChange>
+                {
+                    new CocApprovalFieldChange
+                    {
+                        ChangeType = "TNP1",
+                        Data = new CocData
+                        {
+                            Old = "10",
+                            New = "20",
+                            EffectiveFromDate = effectiveFromDate
+                        }
+                    }
+                }
+                }
+            };
+
+            AssertValidationPropertyHasMessage("CocApprovalDetails.ApprovalFieldChanges[0]", command, isValid);
+        }
+
+
+
+
+        private void AssertValidationResult<T>(Expression<Func<CocApprovalCommand, T>> property,
+            CocApprovalCommand command, bool isValid)
+        {
+            var validator = new CocApprovalCommandValidator();
+            var result = validator.TestValidate(command);
+
+            if (isValid)
+            {
+                result.ShouldNotHaveValidationErrorFor(property);
+            }
+            else
+            {
+                result.ShouldHaveValidationErrorFor(property);
+            }
+        }
+
+        private void AssertValidationPropertyHasMessage(string property, CocApprovalCommand command, bool isValid)
+        {
+            var validator = new CocApprovalCommandValidator();
+            var result = validator.TestValidate(command);
+
+            if (isValid)
+            {
+                result.ShouldNotHaveValidationErrorFor(property);
+            }
+            else
+            {
+                result.ShouldHaveValidationErrorFor(property);
+            }
+        }
+    }
+}
