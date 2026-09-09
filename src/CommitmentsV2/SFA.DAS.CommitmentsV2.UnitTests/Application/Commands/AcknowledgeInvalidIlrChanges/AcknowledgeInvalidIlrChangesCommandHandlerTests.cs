@@ -65,6 +65,29 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
+    [Test]
+    public async Task Handle_ThenDeleteSetsAcknowledgedAtAndByTogetherForEmployerRejected()
+    {
+        _fixture.SetItemStatus(CocApprovalItemStatus.EmployerRejected);
+
+        await _fixture.Handle(deleteAlert: true, itemStatus: CocApprovalItemStatus.EmployerRejected);
+
+        var request = _fixture.GetRequest();
+        request.ProviderAcknowledgedAt.Should().Be(_fixture.Now);
+        request.ProviderAcknowledgedBy.Should().Be("user-123");
+    }
+
+    [Test]
+    public async Task Handle_ThenDoesNotAcknowledgeEmployerRejectedWhenFilteringAutoRejected()
+    {
+        _fixture.SetItemStatus(CocApprovalItemStatus.EmployerRejected);
+
+        await _fixture.Handle(deleteAlert: true);
+
+        _fixture.GetRequest().ProviderAcknowledgedAt.Should().BeNull();
+        _fixture.GetRequest().ProviderAcknowledgedBy.Should().BeNull();
+    }
+
     private sealed class AcknowledgeInvalidIlrChangesCommandHandlerTestsFixture : IDisposable
     {
         private readonly AcknowledgeInvalidIlrChangesCommandHandler _handler;
@@ -89,13 +112,14 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
                 currentDateTime.Object);
         }
 
-        public Task Handle(bool? deleteAlert, long providerId = 333)
+        public Task Handle(bool? deleteAlert, long providerId = 333, CocApprovalItemStatus itemStatus = CocApprovalItemStatus.AutoRejected)
         {
             return _handler.Handle(new AcknowledgeInvalidIlrChangesCommand
             {
                 ApprenticeshipId = 1001,
                 ProviderId = providerId,
                 UserInfo = new UserInfo { UserId = "user-123" },
+                ItemStatus = itemStatus,
                 Acknowledgements =
                 [
                     new InvalidIlrChangeAcknowledgement
@@ -110,6 +134,13 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
         public ApprovalRequest GetRequest()
         {
             return _db.ApprovalRequests.Single(request => request.Id == _requestId);
+        }
+
+        public void SetItemStatus(CocApprovalItemStatus itemStatus)
+        {
+            var item = _db.ApprovalRequests.Single(request => request.Id == _requestId).Items.Single();
+            item.Status = itemStatus;
+            _db.SaveChanges();
         }
 
         private void SeedData()

@@ -31,7 +31,7 @@ public class AcknowledgeInvalidIlrChangesCommandHandler(
         }
 
         var unacknowledgedRequests = (apprenticeship.ApprovalRequests ?? [])
-            .Where(request => request.IsUnacknowledgedAutoRejected())
+            .Where(request => request.IsUnacknowledged(command.ItemStatus))
             .ToList();
 
         var acknowledgements = command.Acknowledgements ?? [];

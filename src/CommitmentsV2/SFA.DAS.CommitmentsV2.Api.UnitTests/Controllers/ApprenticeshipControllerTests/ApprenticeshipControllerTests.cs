@@ -19,6 +19,7 @@ using GetInvalidIlrChangesResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.G
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
@@ -429,6 +430,48 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     command.ApprenticeshipId == apprenticeshipId &&
                     command.ProviderId == request.ProviderId &&
                     command.UserInfo == request.UserInfo &&
+                    command.Acknowledgements == request.Acknowledgements),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetDeclinedChanges_ThenReturnsTheQueryResult(
+            long apprenticeshipId,
+            long providerId,
+            GetInvalidIlrChangesResponse queryResult)
+        {
+            _mediator.Setup(m => m.Send(
+                    It.Is<GetInvalidIlrChangesQuery>(query =>
+                        query.ApprenticeshipId == apprenticeshipId &&
+                        query.ProviderId == providerId &&
+                        query.ItemStatus == CocApprovalItemStatus.EmployerRejected &&
+                        query.Decision == GetInvalidIlrChangesQuery.EmployerRejectedDecision),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(queryResult);
+
+            var result = await _controller.GetDeclinedChanges(apprenticeshipId, providerId) as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result!.Value.Should().BeEquivalentTo(queryResult);
+        }
+
+        [Test, MoqAutoData]
+        public async Task AcknowledgeDeclinedChanges_ThenSendsTheAcknowledgeCommandWithEmployerRejected(
+            long apprenticeshipId,
+            AcknowledgeInvalidIlrChangesRequest request)
+        {
+            _mediator.Setup(m => m.Send(It.IsAny<AcknowledgeInvalidIlrChangesCommand>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _controller.AcknowledgeDeclinedChanges(apprenticeshipId, request);
+
+            result.Should().BeOfType<OkResult>();
+            _mediator.Verify(m => m.Send(
+                It.Is<AcknowledgeInvalidIlrChangesCommand>(command =>
+                    command.ApprenticeshipId == apprenticeshipId &&
+                    command.ProviderId == request.ProviderId &&
+                    command.UserInfo == request.UserInfo &&
+                    command.ItemStatus == CocApprovalItemStatus.EmployerRejected &&
                     command.Acknowledgements == request.Acknowledgements),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
