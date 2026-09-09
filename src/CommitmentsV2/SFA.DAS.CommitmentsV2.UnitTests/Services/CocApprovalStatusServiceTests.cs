@@ -70,7 +70,7 @@ public class CocApprovalStatusServiceTests
     }
 
     [Test]
-    public void DetermineCocUpdateStatuses_ShouldReturnAutoApproved_WhenOverallCourseCostRemainsTheSame()
+    public void DetermineCocUpdateStatuses_ShouldReturnPending_WhenOverallCourseCostRemainsTheSame()
     {
         var updates = new CocUpdates
         {
@@ -83,7 +83,7 @@ public class CocApprovalStatusServiceTests
         var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
         result.Should().HaveCount(2);
-        result.Should().OnlyContain(r => r.Status == CocApprovalItemStatus.AutoApproved);
+        result.Should().OnlyContain(r => r.Status == CocApprovalItemStatus.Pending);
     }
 
     [Test]

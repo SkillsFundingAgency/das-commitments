@@ -47,7 +47,7 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
             yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
         }
-        else if (newTotalCost <= oldTotalCost)
+        else if (newTotalCost < oldTotalCost)
         {
             if (updates.TNP1 != null)
             {
