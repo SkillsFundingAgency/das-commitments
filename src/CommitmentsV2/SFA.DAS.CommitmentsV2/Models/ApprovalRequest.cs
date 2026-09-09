@@ -16,10 +16,8 @@ public class ApprovalRequest
     public string UKPRN { get; set; }
     public string ULN { get; set; }
     public CocApprovalResultStatus? Status { get; set; }
-	public DateTime? EmployerAcknowledgedAt{ get; set; }
-	public string EmployerAcknowledgedBy { get; set; }
-    public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
-    public virtual Apprenticeship Apprenticeship { get; set; }
     public DateTime? EmployerAcknowledgedAt { get; set; }
     public string EmployerAcknowledgedBy { get; set; }
+    public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
+    public virtual Apprenticeship Apprenticeship { get; set; }
 }
