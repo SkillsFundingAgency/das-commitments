@@ -326,7 +326,7 @@ public class ApprenticeshipController(
     }
 
     [HttpGet]
-    [Route("apprenticeships/{apprenticeshipId:long}/approval-requests")]
+    [Route("{apprenticeshipId:long}/approval-requests")]
     public async Task<ActionResult> GetApprovalRequestsForApprenticeship(long apprenticeshipId, [FromQuery] byte status, [FromQuery]long accountId)
     {
         var result = await mediator.Send(new GetApprovalRequestQuery { ApprenticeshipId = apprenticeshipId, CocApprovalItemStatus = status, AccountId = accountId });
@@ -339,7 +339,7 @@ public class ApprenticeshipController(
     }
 
     [HttpPut]
-    [Route("apprenticeships/{apprenticeshipId:long}/alerts-acknowledged")]
+    [Route("{apprenticeshipId:long}/alerts-acknowledged")]
     public async Task<ActionResult> UpdateApprovalRequestAlertAcknowledge(long apprenticeshipId, [FromBody] ApprovalRequestUpdateAlertAcknowledge request)
     {
         await mediator.Send(new UpdateApprovalRequestAlertAcknowledgeCommand

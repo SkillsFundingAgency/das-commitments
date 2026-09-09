@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprovalRequestAlertSeen;
@@ -18,7 +17,6 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
             var apprenticeship = await dbContext.Value.Apprenticeships
            .Include(a => a.Cohort)
            .Include(a => a.ApprovalRequests)
-           .ThenInclude(request => request.Items)
            .SingleOrDefaultAsync(a => a.Id == command.ApprenticeshipId, cancellationToken);
 
             if (apprenticeship == null)
@@ -43,7 +41,7 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
                     continue;
                 }
                 approvalRequest.EmployerAcknowledgedBy = request?.UserInfo?.UserId;
-                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow.Date;
+                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow;
             }
 
             await dbContext.Value.SaveChangesAsync(cancellationToken);
