@@ -74,7 +74,7 @@ public class CocApprovalRulesEngineTests
     {
         var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoApproved);
         await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
-        fixture.MessageSession.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(p => p.AccountId == fixture.ApprovalDetails.Apprenticeship.Cohort.AccountLegalEntity.AccountId &&
+        fixture.MessageSession.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(p => p.AccountId == fixture.ApprovalDetails.Apprenticeship.Cohort.EmployerAccountId &&
             p.Template == "EmployerAutoApprovedNotification" &&
             p.Tokens["provider_name"] == fixture.ApprovalDetails.Apprenticeship.Cohort.Provider.Name &&
             p.Tokens["link_to_manage_apprenticeships"].Contains(fixture.CommitmentsV2Configuration.EmployerCommitmentsBaseUrl)),
