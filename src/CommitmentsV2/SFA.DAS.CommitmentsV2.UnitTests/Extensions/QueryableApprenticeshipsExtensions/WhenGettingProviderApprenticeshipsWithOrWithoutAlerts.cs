@@ -23,11 +23,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(true, _parameters).ToList();
 
             //Assert
-            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.That(result, Has.Count.EqualTo(3));
             Assert.Multiple(() =>
             {
                 Assert.That(result[0].Id, Is.EqualTo(1));
                 Assert.That(result[1].Id, Is.EqualTo(3));
+                Assert.That(result[2].Id, Is.EqualTo(9));
             });
         }
         
@@ -140,6 +141,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             Status = ApprenticeshipUpdateStatus.Pending,
                             Originator = Originator.Unknown
+                        }
+                    }
+                },
+                new Apprenticeship
+                {
+                    Id = 9,
+                    ApprovalRequests = new List<ApprovalRequest>
+                    {
+                        new ApprovalRequest
+                        {
+                            Status = CocApprovalResultStatus.Complete,
+                            ProviderAcknowledgedAt = null,
+                            Items = new List<ApprovalFieldRequest>
+                            {
+                                new ApprovalFieldRequest
+                                {
+                                    Field = "TNP1",
+                                    Status = CocApprovalItemStatus.AutoRejected
+                                }
+                            }
                         }
                     }
                 },

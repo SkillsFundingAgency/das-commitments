@@ -30,7 +30,9 @@ public class ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbCon
             .ThenInclude(cohort => cohort.AccountLegalEntity)
             .Include(apprenticeship => apprenticeship.Cohort)
             .ThenInclude(cohort => cohort.Provider)
-            .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
+            .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
+            .Include(apprenticeship => apprenticeship.ApprovalRequests)
+            .ThenInclude(request => request.Items);
 
         var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 

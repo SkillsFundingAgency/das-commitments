@@ -13,6 +13,9 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetInvalidIlrChanges;
+using SFA.DAS.CommitmentsV2.Application.Commands.AcknowledgeInvalidIlrChanges;
+using GetInvalidIlrChangesResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetInvalidIlrChangesResponse;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -376,6 +379,58 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.That(notFoundResult, Is.Not.Null);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetInvalidIlrChanges_ThenReturnsTheQueryResult(
+            long apprenticeshipId,
+            long providerId,
+            GetInvalidIlrChangesResponse queryResult)
+        {
+            _mediator.Setup(m => m.Send(
+                    It.Is<GetInvalidIlrChangesQuery>(query =>
+                        query.ApprenticeshipId == apprenticeshipId &&
+                        query.ProviderId == providerId),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(queryResult);
+
+            var result = await _controller.GetInvalidIlrChanges(apprenticeshipId, providerId) as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result!.Value.Should().BeEquivalentTo(queryResult);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetInvalidIlrChanges_ThenReturnsNotFoundWhenTheQueryReturnsNull(
+            long apprenticeshipId,
+            long providerId)
+        {
+            _mediator.Setup(m => m.Send(It.IsAny<GetInvalidIlrChangesQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetInvalidIlrChangesResponse)null);
+
+            var result = await _controller.GetInvalidIlrChanges(apprenticeshipId, providerId);
+
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test, MoqAutoData]
+        public async Task AcknowledgeInvalidIlrChanges_ThenSendsTheAcknowledgeCommand(
+            long apprenticeshipId,
+            AcknowledgeInvalidIlrChangesRequest request)
+        {
+            _mediator.Setup(m => m.Send(It.IsAny<AcknowledgeInvalidIlrChangesCommand>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _controller.AcknowledgeInvalidIlrChanges(apprenticeshipId, request);
+
+            result.Should().BeOfType<OkResult>();
+            _mediator.Verify(m => m.Send(
+                It.Is<AcknowledgeInvalidIlrChangesCommand>(command =>
+                    command.ApprenticeshipId == apprenticeshipId &&
+                    command.ProviderId == request.ProviderId &&
+                    command.UserInfo == request.UserInfo &&
+                    command.Acknowledgements == request.Acknowledgements),
+                It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

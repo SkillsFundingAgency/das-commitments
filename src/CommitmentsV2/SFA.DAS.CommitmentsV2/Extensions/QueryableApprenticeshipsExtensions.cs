@@ -171,12 +171,22 @@ public static class QueryableApprenticeshipsExtensions
                                                            apprenticeship.ApprenticeshipUpdate.Any(
                                                                c => c.Status == ApprenticeshipUpdateStatus.Pending
                                                                     && (c.Originator == Originator.Employer
-                                                                        || c.Originator == Originator.Provider)));
+                                                                        || c.Originator == Originator.Provider)) ||
+                                                           (apprenticeship.ApprovalRequests != null && apprenticeship.ApprovalRequests.Any(request =>
+                                                               request.Status == CocApprovalResultStatus.Complete
+                                                               && request.ProviderAcknowledgedAt == null
+                                                               && request.Items != null
+                                                               && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))));
         }
 
         return apprenticeships.Where(apprenticeship =>
             !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) &&
-            (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+            (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)) &&
+            (apprenticeship.ApprovalRequests == null || !apprenticeship.ApprovalRequests.Any(request =>
+                request.Status == CocApprovalResultStatus.Complete
+                && request.ProviderAcknowledgedAt == null
+                && request.Items != null
+                && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))));
     }
 
     private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
@@ -244,6 +254,9 @@ public static class QueryableApprenticeshipsExtensions
 
             case Alerts.ConfirmDates:
                 return FilterApprenticeshipByAlertForConfirmDates(apprenticeships, isProvider);
+
+            case Alerts.IlrChangeInvalid:
+                return FilterApprenticeshipByAlertForIlrChangeInvalid(apprenticeships, isProvider);
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
@@ -357,5 +370,21 @@ public static class QueryableApprenticeshipsExtensions
         return isProvider
             ? apprenticeships
             : apprenticeships.Where(a => a.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending));
+    }
+
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForIlrChangeInvalid(IQueryable<Apprenticeship> apprenticeships, bool isProvider)
+    {
+        if (!isProvider)
+        {
+            return apprenticeships.Where(_ => false);
+        }
+
+        return apprenticeships.Where(a =>
+            a.ApprovalRequests != null &&
+            a.ApprovalRequests.Any(request =>
+                request.Status == CocApprovalResultStatus.Complete
+                && request.ProviderAcknowledgedAt == null
+                && request.Items != null
+                && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected)));
     }
 }

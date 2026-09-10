@@ -127,7 +127,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
         else
         {
@@ -144,7 +146,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
 
         if (skipCount > 0)
@@ -180,7 +184,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
         else
         {
@@ -197,7 +203,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
 
         if (skipCount > 0)

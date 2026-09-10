@@ -476,5 +476,85 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             result.Alerts.Should().BeEmpty();
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_AutoRejected_Request_And_IsProviderSearch_Then_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangeInvalid });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_AutoRejected_Request_And_IsNotProviderSearch_Then_No_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Acknowledged_AutoRejected_Request_Then_No_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            var request = CreateUnacknowledgedAutoRejectedRequest();
+            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
+            source.ApprovalRequests = new List<ApprovalRequest> { request };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        private static ApprovalRequest CreateUnacknowledgedAutoRejectedRequest()
+        {
+            return new ApprovalRequest
+            {
+                Status = CocApprovalResultStatus.Complete,
+                ProviderAcknowledgedAt = null,
+                ProviderAcknowledgedBy = null,
+                Items = new List<ApprovalFieldRequest>
+                {
+                    new()
+                    {
+                        Field = "TNP1",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                }
+            };
+        }
     }
 }
