@@ -125,6 +125,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             command.Apprenticeship.Should().NotBeNull();
             command.Apprenticeship.Should().Be(_fixture.ApprenticeshipFromDb);
         }
+
+        [Test]
+        public async Task ShouldReturnNullCourse_WhenCourseNotFound()
+        {
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+            command.Course.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ShouldReturnCourse_WhenCourseFound()
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+            command.Course.Should().NotBeNull();
+            command.Course.Should().Be(_fixture.CourseFromDb);
+        }
     }
 
     public class CocApprovalRequestToCocApprovalCommandMapperTestsFixture : IDisposable
@@ -140,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
         public CocApprovalRequestToCocApprovalDetailsMapper Mapper { get; set; }
         public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
+        public Course CourseFromDb => Db.Courses.First();
 
         public CocApprovalRequestToCocApprovalCommandMapperTestsFixture()
         {
@@ -155,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
 
             Request = AutoFixture.Build<CocApprovalRequest>()
                 .With(x => x.ApprenticeshipId, ApprenticeshipId)
-                .With(x => x.LearningType, "Apprenticeship")
+                .With(x => x.LearningType, nameof(CocLearningType.Apprenticeship))
                 .With(x => x.UKPRN, ProviderId.ToString())
                 .With(x => x.ULN, ULN.ToString())
                 .With(x => x.Changes, FieldChanges)
@@ -187,6 +206,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .With(s => s.CourseCode, "LarsCode")
              .Without(s => s.Cohort)
              .Without(s => s.PriceHistory)
              .Without(s => s.ApprenticeshipUpdate)
@@ -197,6 +217,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
              .Create();
 
             Db.Apprenticeships.Add(apprenticeshipDetails);
+
+            var courseDetails = new Course()
+                .Set(c => c.LarsCode, "LarsCode")
+                .Set(c => c.LearningType, LearningType.Apprenticeship);
+
+            Db.Courses.Add(courseDetails);
             Db.SaveChanges();
 
             return this;

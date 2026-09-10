@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+namespace SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 
 public class CocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
