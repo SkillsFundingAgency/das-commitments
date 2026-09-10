@@ -62,9 +62,16 @@ public class GetDraftApprenticeshipQueryHandler(
             LastLearnerDataSync = draft.LastLearnerDataSync
         }).SingleOrDefaultAsync(cancellationToken);
 
-        if(result.CourseCode != null)
+        if (result == null)
         {
-            var course = await dbContext.Value.Courses.Where(c => c.LarsCode == result.CourseCode).SingleOrDefaultAsync(cancellationToken);
+            return null;
+        }
+
+        if (!string.IsNullOrEmpty(result.CourseCode))
+        {
+            var course = await dbContext.Value.Courses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.LarsCode == result.CourseCode, cancellationToken);
             result.LearningType = course?.LearningType;
         }
 
