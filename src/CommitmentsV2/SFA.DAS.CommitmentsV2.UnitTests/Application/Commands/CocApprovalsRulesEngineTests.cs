@@ -1,9 +1,13 @@
+using AutoFixture.Kernel;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.Encoding;
@@ -47,7 +51,6 @@ public class CocApprovalRulesEngineTests
     public async Task Handle_WhenDeterminingApprovalState_ThenShouldSetResultStatusToCompleteIfNoPending()
     {
         var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoApproved);
-
         var result = await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
 
         result.Should().NotBeNull();
@@ -64,6 +67,18 @@ public class CocApprovalRulesEngineTests
 
         result.Should().NotBeNull();
         result.ApprovalResult.Status.Should().Be(CocApprovalResultStatus.Pending);
+    }
+
+    [Test]
+    public async Task Handle_WhenApprovalStateIsAutoApproved_ThenShouldSendEmployerEmailNotification()
+    {
+        var fixture = new CocApprovalRulesEngineTestsFixture().SetCocUpdateStatuses(CocApprovalItemStatus.AutoApproved);
+        await fixture.Sut.DetermineApprovalState(fixture.ApprovalDetails);
+        fixture.MessageSession.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(p => p.AccountId == fixture.ApprovalDetails.Apprenticeship.Cohort.EmployerAccountId &&
+            p.Template == "EmployerAutoApprovedNotification" &&
+            p.Tokens["provider_name"] == fixture.ApprovalDetails.Apprenticeship.Cohort.Provider.Name &&
+            p.Tokens["link_to_manage_apprenticeships"].Contains(fixture.CommitmentsV2Configuration.EmployerCommitmentsBaseUrl)),
+            It.IsAny<SendOptions>()), Times.Once);
     }
 
     [Test]
@@ -100,12 +115,14 @@ public class CocApprovalRulesEngineTestsFixture
     public List<CocApprovalFieldChange> ApprovalFieldChanges { get; set; }
     public ProviderCommitmentsDbContext DbContext { get; set; }
     public Mock<INotifyProviderService> NotifyProviderService { get; set; }
+    public Mock<IMessageSession> MessageSession { get; set; }
+    public CommitmentsV2Configuration CommitmentsV2Configuration { get; set; }
 
     public CocApprovalRulesEngineTestsFixture()
     {
         AutoFixture = new Fixture();
         AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
-        AutoFixture.Customizations.Add(new ModelSpecimenBuilder());
+        AutoFixture.Customizations.Add(new TypeRelay(typeof(ApprenticeshipBase), typeof(Apprenticeship)));
 
         CocUpdateStatuses = new List<CocUpdateResult>
         {
@@ -146,13 +163,17 @@ public class CocApprovalRulesEngineTestsFixture
         DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
            .Options);
-
-        ApprovalDetails = AutoFixture.Build<CocApprovalDetails>().Without(c => c.Apprenticeship).With(c => c.ApprovalFieldChanges, ApprovalFieldChanges).Create();
+        var apprenticeship = AutoFixture.Create<Apprenticeship>();
+        ApprovalDetails = AutoFixture.Build<CocApprovalDetails>().With(c => c.Apprenticeship, apprenticeship).With(c => c.ApprovalFieldChanges, ApprovalFieldChanges).Create();
         CocApprovalStatusService = new Mock<ICocApprovalStatusService>();
         CocApprovalStatusService.Setup(x => x.DetermineCocUpdateStatuses(ApprovalDetails.Updates, ApprovalDetails.Apprenticeship)).Returns(CocUpdateStatuses);
 
         NotifyProviderService = new Mock<INotifyProviderService>();
-        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), NotifyProviderService.Object, new Mock<IEncodingService>().Object);
+        CommitmentsV2Configuration = AutoFixture.Create<CommitmentsV2Configuration>();
+        MessageSession = new Mock<IMessageSession>();
+        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), 
+            NotifyProviderService.Object, MessageSession.Object, CommitmentsV2Configuration,
+            new Mock<IEncodingService>().Object);
     }
 
     public CocApprovalRulesEngineTestsFixture SetCocUpdateStatuses(CocApprovalItemStatus status)
