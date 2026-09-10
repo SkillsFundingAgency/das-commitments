@@ -55,8 +55,8 @@ public class PatchApprenticeshipPaymentsCommandHandler(
                 ? apprenticeship.PaymentFreezeDate!.Value
                 : currentDate.UtcNow,
             Description = isFreeze
-                ? $"Payments paused - {command.FreezePaymentsReason!.Value.GetEnumDescription()}"
-                : "Payments resumed",
+                ? $"Payment changed from Active to Paused - {command.FreezePaymentsReason!.Value.GetEnumDescription()}"
+                : "Payment changed from Paused to Active",
             UserId = GetUserId(command.UserInfo)
         });
     }

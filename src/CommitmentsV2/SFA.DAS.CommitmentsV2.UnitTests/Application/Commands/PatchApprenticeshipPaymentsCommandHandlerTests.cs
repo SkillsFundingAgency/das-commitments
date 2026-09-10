@@ -74,7 +74,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
                 c.Source == LearningSourceType.ApprovalAPI &&
                 c.ChangeType == LearningChangeType.ManualUpdate &&
                 c.AppliedDate == _currentDateTime.Object.UtcNow.Date &&
-                c.Description == "Payments paused - Learner is on a break"),
+                c.Description == "Payment changed from Active to Paused - Learner is on a break"),
             It.IsAny<SendOptions>()), Times.Once);
     }
 
@@ -102,7 +102,7 @@ public class PatchApprenticeshipPaymentsCommandHandlerTests
                 c.Source == LearningSourceType.ApprovalAPI &&
                 c.ChangeType == LearningChangeType.ManualUpdate &&
                 c.AppliedDate == _currentDateTime.Object.UtcNow &&
-                c.Description == "Payments resumed"),
+                c.Description == "Payment changed from Paused to Active"),
             It.IsAny<SendOptions>()), Times.Once);
     }
 
