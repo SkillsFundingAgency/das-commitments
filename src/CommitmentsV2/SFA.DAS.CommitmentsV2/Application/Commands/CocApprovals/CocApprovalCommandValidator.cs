@@ -8,6 +8,7 @@ public class CocApprovalCommandValidator : AbstractValidator<CocApprovalCommand>
     {
         RuleFor(x => x.CocApprovalDetails)
             .NotNull()
+            .When(x => x.Action != AggregrationAction.CancelPrevious)
             .WithMessage("CocApprovalDetails is required.")
             .SetValidator(new CocApprovalValidator());
     }

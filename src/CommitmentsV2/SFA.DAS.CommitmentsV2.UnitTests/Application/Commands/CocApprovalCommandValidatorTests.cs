@@ -12,6 +12,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class CocApprovalCommandValidatorTests
     {
         [Test]
+        public void Validate_CocApprovalCommandPasses_WhenActionCancelPrevious()
+        {
+            var command = new CocApprovalCommand
+            {
+                Action = AggregrationAction.CancelPrevious,
+                CocApprovalDetails = null
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails, command, true);
+        }
+
+        [Test]
+        public void Validate_CocApprovalCommandFails_WhenCocApprovalDetailsNull()
+        {
+            var command = new CocApprovalCommand
+            {
+                Action = AggregrationAction.CreateNew,
+                CocApprovalDetails = null
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails, command, false);
+        }
+
+        [Test]
+        public void Validate_CocApprovalCommandPasses_WhenNoCocApprovalDetails()
+        {
+            var command = new CocApprovalCommand
+            {
+                Action = AggregrationAction.CreateNew,
+                CocApprovalDetails = new CocApprovalDetails()
+            };
+
+            AssertValidationResult(r => r.CocApprovalDetails, command, true);
+        }
+
+        [Test]
         public void Validate_ApprenticeshipPasses_WhenNotNull()
         {
             var command = new CocApprovalCommand
