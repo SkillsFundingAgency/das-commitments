@@ -9,12 +9,14 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprovalRequestAlertSeen;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovalRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprovedApprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -321,5 +323,39 @@ public class ApprenticeshipController(
         var result = await mediator.Send(query);
 
         return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("{apprenticeshipId:long}/approval-requests")]
+    public async Task<ActionResult> GetApprovalRequestsForApprenticeship(long apprenticeshipId, [FromQuery] byte status, [FromQuery]long accountId)
+    {
+        var result = await mediator.Send(new GetApprovalRequestQuery { ApprenticeshipId = apprenticeshipId, CocApprovalItemStatus = status, AccountId = accountId });
+        if (result == null)
+        {
+            return NotFound();
+        }
+        logger.LogInformation("GetApprovalRequestsForApprenticeship completed for apprenticeship {ApprenticeshipId}", apprenticeshipId);
+        return Ok(new GetApprovalRequestQueryResponse() { ApprovalRequests = result.ApprovalRequests, ApprenticeName = result.ApprenticeName });
+    }
+
+    [HttpPut]
+    [Route("{apprenticeshipId:long}/alerts-acknowledged")]
+    public async Task<ActionResult> UpdateApprovalRequestAlertAcknowledge(long apprenticeshipId, [FromBody] ApprovalRequestUpdateAlertAcknowledge request)
+    {
+        await mediator.Send(new UpdateApprovalRequestAlertAcknowledgeCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            AccountId = request.AccountId,
+            ApprovalRequests = request.ApprovalRequestAlerts.Select(
+            r => new UpdateApprovalRequestAlertAcknowledge()
+            {
+                
+                ApprovalRequestId = r.ApprovalRequestId,
+                 Acknowledged = r.Acknowledged,
+                 UserInfo = r.UserInfo
+            }).ToList()
+        });
+        logger.LogInformation("UpdateApprovalRequestAlertAcknowledge completed for apprenticeship {ApprenticeshipId}", apprenticeshipId);
+        return Ok();
     }
 }

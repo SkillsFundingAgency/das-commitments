@@ -22,7 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} },
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 },
                 new Apprenticeship
                 {
@@ -36,7 +37,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} },
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 },
                 new Apprenticeship
                 {
@@ -50,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} },
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 },
                 new Apprenticeship
                 {
@@ -62,7 +65,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EndDate = DateTime.UtcNow.AddMonths(12),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 },
                 new Apprenticeship
                 {
@@ -74,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EndDate = DateTime.UtcNow.AddMonths(12),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 },
                 new Apprenticeship
                 {
@@ -85,7 +90,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprovalRequests = new List<ApprovalRequest>(),
                 }
             };
 

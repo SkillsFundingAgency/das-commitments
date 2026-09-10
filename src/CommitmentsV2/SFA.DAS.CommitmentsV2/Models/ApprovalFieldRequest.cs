@@ -3,7 +3,7 @@
 public class ApprovalFieldRequest
 {
     public Guid Id { get; set; }
-    public DateTime Created { get; }
+    public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
     public string Field { get; set; }
     public string Old { get; set; }

@@ -19,6 +19,9 @@ namespace SFA.DAS.CommitmentsV2.Types
         ChangesForReview = 3,
 
         [Description("Confirm dates")]
-        ConfirmDates = 4
+        ConfirmDates = 4,
+
+        [Description("View changes")]
+        ViewChanges = 7
     }
 }
