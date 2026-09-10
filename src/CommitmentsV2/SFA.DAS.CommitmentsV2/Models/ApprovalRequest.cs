@@ -19,6 +19,8 @@ public class ApprovalRequest
     public CocApprovalResultStatus? Status { get; set; }
     public DateTime? ProviderAcknowledgedAt { get; set; }
     public string ProviderAcknowledgedBy { get; set; }
+    public DateTime? EmployerAcknowledgedAt { get; set; }
+    public string EmployerAcknowledgedBy { get; set; }
     public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
     public virtual Apprenticeship Apprenticeship { get; set; }
 

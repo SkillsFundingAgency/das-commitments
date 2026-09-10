@@ -11,6 +11,7 @@ public class ApprovalRequestConfiguration : IEntityTypeConfiguration<ApprovalReq
             .HasKey("Id");
         builder.Property(e => e.Created).HasDefaultValueSql("(getdate())");
         builder.Property(e => e.ProviderAcknowledgedBy).HasMaxLength(255);
+        builder.Property(e => e.EmployerAcknowledgedBy).HasMaxLength(255);
 
         builder.HasMany(d => d.Items)
             .WithOne(x => x.ApprovalRequest)

@@ -12,6 +12,8 @@
     [Reason] NVARCHAR(250) NULL,
     [ProviderAcknowledgedAt] DATETIME2 NULL,
     [ProviderAcknowledgedBy] NVARCHAR(255) NULL,
+	[EmployerAcknowledgedAt] DATETIME2 NULL,
+	[EmployerAcknowledgedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_ApprovalRequest] PRIMARY KEY CLUSTERED ([Id] ASC),
 )
 GO
