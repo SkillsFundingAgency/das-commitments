@@ -204,6 +204,7 @@ public class GetApprenticeshipApprovalHandlerTests
 
             ApprovalFieldRequests = _autoFixture.Build<ApprovalFieldRequest>()
                 .With(afr => afr.ApprovalRequestId, ApprovalRequestId)
+                .Without(afr => afr.ApprovalRequest)
                 .CreateMany(3).ToList();
 
             ApprovalRequest = _autoFixture.Build<ApprovalRequest>()
@@ -211,7 +212,7 @@ public class GetApprenticeshipApprovalHandlerTests
                 .With(ar => ar.ApprenticeshipId, ApprenticeshipId)
                 .With(ar => ar.Status, CocApprovalResultStatus.Pending)
                 .With(ar => ar.Items, ApprovalFieldRequests)
-                .Without(ar=>ar.Apprenticeship)
+                .Without(ar => ar.Apprenticeship)
                 .Create();
             _db.ApprovalRequests.Add(ApprovalRequest);
 
