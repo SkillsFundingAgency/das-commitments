@@ -40,6 +40,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             result.LearningType.Should().Be(learningType);
         }
 
+        [Test]
+        public async Task Handle_WhenApprenticeshipDoesNotExist_ThenShouldReturnNull()
+        {
+            var result = await _fixture.HandleMissingApprenticeship();
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Handle_WhenCourseCodeIsEmpty_ThenShouldDefaultLearningTypeToApprenticeship()
+        {
+            await _fixture.ClearCourseCode();
+
+            var result = await _fixture.Handle();
+
+            result.Should().NotBeNull();
+            result.LearningType.Should().Be(LearningType.Apprenticeship);
+        }
+
         private class GetApprenticeshipHandlerTestsFixture : IDisposable
         {
             private Fixture _autoFixture;
@@ -207,10 +226,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             }
 
 
+            public async Task ClearCourseCode()
+            {
+                Apprenticeship.CourseCode = string.Empty;
+                _db.Apprenticeships.Update(Apprenticeship);
+                await _db.SaveChangesAsync();
+            }
+
             public async Task<GetApprenticeshipQueryResult> Handle()
             {
                 _result = await _handler.Handle(_query, new CancellationToken());
                 return _result;
+            }
+
+            public async Task<GetApprenticeshipQueryResult> HandleMissingApprenticeship()
+            {
+                var query = new GetApprenticeshipQuery(ApprenticeshipId + 1);
+                return await _handler.Handle(query, new CancellationToken());
             }
 
             public void VerifyResultMapping()
