@@ -10,16 +10,22 @@ public class NotifyProviderService(IMessageSession messageSession,
     CommitmentsV2Configuration commitmentsV2Configuration,
     ILogger<NotifyProviderService> logger) : INotifyProviderService
 {
-    public async Task NotifyProvider(long providerId, string apprenticeshipHashedId, string template)
+    public async Task NotifyProvider(long providerId, string apprenticeshipHashedId, string template, string employerName = null)
     {
-        var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, template,
-            new Dictionary<string, string>
+        var tokens = new Dictionary<string, string>
             {
                 {
-                    "URL",
+                    "url",
                     $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{apprenticeshipHashedId}"
                 }
-            });
+            };
+
+        if (employerName is not null)
+        {
+            tokens.Add("employer", employerName);
+        }
+
+        var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, template,tokens);
 
         logger.LogInformation("Sending {Template} email to provider: {ProviderId}", template, providerId);
         await messageSession.Send(sendEmailToProviderCommand);

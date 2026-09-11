@@ -2,17 +2,20 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using UserInfo = SFA.DAS.CommitmentsV2.Types.UserInfo;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 
 public class ProcessApprenticeshipApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
-     IMessageSession messageSession)
+     IMessageSession messageSession, INotifyProviderService notifyProviderService,
+     IEncodingService encodingService)
     : IRequestHandler<ProcessApprenticeshipApprovalCommand>
 {
     public async Task Handle(ProcessApprenticeshipApprovalCommand command, CancellationToken cancellationToken)
@@ -34,12 +37,12 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
         }
 
-        if(TotalPriceExceedsLimit(approval))
+        if (TotalPriceExceedsLimit(approval))
         {
             throw new DomainException("ApproveChanges", "The total cost must be £100,000 or less");
         }
 
-        if(command.ApplyChanges)
+        if (command.ApplyChanges)
         {
             approval.Status = CocApprovalResultStatus.Complete;
             foreach (var item in approval.Items)
@@ -72,15 +75,38 @@ public class ProcessApprenticeshipApprovalCommandHandler(
                 Changes = ConvertItemsToChangeDictionary(approval.Items)
             };
             await messageSession.Publish(rejected);
+
+            await NotifyProviderAboutRejection(db, approval, cancellationToken);
         }
 
         await RecordCocUpdatesInLearnerHistory(approval, command.UserInfo, command.ApplyChanges);
     }
 
+    private async Task NotifyProviderAboutRejection(ProviderCommitmentsDbContext db, ApprovalRequest approval, CancellationToken cancellationToken)
+    {
+        var details = await db.Apprenticeships.Where(x => x.Id == approval.ApprenticeshipId)
+            .Include(x => x.Cohort)
+            .Select(x => new { x.Cohort.ProviderId, x.Cohort.AccountLegalEntity.Name })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (details == null)
+        {
+            throw new Exception($"Apprenticeship {approval.ApprenticeshipId} not found");
+        }
+
+        if (details.ProviderId <= 0 || details.Name is null)
+        {
+            throw new Exception($"Cohort details for apprenticeship {approval.ApprenticeshipId} not found");
+        }
+
+        var apprencticeshipIdEncoded = encodingService.Encode(approval.ApprenticeshipId, EncodingType.ApprenticeshipId);
+
+        await notifyProviderService.NotifyProvider(details.ProviderId, apprencticeshipIdEncoded, "ProviderLearningChangeRejectedNotification", details.Name);
+    }
+
     private async Task RecordCocUpdatesInLearnerHistory(ApprovalRequest approval, UserInfo userInfo, bool applyChanges)
     {
-
-        if(approval.Items != null && approval.Items.Any(x=>x.Field == "TNP1" || x.Field == "TNP2"))
+        if (approval.Items != null && approval.Items.Any(x => x.Field == "TNP1" || x.Field == "TNP2"))
         {
             var totalOldValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
             var totalNewValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
@@ -99,7 +125,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private bool TotalPriceExceedsLimit(ApprovalRequest approval)
     {
-        if(approval.Items == null)
+        if (approval.Items == null)
             return false;
         return SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
     }
