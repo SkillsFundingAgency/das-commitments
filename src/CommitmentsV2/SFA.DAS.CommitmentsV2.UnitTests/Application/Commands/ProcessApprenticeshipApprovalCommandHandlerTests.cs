@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -28,7 +29,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
     {
         _fixture.ApprovalRequest = null;
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<Exception>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found");
     }
 
     [Test]
@@ -37,7 +38,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.ApprovalRequest.ApprenticeshipId = _fixture.Command.ApprenticeshipId + 1;
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<Exception>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found for apprenticeship {_fixture.Command.ApprenticeshipId}");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found for apprenticeship {_fixture.Command.ApprenticeshipId}");
     }
 
     [Test]
@@ -47,7 +48,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.ApprovalRequest.Status = CocApprovalResultStatus.Cancelled;
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<Exception>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} is no longer pending. It's status is {_fixture.ApprovalRequest.Status}");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} is no longer pending. It's status is {_fixture.ApprovalRequest.Status}");
     }
 
     [Test]
@@ -87,6 +88,12 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
         request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
         request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+
+        _fixture.NotifyProviderService.Verify(x => x.NotifyProvider(
+           _fixture.ApprovalRequest.Apprenticeship.Cohort.ProviderId,
+           It.Is<string>(t => t == "encoded-apprenticeship-id"),
+           It.Is<string>(t => t == "ProviderLearningChangeApprovedNotification"),
+           It.Is<string>(t => t == _fixture.AccountLegalEntity.Name)), Times.Once);
     }
 
     [Test]
@@ -108,7 +115,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             _fixture.ApprovalRequest.Apprenticeship.Cohort.ProviderId,
             It.Is<string>(t => t == "encoded-apprenticeship-id"),
             It.Is<string>(t => t == "ProviderLearningChangeRejectedNotification"),
-            It.Is<string>(t=> t== _fixture.AccountLegalEntity.Name)), Times.Once);
+            It.Is<string>(t => t == _fixture.AccountLegalEntity.Name)), Times.Once);
     }
 
     [Test]
@@ -151,7 +158,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         public Mock<IMessageSession> MessageSession;
         public AccountLegalEntity AccountLegalEntity;
         public Mock<INotifyProviderService> NotifyProviderService;
-        public Mock<IEncodingService> EncodingService; 
+        public Mock<IEncodingService> EncodingService;
 
 
         public Apprenticeship Apprenticeship;
