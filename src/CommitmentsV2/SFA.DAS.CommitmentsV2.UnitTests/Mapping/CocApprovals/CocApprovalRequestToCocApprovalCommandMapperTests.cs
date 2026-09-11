@@ -67,6 +67,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         }
 
         [Test]
+        public async Task ShouldMapChangesData_WhenFirstnameValuesAreValid()
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange("Firstname", "Bob", "Bobby");
+
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+
+            // Assert
+            command.Should().NotBeNull();
+            command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Firstname));
+            command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
+            command.ApprovalFieldChanges[0].Data.New.Should().Be("Bobby");
+            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+        }
+
+        [TestCase ("", "John")]
+        [TestCase("John", "")]
+        [TestCase("", "")]
+        [TestCase("", null)]
+        [TestCase(null, "")]
+        [TestCase(null, "John")]
+        [TestCase("John", null)]
+        [TestCase(null, null)]
+        public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrEmpty(string oldValue, string newValue)
+        {
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange("Firstname", oldValue, newValue);
+
+            var command = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+            await command.Should().ThrowAsync<DomainException>();
+        }
+
+        [Test]
         public async Task ShouldThrowException_WhenOldValuesAreNotValid()
         {
             // Arrange
