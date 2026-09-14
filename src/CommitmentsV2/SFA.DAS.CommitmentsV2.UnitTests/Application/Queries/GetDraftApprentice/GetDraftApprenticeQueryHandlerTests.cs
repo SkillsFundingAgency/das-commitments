@@ -90,6 +90,17 @@ public class GetDraftApprenticeHandlerTests
         result.EmploymentEndDate.Should().Be(fixture.FlexibleEmployment.EmploymentEndDate);
         result.EmploymentPrice.Should().Be(fixture.FlexibleEmployment.EmploymentPrice);
     }
+
+    [Test]
+    public async Task Handle_WhenDraftApprenticeshipDoesNotExist_ThenShouldReturnNull()
+    {
+        var fixture = new GetDraftApprenticeHandlerTestFixtures()
+            .SetRequestingParty(Party.Employer);
+
+        var result = await fixture.Handle();
+
+        result.Should().BeNull();
+    }
 }
 
 public class GetDraftApprenticeHandlerTestFixtures
