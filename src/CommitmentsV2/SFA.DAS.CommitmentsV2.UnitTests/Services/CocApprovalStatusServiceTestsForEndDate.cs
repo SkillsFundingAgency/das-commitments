@@ -1,11 +1,9 @@
-﻿using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -60,7 +58,6 @@ public class CocApprovalStatusServiceTestsForEndDate
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
-
 
     [Test]
     public async Task DetermineCocUpdateStatusesForEndDate_ShouldLogInformation_WhenPlannedEndDateOldValueIsNotEqualCurrentValue()
@@ -247,6 +244,4 @@ public class CocApprovalStatusServiceTestsForEndDate
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
     }
-
-
 }
