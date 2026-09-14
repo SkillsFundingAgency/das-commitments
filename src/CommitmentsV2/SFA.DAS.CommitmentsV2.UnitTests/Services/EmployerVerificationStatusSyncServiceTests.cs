@@ -303,6 +303,45 @@ public class EmployerVerificationStatusSyncServiceTests
     }
 
     [Test]
+    public async Task SyncPendingEmploymentChecksAsync_WhenPendingEmployedUnknownAndUpdatedOverOneDayAgo_AppliesCompletedCheck()
+    {
+        const long apprenticeshipId = 278543;
+        var dateOfCheck = new DateTime(2026, 9, 10, 0, 0, 0, DateTimeKind.Utc);
+        _db.EmployerVerificationRequests.Add(new EmployerVerificationRequest
+        {
+            ApprenticeshipId = apprenticeshipId,
+            Created = DateTime.UtcNow.AddDays(-5),
+            Updated = DateTime.UtcNow.AddDays(-3),
+            Employed = null,
+            Status = EmployerVerificationRequestStatus.Pending
+        });
+        _db.SaveChanges();
+
+        _apiClient
+            .Setup(x => x.Get<GetEmploymentChecksResponse>(It.IsAny<GetEmploymentChecksRequest>()))
+            .ReturnsAsync(new GetEmploymentChecksResponse
+            {
+                Checks =
+                [
+                    new EvsCheckResponse
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        DateOfCheck = dateOfCheck,
+                        Result = new EvsCheckResult { CompletionStatus = 2, Employed = true }
+                    }
+                ]
+            });
+
+        await _sut.SyncPendingEmploymentChecksAsync();
+
+        var request = await _db.EmployerVerificationRequests.FindAsync(apprenticeshipId);
+        request!.Status.Should().Be(EmployerVerificationRequestStatus.Passed);
+        request.Employed.Should().BeTrue();
+        request.LastCheckedDate.Should().Be(dateOfCheck);
+        request.Updated.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Test]
     public async Task SyncPendingEmploymentChecksAsync_WhenPendingInsideFiveMonthWindowAndUpdatedYesterday_IsSelected()
     {
         const long apprenticeshipId = 231;

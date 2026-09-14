@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Types;
@@ -29,12 +30,7 @@ public class EmployerVerificationStatusSyncService(
 
         for (var batch = 0; batch < MaxDbBatchesPerRun; batch++)
         {
-            var idsToSync = await dbContext.EmployerVerificationRequests
-                .Where(x => x.Created >= fiveMonthsAgo
-                    && (
-                        (x.Updated == null && x.Created <= oneDayAgo)
-                        || (x.Updated != null && x.Updated <= oneDayAgo && x.Employed != true)
-                    ))
+            var idsToSync = await EligibleForSync(dbContext, oneDayAgo, fiveMonthsAgo)
                 .OrderBy(x => x.ApprenticeshipId)
                 .Take(DbBatchSize)
                 .Select(x => x.ApprenticeshipId)
@@ -91,18 +87,25 @@ public class EmployerVerificationStatusSyncService(
 
         if (batchesProcessed == MaxDbBatchesPerRun)
         {
-            var remaining = await dbContext.EmployerVerificationRequests
-                .CountAsync(x => x.Created >= fiveMonthsAgo
-                    && (
-                        (x.Updated == null && x.Created <= oneDayAgo)
-                        || (x.Updated != null && x.Updated <= oneDayAgo && x.Employed != true)
-                    ));
+            var remaining = await EligibleForSync(dbContext, oneDayAgo, fiveMonthsAgo).CountAsync();
             if (remaining > 0)
             {
                 logger.LogWarning("EmployerVerificationStatusSyncService: {Remaining} eligible records were not processed this run and will be retried on the next schedule so daily 5-month checks are not dropped", remaining);
             }
         }
     }
+
+    // SQL treats `Employed != true` as unknown when Employed is null, so those rows would never recheck.
+    private static IQueryable<EmployerVerificationRequest> EligibleForSync(
+        ProviderCommitmentsDbContext dbContext,
+        DateTime oneDayAgo,
+        DateTime fiveMonthsAgo) =>
+        dbContext.EmployerVerificationRequests.Where(x =>
+            x.Created >= fiveMonthsAgo
+            && (
+                (x.Updated == null && x.Created <= oneDayAgo)
+                || (x.Updated != null && x.Updated <= oneDayAgo && (x.Employed == null || x.Employed == false))
+            ));
 
     private static EmployerVerificationRequestStatus MapStatus(EvsCheckResponse check)
     {
