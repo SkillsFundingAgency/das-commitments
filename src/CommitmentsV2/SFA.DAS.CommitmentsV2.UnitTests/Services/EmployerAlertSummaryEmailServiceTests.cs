@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 learner with changes for review" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 learner request to review" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -193,7 +193,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "* 1 learner with changes from ILR to confirm" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1000/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -296,7 +296,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 learner with changes for review" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -310,7 +310,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 1 learner with changes for review" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1002/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1002/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1002" }
                             }
                         },
@@ -324,7 +324,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 learner request to review" },
                                 { "ilrchanges_to_confirm", "* 2 learners with changes from ILR to confirm" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -338,7 +338,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 learner request to review" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1004/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1004/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1004" }
                             }
                         },
@@ -352,7 +352,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 learner request to review" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         },
@@ -366,7 +366,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 learner requests to review" },
                                 { "ilrchanges_to_confirm", "* 2 learners with changes from ILR to confirm" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         },
@@ -380,7 +380,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "* 2 learners with changes for review" },
                                 { "requested_changes", "* 1 learner request to review" },
                                 { "ilrchanges_to_confirm", "* 1 learner with changes from ILR to confirm" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1007/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1007/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1007" }
                             }
                         }
@@ -422,7 +422,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", "* 2 learner requests to review" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1006/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         }
@@ -484,7 +484,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 2 learners with changes for review" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -498,7 +498,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "* 2 learners with changes for review" },
                                 { "requested_changes", "" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1003/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -512,7 +512,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", "" },
                                 { "requested_changes", "* 2 learner requests to review" },
                                 { "ilrchanges_to_confirm", "" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1005/apprentices"  },
                                 { "link_to_unsubscribe", "/settings/notifications/unsubscribe/HSH1005" }
                             }
                         }
@@ -554,7 +554,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "changes_for_review", $"* 4 learners with changes for review" },
                                 { "requested_changes", $"* 2 learner requests to review" },
                                 { "ilrchanges_to_confirm", "* 1 learner with changes from ILR to confirm" },
-                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
+                                { "link_to_manage_apprenticeships", $"{EmployerCommitmentsBaseUrl}/HSH1001/apprentices"  },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         }

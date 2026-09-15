@@ -68,7 +68,7 @@ public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailServic
                 { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReviewCount) },
                 { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
                 { "ilrchanges_to_confirm", IlrChangesToConfirmText(alertSummary.PendingIlrChangesCount) },
-                { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices" },
+                { "link_to_manage_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices" },
                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
             };
 
