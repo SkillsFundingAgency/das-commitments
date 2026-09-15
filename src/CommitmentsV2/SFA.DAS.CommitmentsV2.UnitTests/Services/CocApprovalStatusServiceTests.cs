@@ -30,8 +30,7 @@ public class CocApprovalStatusServiceTests
 
         Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
 
-        act.Should().Throw<ArgumentNullException>()
-            .WithParameterName("Updates");
+        act.Should().Throw<ArgumentNullException>().WithParameterName("Updates");
     }
 
     [Test]
@@ -45,8 +44,7 @@ public class CocApprovalStatusServiceTests
 
         Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
 
-        act.Should().Throw<ArgumentNullException>()
-            .WithParameterName("Apprenticeship");
+        act.Should().Throw<ArgumentNullException>().WithParameterName("Apprenticeship");
     }
 
     [Test]
@@ -161,13 +159,11 @@ public class CocApprovalStatusServiceTests
             },
             Apprenticeship = new Apprenticeship
             {
-                Cost = 100
+                Cost = 202
             }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 202 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -179,15 +175,20 @@ public class CocApprovalStatusServiceTests
     [Test]
     public void DetermineCocUpdateStatuses_ShouldReturnPending_WhenCostDecreases()
     {
-        var updates = new CocUpdates
+        var approvalDetails = new CocApprovalDetails
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 95 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 100 }
+            Updates = new CocUpdates
+            {
+                TNP1 = new CocUpdate<int> { Old = 100, New = 95 },
+                TNP2 = new CocUpdate<int> { Old = 102, New = 100 }
+            },
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 202
+            }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 202 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -237,13 +238,10 @@ public class CocApprovalStatusServiceTests
             },
             Apprenticeship = new Apprenticeship
             {
-                Cost = 100
+                Cost = 202
             }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 202 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
         var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
@@ -263,13 +261,10 @@ public class CocApprovalStatusServiceTests
             },
             Apprenticeship = new Apprenticeship
             {
-                Cost = 100
+                Cost = 202
             }
         };
 
-        var apprenticeship = new Apprenticeship { Cost = 202 };
-
-        var result = _service.DetermineCocUpdateStatuses(updates, apprenticeship);
         var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
