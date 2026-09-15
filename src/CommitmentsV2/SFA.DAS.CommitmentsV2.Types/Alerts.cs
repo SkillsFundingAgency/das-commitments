@@ -22,6 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         ConfirmDates = 4,
 
         [Description("View changes")]
-        ViewChanges = 7
+        ViewChanges = 8
     }
 }
