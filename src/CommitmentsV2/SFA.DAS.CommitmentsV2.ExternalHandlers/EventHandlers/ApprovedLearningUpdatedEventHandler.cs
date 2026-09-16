@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
 
@@ -44,6 +46,11 @@ public class ApprovedLearningUpdatedEventHandler(
             {
                 ApplyChange(message, apprentice, change);
             }
+            await db.SaveChangesAsync();
+
+            var @event = await CreateApprenticeshipUpdatedApprovedEvent(message.ApprenticeshipId);
+            logger.LogInformation("Publishing ApprenticeshipUpdatedApprovedEvent");
+            await context.Publish(@event);
 
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
         }
@@ -52,6 +59,43 @@ public class ApprovedLearningUpdatedEventHandler(
             logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
+    }
+
+    private async Task<ApprenticeshipUpdatedApprovedEvent> CreateApprenticeshipUpdatedApprovedEvent(long apprenticeshipId)
+    {
+        logger.LogInformation("Refetching Apprenticeship {id} so we can send ApprenticeshipUpdatedApprovedEvent", apprenticeshipId);
+
+        var apprenticeship = await dbContext.Value.Apprenticeships
+                .Include(a => a.PriceHistory)
+                .Include(b => b.FlexibleEmployment)
+            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId);
+        var course = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == apprenticeship.CourseCode);
+
+        return new ApprenticeshipUpdatedApprovedEvent
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            StandardUId = apprenticeship.StandardUId,
+            TrainingCourseVersion = apprenticeship.TrainingCourseVersion,
+            TrainingCourseOption = apprenticeship.TrainingCourseOption,
+            ApprovedOn = DateTime.UtcNow,
+            Uln = apprenticeship.Uln,
+            StartDate = apprenticeship.StartDate ?? DateTime.MinValue,
+            EndDate = apprenticeship.EndDate ?? DateTime.MinValue,
+            PriceEpisodes = apprenticeship.PriceHistory.Select(ph => new PriceEpisode
+            {
+                FromDate = ph.FromDate,
+                ToDate = ph.ToDate,
+                Cost = ph.Cost,
+                TrainingPrice = ph.TrainingPrice,
+                EndPointAssessmentPrice = ph.AssessmentPrice
+            }).ToArray(),
+            TrainingType = (ProgrammeType)apprenticeship.ProgrammeType,
+            TrainingCode = apprenticeship.CourseCode,
+            DeliveryModel = apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
+            LearningType = (Common.Domain.Types.LearningType)(course?.LearningType ?? LearningType.Apprenticeship),
+            EmploymentEndDate = apprenticeship.FlexibleEmployment?.EmploymentEndDate,
+            EmploymentPrice = apprenticeship.FlexibleEmployment?.EmploymentPrice
+        };
     }
 
     private void ApplyChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
