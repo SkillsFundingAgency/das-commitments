@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -19,6 +20,8 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
         _overlapCheckServiceMock = new Mock<IOverlapCheckService>();
+        _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OverlapCheckResult(false, false));
 
         _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _loggerMock.Object);
     }
@@ -136,7 +139,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = new DateTime(2017, 5, 16) }
+            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = CommitmentsV2.Domain.Constants.DasStartDate.AddMonths(-1) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -222,7 +225,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenUlnOverlapOccurs()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenNoErrors()
     {
         var updates = new CocUpdates
         {

@@ -108,6 +108,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             await act.Should().ThrowAsync<DomainException>();
         }
 
+        [TestCase("PlannedEndDate", "2023-09-01", "202-09-01")]
+        [TestCase("PlannedEndDate", "-09-01", "2020-09-01")]
+        [TestCase("PlannedEndDate", "XC-09-01", "XXXX-01")]
+        public async Task ShouldThrowException_WhenValuesAreNotValidDates(string field, string oldValue, string newValue)
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange(field, oldValue, newValue);
+
+            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+            await act.Should().ThrowAsync<DomainException>();
+        }
+
+        [Test]
+        public async Task ShouldMapPlannedEndDateChangesData_WhenValuesAreValid()
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange("PlannedEndDate", "2026-07-01", "2026-08-01");
+
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+
+            // Assert
+            command.Should().NotBeNull();
+            command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 07, 01));
+            command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 08, 01));
+            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+        }
+
         [Test]
         public async Task ShouldReturnNullApprenticeship_WhenApprenticeshipNotFound()
         {

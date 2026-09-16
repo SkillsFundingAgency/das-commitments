@@ -62,13 +62,13 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
                 logger.LogWarning("Old planned end date from changes does not match apprenticeship end date");
             }
 
-            var newPlannedEndDate = updates.PlannedEndDate.New.Value;
+            var newPlannedEndDate = CreateDateAsFirstOfMonth(updates.PlannedEndDate.New.Value);
 
             if (apprenticeship.PaymentStatus == Types.PaymentStatus.Completed && apprenticeship.CompletionDate.HasValue && newPlannedEndDate > apprenticeship.CompletionDate)
             {
                 yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a completed record" };
             }
-            else if (newPlannedEndDate < new DateTime(2017, 5, 17))
+            else if (newPlannedEndDate < Constants.DasStartDate)
             {
                 yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date must not be earlier than May 2017" };
             }
@@ -89,6 +89,11 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
                 yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Pending };
             }
         }
+    }
+
+    private DateTime CreateDateAsFirstOfMonth(DateTime value)
+    {
+        return new DateTime(value.Year, value.Month, 1);
     }
 
     private async Task<bool> CheckForUlnOverlaps(DateTime newPlannedEndDate, Apprenticeship apprenticeship)
