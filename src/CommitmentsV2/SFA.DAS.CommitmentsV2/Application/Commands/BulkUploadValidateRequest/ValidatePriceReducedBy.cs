@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Domain;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
@@ -10,6 +11,12 @@ public partial class BulkUploadValidateCommandHandler
         if (!string.IsNullOrWhiteSpace(csvRecord.PriceReducedByAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
             yield return new Error("PriceReducedBy", "The <b>price this apprenticeship has been reduced by</b> due to prior learning should not be entered when recognise prior learning is false");
+            yield break;
+        }
+
+        if (IsRplRequired(csvRecord) && string.IsNullOrWhiteSpace(csvRecord.PriceReducedByAsString))
+        {
+            yield return new Error("PriceReducedBy", "Enter the total <b>price reduction</b> due to RPL");
             yield break;
         }
 

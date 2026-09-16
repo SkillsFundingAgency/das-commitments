@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Domain;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
@@ -9,7 +10,13 @@ public partial class BulkUploadValidateCommandHandler
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
-            yield return new Error("TrainingTotalHours", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
+            yield return new Error("TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
+            yield break;
+        }
+
+        if (IsRplRequired(csvRecord) && string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString))
+        {
+            yield return new Error("TrainingHoursReduction", "You must enter the total <b>reduction in off-the-job training time</b> due to RPL");
             yield break;
         }
 
