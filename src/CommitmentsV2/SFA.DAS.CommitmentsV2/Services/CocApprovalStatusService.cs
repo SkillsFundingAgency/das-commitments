@@ -47,17 +47,6 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
             yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
         }
-        else if (newTotalCost <= oldTotalCost)
-        {
-            if (updates.TNP1 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoApproved };
-            }
-            if (updates.TNP2 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoApproved };
-            }
-        }
         else if (newTotalCost > Constants.MaximumTotalTrainingCost)
         {
             yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
