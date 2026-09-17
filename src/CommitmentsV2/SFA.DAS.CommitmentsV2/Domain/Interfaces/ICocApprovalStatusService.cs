@@ -5,5 +5,5 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 public interface ICocApprovalStatusService
 {
-    List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship);
+    Task<List<CocUpdateResult>> DetermineCocUpdateStatusesAsync(CocApprovalDetails cocApprovalDetails);
 }
