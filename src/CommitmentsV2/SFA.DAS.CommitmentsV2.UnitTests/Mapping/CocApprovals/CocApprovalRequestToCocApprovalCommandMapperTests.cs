@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             // Assert
             command.Should().NotBeNull();
             command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 07, 01));
-            command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 08, 01));
+            command.Updates.PlannedEndDate.New.Should().Be(new DateTime(2026, 08, 01));
             command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
         }
 
