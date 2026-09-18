@@ -62,6 +62,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
+        source.ApprovalRequests = new List<ApprovalRequest>();
 
         var result = await mapper.Map(source);
 
@@ -85,6 +86,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
             }
         };
         source.ApprenticeshipUpdate.Clear(); // isprovidesearch true
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.OverlappingTrainingDateRequests.Clear();
 
         var result = await mapper.Map(source);
@@ -109,6 +111,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
+        source.ApprovalRequests = new List<ApprovalRequest>();
 
         var result = await mapper.Map(source);
 
@@ -132,6 +135,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
+        source.ApprovalRequests = new List<ApprovalRequest>();
 
         var result = await mapper.Map(source);
 
@@ -155,6 +159,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
+        source.ApprovalRequests = new List<ApprovalRequest>();
 
         var result = await mapper.Map(source);
 
@@ -177,6 +182,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
             }
         };
         source.IsProviderSearch = false;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
 
@@ -192,6 +198,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.ApprenticeshipUpdate = null;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.OverlappingTrainingDateRequests = null;
 
         var result = await mapper.Map(source);
@@ -205,6 +212,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.IsProviderSearch = true;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -226,7 +234,8 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         Apprenticeship source,
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
-        source.IsProviderSearch = false;
+        source.IsProviderSearch = false; 
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -249,6 +258,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.IsProviderSearch = true;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -271,6 +281,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.IsProviderSearch = false;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -293,6 +304,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.ApprenticeshipUpdate = null;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.OverlappingTrainingDateRequests = null;
 
         var result = await mapper.Map(source);
@@ -307,6 +319,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         ApprenticeshipToApprenticeshipDetailsMapper mapper)
     {
         source.IsProviderSearch = false;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
         source.ApprenticeshipUpdate = null;
         source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
@@ -331,6 +344,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
             overlappingTrainingDateRequest
         };
         source.IsProviderSearch = false;
+        source.ApprovalRequests = new List<ApprovalRequest>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
