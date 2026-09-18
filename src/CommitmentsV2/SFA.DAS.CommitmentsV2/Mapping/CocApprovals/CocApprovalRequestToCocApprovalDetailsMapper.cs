@@ -52,6 +52,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                         break; 
                 }
             }
+            else if (changeType == CocChangeField.Firstname)
+            {
+                CheckIfStringIsNullOrEmptyAndThrowBadRequestException(change.Data?.Old);
+                CheckIfStringIsNullOrEmptyAndThrowBadRequestException(change.Data?.New);
+            }
         }
         return result;
     }
@@ -91,4 +96,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
+    private void CheckIfStringIsNullOrEmptyAndThrowBadRequestException(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new DomainException("Data", "String value cannot be null or empty.");
+        }
+    }
 }

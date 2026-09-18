@@ -149,7 +149,7 @@ public class CocApprovalRulesEngineTestsFixture
 
         ApprovalDetails = AutoFixture.Build<CocApprovalDetails>().Without(c => c.Apprenticeship).With(c => c.ApprovalFieldChanges, ApprovalFieldChanges).Create();
         CocApprovalStatusService = new Mock<ICocApprovalStatusService>();
-        CocApprovalStatusService.Setup(x => x.DetermineCocUpdateStatuses(ApprovalDetails.Updates, ApprovalDetails.Apprenticeship)).Returns(CocUpdateStatuses);
+        CocApprovalStatusService.Setup(x => x.DetermineCocUpdateStatuses(ApprovalDetails)).Returns(CocUpdateStatuses);
 
         NotifyProviderService = new Mock<INotifyProviderService>();
         Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), NotifyProviderService.Object, new Mock<IEncodingService>().Object);

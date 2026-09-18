@@ -8,24 +8,33 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) : ICocApprovalStatusService
 {
-    public List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship)
+    public List<CocUpdateResult> DetermineCocUpdateStatuses(CocApprovalDetails cocApprovalDetails)
     {
         var updateResults = new List<CocUpdateResult>();
 
-        if (updates == null)
+        if (cocApprovalDetails.Updates == null)
         {
-            throw new ArgumentNullException(nameof(updates));
+            throw new ArgumentNullException(nameof(cocApprovalDetails.Updates));
         }
 
-        if (apprenticeship == null)
+        if (cocApprovalDetails.Apprenticeship == null)
         {
-            throw new ArgumentNullException(nameof(apprenticeship));
+            throw new ArgumentNullException(nameof(cocApprovalDetails.Apprenticeship));
         }
 
-        if (updates.TNP1 != null || updates.TNP2 != null)
+        if (cocApprovalDetails.ApprovalFieldChanges != null)
+        {
+            if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.Firstname)))
+            {
+                logger.LogInformation("Change of Firstname detected");
+                updateResults.Add(DetermineApprovalStatusesForFirstnameField(cocApprovalDetails));
+            }
+        }
+
+        if (cocApprovalDetails.Updates.TNP1 != null || cocApprovalDetails.Updates.TNP2 != null)
         {
             logger.LogInformation("Change of TNP1 or TNP2 detected");
-            updateResults.AddRange(DetermineApprovalStatusesForCostFields(updates, apprenticeship));
+            updateResults.AddRange(DetermineApprovalStatusesForCostFields(cocApprovalDetails.Updates, cocApprovalDetails.Apprenticeship));
         }
 
         return updateResults;
@@ -74,5 +83,17 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
                 yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
             }
         }
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForFirstnameField(CocApprovalDetails cocApprovalDetails)
+    {
+        var firstnameChange = cocApprovalDetails.ApprovalFieldChanges.FirstOrDefault(afc => afc.ChangeType == nameof(CocChangeField.Firstname));
+
+        if (firstnameChange?.Data?.Old != cocApprovalDetails.Apprenticeship.FirstName)
+        {
+            logger.LogWarning("Old first name value from changes, does not match apprenticeship first name value");
+        }
+
+        return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
     }
 }
