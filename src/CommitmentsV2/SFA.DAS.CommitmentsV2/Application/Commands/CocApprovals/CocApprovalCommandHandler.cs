@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+namespace SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 
 public class CocApprovalCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,

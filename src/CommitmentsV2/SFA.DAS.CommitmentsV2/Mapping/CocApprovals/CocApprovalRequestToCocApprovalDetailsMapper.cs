@@ -17,6 +17,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 {
     public async Task<CocApprovalDetails> Map(CocApprovalRequest request)
     {
+        var apprenticeship = await GetApprenticeship(request.ApprenticeshipId);
         var result = new CocApprovalDetails
         {
             LearningKey = request.LearningKey,
@@ -26,7 +27,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ULN = request.ULN,
             Updates = new CocUpdates(),
             ApprovalFieldChanges = request.Changes,
-            Apprenticeship = await GetApprenticeship(request.ApprenticeshipId)
+            Apprenticeship = apprenticeship,
+            Course = await GetCourseAsync(apprenticeship?.CourseCode)
         };
 
         foreach (var change in request.Changes)
@@ -65,6 +67,20 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         catch (BadRequestException ex)
         {
             logger.LogError(ex, "ApprenticeshipId {ApprenticeshipId} not found, set it to null", id);
+            return null;
+        }
+    }
+
+    public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
+    {
+        try
+        {
+            return await dbContext.Value.GetCourseBasedOnApprenticeshipCourseCode(apprenticeshipCourseCode, CancellationToken.None);
+            
+        }
+        catch (BadRequestException ex)
+        {
+            logger.LogError(ex, $"Course associated with Apprenticeship course code {apprenticeshipCourseCode} not found, set it to null");
             return null;
         }
     }
