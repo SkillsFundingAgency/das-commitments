@@ -3,6 +3,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -26,15 +27,15 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
         if (approval == null)
         {
-            throw new Exception($"Approval request {command.ApprovalRequestId} not found");
+            throw new NotFoundException($"Approval request {command.ApprovalRequestId} not found");
         }
         if (approval.ApprenticeshipId != command.ApprenticeshipId)
         {
-            throw new Exception($"Approval request {command.ApprovalRequestId} not found for apprenticeship {command.ApprenticeshipId}");
+            throw new NotFoundException($"Approval request {command.ApprovalRequestId} not found for apprenticeship {command.ApprenticeshipId}");
         }
         if (approval.Status != CocApprovalResultStatus.Pending)
         {
-            throw new Exception($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
+            throw new NotFoundException($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
         }
 
         if (TotalPriceExceedsLimit(approval))
@@ -58,6 +59,8 @@ public class ProcessApprenticeshipApprovalCommandHandler(
                 Changes = ConvertItemsToChangeDictionary(approval.Items)
             };
             await messageSession.Publish(approved);
+
+            await NotifyProviderAboutApproval(db, approval, cancellationToken);
         }
         else
         {
@@ -84,6 +87,16 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private async Task NotifyProviderAboutRejection(ProviderCommitmentsDbContext db, ApprovalRequest approval, CancellationToken cancellationToken)
     {
+        await NotifyProvider(db, approval, "ProviderLearningChangeRejectedNotification", cancellationToken);
+    }
+
+    private async Task NotifyProviderAboutApproval(ProviderCommitmentsDbContext db, ApprovalRequest approval, CancellationToken cancellationToken)
+    {
+        await NotifyProvider(db, approval, "ProviderLearningChangeApprovedNotification", cancellationToken);
+    }
+
+    private async Task NotifyProvider(ProviderCommitmentsDbContext db, ApprovalRequest approval, string template, CancellationToken cancellationToken)
+    {
         var details = await db.Apprenticeships.Where(x => x.Id == approval.ApprenticeshipId)
             .Include(x => x.Cohort)
             .Select(x => new { x.Cohort.ProviderId, x.Cohort.AccountLegalEntity.Name })
@@ -101,7 +114,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
         var apprencticeshipIdEncoded = encodingService.Encode(approval.ApprenticeshipId, EncodingType.ApprenticeshipId);
 
-        await notifyProviderService.NotifyProvider(details.ProviderId, apprencticeshipIdEncoded, "ProviderLearningChangeRejectedNotification", details.Name);
+        await notifyProviderService.NotifyProvider(details.ProviderId, apprencticeshipIdEncoded, template, details.Name);
     }
 
     private async Task RecordCocUpdatesInLearnerHistory(ApprovalRequest approval, UserInfo userInfo, bool applyChanges)
