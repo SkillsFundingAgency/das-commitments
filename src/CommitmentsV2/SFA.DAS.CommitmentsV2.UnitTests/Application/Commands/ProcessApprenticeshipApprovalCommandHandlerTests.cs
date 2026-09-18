@@ -3,20 +3,23 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
+
 [TestFixture]
 public class ProcessApprenticeshipApprovalCommandHandlerTests
 {
-   private ProcessApprenticeshipApprovalCommandHandlerTestsFixture _fixture;
+    private ProcessApprenticeshipApprovalCommandHandlerTestsFixture _fixture;
 
     [SetUp]
     public void Arrange()
-    {       
+    {
         _fixture = new ProcessApprenticeshipApprovalCommandHandlerTestsFixture();
     }
 
@@ -66,7 +69,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Send(It.Is<StoreLearningHistoryCommand>(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.Source == LearningSourceType.ApprovalAPI &&
             x.ChangeType == (_fixture.Command.ApplyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected) &&
-            x.Description == "Total price change from £1,100 to £2,200" 
+            x.Description == "Total price change from £1,100 to £2,200"
             ), It.IsAny<SendOptions>()), Times.Once);
     }
 
@@ -100,6 +103,12 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
         request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
         request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+
+        _fixture.NotifyProviderService.Verify(x => x.NotifyProvider(
+            _fixture.ApprovalRequest.Apprenticeship.Cohort.ProviderId,
+            It.Is<string>(t => t == "encoded-apprenticeship-id"),
+            It.Is<string>(t => t == "ProviderLearningChangeRejectedNotification"),
+            It.Is<string>(t=> t== _fixture.AccountLegalEntity.Name)), Times.Once);
     }
 
     [Test]
@@ -132,7 +141,6 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             x.Changes["AssessmentPrice"].New == "200"), It.IsAny<PublishOptions>()), Times.Once);
     }
 
-
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture
     {
         public ProcessApprenticeshipApprovalCommandHandler Handler;
@@ -142,6 +150,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         public List<ApprovalFieldRequest> Items;
         public Mock<IMessageSession> MessageSession;
         public AccountLegalEntity AccountLegalEntity;
+        public Mock<INotifyProviderService> NotifyProviderService;
+        public Mock<IEncodingService> EncodingService; 
+
+
+        public Apprenticeship Apprenticeship;
 
         public ProcessApprenticeshipApprovalCommandHandlerTestsFixture()
         {
@@ -155,10 +168,19 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
             MessageSession = new Mock<IMessageSession>();
+            NotifyProviderService = new Mock<INotifyProviderService>();
+            EncodingService = new Mock<IEncodingService>();
+
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()))
+                .Returns("encoded-apprenticeship-id");
+
+            NotifyProviderService.Setup(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
 
             Handler = new ProcessApprenticeshipApprovalCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                MessageSession.Object);
+                MessageSession.Object,
+                NotifyProviderService.Object, EncodingService.Object);
 
             Command = autoFixture.Create<ProcessApprenticeshipApprovalCommand>();
             Items =
@@ -186,12 +208,37 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 .With(x => x.Id, Command.ApprovalRequestId)
                 .With(x => x.ApprenticeshipId, Command.ApprenticeshipId)
                 .With(x => x.Status, CocApprovalResultStatus.Pending)
-                .Without(x=>x.Apprenticeship)
+                .Without(x => x.Apprenticeship)
                 .Create();
 
-            AccountLegalEntity = autoFixture.Build<AccountLegalEntity>()
-                .Create();
+            var AccountLegalEntityId = autoFixture.Create<long>();
 
+            var account = new Account(1, autoFixture.Create<string>(), autoFixture.Create<string>(), autoFixture.Create<string>(), DateTime.UtcNow);
+
+            AccountLegalEntity = new AccountLegalEntity(account,
+                AccountLegalEntityId,
+                0,
+                "",
+                publicHashedId: autoFixture.Create<string>(),
+                autoFixture.Create<string>(),
+                OrganisationType.PublicBodies,
+                "",
+                DateTime.UtcNow);
+
+            var Cohort = new Cohort
+            {
+                Id = autoFixture.CreateMany<long>().Last(),
+                AccountLegalEntity = AccountLegalEntity,
+                EmployerAccountId = autoFixture.Create<long>(),
+                ProviderId = 12345,
+                Reference = autoFixture.Create<string>()
+            };
+
+            Apprenticeship = autoFixture.Build<Apprenticeship>()
+                .With(x => x.Id, Command.ApprenticeshipId)
+                .With(x => x.Cohort, Cohort)
+                .With(x => x.CommitmentId, Cohort.Id)
+                .Create();
         }
 
         public async Task Handle()
@@ -203,6 +250,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         {
             if (ApprovalRequest != null)
             {
+                Db.Apprenticeships.Add(Apprenticeship);
                 Db.ApprovalRequests.Add(ApprovalRequest);
                 await Db.SaveChangesAsync();
             }
