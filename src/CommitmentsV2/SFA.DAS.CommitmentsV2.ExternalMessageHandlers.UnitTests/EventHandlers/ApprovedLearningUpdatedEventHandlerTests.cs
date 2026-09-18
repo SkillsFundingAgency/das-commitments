@@ -95,11 +95,11 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     private Mock<IMessageHandlerContext> _mockContext;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long ApprenticeshipId { get; set; }
-    public Cohort cohort { get; set; }
-    public Apprenticeship apprenticeship { get; set; }
-    public Provider provider { get; set; }
-    public PriceHistory priceHistory { get; set; }
-    public Course course { get; set; }
+    public Cohort Cohort { get; set; }
+    public Apprenticeship Apprenticeship { get; set; }
+    public Provider Provider { get; set; }
+    public PriceHistory PriceHistory { get; set; }
+    public Course Course { get; set; }
 
 
     public string format { get; set; } = "yyyy-MM-dd";
@@ -117,22 +117,22 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
         ApprenticeshipId = fixture.Create<long>();
 
-        provider = new Provider()
+        Provider = new Provider()
         {
             UkPrn = 12345,
             Name = "Test Provider"
         };
 
-        cohort = new Cohort
+        Cohort = new Cohort
         {
             Id = fixture.Create<long>(),
             WithParty = Party.Provider,
             Reference = fixture.Create<string>(),
-            Provider = provider,
+            Provider = Provider,
             EmployerAccountId = 101
         };
 
-        apprenticeship = new Apprenticeship
+        Apprenticeship = new Apprenticeship
         {
             Id = ApprenticeshipId,
             StandardUId = fixture.Create<string>(),
@@ -145,13 +145,13 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
             LastName = "User",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Uln = fixture.Create<long>().ToString(),
-            Cohort = cohort,
+            Cohort = Cohort,
             StartDate = DateTime.UtcNow.AddMonths(1),
             EndDate = DateTime.UtcNow.AddMonths(13),
             DeliveryModel = DeliveryModel.Regular,
         };
 
-        priceHistory = new PriceHistory
+        PriceHistory = new PriceHistory
         {
             Id = fixture.Create<long>(),
             ApprenticeshipId = ApprenticeshipId,
@@ -162,15 +162,15 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
             ToDate = null
         };
 
-        course = new Course
+        Course = new Course
         {
-            LarsCode = apprenticeship.CourseCode,
+            LarsCode = Apprenticeship.CourseCode,
             LearningType = LearningType.Apprenticeship
         };
 
-        _dbContext.Cohorts.Add(cohort);
-        _dbContext.Apprenticeships.Add(apprenticeship);
-        _dbContext.PriceHistory.Add(priceHistory);
+        _dbContext.Cohorts.Add(Cohort);
+        _dbContext.Apprenticeships.Add(Apprenticeship);
+        _dbContext.PriceHistory.Add(PriceHistory);
         _dbContext.SaveChanges();
         _handler = new ApprovedLearningUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _mockLogger.Object);
@@ -308,24 +308,24 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     {
         _mockContext.Verify(x => x.Publish(It.Is<ApprenticeshipUpdatedApprovedEvent>(e =>
             e.ApprenticeshipId == ApprenticeshipId &&
-            e.StandardUId == apprenticeship.StandardUId &&
-            e.TrainingCourseVersion == apprenticeship.TrainingCourseVersion &&
-            e.TrainingCourseOption == apprenticeship.TrainingCourseOption &&
-            e.Uln == apprenticeship.Uln &&
-            e.StartDate == apprenticeship.StartDate &&
-            e.EndDate == apprenticeship.EndDate &&
-            e.TrainingCode == apprenticeship.CourseCode &&
-            e.DeliveryModel == apprenticeship.DeliveryModel &&
-            e.LearningType == (Common.Domain.Types.LearningType)course.LearningType
+            e.StandardUId == Apprenticeship.StandardUId &&
+            e.TrainingCourseVersion == Apprenticeship.TrainingCourseVersion &&
+            e.TrainingCourseOption == Apprenticeship.TrainingCourseOption &&
+            e.Uln == Apprenticeship.Uln &&
+            e.StartDate == Apprenticeship.StartDate &&
+            e.EndDate == Apprenticeship.EndDate &&
+            e.TrainingCode == Apprenticeship.CourseCode &&
+            e.DeliveryModel == Apprenticeship.DeliveryModel &&
+            e.LearningType == (Common.Domain.Types.LearningType)Course.LearningType
             ), It.IsAny<PublishOptions>()), Times.Once);
 
         _mockContext.Verify(x => x.Publish(It.Is<ApprenticeshipUpdatedApprovedEvent>(e =>
             e.PriceEpisodes.Count() == 1 &&
-            e.PriceEpisodes.First().FromDate == priceHistory.FromDate &&
-            e.PriceEpisodes.First().ToDate == priceHistory.FromDate &&
-            e.PriceEpisodes.First().Cost == priceHistory.Cost &&
-            e.PriceEpisodes.First().TrainingPrice == priceHistory.TrainingPrice &&
-            e.PriceEpisodes.First().EndPointAssessmentPrice == priceHistory.AssessmentPrice
+            e.PriceEpisodes.First().FromDate == PriceHistory.FromDate &&
+            e.PriceEpisodes.First().ToDate == PriceHistory.FromDate &&
+            e.PriceEpisodes.First().Cost == PriceHistory.Cost &&
+            e.PriceEpisodes.First().TrainingPrice == PriceHistory.TrainingPrice &&
+            e.PriceEpisodes.First().EndPointAssessmentPrice == PriceHistory.AssessmentPrice
             ), It.IsAny<PublishOptions>()), Times.Once);
     }
 
