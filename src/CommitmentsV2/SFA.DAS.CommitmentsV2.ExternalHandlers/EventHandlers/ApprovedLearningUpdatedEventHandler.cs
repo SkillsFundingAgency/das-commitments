@@ -79,8 +79,8 @@ public class ApprovedLearningUpdatedEventHandler(
             TrainingCourseOption = apprenticeship.TrainingCourseOption,
             ApprovedOn = DateTime.UtcNow,
             Uln = apprenticeship.Uln,
-            StartDate = apprenticeship.StartDate ?? DateTime.MinValue,
-            EndDate = apprenticeship.EndDate ?? DateTime.MinValue,
+            StartDate = apprenticeship.StartDate.Value,
+            EndDate = apprenticeship.EndDate.Value,
             PriceEpisodes = apprenticeship.PriceHistory.Select(ph => new PriceEpisode
             {
                 FromDate = ph.FromDate,
