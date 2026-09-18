@@ -476,5 +476,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             result.Alerts.Should().BeEmpty();
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_AutoApprovedChanges_Employer_And_IsNotProviderSearch_Then_View_Changes_Alert(
+           Apprenticeship source,
+           ApprenticeshipUpdate apprenticeshipUpdate,
+           PriceHistory priceHistory,
+           ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = null;
+            source.IsProviderSearch = false;
+            source.OverlappingTrainingDateRequests = null;
+            foreach (var item in source.ApprovalRequests)
+            {
+                item.EmployerAcknowledgedAt = null;
+                item.EmployerAcknowledgedBy = null;
+            }
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ViewChanges });
+        }
     }
 }

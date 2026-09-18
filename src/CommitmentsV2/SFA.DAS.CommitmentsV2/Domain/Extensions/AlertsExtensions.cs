@@ -49,7 +49,18 @@ public static class AlertsExtensions
             result.Add(Alerts.ConfirmDates);
         }
 
+        if (HasAutoApprovedApprovalRequests(source))
+        {
+            result.Add(Alerts.ViewChanges);
+        }
+
         return result;
+    }
+
+    private static bool HasAutoApprovedApprovalRequests(Apprenticeship source)
+    {
+        return !source.IsProviderSearch && source.ApprovalRequests != null && source.ApprovalRequests.Any(t => t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null
+        && t.Items.Any(c => c.Status == CocApprovalItemStatus.AutoApproved));
     }
 
     private static bool HasCourseDataLock(Apprenticeship source)

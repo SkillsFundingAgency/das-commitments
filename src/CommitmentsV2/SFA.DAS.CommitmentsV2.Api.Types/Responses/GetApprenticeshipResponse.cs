@@ -63,9 +63,12 @@ public class GetApprenticeshipResponse
     public int? DurationReducedByHours { get; set; }
     public int? TrainingTotalHours { get; set; }
     public bool? IsDurationReducedByRpl { get; set; }
-    [JsonConverter(typeof(StringEnumConverter))] 
+
+    [JsonConverter(typeof(StringEnumConverter))]
     public LearningType LearningType { get; set; }
+
     public int? EmployerVerificationStatus { get; set; }
     public string EmployerVerificationNotes { get; set; }
     public bool HasChangeHistory { get; set; }
+    public bool HasAutoApprovedRequests { get; set; }
 }
