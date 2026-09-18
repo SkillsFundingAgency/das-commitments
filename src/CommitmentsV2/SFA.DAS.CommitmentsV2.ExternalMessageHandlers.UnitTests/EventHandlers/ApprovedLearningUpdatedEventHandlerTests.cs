@@ -12,10 +12,13 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.UnitOfWork.Context;
+using Course = SFA.DAS.CommitmentsV2.Models.Course;
+using Provider = SFA.DAS.CommitmentsV2.Models.Provider;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
 
@@ -37,6 +40,13 @@ public class ApprovedLearningUpdatedEventHandlerTests
     {
         await _fixture.SetEvent().Handle();
         _fixture.VerifyLearnerUpdated();
+    }
+
+    [Test]
+    public async Task Handle_WhenApprovedLearningUpdatedEventReceived_NotificationEventIsPublished()
+    {
+        await _fixture.SetEvent().Handle();
+        _fixture.VerifyEventPublished();
     }
 
     [Test]
@@ -84,7 +94,13 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     private ApprovedLearningUpdatedEvent _event;
     private Mock<IMessageHandlerContext> _mockContext;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
-    public long apprenticeshipId { get; set; }
+    public long ApprenticeshipId { get; set; }
+    public Cohort Cohort { get; set; }
+    public Apprenticeship Apprenticeship { get; set; }
+    public Provider Provider { get; set; }
+    public PriceHistory PriceHistory { get; set; }
+    public Course Course { get; set; }
+
 
     public string format { get; set; } = "yyyy-MM-dd";
 
@@ -99,38 +115,62 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
                                             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                             .Options);
 
-        apprenticeshipId = fixture.Create<long>();
+        ApprenticeshipId = fixture.Create<long>();
 
-        var provider = new Provider()
+        Provider = new Provider()
         {
             UkPrn = 12345,
             Name = "Test Provider"
         };
 
-        var cohort = new Cohort
+        Cohort = new Cohort
         {
             Id = fixture.Create<long>(),
             WithParty = Party.Provider,
             Reference = fixture.Create<string>(),
-            Provider = provider,
+            Provider = Provider,
             EmployerAccountId = 101
         };
 
-        var Apprenticeship = new Apprenticeship
+        Apprenticeship = new Apprenticeship
         {
-            Id = apprenticeshipId,
+            Id = ApprenticeshipId,
+            StandardUId = fixture.Create<string>(),
+            TrainingCourseVersion = fixture.Create<string>(),
+            TrainingCourseOption = fixture.Create<string>(),
+            ProgrammeType = ProgrammeType.Standard,
+            CourseCode = fixture.Create<string>(),
             HasLearnerDataChanges = false,
             FirstName = "Test",
             LastName = "User",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Uln = fixture.Create<long>().ToString(),
-            Cohort = cohort,
+            Cohort = Cohort,
             StartDate = DateTime.UtcNow.AddMonths(1),
-            EndDate = DateTime.UtcNow.AddMonths(13)
+            EndDate = DateTime.UtcNow.AddMonths(13),
+            DeliveryModel = DeliveryModel.Regular,
         };
 
-        _dbContext.Cohorts.Add(cohort);
+        PriceHistory = new PriceHistory
+        {
+            Id = fixture.Create<long>(),
+            ApprenticeshipId = ApprenticeshipId,
+            Cost = 1000,
+            TrainingPrice = 900,
+            AssessmentPrice = 100,
+            FromDate = DateTime.UtcNow.AddMonths(-1),
+            ToDate = null
+        };
+
+        Course = new Course
+        {
+            LarsCode = Apprenticeship.CourseCode,
+            LearningType = LearningType.Apprenticeship
+        };
+
+        _dbContext.Cohorts.Add(Cohort);
         _dbContext.Apprenticeships.Add(Apprenticeship);
+        _dbContext.PriceHistory.Add(PriceHistory);
         _dbContext.SaveChanges();
         _handler = new ApprovedLearningUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _mockLogger.Object);
@@ -146,7 +186,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     {
         _event = new ApprovedLearningUpdatedEvent()
         {
-            ApprenticeshipId = apprenticeshipId,
+            ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes =
              [
@@ -187,7 +227,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     {
         _event = new ApprovedLearningUpdatedEvent()
         {
-            ApprenticeshipId = apprenticeshipId,
+            ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes =
             [
@@ -208,7 +248,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     {
         _event = new ApprovedLearningUpdatedEvent()
         {
-            ApprenticeshipId = apprenticeshipId,
+            ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes =
             [
@@ -229,7 +269,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     {
         _event = new ApprovedLearningUpdatedEvent()
         {
-            ApprenticeshipId = apprenticeshipId,
+            ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes =
             [
@@ -253,7 +293,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
     public void VerifyLearnerUpdated()
     {
-        var updatedApprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        var updatedApprenticeship = _dbContext.Apprenticeships.Find(ApprenticeshipId);
         updatedApprenticeship.Should().NotBeNull();
         updatedApprenticeship.FirstName.Should().Be(GetValue(ApprovedLearnerChangeType.Firstname));
         updatedApprenticeship.LastName.Should().Be(GetValue(ApprovedLearnerChangeType.Surname));
@@ -262,6 +302,31 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate))));
         updatedApprenticeship.EndDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate))));
         updatedApprenticeship.ActualStartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate)));
+    }
+
+    public void VerifyEventPublished()
+    {
+        _mockContext.Verify(x => x.Publish(It.Is<ApprenticeshipUpdatedApprovedEvent>(e =>
+            e.ApprenticeshipId == ApprenticeshipId &&
+            e.StandardUId == Apprenticeship.StandardUId &&
+            e.TrainingCourseVersion == Apprenticeship.TrainingCourseVersion &&
+            e.TrainingCourseOption == Apprenticeship.TrainingCourseOption &&
+            e.Uln == Apprenticeship.Uln &&
+            e.StartDate == Apprenticeship.StartDate &&
+            e.EndDate == Apprenticeship.EndDate &&
+            e.TrainingCode == Apprenticeship.CourseCode &&
+            e.DeliveryModel == Apprenticeship.DeliveryModel &&
+            e.LearningType == (Common.Domain.Types.LearningType)Course.LearningType
+            ), It.IsAny<PublishOptions>()), Times.Once);
+
+        _mockContext.Verify(x => x.Publish(It.Is<ApprenticeshipUpdatedApprovedEvent>(e =>
+            e.PriceEpisodes.Count() == 1 &&
+            e.PriceEpisodes.First().FromDate == PriceHistory.FromDate &&
+            e.PriceEpisodes.First().ToDate == PriceHistory.ToDate &&
+            e.PriceEpisodes.First().Cost == PriceHistory.Cost &&
+            e.PriceEpisodes.First().TrainingPrice == PriceHistory.TrainingPrice &&
+            e.PriceEpisodes.First().EndPointAssessmentPrice == PriceHistory.AssessmentPrice
+            ), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     private string GetValue(ApprovedLearnerChangeType changeType)
