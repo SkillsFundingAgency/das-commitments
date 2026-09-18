@@ -39,6 +39,14 @@ public class ApprovedLearningUpdatedEventHandlerTests
         _fixture.VerifyLearnerUpdated();
     }
 
+
+    [Test]
+    public async Task Handle_WhenApprovedLearningUpdatedEventReceived_NotificationEventIsPublished()
+    {
+        await _fixture.SetEvent().Handle();
+        xxx_fixture.VerifyLearnerUpdated();
+    }
+
     [Test]
     public async Task ThenLogsWarning_WhenUnknownChangeTypeReceived()
     {
@@ -73,6 +81,8 @@ public class ApprovedLearningUpdatedEventHandlerTests
         await _fixture.SetEventWithInvalidStartDate().Handle();
         _fixture.VerifyLoggerWarning("Invalid date for PlannedStartDate change");
     }
+
+
 }
 
 public class ApprovedLearningUpdatedEventHandlerTestsFixture
