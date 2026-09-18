@@ -19,6 +19,7 @@ public class CocUpdates
 {
     public CocUpdate<int> TNP1 { get; set; }
     public CocUpdate<int> TNP2 { get; set; }
+    public CocUpdate<DateTime> PlannedEndDate { get; set; }
 }
 
 public class CocUpdate<T> where T : struct

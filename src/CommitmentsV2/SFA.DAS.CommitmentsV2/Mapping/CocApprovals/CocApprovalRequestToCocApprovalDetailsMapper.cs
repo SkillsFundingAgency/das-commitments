@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using System.Globalization;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
@@ -52,6 +53,14 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                         break; 
                 }
             }
+            else if(changeType == CocChangeField.PlannedEndDate)
+            {
+                result.Updates.PlannedEndDate = new CocUpdate<DateTime>
+                {
+                    Old = ToDate(change.Data.Old),
+                    New = ToDate(change.Data.New),
+                };
+            }
         }
         return result;
     }
@@ -91,4 +100,18 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
+    public static DateTime? ToDate(string dateString)
+    {
+        if(dateString == null)
+        {
+            return null;
+        }
+
+        if (!DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+        {
+            throw new DomainException("Data", $"String could not be converted to a date");
+        }
+
+        return result;
+    }
 }

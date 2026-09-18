@@ -6,9 +6,9 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services;
 
-public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) : ICocApprovalStatusService
+public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, ILogger<CocApprovalStatusService> logger) : ICocApprovalStatusService
 {
-    public List<CocUpdateResult> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship)
+    public async Task<List<CocUpdateResult>> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship)
     {
         var updateResults = new List<CocUpdateResult>();
 
@@ -22,6 +22,20 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
+        if (apprenticeship.StopDate != null)
+        {
+            updateResults.AddRange(AutoRejectFieldsAffectedByStoppedApprenticeship(updates));
+        }
+        else
+        {
+            if(updates.PlannedEndDate != null) 
+            {
+                logger.LogInformation("Change of PlannedEndDate detected");
+                var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
+                updateResults.AddRange(list);
+            }
+        }
+
         if (updates.TNP1 != null || updates.TNP2 != null)
         {
             logger.LogInformation("Change of TNP1 or TNP2 detected");
@@ -29,6 +43,64 @@ public class CocApprovalStatusService(ILogger<CocApprovalStatusService> logger) 
         }
 
         return updateResults;
+    }
+
+    private IEnumerable<CocUpdateResult> AutoRejectFieldsAffectedByStoppedApprenticeship(CocUpdates updates)
+    {
+        if (updates.PlannedEndDate != null)
+        {
+            yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a stopped record" };
+        }
+    }
+
+    private async IAsyncEnumerable<CocUpdateResult> DetermineStatusOfCourseDates(CocUpdates updates, Apprenticeship apprenticeship)
+    {
+        if (updates.PlannedEndDate != null)
+        {
+            if (updates.PlannedEndDate.Old != apprenticeship.EndDate)
+            {
+                logger.LogWarning("Old planned end date from changes does not match apprenticeship end date");
+            }
+
+            var newPlannedEndDate = CreateDateAsFirstOfMonth(updates.PlannedEndDate.New.Value);
+
+            if (apprenticeship.PaymentStatus == Types.PaymentStatus.Completed && apprenticeship.CompletionDate.HasValue && newPlannedEndDate > apprenticeship.CompletionDate)
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a completed record" };
+            }
+            else if (newPlannedEndDate < Constants.DasStartDate)
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date must not be earlier than May 2017" };
+            }
+            else if (newPlannedEndDate < apprenticeship.StartDate)
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date must not be before the start date" };
+            }
+            else if (apprenticeship.FlexibleEmployment != null && newPlannedEndDate < apprenticeship.FlexibleEmployment.EmploymentEndDate)
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date must not be earlier than FlexibleEmployment.EmploymentEndDate" };
+            }
+            else if (await CheckForUlnOverlaps(newPlannedEndDate, apprenticeship))
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "Apprentices overlapping dates and therefore cant start" };
+            }
+            else
+            {
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Pending };
+            }
+        }
+    }
+
+    private DateTime CreateDateAsFirstOfMonth(DateTime value)
+    {
+        return new DateTime(value.Year, value.Month, 1);
+    }
+
+    private async Task<bool> CheckForUlnOverlaps(DateTime newPlannedEndDate, Apprenticeship apprenticeship)
+    {
+        var courseDateRange = new Domain.Entities.CourseDateRange(apprenticeship.StartDate.Value, newPlannedEndDate);
+        var overlap = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, courseDateRange, apprenticeship.Id, default);
+        return overlap.HasOverlaps;
     }
 
     private IEnumerable<CocUpdateResult> DetermineApprovalStatusesForCostFields(CocUpdates updates, Apprenticeship apprenticeship)
