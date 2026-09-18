@@ -322,7 +322,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         _mockContext.Verify(x => x.Publish(It.Is<ApprenticeshipUpdatedApprovedEvent>(e =>
             e.PriceEpisodes.Count() == 1 &&
             e.PriceEpisodes.First().FromDate == PriceHistory.FromDate &&
-            e.PriceEpisodes.First().ToDate == PriceHistory.FromDate &&
+            e.PriceEpisodes.First().ToDate == PriceHistory.ToDate &&
             e.PriceEpisodes.First().Cost == PriceHistory.Cost &&
             e.PriceEpisodes.First().TrainingPrice == PriceHistory.TrainingPrice &&
             e.PriceEpisodes.First().EndPointAssessmentPrice == PriceHistory.AssessmentPrice
