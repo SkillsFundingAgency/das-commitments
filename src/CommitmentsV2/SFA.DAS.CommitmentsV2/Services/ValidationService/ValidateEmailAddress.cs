@@ -3,11 +3,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.EmailValidationService;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
 

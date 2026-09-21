@@ -2,24 +2,23 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
     private const string CohortRefPermissionIssue = "CohortRefPermission";
 
-    private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+    public async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, Cohort cohort)
     {
         var domainErrors = new List<Error>();
 
         if (string.IsNullOrWhiteSpace(csvRecord.CohortRef))
         {
             return domainErrors;
-        }
-
-        var cohort = GetCohortDetails(csvRecord.CohortRef);
+        }        
 
         if (cohort == null)
         {
@@ -87,7 +86,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, ICollection<Error> domainErrors, bool? isLevy)
+    public async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, ICollection<Error> domainErrors, bool? isLevy)
     {
         const string nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf";
         const string levyPermissionText = "The <b>employer must give you permission</b> to add apprentices on their behalf";

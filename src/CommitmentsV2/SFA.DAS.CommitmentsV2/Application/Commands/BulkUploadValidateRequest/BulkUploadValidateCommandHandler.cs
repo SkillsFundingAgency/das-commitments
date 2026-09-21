@@ -14,12 +14,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 public partial class BulkUploadValidateCommandHandler(
     ILogger<BulkUploadValidateCommandHandler> logger,
     Lazy<ProviderCommitmentsDbContext> dbContext,
-    IOverlapCheckService overlapService,
-    IAcademicYearDateProvider academicYearDateProvider,
-    IProviderRelationshipsApiClient providerRelationshipsApiClient,
+    //IOverlapCheckService overlapService,
+    //IAcademicYearDateProvider academicYearDateProvider,
+    //IProviderRelationshipsApiClient providerRelationshipsApiClient,
     IEmployerAgreementService employerAgreementService,
     RplSettingsConfiguration rplConfig,
-    IUlnValidator ulnValidator,
+    //IUlnValidator ulnValidator,
+    IValidationService validationService,
     ILinkGenerator urlHelper)
     : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
 {
@@ -82,10 +83,11 @@ public partial class BulkUploadValidateCommandHandler(
 
     private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
     {
-        var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
+        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord, employerDetails.Name);
         if (domainErrors.Count == 0)
         {
-            domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+            domainErrors.AddRange(await validationService.ValidateAgreementIdIsSigned(csvRecord, employerDetails.IsSigned));
 
             // when a valid agreement has not been signed validation will stop
             if (domainErrors.Count != 0)
@@ -93,10 +95,9 @@ public partial class BulkUploadValidateCommandHandler(
                 return domainErrors;
             }
         }
-
-        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        
         if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) 
-            && !IsFundedByTransfer(csvRecord.CohortRef) && !await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+            && !IsFundedByTransfer(csvRecord.CohortRef) && !await validationService.ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy, employerDetails))
         {
             // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
             return domainErrors;
@@ -105,9 +106,9 @@ public partial class BulkUploadValidateCommandHandler(
         return domainErrors;
     }
 
-    private static List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
+    private List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
     {
-        var domainErrors = ValidateDeclaredStandards(providerStandardResults);
+        var domainErrors = validationService.ValidateDeclaredStandards(providerStandardResults);
 
         if (domainErrors.Count != 0)
         {
@@ -142,11 +143,12 @@ public partial class BulkUploadValidateCommandHandler(
 
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
-        var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
-        
+        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord, employerDetails.Name);
+
         if (domainErrors.Count == 0)
         {
-            domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+            domainErrors.AddRange(await validationService.ValidateAgreementIdIsSigned(csvRecord, employerDetails.IsSigned));
 
             // when a valid agreement has not been signed validation will stop
             if (domainErrors.Count != 0)
@@ -155,27 +157,29 @@ public partial class BulkUploadValidateCommandHandler(
             }
         }
 
-        domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
-        domainErrors.AddRange(ValidateUln(csvRecord));
-        domainErrors.AddRange(ValidateFamilyName(csvRecord));
-        domainErrors.AddRange(ValidateGivenName(csvRecord));
-        domainErrors.AddRange(ValidateDateOfBirth(csvRecord, providerStandardResults));
-        domainErrors.AddRange(ValidateEmailAddress(csvRecord));
-        domainErrors.AddRange(ValidateCourseCode(csvRecord, providerStandardResults));
-        domainErrors.AddRange(ValidateStartDate(csvRecord));
-        domainErrors.AddRange(ValidateEndDate(csvRecord));
-        domainErrors.AddRange(ValidateCost(csvRecord));
-        domainErrors.AddRange(ValidateProviderRef(csvRecord));
-        domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
-        domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
+        var cohortDetails = GetCohortDetails(csvRecord.CohortRef);
+        domainErrors.AddRange(await validationService.ValidateCohortRef(csvRecord, providerId, cohortDetails));
+        domainErrors.AddRange(validationService.ValidateUln(csvRecord));
+        domainErrors.AddRange(validationService.ValidateFamilyName(csvRecord));
+        domainErrors.AddRange(validationService.ValidateGivenName(csvRecord));
+        domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults));
+        domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord));
+        var isValidStandard = GetStandardDetails(csvRecord.CourseCode) == null;
+        domainErrors.AddRange(validationService.ValidateCourseCode(csvRecord, providerStandardResults, isValidStandard));
+        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord));
+        domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
+        domainErrors.AddRange(validationService.ValidateCost(csvRecord));
+        domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord));
+        domainErrors.AddRange(validationService.ValidateEPAOrgId(csvRecord));
+        domainErrors.AddRange(validationService.ValidateReservation(csvRecord, reservationValidationResults));
 
-        domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
+        domainErrors.AddRange(validationService.ValidateRecognisePriorLearning(csvRecord));
         
         var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
-        domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
-        domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
-        domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
-        domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
+        domainErrors.AddRange(validationService.ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(validationService.ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(validationService.ValidateDurationReducedBy(csvRecord));
+        domainErrors.AddRange(validationService.ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
        
         return domainErrors;
     }

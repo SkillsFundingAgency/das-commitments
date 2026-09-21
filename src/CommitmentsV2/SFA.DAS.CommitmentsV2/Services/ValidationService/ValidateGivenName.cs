@@ -1,11 +1,11 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidateGivenName(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateGivenName(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.FirstName))

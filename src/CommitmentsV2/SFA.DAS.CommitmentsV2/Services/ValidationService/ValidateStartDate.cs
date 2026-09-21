@@ -3,9 +3,9 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
 using System.Text.RegularExpressions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
     private IEnumerable<Error> ValidateStartDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {

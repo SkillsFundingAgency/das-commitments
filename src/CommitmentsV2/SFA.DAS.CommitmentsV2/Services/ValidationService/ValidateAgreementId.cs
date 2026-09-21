@@ -1,13 +1,13 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
     private const string LegalAgreementIdIssue = "LegalAgreementId";
-    
-    private async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+
+    public async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord, string employerName)
     {
         var errors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.AgreementId))
@@ -22,7 +22,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             errors.Add(new Error("AgreementId", $"Enter a valid <b>Agreement ID</b>"));
         }
-        else if (string.IsNullOrWhiteSpace(await GetEmployerName(csvRecord.AgreementId)))
+        else if (string.IsNullOrWhiteSpace(employerName))
         {
             errors.Add(new Error("AgreementId", $"Enter a valid <b>Agreement ID</b>"));
         }
@@ -30,20 +30,14 @@ public partial class BulkUploadValidateCommandHandler
         return errors;
     }
 
-    private async Task<List<Error>> ValidateAgreementIdIsSigned(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public async Task<List<Error>> ValidateAgreementIdIsSigned(BulkUploadAddDraftApprenticeshipRequest csvRecord, bool? isSigned)
     {
         var errors = new List<Error>();
-        if (!(await IsSigned(csvRecord.AgreementId)).GetValueOrDefault(false))
+        if (!isSigned.GetValueOrDefault(false))
         {
             errors.Add(new Error(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the DfE."));
         }
 
         return errors;
-    }
-
-    private async Task<bool?> IsSigned(string agreementId)
-    {
-        var employerDetails = await GetEmployerDetails(agreementId);
-        return employerDetails.IsSigned;
     }
 }

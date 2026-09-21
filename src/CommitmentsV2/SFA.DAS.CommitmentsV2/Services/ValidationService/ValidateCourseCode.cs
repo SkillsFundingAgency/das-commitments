@@ -1,11 +1,11 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    private IEnumerable<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults, bool invalidStandard)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.CourseCode))
@@ -20,7 +20,7 @@ public partial class BulkUploadValidateCommandHandler
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
-        else if (GetStandardDetails(csvRecord.CourseCode) == null)
+        else if (invalidStandard)
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
