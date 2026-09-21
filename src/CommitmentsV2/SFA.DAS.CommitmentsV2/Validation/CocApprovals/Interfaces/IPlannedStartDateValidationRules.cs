@@ -15,6 +15,6 @@ public interface IPlannedStartDateValidationRules
     Task<ReservationValidationResult> IsPlannedStartDateValidForReservationAsync(DateTime plannedStartDate, Apprenticeship apprenticeship);
     bool IsPlannedStartDateLessThanMinAge(DateTime plannedStartDate, DateTime? dateOfBirth);
     bool IsPlannedStartDateMoreThanMaxAge(DateTime plannedStartDate, DateTime? dateOfBirth);
-    bool IsPlannedStartDateMoreThanMaxAgeForLevel7Course(DateTime plannedStartDate, Apprenticeship apprenticeship);
+    bool IsPlannedStartDateMoreThanMaxAgeForLevel7Course(DateTime plannedStartDate, Apprenticeship apprenticeship, Course course);
     Task<bool> IsThereEmailOverlapForPlannedStartDateAsync(DateTime plannedStartDate, Apprenticeship apprenticeship);
 }

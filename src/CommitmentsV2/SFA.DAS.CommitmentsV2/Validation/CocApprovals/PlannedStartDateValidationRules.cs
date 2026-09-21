@@ -96,9 +96,9 @@ public class PlannedStartDateValidationRules(
         return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(plannedStartDate, dateOfBirth, Constants.MaximumAgeAtApprenticeshipStart);
     }
 
-    public bool IsPlannedStartDateMoreThanMaxAgeForLevel7Course(DateTime plannedStartDate, Apprenticeship apprenticeship)
+    public bool IsPlannedStartDateMoreThanMaxAgeForLevel7Course(DateTime plannedStartDate, Apprenticeship apprenticeship, Course course)
     {
-        if (GetStandardCourseLevel(apprenticeship.CourseCode) == Constants.ApprenticeshipCourseLevel7
+        if (course.Level == Constants.ApprenticeshipCourseLevel7.ToString()
             && plannedStartDate >= Constants.MaxAgeAt25RequiredOn
             && apprenticeship.Continuation == null)
         {
@@ -132,15 +132,5 @@ public class PlannedStartDateValidationRules(
         }
 
         return false;
-    }
-
-    private int? GetStandardCourseLevel(string stdCode)
-    {
-        if (string.IsNullOrWhiteSpace(stdCode))
-        {
-            return null;
-        }
-
-        return int.TryParse(stdCode, out var result) ? dbContext.Standards.FirstOrDefault(x => x.LarsCode == result)?.LarsCode : null;
     }
 }

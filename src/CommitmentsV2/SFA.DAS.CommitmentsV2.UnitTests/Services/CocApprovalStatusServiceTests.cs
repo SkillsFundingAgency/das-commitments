@@ -442,7 +442,7 @@ public class CocApprovalStatusServiceTests
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDate, It.IsAny<Apprenticeship>())).Returns(true);
+        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDate, It.IsAny<Apprenticeship>(), It.IsAny<Course>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 

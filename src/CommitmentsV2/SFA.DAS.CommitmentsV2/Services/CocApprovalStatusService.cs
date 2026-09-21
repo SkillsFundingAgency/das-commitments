@@ -130,7 +130,7 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDateNew, cocApprovalDetails.Apprenticeship))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDateNew, cocApprovalDetails.Apprenticeship, cocApprovalDetails.Course))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training" };
         }

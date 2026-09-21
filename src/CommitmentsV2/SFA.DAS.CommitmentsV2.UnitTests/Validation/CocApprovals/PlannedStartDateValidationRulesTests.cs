@@ -247,28 +247,22 @@ public class PlannedStartDateValidationRulesTests
     [Test]
     public void IsPlannedStartDateMoreThanMaxAgeForLevel7Course_WhenTooOld_ReturnsTrue()
     {
-        var standards = new List<Standard>
-        {
-            new Standard()
-            {
-                LarsCode = 7
-            }
-        }.AsQueryable().BuildDbSet();
-
-        _dbContext.Setup(x => x.Standards).Returns(standards);
-
         _ageCalculationService.Setup(x => x.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MaximumAgeAtApprenticeshipStartForLevel7))
             .Returns(false);
 
         var apprenticeship = new Apprenticeship
         {
-            
-            CourseCode = "7",
             DateOfBirth = new DateTime(1960, 1, 1),
             Continuation = null
         };
 
-        var result = _plannedStartDateRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(Constants.MaxAgeAt25RequiredOn, apprenticeship);
+        var course = new Course
+        {
+            LarsCode = "LarsCode",
+            Level = "7"
+        };
+
+        var result = _plannedStartDateRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(Constants.MaxAgeAt25RequiredOn, apprenticeship, course);
 
         result.Should().BeTrue();
     }
