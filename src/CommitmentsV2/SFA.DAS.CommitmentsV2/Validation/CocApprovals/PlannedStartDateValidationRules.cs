@@ -1,5 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
+﻿using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -13,7 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 public class PlannedStartDateValidationRules(
     IAcademicYearDateProvider academicYearDateProvider,
     IAgeCalculationService ageCalculationService,
-    IProviderCommitmentsDbContext dbContext,
     IOverlapCheckService overlapCheckService,
     IReservationValidationService reservationValidationService) 
     :IPlannedStartDateValidationRules
