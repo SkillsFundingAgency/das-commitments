@@ -32,7 +32,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private static List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
+    internal static List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
     {
         var domainErrors = new List<Error>();
         if (providerStandardResults.IsMainProvider && !providerStandardResults.Standards.Any())
