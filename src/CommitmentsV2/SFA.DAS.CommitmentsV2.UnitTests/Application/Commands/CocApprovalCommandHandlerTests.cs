@@ -327,7 +327,57 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoApproved_DoesNotSendStoreLearningHistoryCommand()
+    public async Task Handle_WhenActionIsCreateNew_AndFirstnameIsAutoRejected_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.Firstname),
+                        Old = "Bob",
+                        New = "Bobby",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoRejected &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "First name change from Bob to Bobby"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoApproved_SendsStoreLearningHistoryCommand()
     {
         var details = new CocApprovalDetails { LearningKey = Guid.NewGuid(), ApprenticeshipId = 12345 };
         var command = new CocApprovalCommand
@@ -338,7 +388,13 @@ public class CocApprovalCommandHandlerTests
 
         var items = new List<ApprovalFieldRequest>
         {
-            new() { Field = "TNP1", Old = "8000", New = "7000", Status = CocApprovalItemStatus.AutoApproved }
+            new()
+            {
+                Field = nameof(CocChangeField.Firstname), 
+                Old = "Bob", 
+                New = "Bobby", 
+                Status = CocApprovalItemStatus.AutoApproved
+            }
         };
         var state = new CocApprovalState
         {
@@ -349,6 +405,37 @@ public class CocApprovalCommandHandlerTests
         _cocApprovalRules
             .Setup(r => r.DetermineApprovalState(details))
             .ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenApprovalRequestItemsAreNull_DoesNotSendLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid()
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items = null
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
 
         await _sut.Handle(command, CancellationToken.None);
 
