@@ -84,15 +84,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
         }
 
-        [TestCase ("", "John")]
+        [TestCase (" ", "John")]
         [TestCase("John", "")]
         [TestCase("", "")]
-        [TestCase("", null)]
-        [TestCase(null, "")]
+        [TestCase(" ", null)]
+        [TestCase(null, " ")]
         [TestCase(null, "John")]
         [TestCase("John", null)]
         [TestCase(null, null)]
-        public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrEmpty(string oldValue, string newValue)
+        public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrWhiteSpace(string oldValue, string newValue)
         {
             _fixture.SeedData();
 

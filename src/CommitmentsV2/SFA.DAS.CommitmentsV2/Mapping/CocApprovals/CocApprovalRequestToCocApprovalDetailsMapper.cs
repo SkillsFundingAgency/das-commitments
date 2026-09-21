@@ -54,8 +54,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             }
             else if (changeType == CocChangeField.Firstname)
             {
-                CheckIfStringIsNullOrEmptyAndThrowBadRequestException(change.Data?.Old);
-                CheckIfStringIsNullOrEmptyAndThrowBadRequestException(change.Data?.New);
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.Old);
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.New);
             }
         }
         return result;
@@ -96,11 +96,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
-    private void CheckIfStringIsNullOrEmptyAndThrowBadRequestException(string value)
+    private void CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(string value)
     {
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            throw new DomainException("Data", "String value cannot be null or empty.");
+            throw new DomainException("Data", "String value cannot be null or allow only whitespace");
         }
     }
 }

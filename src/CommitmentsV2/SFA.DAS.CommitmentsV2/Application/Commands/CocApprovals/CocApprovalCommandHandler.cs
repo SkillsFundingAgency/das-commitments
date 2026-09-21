@@ -77,7 +77,7 @@ public class CocApprovalCommandHandler(
             }
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items.Where(x => x.Field != nameof(CocChangeField.TNP1) && x.Field != nameof(CocChangeField.TNP2)))
             {
-                var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field);
+                var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
                 if (approvalFieldRequest.Status == CocApprovalItemStatus.AutoRejected)
                 {
                     await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, $"{fieldNameDescription} change from {approvalFieldRequest.Old} to {approvalFieldRequest.New}");
