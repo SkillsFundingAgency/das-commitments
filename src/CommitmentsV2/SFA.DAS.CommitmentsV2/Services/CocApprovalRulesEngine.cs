@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 
@@ -12,6 +14,8 @@ public class CocApprovalRulesEngine(
     ICocApprovalStatusService cocApprovalService,
     ILogger<CocApprovalRulesEngine> logger,
     INotifyProviderService notifyProviderService,
+    IMessageSession messageSession,
+    CommitmentsV2Configuration commitmentsV2Configuration,
     IEncodingService encodingService) : ICocApprovalRulesEngine
 {
     private const string ProviderRequestRejectedNotificationEmailTemplate = "ProviderRequestRejectedNotification";
@@ -27,6 +31,11 @@ public class CocApprovalRulesEngine(
         {         
             var apprenticeship = encodingService.Encode(cocApprovalDetails.ApprenticeshipId, EncodingType.ApprenticeshipId);
             await notifyProviderService.NotifyProvider(cocApprovalDetails.ProviderId, apprenticeship, ProviderRequestRejectedNotificationEmailTemplate);
+        }
+
+        if (updateStatuses.Any(i => i.Status == CocApprovalItemStatus.AutoApproved))
+        {
+            await SendEmployerAutoApprovalNotification(cocApprovalDetails.Apprenticeship);
         }
 
         return new CocApprovalState
@@ -73,6 +82,31 @@ public class CocApprovalRulesEngine(
             return CocApprovalResultStatus.Pending;
 
         return CocApprovalResultStatus.Complete;
+    }
+
+    private async Task SendEmployerAutoApprovalNotification(Apprenticeship apprenticeship)
+    {
+        var accountId = apprenticeship.Cohort.EmployerAccountId;
+        var encodedApprenticeshipId = encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId);
+        var encodedAccountId = encodingService.Encode(accountId, EncodingType.AccountId);
+
+        var sendEmailCommand = new SendEmailToEmployerCommand(
+            accountId,
+            "EmployerAutoApprovedNotification",
+            new Dictionary<string, string>
+            {
+                {"provider_name", apprenticeship.Cohort.Provider.Name},
+                {
+                    "link_to_manage_apprenticeships",
+                    $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{encodedAccountId}/apprentices/{encodedApprenticeshipId}/details"
+                }
+            },
+            null,
+            "Name"
+            );
+
+        logger.LogInformation("Sending EmployerAutoApprovedNotification Email for id {0} hashed as {1}", apprenticeship.Id, encodedApprenticeshipId);
+        await messageSession.Send(sendEmailCommand);
     }
 }
 
