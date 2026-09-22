@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.AcknowledgeInvalidIlrChanges;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PatchApprenticeshipPayments;
@@ -13,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprovalRequestAlertSeen;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetInvalidIlrChanges;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
@@ -326,8 +328,45 @@ public class ApprenticeshipController(
     }
 
     [HttpGet]
+    [Route("{apprenticeshipId:long}/invalid-ilr-changes")]
+    public async Task<IActionResult> GetInvalidIlrChanges(long apprenticeshipId, [FromQuery] long providerId)
+    {
+        logger.LogInformation("Get invalid ILR changes for apprenticeship {ApprenticeshipId} and provider {ProviderId}", apprenticeshipId, providerId);
+
+        var result = await mediator.Send(new GetInvalidIlrChangesQuery
+        {
+            ApprenticeshipId = apprenticeshipId,
+            ProviderId = providerId
+        });
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/invalid-ilr-changes")]
+    public async Task<IActionResult> AcknowledgeInvalidIlrChanges(long apprenticeshipId, [FromBody] AcknowledgeInvalidIlrChangesRequest request)
+    {
+        logger.LogInformation("Acknowledge invalid ILR changes for apprenticeship {ApprenticeshipId} and provider {ProviderId}", apprenticeshipId, request.ProviderId);
+
+        await mediator.Send(new AcknowledgeInvalidIlrChangesCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            ProviderId = request.ProviderId,
+            UserInfo = request.UserInfo,
+            Acknowledgements = request.Acknowledgements
+        });
+
+        return Ok();
+    }
+
+    [HttpGet]
     [Route("{apprenticeshipId:long}/approval-requests")]
-    public async Task<ActionResult> GetApprovalRequestsForApprenticeship(long apprenticeshipId, [FromQuery] byte status, [FromQuery]long accountId)
+    public async Task<ActionResult> GetApprovalRequestsForApprenticeship(long apprenticeshipId, [FromQuery] byte status, [FromQuery] long accountId)
     {
         var result = await mediator.Send(new GetApprovalRequestQuery { ApprenticeshipId = apprenticeshipId, CocApprovalItemStatus = status, AccountId = accountId });
         if (result == null)
@@ -349,10 +388,10 @@ public class ApprenticeshipController(
             ApprovalRequests = request.ApprovalRequestAlerts.Select(
             r => new UpdateApprovalRequestAlertAcknowledge()
             {
-                
+
                 ApprovalRequestId = r.ApprovalRequestId,
-                 Acknowledged = r.Acknowledged,
-                 UserInfo = r.UserInfo
+                Acknowledged = r.Acknowledged,
+                UserInfo = r.UserInfo
             }).ToList()
         });
         logger.LogInformation("UpdateApprovalRequestAlertAcknowledge completed for apprenticeship {ApprenticeshipId}", apprenticeshipId);

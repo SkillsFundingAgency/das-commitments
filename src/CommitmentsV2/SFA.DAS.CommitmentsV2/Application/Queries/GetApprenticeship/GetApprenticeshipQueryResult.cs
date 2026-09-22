@@ -59,5 +59,6 @@ public class GetApprenticeshipQueryResult
     public EmployerVerificationRequestStatus? EmployerVerificationStatus { get; set; }
     public string EmployerVerificationNotes { get; set; }
     public bool HasChangeHistory { get; set; }
+    public bool HasUnacknowledgedInvalidIlrChanges { get; set; }
     public bool HasAutoApprovedRequests { get; set; }
 }

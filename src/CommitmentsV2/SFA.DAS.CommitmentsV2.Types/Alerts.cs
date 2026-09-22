@@ -21,6 +21,9 @@ namespace SFA.DAS.CommitmentsV2.Types
         [Description("Confirm dates")]
         ConfirmDates = 4,
 
+        [Description("ILR changes invalid")]
+        IlrChangeInvalid = 5,
+
         [Description("View changes")]
         ViewChanges = 8
     }

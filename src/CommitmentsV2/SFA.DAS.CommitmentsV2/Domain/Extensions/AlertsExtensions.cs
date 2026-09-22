@@ -49,6 +49,11 @@ public static class AlertsExtensions
             result.Add(Alerts.ConfirmDates);
         }
 
+        if (HasUnacknowledgedInvalidIlrChanges(source))
+        {
+            result.Add(Alerts.IlrChangeInvalid);
+        }
+
         if (HasAutoApprovedApprovalRequests(source))
         {
             result.Add(Alerts.ViewChanges);
@@ -56,11 +61,25 @@ public static class AlertsExtensions
 
         return result;
     }
-
     private static bool HasAutoApprovedApprovalRequests(Apprenticeship source)
     {
         return !source.IsProviderSearch && source.ApprovalRequests != null && source.ApprovalRequests.Any(t => t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null
         && t.Items.Any(c => c.Status == CocApprovalItemStatus.AutoApproved));
+    }
+
+    public static bool HasUnacknowledgedInvalidIlrChanges(this Apprenticeship source)
+    {
+        return source.IsProviderSearch &&
+               source.ApprovalRequests != null &&
+               source.ApprovalRequests.Any(IsUnacknowledgedAutoRejected);
+    }
+
+    public static bool IsUnacknowledgedAutoRejected(this ApprovalRequest request)
+    {
+        return request.Status == CocApprovalResultStatus.Complete &&
+               request.ProviderAcknowledgedAt == null &&
+               request.Items != null &&
+               request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected);
     }
 
     private static bool HasCourseDataLock(Apprenticeship source)
