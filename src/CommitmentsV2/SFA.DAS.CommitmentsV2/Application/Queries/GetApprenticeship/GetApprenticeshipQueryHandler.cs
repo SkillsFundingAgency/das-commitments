@@ -1,6 +1,6 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
@@ -9,7 +9,6 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
 {
     public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
     {
-
         var db = dbContext.Value;
         var result = await db.Apprenticeships
             .Include(x => x.FlexibleEmployment)
@@ -103,6 +102,7 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
             && approvalRequest.ProviderAcknowledgedAt == null
             && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
 
+        result.HasAutoApprovedRequests = await db.ApprovalRequests.AsNoTracking().AnyAsync(t => t.ApprenticeshipId == request.ApprenticeshipId && (t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null) && t.Items.Any(k => k.Status == CocApprovalItemStatus.AutoApproved), cancellationToken);
         return result;
-    }   
+    }
 }

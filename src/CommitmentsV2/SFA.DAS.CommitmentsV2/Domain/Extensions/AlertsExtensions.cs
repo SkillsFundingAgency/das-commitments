@@ -54,7 +54,17 @@ public static class AlertsExtensions
             result.Add(Alerts.IlrChangeInvalid);
         }
 
+        if (HasAutoApprovedApprovalRequests(source))
+        {
+            result.Add(Alerts.ViewChanges);
+        }
+
         return result;
+    }
+    private static bool HasAutoApprovedApprovalRequests(Apprenticeship source)
+    {
+        return !source.IsProviderSearch && source.ApprovalRequests != null && source.ApprovalRequests.Any(t => t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null
+        && t.Items.Any(c => c.Status == CocApprovalItemStatus.AutoApproved));
     }
 
     public static bool HasUnacknowledgedInvalidIlrChanges(this Apprenticeship source)
