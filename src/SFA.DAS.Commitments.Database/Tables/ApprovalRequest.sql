@@ -23,3 +23,8 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_ApprovalRequest_ApprenticeshipId] ON [dbo].[ApprovalRequest] ([ApprenticeshipId]) WITH (ONLINE = ON)
 GO
+
+CREATE NONCLUSTERED INDEX [IX_ApprovalRequest_ApprenticeshipId_Status_ProviderAcknowledgedAt]
+ON [dbo].[ApprovalRequest] ([ApprenticeshipId], [Status], [ProviderAcknowledgedAt])
+WITH (ONLINE = ON)
+GO
