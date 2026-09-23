@@ -223,8 +223,7 @@ components:
           type: string
           enum: [TrainingPrice, AssessmentPrice]
         approvalStatus:
-          type: string
-          enum: [autoApproved, autoRejected, employerApprovalRequired]
+          $ref: "#/components/schemas/approvalStatus"
         reason:
           type: string
       required:
@@ -236,13 +235,8 @@ components:
         - $ref: "#/components/schemas/priceChange"
         - type: object
           properties:
-            status:
-              description: The status to set on the approval request
-              type: string
-              enum:
-                - approved
-                - rejected
-                - pending
+            approvalStatus:
+              $ref: "#/components/schemas/approvalStatus"
             reason:
               description: Optional reason for the status change, required when rejecting
               type: string
@@ -384,3 +378,12 @@ components:
           type: string
         result:
           type: string
+
+    approvalStatus:
+      type: string
+      description: >
+        The outcome of evaluating a change or price episode. Currently all price
+        episodes return employerApprovalRequired; autoApproved and autoRejected
+        are reserved for future approval rules.
+      enum: [autoApproved, autoRejected, employerApprovalRequired]
+
