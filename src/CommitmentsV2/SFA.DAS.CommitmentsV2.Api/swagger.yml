@@ -150,15 +150,6 @@ components:
             items:
               $ref: "#/components/schemas/error"
 
-    errorPendingChangeExistsResponse:
-      description: There is a pending change and the caller has asked to create a new one
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/error"
-
     notFound:
       description: Not found response
       content:
@@ -220,12 +211,7 @@ components:
             $ref: "#/components/schemas/fieldApprovalResult"
         prices:
           description: >
-            One entry per price point evaluated from the submitted
-            priceHistory — whether it came from trainingPrice,
-            assessmentPrice, or both on a given date. Only the field(s)
-            that actually differed from their baseline appear here, so a
-            date where only one of the two changed produces one entry,
-            not two.
+            A return to the consumer per price episode with the approval result
           type: array
           items:
             $ref: "#/components/schemas/priceApprovalResult"
@@ -246,32 +232,20 @@ components:
         - approvalStatus
 
     priceApprovalResult:
-      type: object
-      description: >
-        The evaluated result for a single price point — one entry per
-        field per effective date that differed from its baseline.
-      properties:
-        field:
-          type: string
-          enum: [TrainingPrice, AssessmentPrice]
-        old:
-          type: string
-        new:
-          type: string
-        effectiveFromDate:
-          type: string
-          format: date
-        approvalStatus:
-          type: string
-          enum: [autoApproved, autoRejected, employerApprovalRequired]
-        reason:
-          type: string
-      required:
-        - field
-        - old
-        - new
-        - effectiveFromDate
-        - approvalStatus
+      allOf: 
+        - $ref: "#/components/schemas/priceChange"
+        - type: object
+          properties:
+            status:
+              description: The status to set on the approval request
+              type: string
+              enum:
+                - approved
+                - rejected
+                - pending
+            reason:
+              description: Optional reason for the status change, required when rejecting
+              type: string
 
     approvalRequest:
       type: object
@@ -298,10 +272,7 @@ components:
         changes:
           $ref: "#/components/schemas/learningChangeArray"
         priceRecords:
-          type: object
-          properties: 
-            records:    
-              $ref: "#/components/schemas/priceRecordArray"
+          $ref: "#/components/schemas/priceRecordArray"
 
     approvalStatusRequest:
       type: object
