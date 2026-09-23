@@ -15,9 +15,18 @@ public class ApprovalRequest
     public CocLearningType LearningType { get; set; }
     public string UKPRN { get; set; }
     public string ULN { get; set; }
+    public string Reason { get; set; }
     public CocApprovalResultStatus? Status { get; set; }
-    public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
-    public virtual Apprenticeship Apprenticeship { get; set; }
+    public DateTime? ProviderAcknowledgedAt { get; set; }
+    public string ProviderAcknowledgedBy { get; set; }
     public DateTime? EmployerAcknowledgedAt { get; set; }
     public string EmployerAcknowledgedBy { get; set; }
+    public virtual ICollection<ApprovalFieldRequest> Items { get; set; }
+    public virtual Apprenticeship Apprenticeship { get; set; }
+
+    public void AcknowledgeByProvider(string userId, DateTime acknowledgedAt)
+    {
+        ProviderAcknowledgedAt = acknowledgedAt;
+        ProviderAcknowledgedBy = userId;
+    }
 }
