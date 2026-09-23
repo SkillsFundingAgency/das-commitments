@@ -49,7 +49,27 @@ public static class AlertsExtensions
             result.Add(Alerts.ConfirmDates);
         }
 
+        if (HasUnacknowledgedInvalidIlrChanges(source))
+        {
+            result.Add(Alerts.IlrChangeInvalid);
+        }
+
         return result;
+    }
+
+    public static bool HasUnacknowledgedInvalidIlrChanges(this Apprenticeship source)
+    {
+        return source.IsProviderSearch &&
+               source.ApprovalRequests != null &&
+               source.ApprovalRequests.Any(IsUnacknowledgedAutoRejected);
+    }
+
+    public static bool IsUnacknowledgedAutoRejected(this ApprovalRequest request)
+    {
+        return request.Status == CocApprovalResultStatus.Complete &&
+               request.ProviderAcknowledgedAt == null &&
+               request.Items != null &&
+               request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected);
     }
 
     private static bool HasCourseDataLock(Apprenticeship source)
