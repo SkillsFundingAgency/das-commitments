@@ -171,6 +171,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
+        public void HasUnacknowledgedDeclinedChangesIsMappedCorrectly()
+        {
+            _result.HasUnacknowledgedDeclinedChanges.Should().Be(_source.HasUnacknowledgedDeclinedChanges);
+        }
+
+        [Test]
         public async Task FreezeStatusIsDerivedFromPaymentFreezeDate()
         {
             _source.PaymentFreezeDate = null;

@@ -168,8 +168,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         {
             var accountLegalEntityDetails = new AccountLegalEntity()
                 .Set(c => c.Id, 444);
-
             Db.AccountLegalEntities.Add(accountLegalEntityDetails);
+
+            var provider = new Provider()
+                .Set(c => c.UkPrn, 333)
+                .Set(c => c.Name, "Test Provider");
+            Db.Providers.Add(provider);
 
             var cohortDetails = new Cohort()
                 .Set(c => c.Id, 111)
