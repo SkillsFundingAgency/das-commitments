@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursForCourse)
+    public IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursForCourse)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
@@ -17,7 +17,7 @@ public partial class ValidationService
         {
             yield break;
         }
-        
+
         if (csvRecord.TrainingTotalHours == null)
         {
             yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 187 and 9,999");

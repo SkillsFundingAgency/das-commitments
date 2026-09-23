@@ -13,6 +13,4 @@ public partial class ValidationService(
     IEmployerAgreementService employerAgreementService,
     IUlnValidator ulnValidator) : IValidationService
 {
-    
-    
 }

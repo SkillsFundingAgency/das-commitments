@@ -1,5 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
@@ -7,18 +6,18 @@ public partial class ValidationService
 {
     private const string LegalAgreementIdIssue = "LegalAgreementId";
 
-    public async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord, string employerName)
+    public async Task<List<Error>> ValidateAgreementIdValidFormat(string agreementId, string employerName)
     {
         var errors = new List<Error>();
-        if (string.IsNullOrEmpty(csvRecord.AgreementId))
+        if (string.IsNullOrEmpty(agreementId))
         {
             errors.Add(new Error("AgreementId", "<b>Agreement ID</b> must be entered"));
         }
-        else if (!csvRecord.AgreementId.All(char.IsLetterOrDigit))
+        else if (!agreementId.All(char.IsLetterOrDigit))
         {
             errors.Add(new Error("AgreementId", $"Enter a valid <b>Agreement ID</b>"));
         }
-        else if (csvRecord.AgreementId.Length > 6)
+        else if (agreementId.Length > 6)
         {
             errors.Add(new Error("AgreementId", $"Enter a valid <b>Agreement ID</b>"));
         }
@@ -30,7 +29,7 @@ public partial class ValidationService
         return errors;
     }
 
-    public async Task<List<Error>> ValidateAgreementIdIsSigned(BulkUploadAddDraftApprenticeshipRequest csvRecord, bool? isSigned)
+    public async Task<List<Error>> ValidateAgreementIdIsSigned(bool? isSigned)
     {
         var errors = new List<Error>();
         if (!isSigned.GetValueOrDefault(false))

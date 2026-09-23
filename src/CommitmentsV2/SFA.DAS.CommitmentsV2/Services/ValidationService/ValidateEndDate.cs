@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.EndDateAsString))

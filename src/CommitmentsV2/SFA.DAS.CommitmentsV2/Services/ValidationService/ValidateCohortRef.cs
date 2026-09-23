@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
@@ -11,14 +12,14 @@ public partial class ValidationService
 {
     private const string CohortRefPermissionIssue = "CohortRefPermission";
 
-    public async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, Cohort cohort)
+    public async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, Cohort cohort, string employerName)
     {
         var domainErrors = new List<Error>();
 
         if (string.IsNullOrWhiteSpace(csvRecord.CohortRef))
         {
             return domainErrors;
-        }        
+        }
 
         if (cohort == null)
         {
@@ -30,7 +31,7 @@ public partial class ValidationService
         {
             domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
         }
-        else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(await GetEmployerName(csvRecord.AgreementId)))
+        else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(employerName))
         {
             domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
         }
@@ -86,12 +87,12 @@ public partial class ValidationService
         return domainErrors;
     }
 
-    public async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, ICollection<Error> domainErrors, bool? isLevy)
+    public async Task<bool> ValidatePermissionToCreateCohort(long providerId, ICollection<Error> domainErrors, bool? isLevy, EmployerSummary employerDetails)
     {
         const string nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf";
         const string levyPermissionText = "The <b>employer must give you permission</b> to add apprentices on their behalf";
 
-        var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
+        var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(providerId, employerDetails);
         if (!hasPermissionToCreateCohort)
         {
             var errorTextToUse = (isLevy.HasValue && isLevy.Value) ? levyPermissionText : nonLevyPermissionText;
@@ -102,10 +103,8 @@ public partial class ValidationService
         return hasPermissionToCreateCohort;
     }
 
-    private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+    private async Task<bool> HasPermissionToCreateCohort(long providerId, EmployerSummary employerDetails)
     {
-        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-
         if (!employerDetails.LegalEntityId.HasValue || providerId == 0)
         {
             return true;
@@ -126,12 +125,12 @@ public partial class ValidationService
         return result;
     }
 
-    private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
+    private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Cohort cohort)
     {
         return await overlapService.CheckForOverlaps(cohort.Id, CancellationToken.None);
     }
 
-    private async Task<List<EmailOverlapCheckResult>> OverlapEmailCheckForCohort(Models.Cohort cohort)
+    private async Task<List<EmailOverlapCheckResult>> OverlapEmailCheckForCohort(Cohort cohort)
     {
         return await overlapService.CheckForEmailOverlaps(cohort.Id, CancellationToken.None);
     }

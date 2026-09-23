@@ -34,7 +34,7 @@ public partial class ValidationService
                 {
                     yield return new Error("TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be lower than the total off-the-job training time for this apprenticeship standard");
                 }
-                
+
                 if (csvRecord.TrainingTotalHours - csvRecord.TrainingHoursReduction < minimumOffTheJobTrainingHoursForCourse)
                 {
                     yield return new Error("TrainingHoursReduction", $"The remaining off-the-job training is below the minimum {minimumOffTheJobTrainingHoursForCourse} hours required for funding. Check if the <b>RPL reduction</b> is too high");

@@ -2,12 +2,13 @@ using System.Text.RegularExpressions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    public IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    public IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults, Standard standard)
     {
         var domainErrors = new List<Error>();
 
@@ -29,7 +30,7 @@ public partial class ValidationService
             }
             else
             {
-                var courseLevel = GetStandardDetails(csvRecord.CourseCode)?.Level;
+                var courseLevel = standard?.Level;
 
                 if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
                 {

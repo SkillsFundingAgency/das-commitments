@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<BulkUploadAddDraftApprenticeshipRequest> csvRecords)
     {
         var domainErrors = new List<Error>();
 
@@ -39,7 +39,7 @@ public partial class ValidationService
                 }
             }
 
-            if (_csvRecords.Any(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
+            if (csvRecords.Any(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
             {
                 domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> has already been used for an apprentice in this file"));
             }
@@ -51,7 +51,7 @@ public partial class ValidationService
     {
         var learnerStartDate = csvRecord.StartDate;
         var learnerEndDate = csvRecord.EndDate;
-        
+
         if (learnerStartDate.HasValue && learnerEndDate.HasValue)
         {
             return overlapService.CheckForOverlaps(csvRecord.Uln, new CourseDateRange(learnerStartDate.Value, learnerEndDate.Value), null, CancellationToken.None).Result;

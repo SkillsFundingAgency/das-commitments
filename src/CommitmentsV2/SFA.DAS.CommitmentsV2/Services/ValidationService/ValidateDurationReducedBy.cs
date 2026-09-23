@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateDurationReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateDurationReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         if (!string.IsNullOrEmpty(csvRecord.IsDurationReducedByRPLAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {

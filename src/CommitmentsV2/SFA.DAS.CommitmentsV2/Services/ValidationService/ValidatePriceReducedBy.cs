@@ -17,12 +17,12 @@ public partial class ValidationService
         {
             yield break;
         }
-        
+
         if (csvRecord.PriceReducedBy == null)
         {
             yield return new Error("PriceReducedBy", $"Total <b>price reduction</b> due to RPL must be a number between {minPriceReduction.ToString("N0")} and 18,000");
         }
-        else if(csvRecord.PriceReducedBy > 18000)
+        else if (csvRecord.PriceReducedBy > 18000)
         {
             yield return new Error("PriceReducedBy", "Total <b>price reduction</b> due to RPL must be 18,000 or less");
         }

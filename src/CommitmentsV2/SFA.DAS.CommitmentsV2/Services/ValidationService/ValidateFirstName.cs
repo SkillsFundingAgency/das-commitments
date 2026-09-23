@@ -1,18 +1,17 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    public IEnumerable<Error> ValidateGivenName(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateFirstName(string firstName)
     {
         var domainErrors = new List<Error>();
-        if (string.IsNullOrEmpty(csvRecord.FirstName))
+        if (string.IsNullOrEmpty(firstName))
         {
             domainErrors.Add(new Error("GivenName", "<b>First name</b> must be entered"));
         }
-        else if (csvRecord.FirstName.Length > 100)
+        else if (firstName.Length > 100)
         {
             domainErrors.Add(new Error("GivenName", "Enter a <b>first name</b> that is not longer than 100 characters"));
         }

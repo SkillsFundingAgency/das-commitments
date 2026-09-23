@@ -1,14 +1,13 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidateEPAOrgId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEPAOrgId(string EPAOrgId)
     {
         var domainErrors = new List<Error>();
-        if (!string.IsNullOrWhiteSpace(csvRecord.EPAOrgId) && csvRecord.EPAOrgId.Length > 7)
+        if (!string.IsNullOrWhiteSpace(EPAOrgId) && EPAOrgId.Length > 7)
         {
             domainErrors.Add(new Error("EPAOrgId", "The <b>EPAO ID</b> must not be longer than 7 characters"));
         }

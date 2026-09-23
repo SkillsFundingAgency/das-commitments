@@ -1,13 +1,14 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Models;
 using System.Text.RegularExpressions;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateStartDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateStartDate(BulkUploadAddDraftApprenticeshipRequest csvRecord, Standard standard, Cohort cohort)
     {
         var domainErrors = new List<Error>();
 
@@ -29,7 +30,7 @@ public partial class ValidationService
             {
                 domainErrors.Add(new Error("StartDate", "The <b>start date</b> must not be earlier than May 2017"));
             }
-            else if (IsBeforeMay2018AndIsCohortIsTransferFunded(startDate.Value, csvRecord.CohortRef))
+            else if (IsBeforeMay2018AndIsCohortIsTransferFunded(startDate.Value, cohort))
             {
                 domainErrors.Add(new Error("StartDate", "The <b>start date</b> for apprenticeships funded through a transfer must not be earlier than May 2018"));
             }
@@ -38,12 +39,11 @@ public partial class ValidationService
                 domainErrors.Add(new Error("StartDate", "The <b>start date</b> must be no later than one year after the end of the current teaching year"));
             }
 
-            var standard = GetStandardDetails(csvRecord.CourseCode);
             if (standard == null)
             {
                 return domainErrors;
             }
-                
+
             if (standard.EffectiveFrom.HasValue &&
                 startDate < standard.EffectiveFrom.Value)
             {
@@ -71,12 +71,11 @@ public partial class ValidationService
         return startDateAsString < Constants.DasStartDate;
     }
 
-    private bool IsBeforeMay2018AndIsCohortIsTransferFunded(DateTime startDateAsString, string cohortRef)
+    private bool IsBeforeMay2018AndIsCohortIsTransferFunded(DateTime startDateAsString, Cohort cohort)
     {
-        var cohortDetails = GetCohortDetails(cohortRef);
-        if (cohortDetails != null)
+        if (cohort != null)
         {
-            return cohortDetails.TransferSenderId.HasValue && startDateAsString < Constants.TransferFeatureStartDate;
+            return cohort.TransferSenderId.HasValue && startDateAsString < Constants.TransferFeatureStartDate;
         }
 
         return false;
