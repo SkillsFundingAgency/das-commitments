@@ -60,15 +60,10 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
-        try
-        {
-            return await dbContext.Value.GetApprenticeshipAggregate(id, CancellationToken.None);
-        }
-        catch (BadRequestException ex)
-        {
-            logger.LogError(ex, "ApprenticeshipId {ApprenticeshipId} not found, set it to null", id);
-            return null;
-        }
+        return await dbContext.Value.Apprenticeships
+            .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
+            .Include(a => a.Cohort).ThenInclude(c => c.Provider)
+            .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
     }
 
     public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
