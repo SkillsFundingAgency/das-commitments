@@ -77,7 +77,8 @@ public class ApprenticeshipController(
                 StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
                 Alert = request.Alert,
                 ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
-                DeliveryModel = request.DeliveryModel
+                DeliveryModel = request.DeliveryModel,
+                TransferSenderId = request.TransferSenderId
             };
 
             var queryResult = await mediator.Send(new GetApprenticeshipsQuery

@@ -822,6 +822,49 @@ public class WhenFilteringApprenticeships
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result.All(a => a.Uln == "2" && a.DataLockStatus.Any(x => !x.IsExpired)), Is.True);
     }
+    
+    [Test]
+    public void ThenShouldFilterByCohortTransferSenderId()
+    {
+        //Arrange
+        long? filterValue = 1000;
+
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = filterValue,
+                }
+            },
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = filterValue,
+                }
+            },
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = 1,
+                }
+            },
+            new()
+            {
+                Cohort = null
+            }
+        }.AsQueryable();
+
+        //Act
+        var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { TransferSenderId = filterValue }).ToList();
+
+        //Assert
+        result.Should().HaveCount(2);
+        result.Should().AllSatisfy(a => a.Cohort.TransferSenderId.Should().Be(filterValue));
+    }
 
     private static AccountLegalEntity CreateAccountLegalEntity(string name)
     {

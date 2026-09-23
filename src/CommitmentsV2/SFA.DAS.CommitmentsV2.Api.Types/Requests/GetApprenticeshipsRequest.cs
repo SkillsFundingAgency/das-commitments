@@ -26,4 +26,5 @@ public class GetApprenticeshipsRequest
     public Alerts? Alert { get; set; }
     public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
     public DeliveryModel? DeliveryModel { get; set; }
+    public long? TransferSenderId { get; set; }
 }
