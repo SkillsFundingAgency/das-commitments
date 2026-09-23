@@ -176,7 +176,9 @@ public static class QueryableApprenticeshipsExtensions
                                                                request.Status == CocApprovalResultStatus.Complete
                                                                && request.ProviderAcknowledgedAt == null
                                                                && request.Items != null
-                                                               && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))));
+                                                               && request.Items.Any(item =>
+                                                                   item.Status == CocApprovalItemStatus.AutoRejected
+                                                                   || item.Status == CocApprovalItemStatus.EmployerRejected))));
         }
 
         return apprenticeships.Where(apprenticeship =>
@@ -186,7 +188,9 @@ public static class QueryableApprenticeshipsExtensions
                 request.Status == CocApprovalResultStatus.Complete
                 && request.ProviderAcknowledgedAt == null
                 && request.Items != null
-                && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))));
+                && request.Items.Any(item =>
+                    item.Status == CocApprovalItemStatus.AutoRejected
+                    || item.Status == CocApprovalItemStatus.EmployerRejected))));
     }
 
     private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
@@ -257,6 +261,9 @@ public static class QueryableApprenticeshipsExtensions
 
             case Alerts.IlrChangeInvalid:
                 return FilterApprenticeshipByAlertForIlrChangeInvalid(apprenticeships, isProvider);
+
+            case Alerts.ChangesDeclined:
+                return FilterApprenticeshipByAlertForChangesDeclined(apprenticeships, isProvider);
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
@@ -386,5 +393,21 @@ public static class QueryableApprenticeshipsExtensions
                 && request.ProviderAcknowledgedAt == null
                 && request.Items != null
                 && request.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected)));
+    }
+
+    private static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesDeclined(IQueryable<Apprenticeship> apprenticeships, bool isProvider)
+    {
+        if (!isProvider)
+        {
+            return apprenticeships.Where(_ => false);
+        }
+
+        return apprenticeships.Where(a =>
+            a.ApprovalRequests != null &&
+            a.ApprovalRequests.Any(request =>
+                request.Status == CocApprovalResultStatus.Complete
+                && request.ProviderAcknowledgedAt == null
+                && request.Items != null
+                && request.Items.Any(item => item.Status == CocApprovalItemStatus.EmployerRejected)));
     }
 }

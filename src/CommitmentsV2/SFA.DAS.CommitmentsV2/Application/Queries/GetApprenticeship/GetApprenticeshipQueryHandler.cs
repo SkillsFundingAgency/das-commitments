@@ -103,6 +103,12 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
             && approvalRequest.ProviderAcknowledgedAt == null
             && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
 
+        result.HasUnacknowledgedDeclinedChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
+            approvalRequest.ApprenticeshipId == request.ApprenticeshipId
+            && approvalRequest.Status == Models.CocApprovalResultStatus.Complete
+            && approvalRequest.ProviderAcknowledgedAt == null
+            && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
+
         return result;
     }   
 }

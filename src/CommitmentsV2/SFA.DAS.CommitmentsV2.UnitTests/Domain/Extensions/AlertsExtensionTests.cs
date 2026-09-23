@@ -539,7 +539,101 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             result.Alerts.Should().BeEmpty();
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_EmployerRejected_Request_And_IsProviderSearch_Then_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesDeclined });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_EmployerRejected_Request_And_IsNotProviderSearch_Then_No_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Acknowledged_EmployerRejected_Request_Then_No_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            var request = CreateUnacknowledgedEmployerRejectedRequest();
+            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
+            source.ApprovalRequests = new List<ApprovalRequest> { request };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Both_Unacknowledged_AutoRejected_And_EmployerRejected_Then_Both_Alerts(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest(),
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangeInvalid, Alerts.ChangesDeclined });
+        }
+
         private static ApprovalRequest CreateUnacknowledgedAutoRejectedRequest()
+        {
+            return CreateUnacknowledgedRequest(CocApprovalItemStatus.AutoRejected);
+        }
+
+        private static ApprovalRequest CreateUnacknowledgedEmployerRejectedRequest()
+        {
+            return CreateUnacknowledgedRequest(CocApprovalItemStatus.EmployerRejected);
+        }
+
+        private static ApprovalRequest CreateUnacknowledgedRequest(CocApprovalItemStatus itemStatus)
         {
             return new ApprovalRequest
             {
@@ -551,7 +645,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                     new()
                     {
                         Field = "TNP1",
-                        Status = CocApprovalItemStatus.AutoRejected
+                        Status = itemStatus
                     }
                 }
             };
