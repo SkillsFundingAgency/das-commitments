@@ -171,9 +171,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
-        public void HasUnacknowledgedInvalidIlrChangesIsMappedCorrectly()
+        public void HasUnacknowledgedDeclinedChangesIsMappedCorrectly()
         {
-            _result.HasUnacknowledgedInvalidIlrChanges.Should().Be(_source.HasUnacknowledgedInvalidIlrChanges);
+            _result.HasUnacknowledgedDeclinedChanges.Should().Be(_source.HasUnacknowledgedDeclinedChanges);
         }
 
         [Test]
@@ -186,6 +186,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
 
             _result.FreezeStatus.Should().BeFalse();
             _result.PaymentFreezeDate.Should().BeNull();
+        }
+
+        [Test]
+        public void PendingApprovalRequestIdIsMappedCorrectly()
+        {
+            _result.PendingApprovalRequestId.Should().Be(_source.PendingApprovalRequestId);
         }
     }
 }
