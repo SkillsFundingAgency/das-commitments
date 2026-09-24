@@ -66,30 +66,50 @@ public class CocApprovalCommandHandler(
 
         db.ApprovalRequests.Add(approvalState.ApprovalRequest);
 
-        if (approvalState.ApprovalRequest?.Items != null &&
-            approvalState.ApprovalRequest.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected))
+        if (approvalState.ApprovalRequest?.Items != null)
         {
-            await StoreAutoRejectedChangeHistory(command.CocApprovalDetails);
+            if (approvalState.ApprovalRequest.Items.Any(x => (x.Field == nameof(CocChangeField.TNP1) || x.Field == nameof(CocChangeField.TNP2)) && x.Status == CocApprovalItemStatus.AutoRejected))
+            {
+                var oldTotal = (command.CocApprovalDetails.Updates?.TNP1?.Old ?? 0) + (command.CocApprovalDetails.Updates?.TNP2?.Old ?? 0);
+                var newTotal = (command.CocApprovalDetails.Updates?.TNP1?.New ?? 0) + (command.CocApprovalDetails.Updates?.TNP2?.New ?? 0);
+
+                await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, $"Total price change from {oldTotal.ToGdsCostFormat()} to {newTotal.ToGdsCostFormat()}");
+            }
+            foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items.Where(x => x.Field != nameof(CocChangeField.TNP1) && x.Field != nameof(CocChangeField.TNP2)))
+            {
+                var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
+                if (approvalFieldRequest.Status == CocApprovalItemStatus.AutoRejected)
+                {
+                    await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, $"{fieldNameDescription} change from {approvalFieldRequest.Old} to {approvalFieldRequest.New}");
+                }
+                else if (approvalFieldRequest.Status == CocApprovalItemStatus.AutoApproved)
+                {
+                    await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoApproved, $"{fieldNameDescription} change from {approvalFieldRequest.Old} to {approvalFieldRequest.New}");
+                }
+            }
         }
 
         return approvalState.ApprovalResult;
     }
 
-    private async Task StoreAutoRejectedChangeHistory(CocApprovalDetails details)
+    private async Task CreateLearningHistoryAsync(CocApprovalDetails details, LearningSourceType learningSourceType, LearningChangeType learningChangeType, string description)
     {
-        var oldTotal = (details.Updates?.TNP1?.Old ?? 0) + (details.Updates?.TNP2?.Old ?? 0);
-        var newTotal = (details.Updates?.TNP1?.New ?? 0) + (details.Updates?.TNP2?.New ?? 0);
-
         await messageSession.Send(new StoreLearningHistoryCommand
         {
             ApprenticeshipId = details.ApprenticeshipId,
             LearningKey = details.LearningKey,
-            Source = LearningSourceType.ApprovalAPI,
-            ChangeType = LearningChangeType.AutoRejected,
+            Source = learningSourceType,
+            ChangeType = learningChangeType,
             AppliedDate = currentDateTime.UtcNow,
-            Description = $"Total price change from {oldTotal.ToGdsCostFormat()} to {newTotal.ToGdsCostFormat()}"
+            Description = description
         });
     }
+
+    private string GetFieldDescription(string cocChangeField) => cocChangeField switch
+    {
+        nameof(CocChangeField.Firstname) => "First name",
+        _ => null
+    };
 
     private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
     {
