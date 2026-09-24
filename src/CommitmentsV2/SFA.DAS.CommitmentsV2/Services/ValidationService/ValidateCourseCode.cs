@@ -1,30 +1,31 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    public IEnumerable<Error> ValidateCourseCode(string courseCode, ProviderStandardResults providerStandardResults, Standard standard)
     {
         var domainErrors = new List<Error>();
-        if (string.IsNullOrEmpty(csvRecord.CourseCode))
+        if (string.IsNullOrEmpty(courseCode))
         {
             domainErrors.Add(new Error("CourseCode", "<b>Standard code</b> must be entered"));
         }
-        else if (!csvRecord.CourseCode.All(char.IsDigit) && !int.TryParse(csvRecord.CourseCode, out _))
+        else if (!courseCode.All(char.IsDigit) && !int.TryParse(courseCode, out _))
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>. Apprenticeship units must be added by ILR upload"));
         }
-        else if (csvRecord.CourseCode.Length > 5)
+        else if (courseCode.Length > 5)
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
-        else if (GetStandardDetails(csvRecord.CourseCode) == null)
+        else if (standard == null)
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
-        else if (providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(csvRecord.CourseCode, providerStandardResults))
+        else if (providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(courseCode, providerStandardResults))
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href=" + urlHelper.CourseManagementLink($"{csvRecord.ProviderId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
         }
@@ -32,7 +33,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    internal static List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
+    public List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
     {
         var domainErrors = new List<Error>();
         if (providerStandardResults.IsMainProvider && !providerStandardResults.Standards.Any())
@@ -43,7 +44,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private static bool IsValidMainProviderStandardDetails(string stdCode, ProviderStandardResults providerStandardResults)
+    private bool IsValidMainProviderStandardDetails(string stdCode, ProviderStandardResults providerStandardResults)
     {
         if (string.IsNullOrWhiteSpace(stdCode)) return false;
         if (providerStandardResults.Standards == null) return false;
