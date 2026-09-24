@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -27,4 +28,5 @@ public class GetApprenticeshipsRequest
     public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
     public DeliveryModel? DeliveryModel { get; set; }
     public long? TransferSenderId { get; set; }
+    public List<ApprenticeshipStatus> Statuses { get; set; }
 }

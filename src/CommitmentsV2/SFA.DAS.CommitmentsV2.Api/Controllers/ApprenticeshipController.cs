@@ -78,7 +78,8 @@ public class ApprenticeshipController(
                 Alert = request.Alert,
                 ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
                 DeliveryModel = request.DeliveryModel,
-                TransferSenderId = request.TransferSenderId
+                TransferSenderId = request.TransferSenderId,
+                Statuses = request.Statuses
             };
 
             var queryResult = await mediator.Send(new GetApprenticeshipsQuery
