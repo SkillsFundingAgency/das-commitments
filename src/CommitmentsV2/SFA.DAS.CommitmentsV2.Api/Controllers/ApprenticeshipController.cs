@@ -361,4 +361,44 @@ public class ApprenticeshipController(
 
         return Ok();
     }
+
+    [HttpGet]
+    [Route("{apprenticeshipId:long}/declined-changes")]
+    public async Task<IActionResult> GetDeclinedChanges(long apprenticeshipId, [FromQuery] long providerId)
+    {
+        logger.LogInformation("Get declined changes for apprenticeship {ApprenticeshipId} and provider {ProviderId}", apprenticeshipId, providerId);
+
+        var result = await mediator.Send(new GetInvalidIlrChangesQuery
+        {
+            ApprenticeshipId = apprenticeshipId,
+            ProviderId = providerId,
+            ItemStatus = CocApprovalItemStatus.EmployerRejected,
+            Decision = GetInvalidIlrChangesQuery.EmployerRejectedDecision
+        });
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPost]
+    [Route("{apprenticeshipId:long}/declined-changes")]
+    public async Task<IActionResult> AcknowledgeDeclinedChanges(long apprenticeshipId, [FromBody] AcknowledgeInvalidIlrChangesRequest request)
+    {
+        logger.LogInformation("Acknowledge declined changes for apprenticeship {ApprenticeshipId} and provider {ProviderId}", apprenticeshipId, request.ProviderId);
+
+        await mediator.Send(new AcknowledgeInvalidIlrChangesCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            ProviderId = request.ProviderId,
+            UserInfo = request.UserInfo,
+            ItemStatus = CocApprovalItemStatus.EmployerRejected,
+            Acknowledgements = request.Acknowledgements
+        });
+
+        return Ok();
+    }
 }
