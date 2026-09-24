@@ -15,7 +15,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
         {
             throw new NullReferenceException($"There are no price history records for the apprenticeship Id: {source.Id}");
         }
-        
+
         return Task.FromResult(new GetApprenticeshipsQueryResult.ApprenticeshipDetails
         {
             Id = source.Id,
@@ -27,7 +27,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EmployerName = source.Cohort.AccountLegalEntity.Name,
             ProviderName = source.Cohort.Provider.Name,
             StartDate = source.StartDate.GetValueOrDefault(),
-            EndDate = source.EndDate.GetValueOrDefault(),                
+            EndDate = source.EndDate.GetValueOrDefault(),
             PauseDate = source.PauseDate.GetValueOrDefault(),
             StopDate = source.StopDate,
             EmployerRef = source.EmployerRef,
@@ -39,6 +39,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             TotalAgreedPrice = source.PriceHistory.GetPrice(currentDateTime.UtcNow),
             Uln = source.Uln,
             Alerts = source.MapAlerts(),
+            PendingApprovalRequestId = source.ApprovalRequests?.FirstOrDefault(p => p.Status == CocApprovalResultStatus.Pending)?.Id,
             AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
             ProviderId = source.Cohort.ProviderId,
             ConfirmationStatus = Apprenticeship.DisplayConfirmationStatus(
