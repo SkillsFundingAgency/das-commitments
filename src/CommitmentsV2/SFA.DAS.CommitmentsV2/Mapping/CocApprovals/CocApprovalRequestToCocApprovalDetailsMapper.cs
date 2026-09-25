@@ -17,6 +17,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 {
     public async Task<CocApprovalDetails> Map(CocApprovalRequest request)
     {
+        var apprenticeship = await GetApprenticeship(request.ApprenticeshipId);
         var result = new CocApprovalDetails
         {
             LearningKey = request.LearningKey,
@@ -26,7 +27,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ULN = request.ULN,
             Updates = new CocUpdates(),
             ApprovalFieldChanges = request.Changes,
-            Apprenticeship = await GetApprenticeship(request.ApprenticeshipId)
+            Apprenticeship = apprenticeship,
+            Course = await GetCourseAsync(apprenticeship?.CourseCode)
         };
 
         foreach (var change in request.Changes)
@@ -52,6 +54,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                         break; 
                 }
             }
+            else if (changeType == CocChangeField.Firstname)
+            {
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.Old);
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.New);
+            }
         }
         return result;
     }
@@ -62,6 +69,20 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .Include(a => a.Cohort).ThenInclude(c => c.Provider)
             .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
+    }
+
+    public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
+    {
+        try
+        {
+            return await dbContext.Value.GetCourseBasedOnApprenticeshipCourseCode(apprenticeshipCourseCode, CancellationToken.None);
+            
+        }
+        catch (BadRequestException ex)
+        {
+            logger.LogError(ex, $"Course associated with Apprenticeship course code {apprenticeshipCourseCode} not found, set it to null");
+            return null;
+        }
     }
 
     public static int ToInt(string value)
@@ -86,4 +107,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
+    private void CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new DomainException("Data", "String value cannot be null or allow only whitespace");
+        }
+    }
 }
