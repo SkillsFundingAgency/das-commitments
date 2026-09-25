@@ -28,6 +28,7 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
         return new GetApprenticeshipApprovalQueryResult
         {
             ApprenticeshipId = apprenticeship.Id,
+            ApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(null),
             Name = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
             ULN = apprenticeship.Uln,
             UKPRN = apprenticeship.Cohort.Provider.UkPrn,

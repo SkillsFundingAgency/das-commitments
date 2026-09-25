@@ -24,6 +24,7 @@ public class GetApprenticeshipApprovalHandlerTests
 
         result.Should().NotBeNull();
         result.ApprenticeshipId.Should().Be(_fixture.ApprenticeshipId);
+        result.ApprenticeshipStatus.Should().Be(_fixture.Apprenticeship.GetApprenticeshipStatus(null));
         result.ApprovalRequestId.Should().Be(_fixture.ApprovalRequestId);
         result.AccountLegalEntityId.Should().Be(_fixture.AccountLegalEntityId);
         result.AccountLegalEntityName.Should().Be(_fixture.AccountLegalEntity.Name);
@@ -81,6 +82,7 @@ public class GetApprenticeshipApprovalHandlerTests
     public class GetApprenticeshipApprovalHandlerTestsFixture
     {
         public long ApprenticeshipId { get; private set; }
+        public ApprenticeshipStatus ApprenticeshipStatus { get; private set; }
         public Guid ApprovalRequestId { get; private set; } = Guid.NewGuid();
         public long AccountLegalEntityId { get; private set; }
         public ApprovalRequest ApprovalRequest { get; private set; }
@@ -158,6 +160,7 @@ public class GetApprenticeshipApprovalHandlerTests
             Apprenticeship = new Apprenticeship
             {
                 Id = ApprenticeshipId,
+                ApprenticeshipStatus = ApprenticeshipStatus.WaitingToStart,
                 CommitmentId = Cohort.Id,
                 Cohort = Cohort,
                 AgreedOn = _autoFixture.Create<DateTime>(),
