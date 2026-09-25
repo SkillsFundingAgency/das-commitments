@@ -30,7 +30,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnEmpty_WhenNoEndDateFieldPresent()
     {
         var updates = new CocUpdates();
-        var apprenticeship = new Apprenticeship {  EndDate = DateTime.Today };
+        var apprenticeship = new Apprenticeship { EndDate = DateTime.Today };
 
         var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
@@ -42,13 +42,15 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddDays(10) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddDays(10) }
         };
-        var apprenticeship = new Apprenticeship { 
-            EndDate = DateTime.Today, 
-            StartDate = DateTime.Today.AddMonths(-3), 
-            PaymentStatus = Types.PaymentStatus.Completed, 
-            CompletionDate = DateTime.Today.AddDays(-1) };
+        var apprenticeship = new Apprenticeship
+        {
+            EndDate = DateTime.Today,
+            StartDate = DateTime.Today.AddMonths(-3),
+            PaymentStatus = Types.PaymentStatus.Completed,
+            CompletionDate = DateTime.Today.AddDays(-1)
+        };
 
         await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
@@ -67,7 +69,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddDays(10) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddDays(10) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -94,7 +96,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(10) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(10) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -117,7 +119,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(10) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(10) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -139,7 +141,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = CommitmentsV2.Domain.Constants.DasStartDate.AddMonths(-1) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = CommitmentsV2.Domain.Constants.DasStartDate.AddMonths(-1) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -160,7 +162,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(-6) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(-6) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -181,7 +183,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
         };
         var apprenticeship = new Apprenticeship
         {
@@ -203,14 +205,14 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
         };
         var apprenticeship = new Apprenticeship
         {
             Id = 1234,
             Uln = "1234567890",
             EndDate = DateTime.Today,
-            StartDate = DateTime.Today.AddMonths(-3) 
+            StartDate = DateTime.Today.AddMonths(-3)
         };
 
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>()))
@@ -229,7 +231,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates
         {
-            PlannedEndDate = new CocUpdate<DateTime> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
+            PlannedEndDate = new CocUpdate<DateTime?> { Old = DateTime.Today, New = DateTime.Today.AddMonths(3) }
         };
         var apprenticeship = new Apprenticeship
         {

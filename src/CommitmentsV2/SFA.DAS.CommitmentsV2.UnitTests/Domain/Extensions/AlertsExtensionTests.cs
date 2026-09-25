@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -39,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -60,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -83,6 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -104,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -126,6 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -147,6 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -167,6 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = true;
             source.OverlappingTrainingDateRequests = null;
 
@@ -190,6 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                 Originator = (byte)Originator.Employer
             });
             source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = true;
             source.OverlappingTrainingDateRequests = null;
 
@@ -211,6 +220,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = false;
             source.OverlappingTrainingDateRequests = null;
 
@@ -234,6 +244,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                 Originator = (byte)Originator.Employer
             });
             source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = false;
             source.OverlappingTrainingDateRequests = null;
 
@@ -253,6 +264,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -273,6 +285,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -296,6 +309,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -327,6 +341,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus, dataLockStatus2 };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -353,6 +368,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -379,6 +395,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -402,6 +419,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
+            source.ApprovalRequests = new List<ApprovalRequest>();
 
             var result = await mapper.Map(source);
 
@@ -417,6 +435,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = false;
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
@@ -440,6 +459,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
             source.IsProviderSearch = false;
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Resolved;
@@ -463,6 +483,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprovalRequests = new List<ApprovalRequest>();
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
             source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
@@ -476,5 +497,231 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             result.Alerts.Should().BeEmpty();
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_AutoRejected_Request_And_IsProviderSearch_Then_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangeInvalid });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_AutoRejected_Request_And_IsNotProviderSearch_Then_No_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Acknowledged_AutoRejected_Request_Then_No_IlrChangeInvalid_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            var request = CreateUnacknowledgedAutoRejectedRequest();
+            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
+            source.ApprovalRequests = new List<ApprovalRequest> { request };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_EmployerRejected_Request_And_IsProviderSearch_Then_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesDeclined });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Unacknowledged_EmployerRejected_Request_And_IsNotProviderSearch_Then_No_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Acknowledged_EmployerRejected_Request_Then_No_ChangesDeclined_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            var request = CreateUnacknowledgedEmployerRejectedRequest();
+            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
+            source.ApprovalRequests = new List<ApprovalRequest> { request };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Both_Unacknowledged_AutoRejected_And_EmployerRejected_Then_Both_Alerts(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = true;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreateUnacknowledgedAutoRejectedRequest(),
+                CreateUnacknowledgedEmployerRejectedRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangeInvalid, Alerts.ChangesDeclined });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Pending_ApprovalRequest_EmployerSearch_Then_IlrPendingChange_Alert(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+                CreatePendingApprovalRequest()
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangesPending });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_No_Pending_ApprovalRequest_EmployerSearch_Then_No_Alerts(
+            Apprenticeship source,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.ApprovalRequests = new List<ApprovalRequest>
+            {
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+
+        private static ApprovalRequest CreateUnacknowledgedAutoRejectedRequest()
+        {
+            return CreateUnacknowledgedRequest(CocApprovalItemStatus.AutoRejected);
+        }
+
+        private static ApprovalRequest CreateUnacknowledgedEmployerRejectedRequest()
+        {
+            return CreateUnacknowledgedRequest(CocApprovalItemStatus.EmployerRejected);
+        }
+
+        private static ApprovalRequest CreateUnacknowledgedRequest(CocApprovalItemStatus itemStatus)
+        {
+            return new ApprovalRequest
+            {
+                Status = CocApprovalResultStatus.Complete,
+                ProviderAcknowledgedAt = null,
+                ProviderAcknowledgedBy = null,
+                Items = new List<ApprovalFieldRequest>
+                {
+                    new()
+                    {
+                        Field = "TNP1",
+                        Status = itemStatus
+                    }
+                }
+            };
+        }
+
+        private static ApprovalRequest CreatePendingApprovalRequest()
+        {
+            return new ApprovalRequest
+            {
+                Status = CocApprovalResultStatus.Pending,
+                Items = new List<ApprovalFieldRequest>()
+            };
+        }
+
     }
 }

@@ -8,6 +8,7 @@ public class CocApprovalDetails
     public Guid LearningKey { get; set; }
     public long ApprenticeshipId { get; set; }
     public Apprenticeship Apprenticeship { get; set; }
+    public Course Course { get; set; }
     public CocLearningType LearningType { get; set; }
     public long ProviderId { get; set; }
     public string ULN { get; set; }
@@ -17,14 +18,16 @@ public class CocApprovalDetails
 
 public class CocUpdates
 {
-    public CocUpdate<int> TNP1 { get; set; }
-    public CocUpdate<int> TNP2 { get; set; }
-    public CocUpdate<DateTime> PlannedEndDate { get; set; }
+    public CocUpdate<int?> TNP1 { get; set; }
+    public CocUpdate<int?> TNP2 { get; set; }
+    public CocUpdate<DateTime?> PlannedEndDate { get; set; }
+    public CocUpdate<string> Firstname { get; set; }
+    public CocUpdate<string> Lastname { get; set; }
 }
 
-public class CocUpdate<T> where T : struct
+public class CocUpdate<T> 
 {
-    public T? New { get; set; }
-    public T? Old { get; set; }
+    public T New { get; set; }
+    public T Old { get; set; }
     public DateTime? EffectiveFromDate { get; set; }
 }

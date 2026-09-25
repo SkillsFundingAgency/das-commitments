@@ -67,6 +67,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         }
 
         [Test]
+        public async Task ShouldMapChangesData_WhenFirstnameValuesAreValid()
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange("Firstname", "Bob", "Bobby");
+
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+
+            // Assert
+            command.Should().NotBeNull();
+            command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Firstname));
+            command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
+            command.ApprovalFieldChanges[0].Data.New.Should().Be("Bobby");
+            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+        }
+
+        [TestCase(" ", "John")]
+        [TestCase("John", "")]
+        [TestCase("", "")]
+        [TestCase(" ", null)]
+        [TestCase(null, " ")]
+        [TestCase(null, "John")]
+        [TestCase("John", null)]
+        [TestCase(null, null)]
+        public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrWhiteSpace(string oldValue, string newValue)
+        {
+            _fixture.SeedData();
+
+            _fixture.AddFieldChange("Firstname", oldValue, newValue);
+
+            var command = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+            await command.Should().ThrowAsync<DomainException>();
+        }
+
+        [Test]
         public async Task ShouldThrowException_WhenOldValuesAreNotValid()
         {
             // Arrange
@@ -157,6 +194,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
             command.Apprenticeship.Should().NotBeNull();
             command.Apprenticeship.Should().Be(_fixture.ApprenticeshipFromDb);
         }
+
+        [Test]
+        public async Task ShouldReturnNullCourse_WhenCourseNotFound()
+        {
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+            command.Course.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ShouldReturnCourse_WhenCourseFound()
+        {
+            // Arrange
+            _fixture.SeedData();
+
+            var command = await _fixture.Mapper.Map(_fixture.Request);
+            command.Course.Should().NotBeNull();
+            command.Course.Should().Be(_fixture.CourseFromDb);
+        }
     }
 
     public class CocApprovalRequestToCocApprovalCommandMapperTestsFixture : IDisposable
@@ -172,6 +227,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
         public CocApprovalRequestToCocApprovalDetailsMapper Mapper { get; set; }
         public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
+        public Course CourseFromDb => Db.Courses.First();
 
         public CocApprovalRequestToCocApprovalCommandMapperTestsFixture()
         {
@@ -187,7 +243,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
 
             Request = AutoFixture.Build<CocApprovalRequest>()
                 .With(x => x.ApprenticeshipId, ApprenticeshipId)
-                .With(x => x.LearningType, "Apprenticeship")
+                .With(x => x.LearningType, nameof(CocLearningType.Apprenticeship))
                 .With(x => x.UKPRN, ProviderId.ToString())
                 .With(x => x.ULN, ULN.ToString())
                 .With(x => x.Changes, FieldChanges)
@@ -200,8 +256,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
         {
             var accountLegalEntityDetails = new AccountLegalEntity()
                 .Set(c => c.Id, 444);
-
             Db.AccountLegalEntities.Add(accountLegalEntityDetails);
+
+            var provider = new Provider()
+                .Set(c => c.UkPrn, 333)
+                .Set(c => c.Name, "Test Provider");
+            Db.Providers.Add(provider);
 
             var cohortDetails = new Cohort()
                 .Set(c => c.Id, 111)
@@ -219,6 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .With(s => s.CourseCode, "LarsCode")
              .Without(s => s.Cohort)
              .Without(s => s.PriceHistory)
              .Without(s => s.ApprenticeshipUpdate)
@@ -229,6 +290,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
              .Create();
 
             Db.Apprenticeships.Add(apprenticeshipDetails);
+
+            var courseDetails = new Course()
+                .Set(c => c.LarsCode, "LarsCode")
+                .Set(c => c.LearningType, LearningType.Apprenticeship);
+
+            Db.Courses.Add(courseDetails);
             Db.SaveChanges();
 
             return this;

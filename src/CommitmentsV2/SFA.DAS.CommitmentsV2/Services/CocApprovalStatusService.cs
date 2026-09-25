@@ -28,7 +28,13 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         }
         else
         {
-            if(updates.PlannedEndDate != null) 
+            if (updates.Firstname != null)
+            {
+                logger.LogInformation("Change of Firstname detected");
+                updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
+            }
+
+            if (updates.PlannedEndDate != null) 
             {
                 logger.LogInformation("Change of PlannedEndDate detected");
                 var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
@@ -135,5 +141,15 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
                 yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
             }
         }
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForFirstnameField(CocUpdates updates, Apprenticeship apprenticeship)
+    {
+        if (updates.Firstname.Old != apprenticeship.FirstName)
+        {
+            logger.LogWarning("Old first name value from changes, does not match apprenticeship first name value");
+        }
+
+        return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
     }
 }

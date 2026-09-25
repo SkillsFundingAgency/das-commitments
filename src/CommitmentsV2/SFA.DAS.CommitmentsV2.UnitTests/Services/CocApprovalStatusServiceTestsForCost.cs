@@ -55,7 +55,7 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 90 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 90 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 1000 };
@@ -77,8 +77,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 80 },
-            TNP2 = new CocUpdate<int> { Old = 200, New = 220 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 80 },
+            TNP2 = new CocUpdate<int?> { Old = 200, New = 220 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 300 };
@@ -94,8 +94,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 200 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 202 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 200 },
+            TNP2 = new CocUpdate<int?> { Old = 102, New = 202 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 202 };
@@ -114,8 +114,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 95 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 100 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 95 },
+            TNP2 = new CocUpdate<int?> { Old = 102, New = 100 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 202 };
@@ -134,8 +134,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 10, New = 5 },
-            TNP2 = new CocUpdate<int> { Old = 20, New = 15 }
+            TNP1 = new CocUpdate<int?> { Old = 10, New = 5 },
+            TNP2 = new CocUpdate<int?> { Old = 20, New = 15 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 500 };
@@ -158,8 +158,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 20000 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 20000 },
+            TNP2 = new CocUpdate<int?> { Old = 102, New = 81000 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 202 };
@@ -176,8 +176,8 @@ public class CocApprovalStatusServiceTestsForCost
     {
         var updates = new CocUpdates
         {
-            TNP1 = new CocUpdate<int> { Old = 100, New = 0 },
-            TNP2 = new CocUpdate<int> { Old = 102, New = 81000 }
+            TNP1 = new CocUpdate<int?> { Old = 100, New = 0 },
+            TNP2 = new CocUpdate<int?> { Old = 102, New = 81000 }
         };
 
         var apprenticeship = new Apprenticeship { Cost = 202 };
