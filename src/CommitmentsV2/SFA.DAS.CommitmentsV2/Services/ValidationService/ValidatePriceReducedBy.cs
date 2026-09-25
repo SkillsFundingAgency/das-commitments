@@ -1,11 +1,11 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidatePriceReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minPriceReduction)
+    public IEnumerable<Error> ValidatePriceReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minPriceReduction)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.PriceReducedByAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
@@ -17,12 +17,12 @@ public partial class BulkUploadValidateCommandHandler
         {
             yield break;
         }
-        
+
         if (csvRecord.PriceReducedBy == null)
         {
             yield return new Error("PriceReducedBy", $"Total <b>price reduction</b> due to RPL must be a number between {minPriceReduction.ToString("N0")} and 18,000");
         }
-        else if(csvRecord.PriceReducedBy > 18000)
+        else if (csvRecord.PriceReducedBy > 18000)
         {
             yield return new Error("PriceReducedBy", "Total <b>price reduction</b> due to RPL must be 18,000 or less");
         }
