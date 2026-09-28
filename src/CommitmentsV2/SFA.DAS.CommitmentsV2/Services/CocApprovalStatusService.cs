@@ -28,18 +28,18 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         }
         else
         {
-            if (updates.Firstname != null)
-            {
-                logger.LogInformation("Change of Firstname detected");
-                updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
-            }
-
             if (updates.PlannedEndDate != null) 
             {
                 logger.LogInformation("Change of PlannedEndDate detected");
                 var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
                 updateResults.AddRange(list);
             }
+        }
+
+        if (updates.Firstname != null)
+        {
+            logger.LogInformation("Change of Firstname detected");
+            updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
         }
 
         if (updates.TNP1 != null || updates.TNP2 != null)
