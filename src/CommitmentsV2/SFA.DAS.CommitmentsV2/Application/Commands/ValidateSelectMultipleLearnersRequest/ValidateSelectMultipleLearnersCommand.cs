@@ -3,7 +3,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateSelectMultipleLearnersRequest;
 
-public class ValidateSelectMultipleLearnersCommand : IRequest<BulkUploadValidateApiResponse>
+public class ValidateSelectMultipleLearnersCommand : IRequest<ValidateSelectMultipleLearnersApiResponse>
 {
     public long ProviderId { get; set; }
     public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; } = new List<BulkUploadAddDraftApprenticeshipRequest>();

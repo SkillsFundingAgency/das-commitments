@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 
@@ -11,6 +12,7 @@ public partial class ValidationService(
     IAcademicYearDateProvider academicYearDateProvider,
     IProviderRelationshipsApiClient providerRelationshipsApiClient,
     IEmployerAgreementService employerAgreementService,
-    IUlnValidator ulnValidator) : IValidationService
+    IUlnValidator ulnValidator,
+    ILinkGenerator urlHelper) : IValidationService
 {
 }

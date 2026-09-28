@@ -157,7 +157,7 @@ public class BulkUploadValidateCommandHandler(
         domainErrors.AddRange(validationService.ValidateFirstName(csvRecord.FirstName));
         domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults, standardDetails));
         domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
-        domainErrors.AddRange(validationService.ValidateCourseCode(csvRecord.CourseCode, providerStandardResults, standardDetails));
+        domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails));
         domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, cohortDetails));
         domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
         domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));

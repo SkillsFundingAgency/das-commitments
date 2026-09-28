@@ -28,5 +28,5 @@ public interface IValidationService
     public IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord, int minimumOffTheJobTrainingHoursForCourse);
     public IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<BulkUploadAddDraftApprenticeshipRequest> csvRecords);
     public List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults);
-    public IEnumerable<Error> ValidateCourseCode(string courseCode, ProviderStandardResults providerStandardResults, Standard standard);
+    public IEnumerable<Error> ValidateCourseCode(long providerId, string courseCode, ProviderStandardResults providerStandardResults, Standard standard);
 }

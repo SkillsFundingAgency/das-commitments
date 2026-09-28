@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    public IEnumerable<Error> ValidateCourseCode(string courseCode, ProviderStandardResults providerStandardResults, Standard standard)
+    public IEnumerable<Error> ValidateCourseCode(long providerId, string courseCode, ProviderStandardResults providerStandardResults, Standard standard)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(courseCode))
@@ -27,7 +27,8 @@ public partial class ValidationService
         }
         else if (providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(courseCode, providerStandardResults))
         {
-            domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href=" + urlHelper.CourseManagementLink($"{csvRecord.ProviderId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
+            domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href="
+                + urlHelper.CourseManagementLink($"{providerId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
         }
 
         return domainErrors;
