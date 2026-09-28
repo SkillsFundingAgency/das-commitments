@@ -3,7 +3,6 @@ using System.ComponentModel;
 
 namespace SFA.DAS.CommitmentsV2.Types
 {
-    [Flags]
     public enum Alerts
     {
         [Description("ILR data mismatch")]
@@ -23,6 +22,12 @@ namespace SFA.DAS.CommitmentsV2.Types
 
         [Description("ILR changes invalid")]
         IlrChangeInvalid = 5,
+
+        [Description("Changes declined")]
+        ChangesDeclined = 6,
+
+        [Description("ILR changes pending")]
+        IlrChangesPending = 7,
 
         [Description("View changes")]
         ViewChanges = 8

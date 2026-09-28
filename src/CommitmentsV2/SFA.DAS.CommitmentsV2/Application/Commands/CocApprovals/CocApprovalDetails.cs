@@ -8,6 +8,7 @@ public class CocApprovalDetails
     public Guid LearningKey { get; set; }
     public long ApprenticeshipId { get; set; }
     public Apprenticeship Apprenticeship { get; set; }
+    public Course Course { get; set; }
     public CocLearningType LearningType { get; set; }
     public long ProviderId { get; set; }
     public string ULN { get; set; }

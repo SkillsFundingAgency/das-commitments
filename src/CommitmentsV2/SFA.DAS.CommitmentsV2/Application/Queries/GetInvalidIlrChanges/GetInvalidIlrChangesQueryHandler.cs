@@ -8,8 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetInvalidIlrChanges;
 public class GetInvalidIlrChangesQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
     : IRequestHandler<GetInvalidIlrChangesQuery, GetInvalidIlrChangesResponse>
 {
-    public const string AutoRejectedDecision = "Auto rejected";
-
     public async Task<GetInvalidIlrChangesResponse> Handle(GetInvalidIlrChangesQuery query, CancellationToken cancellationToken)
     {
         var apprenticeship = await dbContext.Value.Apprenticeships
@@ -30,14 +28,14 @@ public class GetInvalidIlrChangesQueryHandler(Lazy<ProviderCommitmentsDbContext>
         }
 
         var requestSets = (apprenticeship.ApprovalRequests ?? [])
-            .Where(request => request.IsUnacknowledgedAutoRejected())
+            .Where(request => request.IsUnacknowledged(query.ItemStatus))
             .OrderByDescending(request => request.Created)
             .Select(request => new InvalidIlrChangeSet
             {
                 ApprovalRequestId = request.Id,
-                Decision = AutoRejectedDecision,
+                Decision = query.Decision,
                 Fields = request.Items
-                    .Where(item => item.Status == CocApprovalItemStatus.AutoRejected)
+                    .Where(item => item.Status == query.ItemStatus)
                     .Select(item => new InvalidIlrChangeField
                     {
                         Field = item.Field,

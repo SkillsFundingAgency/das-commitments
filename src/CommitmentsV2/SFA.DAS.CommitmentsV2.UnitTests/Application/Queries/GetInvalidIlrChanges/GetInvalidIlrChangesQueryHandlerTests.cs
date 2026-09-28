@@ -42,6 +42,28 @@ public class GetInvalidIlrChangesQueryHandlerTests
     }
 
     [Test]
+    public async Task Handle_ThenDoesNotReturnEmployerRejectedSetsForAutoRejectedQuery()
+    {
+        var result = await _fixture.Handle();
+
+        result.RequestSets.Should().NotContain(set => set.ApprovalRequestId == _fixture.EmployerRejectedRequestId);
+    }
+
+    [Test]
+    public async Task Handle_ThenReturnsUnacknowledgedEmployerRejectedSetsWhenRequested()
+    {
+        var result = await _fixture.Handle(
+            itemStatus: CocApprovalItemStatus.EmployerRejected,
+            decision: GetInvalidIlrChangesQuery.EmployerRejectedDecision);
+
+        result.RequestSets.Should().ContainSingle(set =>
+            set.ApprovalRequestId == _fixture.EmployerRejectedRequestId &&
+            set.Decision == "Declined" &&
+            set.Fields.Any(field => field.Field == "TNP1" && field.Old == "7268" && field.New == "8268"));
+        result.RequestSets.Should().NotContain(set => set.ApprovalRequestId == _fixture.UnacknowledgedRequestId);
+    }
+
+    [Test]
     public async Task Handle_ThenDoesNotReturnAcknowledgedOrNonAutoRejectedSets()
     {
         var result = await _fixture.Handle();
@@ -74,6 +96,7 @@ public class GetInvalidIlrChangesQueryHandlerTests
         public Guid UnacknowledgedRequestId { get; } = Guid.NewGuid();
         public Guid AcknowledgedRequestId { get; } = Guid.NewGuid();
         public Guid PendingRequestId { get; } = Guid.NewGuid();
+        public Guid EmployerRejectedRequestId { get; } = Guid.NewGuid();
 
         public GetInvalidIlrChangesQueryHandlerTestsFixture()
         {
@@ -85,12 +108,18 @@ public class GetInvalidIlrChangesQueryHandlerTests
             _handler = new GetInvalidIlrChangesQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
         }
 
-        public Task<Api.Types.Responses.GetInvalidIlrChangesResponse> Handle(long apprenticeshipId = 1001, long providerId = 333)
+        public Task<Api.Types.Responses.GetInvalidIlrChangesResponse> Handle(
+            long apprenticeshipId = 1001,
+            long providerId = 333,
+            CocApprovalItemStatus itemStatus = CocApprovalItemStatus.AutoRejected,
+            string decision = GetInvalidIlrChangesQuery.AutoRejectedDecision)
         {
             return _handler.Handle(new GetInvalidIlrChangesQuery
             {
                 ApprenticeshipId = apprenticeshipId,
-                ProviderId = providerId
+                ProviderId = providerId,
+                ItemStatus = itemStatus,
+                Decision = decision
             }, CancellationToken.None);
         }
 
@@ -114,7 +143,8 @@ public class GetInvalidIlrChangesQueryHandlerTests
             {
                 CreateRequest(UnacknowledgedRequestId, CocApprovalResultStatus.Complete, null, CocApprovalItemStatus.AutoRejected, "Price is zero"),
                 CreateRequest(AcknowledgedRequestId, CocApprovalResultStatus.Complete, DateTime.UtcNow, CocApprovalItemStatus.AutoRejected, "Already seen"),
-                CreateRequest(PendingRequestId, CocApprovalResultStatus.Pending, null, CocApprovalItemStatus.Pending, "Waiting")
+                CreateRequest(PendingRequestId, CocApprovalResultStatus.Pending, null, CocApprovalItemStatus.Pending, "Waiting"),
+                CreateRequest(EmployerRejectedRequestId, CocApprovalResultStatus.Complete, null, CocApprovalItemStatus.EmployerRejected, "Employer declined", "7268", "8268")
             };
 
             _db.Cohorts.Add(cohort);
@@ -127,7 +157,9 @@ public class GetInvalidIlrChangesQueryHandlerTests
             CocApprovalResultStatus status,
             DateTime? acknowledgedAt,
             CocApprovalItemStatus itemStatus,
-            string reason)
+            string reason,
+            string oldValue = "1000",
+            string newValue = "0")
         {
             return new ApprovalRequest
             {
@@ -143,8 +175,8 @@ public class GetInvalidIlrChangesQueryHandlerTests
                     {
                         Id = Guid.NewGuid(),
                         Field = "TNP1",
-                        Old = "1000",
-                        New = "0",
+                        Old = oldValue,
+                        New = newValue,
                         EffectiveFromDate = new DateTime(2026, 8, 1),
                         Status = itemStatus,
                         Reason = reason

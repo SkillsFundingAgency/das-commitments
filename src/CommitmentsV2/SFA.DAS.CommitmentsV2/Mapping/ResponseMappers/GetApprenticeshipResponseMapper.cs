@@ -69,6 +69,8 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             EmployerVerificationNotes = source.EmployerVerificationNotes,
             HasChangeHistory = source.HasChangeHistory,
             HasUnacknowledgedInvalidIlrChanges = source.HasUnacknowledgedInvalidIlrChanges,
+            HasUnacknowledgedDeclinedChanges = source.HasUnacknowledgedDeclinedChanges,
+            PendingApprovalRequestId = source.PendingApprovalRequestId,
             HasAutoApprovedRequests = source.HasAutoApprovedRequests
         });
     }

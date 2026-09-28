@@ -25,7 +25,7 @@ public class NotifyProviderService(IMessageSession messageSession,
             tokens.Add("employer", employerName);
         }
 
-        var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, template,tokens);
+        var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, template, tokens);
 
         logger.LogInformation("Sending {Template} email to provider: {ProviderId}", template, providerId);
         await messageSession.Send(sendEmailToProviderCommand);

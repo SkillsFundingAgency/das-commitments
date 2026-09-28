@@ -96,11 +96,26 @@ public class GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> db
         result.LearningType = learningType ?? LearningType.Apprenticeship;
         result.HasChangeHistory = await db.LearningChangeHistory.AsNoTracking().AnyAsync(t => t.ApprenticeshipId == request.ApprenticeshipId, cancellationToken);
 
-        result.HasUnacknowledgedInvalidIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(approvalRequest =>
-            approvalRequest.ApprenticeshipId == request.ApprenticeshipId
-            && approvalRequest.Status == Models.CocApprovalResultStatus.Complete
-            && approvalRequest.ProviderAcknowledgedAt == null
-            && approvalRequest.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
+        result.HasUnacknowledgedInvalidIlrChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Complete
+            && ar.ProviderAcknowledgedAt == null
+            && ar.Items.Any(item => item.Status == Models.CocApprovalItemStatus.AutoRejected), cancellationToken);
+
+        result.HasUnacknowledgedDeclinedChanges = await db.ApprovalRequests.AsNoTracking().AnyAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Complete
+            && ar.ProviderAcknowledgedAt == null
+            && ar.Items.Any(item => item.Status == Models.CocApprovalItemStatus.EmployerRejected), cancellationToken);
+
+        var approvalRequest = await db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(ar =>
+            ar.ApprenticeshipId == request.ApprenticeshipId
+            && ar.Status == Models.CocApprovalResultStatus.Pending, cancellationToken);
+
+        if (approvalRequest != null)
+        {
+            result.PendingApprovalRequestId = approvalRequest.Id;
+        }
 
         result.HasAutoApprovedRequests = await db.ApprovalRequests.AsNoTracking().AnyAsync(t => t.ApprenticeshipId == request.ApprenticeshipId && (t.EmployerAcknowledgedAt == null && t.EmployerAcknowledgedBy == null) && t.Items.Any(k => k.Status == CocApprovalItemStatus.AutoApproved), cancellationToken);
         return result;

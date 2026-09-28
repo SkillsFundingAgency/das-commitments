@@ -50,5 +50,6 @@ public class GetApprenticeshipsResponse
         public int? EmployerVerificationStatus { get; set; }
         public string EmployerVerificationNotes { get; set; }
         public bool HasChangeHistory { get; set; }
+        public Guid? PendingApprovalRequestId { get; set; }
     }
 }
