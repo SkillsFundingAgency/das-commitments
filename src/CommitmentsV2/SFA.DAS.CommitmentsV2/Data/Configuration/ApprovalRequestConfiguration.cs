@@ -9,7 +9,7 @@ public class ApprovalRequestConfiguration : IEntityTypeConfiguration<ApprovalReq
     {
         builder.ToTable("ApprovalRequest")
             .HasKey("Id");
-        builder.Property(e => e.Created).HasDefaultValueSql("(getdate())");
+        builder.Property(e => e.Created).HasDefaultValueSql("(getdate())").ValueGeneratedOnAddOrUpdate();
         builder.Property(e => e.ProviderAcknowledgedBy).HasMaxLength(255);
         builder.Property(e => e.EmployerAcknowledgedBy).HasMaxLength(255);
 
