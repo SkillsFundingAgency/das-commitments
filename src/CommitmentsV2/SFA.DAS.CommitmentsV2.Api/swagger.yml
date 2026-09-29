@@ -197,32 +197,73 @@ components:
         changes:
           type: array
           items:
-            $ref: "#/components/schemas/fieldApprovalResult"
+            oneOf:
+              - $ref: "#/components/schemas/fieldApprovalResult"
+              - $ref: "#/components/schemas/pricesApprovalResult"
         prices:
           description: >
-            A return to the consumer per price episode with the approval result
+            One entry per price point evaluated from the submitted
+            priceHistory — whether it came from trainingPrice,
+            assessmentPrice, or both on a given date. Only the field(s)
+            that actually differed from their baseline appear here, so a
+            date where only one of the two changed produces one entry,
+            not two.
           type: array
           items:
             $ref: "#/components/schemas/priceApprovalResult"
 
     fieldApprovalResult:
       type: object
-      properties:
-        changeType:
-          type: string
-          enum: [Prices, Firstname]
-        approvalStatus:
-          $ref: "#/components/schemas/approvalStatus"
-        reason:
-          type: string
+      description: Approval result for a non-price field change.
       required:
         - changeType
         - approvalStatus
+        - data
+      properties:
+        changeType:
+          type: string
+          enum: [Firstname]
+        approvalStatus:
+          type: string
+          enum: [autoApproved, autoRejected, pending]
+        data:
+          $ref: '#/components/schemas/changeResult'
+        reason:
+          type: string
+
+    pricesApprovalResult:
+      type: object
+      description: Approval result for price changes. The evaluated price records are returned in the top-level prices array.
+      required:
+        - changeType
+        - approvalStatus
+      properties:
+        changeType:
+          type: string
+          enum: [Prices]
+        approvalStatus:
+          type: string
+          enum: [autoApproved, autoRejected, pending]
+        reason:
+          type: string
 
     priceApprovalResult:
       allOf: 
-        - $ref: "#/components/schemas/priceChange"
-        - type: object
+        - $ref: '#/components/schemas/priceChange'
+
+    changeResult:
+      type: object
+      description: The resulting values for a non-price field change.
+      required:
+        - old
+        - new
+      properties:
+        old:
+          description: The prior field value.
+          type: string
+        new:
+          description: The new field value.
+          type: string
 
     approvalRequest:
       type: object
@@ -249,7 +290,7 @@ components:
         changes:
           $ref: "#/components/schemas/learningChangeArray"
         newPrices:
-          $ref: "#/components/schemas/priceRecordArray"
+          $ref: '#/components/schemas/priceRecordArray'
 
     approvalStatusRequest:
       type: object
@@ -286,7 +327,7 @@ components:
       properties:
         changeType:
           type: string
-          enum: [Firstname]
+          enum: [Firstname, Prices]
         data:
           $ref: "#/components/schemas/change"
 
@@ -361,11 +402,3 @@ components:
           type: string
         result:
           type: string
-
-    approvalStatus:
-      type: string
-      description: >
-        The outcome of evaluating a change or price episode. Currently all price
-        episodes return pending: employer approval required; autoApproved and autoRejected
-        are reserved for future approval rules.
-      enum: [pending, autoApproved, autoRejected]
