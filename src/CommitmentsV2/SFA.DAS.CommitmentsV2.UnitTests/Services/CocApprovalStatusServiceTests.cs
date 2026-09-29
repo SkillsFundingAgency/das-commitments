@@ -55,9 +55,9 @@ public class CocApprovalStatusServiceTests
             Apprenticeship = null
         };
 
-        Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
+        Func<Task> act = async () => await _service.DetermineCocUpdateStatusesAsync(approvalDetails);
 
-        act.Should().Throw<ArgumentNullException>().WithParameterName("Apprenticeship");
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("Apprenticeship");
     }
 
     [Test]
@@ -85,12 +85,7 @@ public class CocApprovalStatusServiceTests
             }
         };
 
-        _service.DetermineCocUpdateStatuses(approvalDetails);
-        var approvalDetails = new CocApprovalDetails
-        {
-            Updates = new CocUpdates(),
-            Apprenticeship = null
-        };
+        _service.DetermineCocUpdateStatusesAsync(approvalDetails);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -101,8 +96,6 @@ public class CocApprovalStatusServiceTests
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
         Func<Task> act = async () => await _service.DetermineCocUpdateStatusesAsync(approvalDetails);
-
-        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("Apprenticeship");
     }
 
     [Test]
