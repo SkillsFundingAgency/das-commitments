@@ -173,7 +173,7 @@ public class CocApprovalStatusServiceTests
     }
 
     [Test]
-    public void DetermineCocUpdateStatuses_ShouldReturnPending_WhenCostDecreases()
+    public void DetermineCocUpdateStatuses_ShouldReturnAutoApproved_WhenCostDecreases()
     {
         var approvalDetails = new CocApprovalDetails
         {
@@ -191,9 +191,9 @@ public class CocApprovalStatusServiceTests
         var result = _service.DetermineCocUpdateStatuses(approvalDetails);
 
         result.Should().HaveCount(2);
-        result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         result[0].Field.Should().Be(CocChangeField.TNP1);
-        result[1].Status.Should().Be(CocApprovalItemStatus.Pending);
+        result[1].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         result[1].Field.Should().Be(CocChangeField.TNP2);
     }
 
