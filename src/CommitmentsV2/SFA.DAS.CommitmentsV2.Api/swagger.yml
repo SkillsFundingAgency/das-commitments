@@ -366,6 +366,6 @@ components:
       type: string
       description: >
         The outcome of evaluating a change or price episode. Currently all price
-        episodes return employerApprovalRequired; autoApproved and autoRejected
+        episodes return pending: employer approval required; autoApproved and autoRejected
         are reserved for future approval rules.
-      enum: [employerApprovalRequired, autoApproved, autoRejected]
+      enum: [pending, autoApproved, autoRejected]
