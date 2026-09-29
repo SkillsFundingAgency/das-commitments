@@ -55,6 +55,51 @@ public class CocApprovalStatusServiceTests
             Apprenticeship = null
         };
 
+        Action act = () => _service.DetermineCocUpdateStatuses(approvalDetails);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("Apprenticeship");
+    }
+
+    [Test]
+    public void DetermineCocUpdateStatuses_ShouldLogInformation_WhenFirstnameFieldIsPresent()
+    {
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = new Apprenticeship
+            {
+                Cost = 1000
+            },
+            ApprovalFieldChanges = new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange
+                {
+                    ChangeType = "Firstname",
+                    Data = new CocData
+                    {
+                        Old = "Bob",
+                        New = "Bobby"
+                    }
+
+                }
+            }
+        };
+
+        _service.DetermineCocUpdateStatuses(approvalDetails);
+        var approvalDetails = new CocApprovalDetails
+        {
+            Updates = new CocUpdates(),
+            Apprenticeship = null
+        };
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Change of Firstname detected")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
         Func<Task> act = async () => await _service.DetermineCocUpdateStatusesAsync(approvalDetails);
 
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("Apprenticeship");

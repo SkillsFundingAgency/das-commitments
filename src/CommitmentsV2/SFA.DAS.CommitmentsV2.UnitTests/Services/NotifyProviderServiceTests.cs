@@ -30,6 +30,18 @@ public class NotifyProviderServiceTests
         _messageSessionMock.Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(cmd =>
             cmd.ProviderId == 123 &&
             cmd.Template == "TestTemplate" &&
-            cmd.Tokens["URL"] == $"{_configurationMock.Object.ProviderCommitmentsBaseUrl}/123/apprentices/456"), It.IsAny<SendOptions>()), Times.Once);
+            cmd.Tokens["url"] == $"{_configurationMock.Object.ProviderCommitmentsBaseUrl}/123/apprentices/456"), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task VerifyProviderNotificationWithEmployerName()
+    {
+        await _service.NotifyProvider(123, "456", "TestTemplate", "TestEmployer");
+
+        _messageSessionMock.Verify(x => x.Send(It.Is<SendEmailToProviderCommand>(cmd =>
+            cmd.ProviderId == 123 &&
+            cmd.Template == "TestTemplate" &&
+            cmd.Tokens["url"] == $"{_configurationMock.Object.ProviderCommitmentsBaseUrl}/123/apprentices/456" &&
+            cmd.Tokens["employer"] == "TestEmployer"), It.IsAny<SendOptions>()), Times.Once);
     }
 }

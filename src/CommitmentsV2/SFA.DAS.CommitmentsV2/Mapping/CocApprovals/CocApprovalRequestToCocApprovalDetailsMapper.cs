@@ -54,21 +54,21 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                         break; 
                 }
             }
+            else if (changeType == CocChangeField.Firstname)
+            {
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.Old);
+                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.New);
+            }
         }
         return result;
     }
 
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
-        try
-        {
-            return await dbContext.Value.GetApprenticeshipAggregate(id, CancellationToken.None);
-        }
-        catch (BadRequestException ex)
-        {
-            logger.LogError(ex, "ApprenticeshipId {ApprenticeshipId} not found, set it to null", id);
-            return null;
-        }
+        return await dbContext.Value.Apprenticeships
+            .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
+            .Include(a => a.Cohort).ThenInclude(c => c.Provider)
+            .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
     }
 
     public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
@@ -107,4 +107,11 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
+    private void CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new DomainException("Data", "String value cannot be null or allow only whitespace");
+        }
+    }
 }

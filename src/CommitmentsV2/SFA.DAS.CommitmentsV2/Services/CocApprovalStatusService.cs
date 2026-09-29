@@ -31,7 +31,12 @@ public class CocApprovalStatusService(
 
         if (cocApprovalDetails.ApprovalFieldChanges != null)
         {
-            if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.PlannedStartDate)))
+            if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.Firstname)))
+            {
+                logger.LogInformation("Change of Firstname detected");
+                updateResults.Add(DetermineApprovalStatusesForFirstnameField(cocApprovalDetails));
+            }
+            else if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.PlannedStartDate)))
             {
                 logger.LogInformation("Change of PlannedStartDate detected");
                 updateResults.Add(await DetermineApprovalStatusesForPlannedStartDateFieldAsync(cocApprovalDetails));
@@ -79,6 +84,17 @@ public class CocApprovalStatusService(
                 yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
             }
         }
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForFirstnameField(CocApprovalDetails cocApprovalDetails)
+    {
+        var firstnameChange = cocApprovalDetails.ApprovalFieldChanges.FirstOrDefault(afc => afc.ChangeType == nameof(CocChangeField.Firstname));
+
+        if (firstnameChange?.Data?.Old != cocApprovalDetails.Apprenticeship.FirstName)
+        {
+            logger.LogWarning("Old first name value from changes, does not match apprenticeship first name value");
+        }
+        return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
     }
 
     private async Task<CocUpdateResult> DetermineApprovalStatusesForPlannedStartDateFieldAsync(CocApprovalDetails cocApprovalDetails)
