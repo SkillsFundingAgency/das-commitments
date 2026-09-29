@@ -37,8 +37,6 @@ paths:
           $ref: "#/components/responses/approvalResponse"
         "404":
           $ref: "#/components/responses/notFound"
-        "400":
-          $ref: "#/components/responses/errorNoPendingChangeResponse"
 
   /approvals/{learningKey}/status:
     patch:
@@ -141,15 +139,6 @@ components:
             items:
               $ref: "#/components/schemas/error"
 
-    errorNoPendingChangeResponse:
-      description: There is no pending change to override
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/error"
-
     notFound:
       description: Not found response
       content:
@@ -221,7 +210,7 @@ components:
       properties:
         changeType:
           type: string
-          enum: [TrainingPrice, AssessmentPrice]
+          enum: [Prices, Firstname]
         approvalStatus:
           $ref: "#/components/schemas/approvalStatus"
         reason:
@@ -234,12 +223,6 @@ components:
       allOf: 
         - $ref: "#/components/schemas/priceChange"
         - type: object
-          properties:
-            approvalStatus:
-              $ref: "#/components/schemas/approvalStatus"
-            reason:
-              description: Optional reason for the status change, required when rejecting
-              type: string
 
     approvalRequest:
       type: object
@@ -265,7 +248,7 @@ components:
           format: uri
         changes:
           $ref: "#/components/schemas/learningChangeArray"
-        priceRecords:
+        newPrices:
           $ref: "#/components/schemas/priceRecordArray"
 
     approvalStatusRequest:
@@ -303,7 +286,7 @@ components:
       properties:
         changeType:
           type: string
-          enum: [Name, DOB, Course]
+          enum: [Firstname]
         data:
           $ref: "#/components/schemas/change"
 
@@ -385,5 +368,4 @@ components:
         The outcome of evaluating a change or price episode. Currently all price
         episodes return employerApprovalRequired; autoApproved and autoRejected
         are reserved for future approval rules.
-      enum: [autoApproved, autoRejected, employerApprovalRequired]
-
+      enum: [employerApprovalRequired, autoApproved, autoRejected]
