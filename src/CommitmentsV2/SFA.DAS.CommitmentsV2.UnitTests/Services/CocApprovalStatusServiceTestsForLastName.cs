@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Services;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
 [TestFixture]
-public class CocApprovalStatusServiceTestsForFirstName
+public class CocApprovalStatusServiceTestsForLastName
 {
     private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
     private Mock<IOverlapCheckService> _overlapCheckServiceMock;
@@ -26,15 +26,19 @@ public class CocApprovalStatusServiceTestsForFirstName
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForFirstname_ShouldLogInformation_WhenFirstNameFieldPresent()
+    public async Task DetermineCocUpdateStatuses_ShouldLogInformation_WhenLastNameFieldPresent()
     {
         var updates = new CocUpdates
         {
-            Firstname = new CocUpdate<string> { Old = "John", New = "Paul" }
+            Lastname = new CocUpdate<string>
+            {
+                Old = "Lewi",
+                New = "Lewis"
+            }
         };
         var apprenticeship = new Apprenticeship
         {
-            FirstName = "John"
+            LastName = "Lewi"
         };
 
         await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
@@ -43,22 +47,26 @@ public class CocApprovalStatusServiceTestsForFirstName
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Change of Firstname detected")),
+                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Change of Lastname detected")),
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForFirstname_ShouldLogInformation_WhenFirstnameOldValueIsNotEqualCurrentValue()
+    public async Task DetermineCocUpdateStatuses_ShouldLogInformation_WhenLastnameOldValueIsNotEqualCurrentValue()
     {
         var updates = new CocUpdates
         {
-            Firstname = new CocUpdate<string> { Old = "Jill", New = "Jane" }
+            Lastname = new CocUpdate<string>
+            {
+                Old = "Dean",
+                New = "Lewis"
+            }
         };
         var apprenticeship = new Apprenticeship
         {
-            FirstName = "John"
+            LastName = "Lewi"
         };
 
         await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
@@ -67,22 +75,26 @@ public class CocApprovalStatusServiceTestsForFirstName
             x => x.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Old first name value from changes, does not match apprenticeship first name value")),
+                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Old last name value from changes, does not match apprenticeship last name value")),
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForFirstname_ShouldReturnAutoApproved_WhenNoErrors()
+    public async Task DetermineCocUpdateStatuses_ShouldReturnAutoApproved_WhenNoErrors()
     {
         var updates = new CocUpdates
         {
-            Firstname = new CocUpdate<string> { Old = "Jill", New = "Jane" }
+            Lastname = new CocUpdate<string>
+            {
+                Old = "Lewi",
+                New = "Lewis"
+            }
         };
         var apprenticeship = new Apprenticeship
         {
-            FirstName = "Jane"
+            FirstName = "Lewi"
         };
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
