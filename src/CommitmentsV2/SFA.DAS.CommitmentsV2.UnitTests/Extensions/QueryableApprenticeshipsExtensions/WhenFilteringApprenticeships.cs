@@ -562,6 +562,8 @@ public class WhenFilteringApprenticeships
     [TestCase(Alerts.ChangesRequested, "3", true)]
     [TestCase(Alerts.ChangesForReview, "4", true)]
     [TestCase(Alerts.ConfirmDates, "5", false)]
+    [TestCase(Alerts.IlrChangeInvalid, "6", true)]
+    [TestCase(Alerts.ChangesDeclined, "7", true)]
     public void ThenShouldFilterAlert(Alerts alert, string validApprenticeshipUln, bool isProvider)
     {
         //Arrange
@@ -895,6 +897,46 @@ public class WhenFilteringApprenticeships
                     new()
                     {
                         Status = OverlappingTrainingDateRequestStatus.Pending,
+                    }
+                }
+            },
+            new()
+            {
+                Uln = "6",
+                ApprovalRequests = new List<ApprovalRequest>
+                {
+                    new()
+                    {
+                        Status = CocApprovalResultStatus.Complete,
+                        ProviderAcknowledgedAt = null,
+                        Items = new List<ApprovalFieldRequest>
+                        {
+                            new()
+                            {
+                                Field = "TNP1",
+                                Status = CocApprovalItemStatus.AutoRejected
+                            }
+                        }
+                    }
+                }
+            },
+            new()
+            {
+                Uln = "7",
+                ApprovalRequests = new List<ApprovalRequest>
+                {
+                    new()
+                    {
+                        Status = CocApprovalResultStatus.Complete,
+                        ProviderAcknowledgedAt = null,
+                        Items = new List<ApprovalFieldRequest>
+                        {
+                            new()
+                            {
+                                Field = "TNP1",
+                                Status = CocApprovalItemStatus.EmployerRejected
+                            }
+                        }
                     }
                 }
             },

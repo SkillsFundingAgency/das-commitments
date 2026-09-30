@@ -136,4 +136,18 @@ public static class CommitmentsDbContextExtensions
                                        && c.Status == OverlappingTrainingDateRequestStatus.Pending, cancellationToken);
         return result;
     }
+
+    public static async Task<Course> GetCourseBasedOnApprenticeshipCourseCode(this ProviderCommitmentsDbContext db, string apprenticeshipCourseCode, CancellationToken cancellationToken)
+    {
+        var result = await db.Courses
+            .Where(c => c.LarsCode == apprenticeshipCourseCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (result == null)
+        {
+            throw new BadRequestException($"Course for Apprenticeship course code {apprenticeshipCourseCode} was not found");
+        }
+
+        return result;
+    }
 }
