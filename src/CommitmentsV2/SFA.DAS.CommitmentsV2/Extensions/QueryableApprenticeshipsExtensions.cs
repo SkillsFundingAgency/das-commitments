@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+﻿using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -65,21 +66,22 @@ public static class QueryableApprenticeshipsExtensions
             apprenticeships = apprenticeships.Where(app => filters.CourseName.Equals(app.CourseName));
         }
 
-        if (filters.Status.HasValue)
+        if (filters.Status.HasValue || filters.Statuses is { Count: > 0 })
         {
-            var paymentStatuses = filters.Status.Value.MapToPaymentStatus();
-
-            apprenticeships = apprenticeships.Where(app => paymentStatuses == app.PaymentStatus);
-            switch (filters.Status)
+            List<ApprenticeshipStatus> statuses = filters.Statuses is { Count: > 0 } ? [.. filters.Statuses] : [];
+            if (filters.Status.HasValue && !statuses.Contains(filters.Status.Value))
             {
-                case ApprenticeshipStatus.WaitingToStart:
-                    apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate >= DateTime.UtcNow);
-                    break;
-
-                case ApprenticeshipStatus.Live:
-                    apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate <= DateTime.UtcNow);
-                    break;
+                statuses.Add(filters.Status.Value);
             }
+
+            var statusFilter = statuses.Aggregate(PredicateBuilder.False<Apprenticeship>(), (current, status) => status switch
+            {
+                ApprenticeshipStatus.WaitingToStart => current.Or(app => app.PaymentStatus == status.MapToPaymentStatus() && app.StartDate.HasValue && app.StartDate >= DateTime.UtcNow),
+                ApprenticeshipStatus.Live => current.Or(app => app.PaymentStatus == status.MapToPaymentStatus() && app.StartDate.HasValue && app.StartDate <= DateTime.UtcNow),
+                _ => current.Or(app => app.PaymentStatus == status.MapToPaymentStatus())
+            });
+            
+            apprenticeships = apprenticeships.Where(statusFilter);
         }
 
         if (filters.StartDate.HasValue)
@@ -151,6 +153,11 @@ public static class QueryableApprenticeshipsExtensions
         if (filters.DeliveryModel.HasValue)
         {
             apprenticeships = apprenticeships.Where(x => x.DeliveryModel != null && x.DeliveryModel == filters.DeliveryModel.Value);
+        }
+
+        if (filters.TransferSenderId.HasValue)
+        {
+            apprenticeships = apprenticeships.Where(x => x.Cohort != null && x.Cohort.TransferSenderId == filters.TransferSenderId);
         }
 
         return apprenticeships;
