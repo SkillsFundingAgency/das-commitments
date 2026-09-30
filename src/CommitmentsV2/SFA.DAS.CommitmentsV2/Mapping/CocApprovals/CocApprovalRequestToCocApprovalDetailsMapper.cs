@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using System.Globalization;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
@@ -37,7 +38,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 
             if(changeType == CocChangeField.TNP1 || changeType == CocChangeField.TNP2)
             {
-                var update = new CocUpdate<int>
+                var update = new CocUpdate<int?>
                 {
                     Old = ToInt(change.Data.Old),
                     New = ToInt(change.Data.New),
@@ -56,8 +57,19 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             }
             else if (changeType == CocChangeField.Firstname)
             {
-                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.Old);
-                CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(change.Data?.New);
+                result.Updates.Firstname = new CocUpdate<string>
+                {
+                    Old = AssignRealStringsOnly(change.Data?.Old),
+                    New = AssignRealStringsOnly(change.Data?.New),
+                };
+            }
+            else if (changeType == CocChangeField.PlannedEndDate)
+            {
+                result.Updates.PlannedEndDate = new CocUpdate<DateTime?>
+                {
+                    Old = ToDate(change.Data.Old),
+                    New = ToDate(change.Data.New),
+                };
             }
         }
         return result;
@@ -107,11 +119,25 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
-    private void CheckIfStringIsNullOrWhiteSpaceAndThrowBadRequestException(string value)
+    private string AssignRealStringsOnly(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
             throw new DomainException("Data", "String value cannot be null or allow only whitespace");
         }
+        return value;
+    }
+    public static DateTime? ToDate(string dateString)
+    {
+        if(dateString == null)
+        {
+            return null;
+        }
+
+        if (!DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+        {
+            throw new DomainException("Data", $"String could not be converted to a date");
+        }
+        return result;
     }
 }
