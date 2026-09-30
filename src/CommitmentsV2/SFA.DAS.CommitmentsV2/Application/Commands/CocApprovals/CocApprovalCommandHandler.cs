@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -108,10 +107,11 @@ public class CocApprovalCommandHandler(
     private string GetFieldDescription(string cocChangeField) => cocChangeField switch
     {
         nameof(CocChangeField.Firstname) => "First name",
+        nameof(CocChangeField.PlannedStartDate) => "Planned start date",
         _ => null
     };
 
-    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
+private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
     {
         var updated = DateTime.UtcNow;
         existingApprovalRequest.Status = CocApprovalResultStatus.Superseded;

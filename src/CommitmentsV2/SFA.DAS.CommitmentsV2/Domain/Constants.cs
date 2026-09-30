@@ -7,6 +7,9 @@ public static class Constants
     public static readonly DateTime MinimumDateOfBirth = new DateTime(1900, 01, 01, 0, 0, 0, DateTimeKind.Utc);
     public static readonly DateTime RecognisePriorLearningBecomesRequiredOn = new DateTime(2022, 08, 01, 0, 0, 0, DateTimeKind.Utc);
 
+    public static readonly DateTime MaxAgeAt25RequiredOn = new DateTime(2026, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+    public static readonly DateTime FundingWindowClosedOn = new DateTime(DateTime.UtcNow.Year, 10, 19, 18, 00, 00, DateTimeKind.Utc);
+
     public const int MinimumAgeAtApprenticeshipStart = 15;
     public const int MaximumAgeAtApprenticeshipStart = 115;
     public const int MaximumAgeAtApprenticeshipStartForLevel7 = 25;
@@ -14,6 +17,8 @@ public static class Constants
     public const string ServiceName = "SFA.DAS.CommitmentsV2";
     public const string IntegrationTestEnvironment = "IntegrationTest";
     public const int MaximumTotalTrainingCost = 100000;
+
+    public const int ApprenticeshipCourseLevel7 = 7;
 
     /// <summary>
     ///     The maximum lengths of various fields (as defined in the database).
