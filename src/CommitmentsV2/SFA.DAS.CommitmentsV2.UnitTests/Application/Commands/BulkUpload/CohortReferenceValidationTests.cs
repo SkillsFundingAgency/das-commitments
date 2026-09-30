@@ -108,6 +108,17 @@
         }
 
         [Test]
+        public async Task Validate_Unknown_Cohort_Ref_For_Non_Levy_Does_Not_Throw()
+        {
+            _fixture.SetLevyStatus(Types.ApprenticeshipEmployerType.NonLevy);
+            _fixture.SetCohortRef("UNKNOWN");
+
+            var errors = await _fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
+        }
+
+        [Test]
         public async Task Validate_When_Cohort_Has_Incomplete_Record()
         {
             //Arrange

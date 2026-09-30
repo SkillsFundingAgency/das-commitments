@@ -49,19 +49,13 @@
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
         }
 
-        [TestCase("TRUE")]
-        [TestCase("true")]
-        [TestCase("True")]
         [TestCase("FALSE")]
         [TestCase("false")]
         [TestCase("False")]
-        [TestCase("YES")]
         [TestCase("NO")]
-        [TestCase("yes")]
         [TestCase("no")]
-        [TestCase("1")]
         [TestCase("0")]
-        public async Task RecognisePriorLearning_Field_Validation_Check(string flag)
+        public async Task RecognisePriorLearning_Field_Validation_Check_When_False(string flag)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
@@ -71,23 +65,18 @@
             BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
         }
 
-        [Test]
-        public async Task Prior_Learning_DurationReducedBy_IsBlank()
+        [TestCase("TRUE")]
+        [TestCase("true")]
+        [TestCase("True")]
+        [TestCase("YES")]
+        [TestCase("yes")]
+        [TestCase("1")]
+        public async Task RecognisePriorLearning_Field_Validation_Check_When_True_And_Companion_Fields_Present(string flag)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
-            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 101);
-
-            var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
-        }
-
-        [Test]
-        public async Task Prior_Learning_PriceReducedBy_IsBlank()
-        {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetStartDate("2022-08-01");
-            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: null);
+            fixture.CsvRecords[0].RecognisePriorLearningAsString = flag;
+            fixture.SetValidRplCompanionFields();
 
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);

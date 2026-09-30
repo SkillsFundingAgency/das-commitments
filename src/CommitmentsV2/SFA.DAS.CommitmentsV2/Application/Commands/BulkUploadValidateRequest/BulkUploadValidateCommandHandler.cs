@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Models;
@@ -137,7 +138,7 @@ public partial class BulkUploadValidateCommandHandler(
         
         var cohortDetails = GetCohortDetails(cohortRef);
 
-        return cohortDetails.TransferSenderId.HasValue;
+        return cohortDetails?.TransferSenderId != null;
     }
 
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
@@ -180,9 +181,20 @@ public partial class BulkUploadValidateCommandHandler(
         return domainErrors;
     }
     
+    private static bool IsRplRequired(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    {
+        return csvRecord.StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn
+               && csvRecord.RecognisePriorLearning == true;
+    }
+
     private static int GetCourseSpecificMinimumOtjHours(string courseCode, Dictionary<string, int?> otjTrainingHours)
     {
-        if (otjTrainingHours != null && otjTrainingHours.TryGetValue(courseCode, out var courseSpecificHours) && courseSpecificHours.HasValue)
+        if (string.IsNullOrWhiteSpace(courseCode) || otjTrainingHours == null)
+        {
+            return 187;
+        }
+
+        if (otjTrainingHours.TryGetValue(courseCode, out var courseSpecificHours) && courseSpecificHours.HasValue)
         {
             return courseSpecificHours.Value;
         }
@@ -238,8 +250,11 @@ public partial class BulkUploadValidateCommandHandler(
         var cohort = dbContext.Value.Cohorts
             .Include(x => x.AccountLegalEntity)
             .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
-        
-        _cachedCohortDetails.Add(cohortRef, cohort);
+
+        if (cohort != null)
+        {
+            _cachedCohortDetails.Add(cohortRef, cohort);
+        }
 
         return cohort;
     }

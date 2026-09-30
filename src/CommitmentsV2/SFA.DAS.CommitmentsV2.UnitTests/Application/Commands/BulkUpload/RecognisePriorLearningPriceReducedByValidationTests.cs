@@ -57,5 +57,19 @@
                 e.Property == "PriceReducedBy" &&
                 e.ErrorText == error).Should().Be(true);
         }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        public async Task When_PriceReducedBy_Is_Blank_And_Rpl_Is_True(string priceReducedBy)
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
+            fixture.CsvRecords[0].PriceReducedByAsString = priceReducedBy;
+
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "PriceReducedBy", "Enter the total <b>price reduction</b> due to RPL");
+        }
     }
 }
