@@ -279,8 +279,8 @@ public class CocApprovalCommandHandlerTests
             ApprenticeshipId = 12345,
             Updates = new CocUpdates
             {
-                TNP1 = new CocUpdate<int> { Old = 5000, New = 0 },
-                TNP2 = new CocUpdate<int> { Old = 3000, New = 0 }
+                TNP1 = new CocUpdate<int?> { Old = 5000, New = 0 },
+                TNP2 = new CocUpdate<int?> { Old = 3000, New = 0 }
             }
         };
         var command = new CocApprovalCommand
@@ -490,9 +490,9 @@ public class CocApprovalCommandHandlerTests
         {
             new()
             {
-                Field = nameof(CocChangeField.Firstname), 
-                Old = "Bob", 
-                New = "Bobby", 
+                Field = nameof(CocChangeField.Firstname),
+                Old = "Bob",
+                New = "Bobby",
                 Status = CocApprovalItemStatus.AutoApproved
             }
         };
