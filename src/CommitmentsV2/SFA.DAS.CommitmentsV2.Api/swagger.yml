@@ -40,7 +40,13 @@ paths:
 
   /approvals/{learningKey}/status:
     patch:
-      summary: Update the status of an existing approval request
+      summary: Update the status of one or more pending field changes for a learning
+      description: >
+        Each entry identifies a pending field change by its changeType. A learning
+        key has at most one pending change per changeType, so changeType is enough
+        to identify it. The update is atomic: if any entry is invalid (no pending
+        change for that changeType, the same changeType sent twice, or a rejection
+        without a reason), no statuses are changed and a 400 is returned.
       parameters:
       - in: path
         name: learningKey
@@ -52,15 +58,33 @@ paths:
         $ref: "#/components/requestBodies/approvalStatusRequest"
       responses:
         "200":
-          $ref: '#/components/responses/okResponse'
+          $ref: "#/components/responses/statusUpdateResponse"
         "404":
           $ref: "#/components/responses/notFound"
         "400":
           $ref: "#/components/responses/errorResponse"
 
+  /approvals/{learningKey}/pending:
+    get:
+      summary: Returns the pending field changes for a learning
+      description: >
+        Returns every pending field change for the learning key, at most one per
+        changeType. Superseded, approved and rejected changes are not returned.
+        If the learning key has no pending changes, an empty changes array is returned.
+      parameters:
+      - in: path
+        name: learningKey
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          $ref: "#/components/responses/learningPendingChangesResponse"
+
   /approvals/pending:
     get:
-      summary: Returns all pending approval requests grouped by employer with a count of pending changes
+      summary: Returns pending field changes grouped by employer, with a count of learnings and pending field changes per employer
       parameters:
       - in: query
         name: ukprn
@@ -100,7 +124,7 @@ components:
             $ref: "#/components/schemas/approvalRequest"
 
     approvalStatusRequest:
-      description: The status to apply to an approval request
+      description: The statuses to apply to one or more pending field changes
       required: true
       content:
         application/json:
@@ -115,8 +139,22 @@ components:
           schema:
             $ref: "#/components/schemas/approvalsResult"
 
+    statusUpdateResponse:
+      description: The resulting status of each field change that was updated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/statusUpdateResult"
+
+    learningPendingChangesResponse:
+      description: The pending field changes for a learning
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/learningPendingChanges"
+
     pendingApprovalsSummaryResponse:
-      description: A paged list of pending approval counts grouped by employer
+      description: A paged list of pending field change counts grouped by employer
       content:
         application/json:
           schema:
@@ -294,19 +332,126 @@ components:
 
     approvalStatusRequest:
       type: object
+      description: Status updates for one or more pending field changes on a learning.
       required:
+        - approverId
+        - fields
+      properties:
+        approverId:
+          description: Identifier of the user approving or rejecting the changes
+          type: string
+        fields:
+          description: One entry per pending field change being updated. Each changeType may appear only once.
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/fieldStatusUpdate"
+
+    fieldStatusUpdate:
+      type: object
+      required:
+        - changeType
         - status
       properties:
+        changeType:
+          description: The field type of the pending change to update
+          type: string
+          enum: [Firstname, Prices]
         status:
-          description: The status to set on the approval request
+          description: The status to set on the pending field change
           type: string
           enum:
             - approved
             - rejected
-            - pending
         reason:
           description: Optional reason for the status change, required when rejecting
           type: string
+
+    statusUpdateResult:
+      type: object
+      required:
+        - fields
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/fieldStatusResult"
+
+    fieldStatusResult:
+      type: object
+      required:
+        - changeType
+        - status
+      properties:
+        changeType:
+          type: string
+          enum: [Firstname, Prices]
+        status:
+          type: string
+          enum:
+            - approved
+            - rejected
+        reason:
+          type: string
+
+    learningPendingChanges:
+      type: object
+      required:
+        - learningKey
+        - changes
+      properties:
+        learningKey:
+          type: string
+          format: uuid
+        changes:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/pendingFieldChange"
+              - $ref: "#/components/schemas/pendingPricesChange"
+
+    pendingFieldChange:
+      type: object
+      description: A pending non-price field change.
+      required:
+        - changeType
+        - data
+        - created
+      properties:
+        changeType:
+          type: string
+          enum: [Firstname]
+        data:
+          $ref: "#/components/schemas/changeResult"
+        created:
+          description: When the pending change was created
+          type: string
+          format: date-time
+
+    pendingPricesChange:
+      type: object
+      description: A pending price change. Old is the price history at the time of submission; new is the submitted prices.
+      required:
+        - changeType
+        - oldPrices
+        - newPrices
+        - created
+      properties:
+        changeType:
+          type: string
+          enum: [Prices]
+        oldPrices:
+          type: array
+          items:
+            $ref: "#/components/schemas/priceChange"
+        newPrices:
+          type: array
+          items:
+            $ref: "#/components/schemas/priceChange"
+        created:
+          description: When the pending change was created
+          type: string
+          format: date-time
 
     learningChangeArray:
       type: array
@@ -352,12 +497,17 @@ components:
         employerName:
           description: The employer name
           type: string
+        learningCount:
+          description: The number of learnings for this employer with at least one pending field change
+          type: integer
+          example: 5
         pendingCount:
-          description: The total number of pending approval changes for this employer
+          description: The total number of pending field changes for this employer, across all its learnings
           type: integer
           example: 12
       required:
         - accountId
+        - learningCount
         - pendingCount
 
     pagedPendingApprovalSummary:
@@ -368,7 +518,7 @@ components:
           items:
             $ref: "#/components/schemas/pendingApprovalEmployerSummary"
         totalItems:
-          description: Total number of employers with pending approvals
+          description: Total number of employers with pending field changes
           type: integer
           example: 34
         page:
