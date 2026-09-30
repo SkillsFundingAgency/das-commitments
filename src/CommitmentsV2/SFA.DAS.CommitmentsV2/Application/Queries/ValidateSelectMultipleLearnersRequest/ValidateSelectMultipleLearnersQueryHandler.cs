@@ -7,15 +7,15 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateSelectMultipleLearnersRequest;
+namespace SFA.DAS.CommitmentsV2.Application.Queries.ValidateSelectMultipleLearnersRequest;
 
-public class ValidateSelectMultipleLearnersCommandHandler(
-    ILogger<ValidateSelectMultipleLearnersCommandHandler> logger,
+public class ValidateSelectMultipleLearnersQueryHandler(
+    ILogger<ValidateSelectMultipleLearnersQueryHandler> logger,
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IEmployerAgreementService employerAgreementService,
     RplSettingsConfiguration rplConfig,
     IValidationService validationService)
-    : IRequestHandler<ValidateSelectMultipleLearnersCommand, ValidateSelectMultipleLearnersApiResponse>
+    : IRequestHandler<ValidateSelectMultipleLearnersQuery, ValidateSelectMultipleLearnersApiResponse>
 {
     private readonly EmployerSummaries _employerSummaries = [];
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
@@ -23,26 +23,26 @@ public class ValidateSelectMultipleLearnersCommandHandler(
 
     public long ProviderId { get; set; }
 
-    public async Task<ValidateSelectMultipleLearnersApiResponse> Handle(ValidateSelectMultipleLearnersCommand command, CancellationToken cancellationToken)
+    public async Task<ValidateSelectMultipleLearnersApiResponse> Handle(ValidateSelectMultipleLearnersQuery command, CancellationToken cancellationToken)
     {
         ProviderId = command.ProviderId;
-        var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
+        var validationErrors = new List<BulkUploadValidationError>();
         _csvRecords = command.CsvRecords.ToList();
 
-        var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
+        var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, validationErrors);
 
         if (standardsError.Count != 0)
         {
             return new ValidateSelectMultipleLearnersApiResponse
             {
-                BulkUploadValidationErrors = standardsError
+                ValidationErrors = standardsError
             };
         }
 
         foreach (var csvRecord in command.CsvRecords)
         {
             var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
-            await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
+            await AddError(validationErrors, csvRecord, criticalDomainError);
 
             if (criticalDomainError.Count != 0)
             {
@@ -51,12 +51,12 @@ public class ValidateSelectMultipleLearnersCommandHandler(
 
             var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
 
-            await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
+            await AddError(validationErrors, csvRecord, domainErrors);
         }
 
         return new ValidateSelectMultipleLearnersApiResponse
         {
-            BulkUploadValidationErrors = bulkUploadValidationErrors
+            ValidationErrors = validationErrors
         };
     }
 
