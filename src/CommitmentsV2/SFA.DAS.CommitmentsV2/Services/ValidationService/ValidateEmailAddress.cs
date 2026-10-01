@@ -3,11 +3,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.EmailValidationService;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<BulkUploadAddDraftApprenticeshipRequest> csvRecords)
     {
         var domainErrors = new List<Error>();
 
@@ -47,7 +47,7 @@ public partial class BulkUploadValidateCommandHandler
                 }
             }
 
-            if (_csvRecords.Exists(x => x.Email == csvRecord.Email && csvRecord.RowNumber > x.RowNumber))
+            if (csvRecords.Exists(x => x.Email == csvRecord.Email && csvRecord.RowNumber > x.RowNumber))
             {
                 domainErrors.Add(new Error("EmailAddress", $"The <b>email address</b> has already been used for an apprentice in this file"));
             }
@@ -56,7 +56,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private static bool IsAValidEmailAddress(string emailAsString)
+    private bool IsAValidEmailAddress(string emailAsString)
     {
         try
         {
