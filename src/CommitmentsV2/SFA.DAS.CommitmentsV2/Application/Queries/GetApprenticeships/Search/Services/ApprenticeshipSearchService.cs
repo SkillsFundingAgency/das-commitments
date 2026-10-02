@@ -9,12 +9,15 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
 {
     public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
     {
-        var alertCounts = await GetApprenticeshipsQuery(searchParameters)
-            .Filter(searchParameters.Filters, searchParameters.ProviderId.HasValue)
-            .CountAlertsAsync(searchParameters, searchParameters.CancellationToken);
+        var filteredApprenticeships = GetApprenticeshipsQuery(searchParameters)
+            .Filter(searchParameters.Filters, searchParameters.ProviderId.HasValue);
 
-        var totalApprenticeshipsWithoutAlerts = alertCounts.WithoutAlerts;
-        var totalApprenticeshipsWithAlerts = alertCounts.WithAlerts;
+        var totalApprenticeshipsWithoutAlerts = await filteredApprenticeships
+            .WithAlerts(false, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithAlerts = await filteredApprenticeships
+            .WithAlerts(true, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
 
         var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
 
@@ -164,7 +167,7 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
             query = query.Take(searchParameters.PageItemCount);
         }
 
-        return await query.AsNoTracking().AsSplitQuery().ToListAsync(cancellationToken);
+        return await query.ToListAsync(cancellationToken);
     }
 
     private async Task<List<Apprenticeship>> GetApprenticeshipsWithAlerts(ApprenticeshipSearchParameters searchParameters, int skipCount, CancellationToken cancellationToken)
@@ -221,7 +224,7 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
             query = query.Take(searchParameters.PageItemCount);
         }
 
-        return await query.AsNoTracking().AsSplitQuery().ToListAsync(cancellationToken);
+        return await query.ToListAsync(cancellationToken);
     }
 
     private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters)

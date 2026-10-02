@@ -166,22 +166,6 @@ public static class QueryableApprenticeshipsExtensions
         return apprenticeships.Where(hasAlerts ? hasAlert : hasNoAlert);
     }
 
-    public static async Task<ApprenticeshipAlertCounts> CountAlertsAsync(
-        this IQueryable<Apprenticeship> apprenticeships,
-        IEmployerProviderIdentifier identifier,
-        CancellationToken cancellationToken)
-    {
-        var hasAlert = identifier.ProviderId.HasValue ? ProviderHasAlert : EmployerHasAlert;
-        var hasNoAlert = identifier.ProviderId.HasValue ? ProviderHasNoAlert : EmployerHasNoAlert;
-
-        return new ApprenticeshipAlertCounts
-        {
-            WithAlerts = await apprenticeships.Where(hasAlert).CountAsync(cancellationToken),
-            WithoutAlerts = await apprenticeships.Where(hasNoAlert).CountAsync(cancellationToken),
-            Total = await apprenticeships.CountAsync(cancellationToken)
-        };
-    }
-
     private static readonly Expression<Func<Apprenticeship, bool>> ProviderHasAlert = apprenticeship =>
         apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) ||
         apprenticeship.ApprenticeshipUpdate.Any(
@@ -422,11 +406,4 @@ public static class QueryableApprenticeshipsExtensions
                 && request.Items != null
                 && request.Items.Any(item => item.Status == CocApprovalItemStatus.EmployerRejected)));
     }
-}
-
-public sealed class ApprenticeshipAlertCounts
-{
-    public int WithAlerts { get; set; }
-    public int WithoutAlerts { get; set; }
-    public int Total { get; set; }
 }

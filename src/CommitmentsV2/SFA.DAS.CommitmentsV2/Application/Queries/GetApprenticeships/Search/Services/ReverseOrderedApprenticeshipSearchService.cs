@@ -17,7 +17,7 @@ public class ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbCon
                 
         apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
 
-        var alertCounts = await apprenticeshipsQuery.CountAlertsAsync(searchParameters, searchParameters.CancellationToken);
+        var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true, searchParameters).CountAsync(searchParameters.CancellationToken);
 
         apprenticeshipsQuery = apprenticeshipsQuery
             .OrderByDescending(GetOrderByField(searchParameters.FieldName))
@@ -34,6 +34,8 @@ public class ReverseOrderedApprenticeshipSearchService(IProviderCommitmentsDbCon
             .Include(apprenticeship => apprenticeship.ApprovalRequests)
             .ThenInclude(request => request.Items);
 
-        return await CreatePagedApprenticeshipSearchResult(searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, alertCounts.Total, alertCounts.WithAlerts, totalAvailableApprenticeships, searchParameters.CancellationToken);
+        var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
+
+        return await CreatePagedApprenticeshipSearchResult(searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound, totalAvailableApprenticeships, searchParameters.CancellationToken);
     }
 }
