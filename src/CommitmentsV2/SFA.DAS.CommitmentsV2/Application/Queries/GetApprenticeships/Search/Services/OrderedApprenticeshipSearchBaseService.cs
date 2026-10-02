@@ -13,6 +13,7 @@ public abstract class OrderedApprenticeshipSearchBaseService
     {
         List<Apprenticeship> apprenticeships;
         var selectedPageNumber = pageNumber;
+        apprenticeshipsQuery = apprenticeshipsQuery.AsNoTracking().AsSplitQuery();
 
         if (pageItemCount < 1 || pageNumber < 1)
         {

@@ -9,9 +9,12 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
 {
     public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
     {
-        var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
+        var alertCounts = await GetApprenticeshipsQuery(searchParameters)
+            .Filter(searchParameters.Filters, searchParameters.ProviderId.HasValue)
+            .CountAlertsAsync(searchParameters, searchParameters.CancellationToken);
 
-        var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithoutAlerts = alertCounts.WithoutAlerts;
+        var totalApprenticeshipsWithAlerts = alertCounts.WithAlerts;
 
         var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
 
@@ -161,7 +164,7 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
             query = query.Take(searchParameters.PageItemCount);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.AsNoTracking().AsSplitQuery().ToListAsync(cancellationToken);
     }
 
     private async Task<List<Apprenticeship>> GetApprenticeshipsWithAlerts(ApprenticeshipSearchParameters searchParameters, int skipCount, CancellationToken cancellationToken)
@@ -218,7 +221,7 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
             query = query.Take(searchParameters.PageItemCount);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.AsNoTracking().AsSplitQuery().ToListAsync(cancellationToken);
     }
 
     private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters)
