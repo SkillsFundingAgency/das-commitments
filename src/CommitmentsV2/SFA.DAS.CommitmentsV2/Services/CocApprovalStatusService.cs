@@ -10,13 +10,13 @@ using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocApprovalStatusService(
-    IOverlapCheckService overlapCheckService,
-    IPlannedStartDateValidationRules plannedStartDateValidationRules,
-    IAcademicYearDateProvider academicYearDateProvider,
-    ILogger<CocApprovalStatusService> logger) 
+        IOverlapCheckService overlapCheckService,
+        IPlannedStartDateValidationRules plannedStartDateValidationRules,
+        IAcademicYearDateProvider academicYearDateProvider,
+        ILogger<CocApprovalStatusService> logger)
     : ICocApprovalStatusService
 {
-    public async Task<List<CocUpdateResult>> DetermineCocUpdateStatusesAsync(CocUpdates updates, Apprenticeship apprenticeship)
+    public async Task<List<CocUpdateResult>> DetermineCocUpdateStatusesAsync(CocUpdates updates, Apprenticeship apprenticeship, Course course)
     {
         var updateResults = new List<CocUpdateResult>();
 
@@ -30,13 +30,18 @@ public class CocApprovalStatusService(
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
+        if (course == null)
+        {
+            throw new ArgumentNullException(nameof(course));
+        }
+
         if (apprenticeship.StopDate != null)
         {
             updateResults.AddRange(AutoRejectFieldsAffectedByStoppedApprenticeship(updates));
         }
         else
         {
-            if (updates.PlannedEndDate != null) 
+            if (updates.PlannedEndDate != null)
             {
                 logger.LogInformation("Change of PlannedEndDate detected");
                 var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
@@ -49,16 +54,11 @@ public class CocApprovalStatusService(
             logger.LogInformation("Change of Firstname detected");
             updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
         }
-            if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.Firstname)))
-            {
-                logger.LogInformation("Change of Firstname detected");
-                updateResults.Add(DetermineApprovalStatusesForFirstnameField(cocApprovalDetails));
-            }
-            else if (cocApprovalDetails.ApprovalFieldChanges.Any(afc => afc.ChangeType == nameof(CocChangeField.PlannedStartDate)))
-            {
-                logger.LogInformation("Change of PlannedStartDate detected");
-                updateResults.Add(await DetermineApprovalStatusesForPlannedStartDateFieldAsync(cocApprovalDetails));
-            }
+
+        if (updates.PlannedStartDate != null)
+        {
+            logger.LogInformation("Change of PlannedStartDate detected");
+            updateResults.Add(await DetermineApprovalStatusesForPlannedStartDateFieldAsync(updates, apprenticeship, course));
         }
 
         if (updates.TNP1 != null || updates.TNP2 != null)
@@ -171,12 +171,10 @@ public class CocApprovalStatusService(
         return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
     }
 
-    private async Task<CocUpdateResult> DetermineApprovalStatusesForPlannedStartDateFieldAsync(CocApprovalDetails cocApprovalDetails)
+    private async Task<CocUpdateResult> DetermineApprovalStatusesForPlannedStartDateFieldAsync(CocUpdates updates, Apprenticeship apprenticeship, Course course)
     {
-        var plannedStartDateChange = cocApprovalDetails.ApprovalFieldChanges.FirstOrDefault(afc => afc.ChangeType == nameof(CocChangeField.PlannedStartDate));
-        var plannedStartDateNew = Convert.ToDateTime(plannedStartDateChange?.Data?.New);
-
-        var reservationValidationResult = await plannedStartDateValidationRules.IsPlannedStartDateValidForReservationAsync(plannedStartDateNew, cocApprovalDetails.Apprenticeship);
+        var plannedStartDateNew = updates.PlannedStartDate.New ?? DateTime.MinValue;
+        var reservationValidationResult = await plannedStartDateValidationRules.IsPlannedStartDateValidForReservationAsync(plannedStartDateNew, apprenticeship);
 
         if (plannedStartDateValidationRules.IsPlannedStartDateBeforeAbsoluteMinimum(plannedStartDateNew))
         {
@@ -190,21 +188,21 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The earliest start date you can use is {academicYearDateProvider.CurrentAcademicYearStartDate.ToGdsFormatShortMonthWithoutDay()}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeLarsEffectiveFrom(plannedStartDateNew, cocApprovalDetails.Course))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeLarsEffectiveFrom(plannedStartDateNew, course))
         {
-            var previousMonth = cocApprovalDetails.Course?.EffectiveFrom.Value.AddMonths(-1);
-            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date after {previousMonth.Value.Month} {previousMonth.Value.Year}"};
+            var previousMonth = course?.EffectiveFrom.Value.AddMonths(-1);
+            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date after {previousMonth.Value.Month} {previousMonth.Value.Year}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateAfterLarsEffectiveTo(plannedStartDateNew, cocApprovalDetails.Course))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateAfterLarsEffectiveTo(plannedStartDateNew, course))
         {
-            var nextMonth = cocApprovalDetails.Course?.EffectiveTo.Value.AddMonths(1);
+            var nextMonth = course?.EffectiveTo.Value.AddMonths(1);
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date before {nextMonth.Value.Month} {nextMonth.Value.Year}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeTransferFundedDate(plannedStartDateNew, cocApprovalDetails.Apprenticeship.Cohort))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeTransferFundedDate(plannedStartDateNew, apprenticeship.Cohort))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "Learners funded through a transfer can't start earlier than May 2018" };
         }
-        else if (await plannedStartDateValidationRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDateNew, cocApprovalDetails.Apprenticeship))
+        else if (await plannedStartDateValidationRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDateNew, apprenticeship))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "Learners overlapping dates and therefore cant start" };
         }
@@ -212,19 +210,19 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"{reservationValidationResult.ValidationErrors?.FirstOrDefault()?.Reason}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateLessThanMinAge(plannedStartDateNew, cocApprovalDetails.Apprenticeship.DateOfBirth))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateLessThanMinAge(plannedStartDateNew, apprenticeship.DateOfBirth))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAge(plannedStartDateNew, cocApprovalDetails.Apprenticeship.DateOfBirth))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAge(plannedStartDateNew, apprenticeship.DateOfBirth))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDateNew, cocApprovalDetails.Apprenticeship, cocApprovalDetails.Course))
+        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDateNew, apprenticeship, course))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training" };
         }
-        else if (await plannedStartDateValidationRules.IsThereEmailOverlapForPlannedStartDateAsync(plannedStartDateNew, cocApprovalDetails.Apprenticeship))
+        else if (await plannedStartDateValidationRules.IsThereEmailOverlapForPlannedStartDateAsync(plannedStartDateNew, apprenticeship))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "This email address is already used for another apprenticeship in the same training period - use a different email address" };
         }

@@ -23,7 +23,7 @@ public class CocApprovalRulesEngine(
     public async Task<CocApprovalState> DetermineApprovalState(CocApprovalDetails cocApprovalDetails)
     {
         logger.LogInformation("Determining Approval State");
-        var updateStatuses = await cocApprovalService.DetermineCocUpdateStatusesAsync(cocApprovalDetails);
+        var updateStatuses = await cocApprovalService.DetermineCocUpdateStatusesAsync(cocApprovalDetails.Updates, cocApprovalDetails.Apprenticeship, cocApprovalDetails.Course);
         var approvalRequestStatus = DetermineApprovalRequestStatus(updateStatuses);
         IEnumerable<ApprovalFieldRequest> approvalFieldRequests = MapToApprovalFieldRequests(cocApprovalDetails, updateStatuses);
 
