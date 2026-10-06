@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(false, _parameters).ToList();
 
             //Assert
-            Assert.That(result, Has.Count.EqualTo(6));
+            Assert.That(result, Has.Count.EqualTo(7));
 
             Assert.Multiple(() =>
             {
@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 Assert.That(result[3].Id, Is.EqualTo(6));
                 Assert.That(result[4].Id, Is.EqualTo(7));
                 Assert.That(result[5].Id, Is.EqualTo(9));
+                Assert.That(result[6].Id, Is.EqualTo(11));
             });
         }
 
@@ -68,9 +69,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             EventStatus = EventStatus.New,
                             TriageStatus = TriageStatus.Change
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.AutoApproved } } }
                     }
                 },
-                new Apprenticeship {Id = 2},
+                new Apprenticeship {Id = 2, ApprovalRequests = new List<ApprovalRequest>() { new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerApproved } } } }},
                 new Apprenticeship
                 {
                     Id = 3,
@@ -81,6 +86,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = ApprenticeshipUpdateStatus.Pending,
                             Originator = Originator.Provider
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.AutoApproved } } }
                     }
                 },
                 new Apprenticeship
@@ -94,6 +103,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = Status.Fail,
                             EventStatus = EventStatus.New
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerRejected } } }
                     }
                 },
                 new Apprenticeship
@@ -107,6 +120,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = Status.Pass,
                             EventStatus = EventStatus.New
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerRejected } } }
                     }
                 },
                 new Apprenticeship
@@ -120,6 +137,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = Status.Fail,
                             EventStatus = EventStatus.Removed
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerRejected } } }
                     }
                 },
                 new Apprenticeship
@@ -132,6 +153,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = ApprenticeshipUpdateStatus.Deleted,
                             Originator = Originator.Provider
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerApproved } } }
                     }
                 },
                 new Apprenticeship
@@ -144,6 +169,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             Status = ApprenticeshipUpdateStatus.Pending,
                             Originator = Originator.Unknown
                         }
+                    },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerApproved } } }
                     }
                 },
                 new Apprenticeship
@@ -157,7 +186,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                                 TriageStatus = TriageStatus.Unknown,
                                 IsResolved = false
                             }
-                        }
+                        },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerApproved } } }
+                    }
                 },
                 new Apprenticeship
                 {
@@ -168,7 +201,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             {
                                 Status = OverlappingTrainingDateRequestStatus.Pending,
                             }
-                        }
+                        },
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.AutoApproved } } }
+                    }
+                }                ,
+                new Apprenticeship
+                {
+                    Id = 11,
+                    ApprovalRequests = new List<ApprovalRequest>()
+                    {
+                         new ApprovalRequest() { Id = Guid.NewGuid(), Items = { new ApprovalFieldRequest() { Status = CocApprovalItemStatus.EmployerRejected } } }
+                    }
                 }
             }.AsQueryable();
             return apprenticeships;
