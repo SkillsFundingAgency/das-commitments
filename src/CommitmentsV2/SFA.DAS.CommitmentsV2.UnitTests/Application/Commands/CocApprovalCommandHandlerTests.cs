@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -422,6 +421,206 @@ public class CocApprovalCommandHandlerTests
                     c.ChangeType == LearningChangeType.AutoApproved &&
                     c.AppliedDate == _utcNow &&
                     c.Description == "First name change from Bob to Bobby"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndLastnameIsAutoRejected_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.Lastname),
+                        Old = "Lewi",
+                        New = "Lewis",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoRejected &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Last name change from Lewi to Lewis"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndLastnameIsAutoApproved_SendsAutoApprovedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.Lastname),
+                        Old = "Lewi",
+                        New = "Lewis",
+                        Status = CocApprovalItemStatus.AutoApproved
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoApproved &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Last name change from Lewi to Lewis"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndPlannedEndDateIsAutoRejected_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.PlannedEndDate),
+                        Old = "2026-09-25",
+                        New = "2026-10-01",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoRejected &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Planned end date change from 2026-09-25 to 2026-10-01"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndPlannedEndDateIsAutoApproved_SendsAutoApprovedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.PlannedEndDate),
+                        Old = "2026-09-25",
+                        New = "2026-10-01",
+                        Status = CocApprovalItemStatus.AutoApproved
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoApproved &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Planned end date change from 2026-09-25 to 2026-10-01"),
                 It.IsAny<SendOptions>()),
             Times.Once);
     }

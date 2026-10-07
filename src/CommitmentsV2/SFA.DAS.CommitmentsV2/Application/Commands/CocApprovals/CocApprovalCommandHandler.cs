@@ -107,6 +107,8 @@ public class CocApprovalCommandHandler(
     private string GetFieldDescription(string cocChangeField) => cocChangeField switch
     {
         nameof(CocChangeField.Firstname) => "First name",
+        nameof(CocChangeField.Lastname) => "Last name",
+        nameof(CocChangeField.PlannedEndDate) => "Planned end date",
         _ => null
     };
 

@@ -94,7 +94,7 @@ public class CocApprovalStatusServiceTestsForLastName
         };
         var apprenticeship = new Apprenticeship
         {
-            FirstName = "Lewi"
+            LastName = "Lewi"
         };
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
