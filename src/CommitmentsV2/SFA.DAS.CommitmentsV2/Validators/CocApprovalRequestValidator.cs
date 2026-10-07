@@ -23,7 +23,7 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
         RuleFor(model => model.LearningType).NotNull().Must(learningTypes.Contains).WithMessage("LearningType must be " + string.Join(", ", learningTypes[..^1]) + " or " + learningTypes[^1]);
         RuleFor(model => model.Changes).NotEmpty().NotNull();
         RuleFor(x => x.Changes).Must(items => items == null || items.GroupBy(i => i.ChangeType, StringComparer.OrdinalIgnoreCase).All(g => g.Count() == 1)).WithMessage("ChangeType must be unique within the listed values.");
-        RuleFor(x => x.Changes).Must(list => list.All(p => fields.Contains(p.ChangeType))).WithMessage("ChangeType must be " + fields.First() + " or " + fields.Last());
+        RuleFor(x => x.Changes).Must(list => list.All(p => fields.Contains(p.ChangeType,StringComparer.OrdinalIgnoreCase))).WithMessage("ChangeType must only be one of : " + string.Join(", ", fields));
         RuleFor(x => x.Changes).Must(list => list.All(p => p.Data != null)).WithMessage("ChangeType must contain a Data structure");
         RuleFor(x => x.Changes).Must(list => list.All(p => p.Data?.Old != p.Data?.New)).When(r => r.Changes.All(p => p.Data != null)).WithMessage("New and Old values cannot be the same");
         RuleFor(x => x.ApprovedUri)
