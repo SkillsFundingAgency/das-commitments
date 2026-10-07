@@ -12,6 +12,14 @@ public class CocApprovalRequest
     public string ULN { get; set; }
     public string ApprovedUri { get; set; }
     public List<CocApprovalFieldChange> Changes { get; set; } = new();
+    public List<PriceRecord> PriceRecords { get; set; }
+}
+
+public class PriceRecord
+{
+    public decimal? TrainingPrice { get; set; }
+    public decimal? AssessmentPrice { get; set; }
+    public DateTime EffectiveFrom { get; set; }
 }
 
 public class CocApprovalFieldChange
