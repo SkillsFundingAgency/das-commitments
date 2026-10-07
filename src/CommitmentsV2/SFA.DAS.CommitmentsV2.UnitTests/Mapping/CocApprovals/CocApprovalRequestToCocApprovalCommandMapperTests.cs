@@ -8,317 +8,352 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals
+namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals;
+
+[TestFixture]
+[Parallelizable]
+public class CocApprovalRequestToCocApprovalCommandMapperTests
 {
+    private CocApprovalRequestToCocApprovalCommandMapperTestsFixture _fixture;
 
-    [TestFixture]
-    [Parallelizable]
-    public class CocApprovalRequestToCocApprovalCommandMapperTests
+    [SetUp]
+    public void Arrange()
     {
-        private CocApprovalRequestToCocApprovalCommandMapperTestsFixture _fixture;
-
-        [SetUp]
-        public void Arrange()
-        {
-            _fixture = new CocApprovalRequestToCocApprovalCommandMapperTestsFixture();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _fixture?.Dispose();
-        }
-
-        [Test]
-        public async Task ShouldMapCoreData_WhenValuesAreValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-
-            // Assert
-            command.Should().NotBeNull();
-            command.LearningKey.Should().Be(_fixture.Request.LearningKey);
-            command.ApprenticeshipId.Should().Be(_fixture.Request.ApprenticeshipId);
-            command.LearningType.ToString().Should().Be(_fixture.Request.LearningType);
-            command.ProviderId.ToString().Should().Be(_fixture.Request.UKPRN);
-            command.ULN.Should().Be(_fixture.Request.ULN);
-        }
-
-        [Test]
-        public async Task ShouldMapChangesData_WhenValuesAreValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("TNP1", "100", "15")
-                .AddFieldChange("TNP2", "20", "25");
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-
-            // Assert
-            command.Should().NotBeNull();
-            command.Updates.TNP1.Old.ToString().Should().Be("100");
-            command.Updates.TNP1.New.ToString().Should().Be("15");
-            command.Updates.TNP2.Old.ToString().Should().Be("20");
-            command.Updates.TNP2.New.ToString().Should().Be("25");
-            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
-        }
-
-        [Test]
-        public async Task ShouldMapChangesData_WhenFirstnameValuesAreValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("Firstname", "Bob", "Bobby");
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-
-            // Assert
-            command.Should().NotBeNull();
-            command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Firstname));
-            command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
-            command.ApprovalFieldChanges[0].Data.New.Should().Be("Bobby");
-            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
-        }
-
-        [TestCase(" ", "John")]
-        [TestCase("John", "")]
-        [TestCase("", "")]
-        [TestCase(" ", null)]
-        [TestCase(null, " ")]
-        [TestCase(null, "John")]
-        [TestCase("John", null)]
-        [TestCase(null, null)]
-        public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrWhiteSpace(string oldValue, string newValue)
-        {
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("Firstname", oldValue, newValue);
-
-            var command = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-            await command.Should().ThrowAsync<DomainException>();
-        }
-
-        [Test]
-        public async Task ShouldThrowException_WhenOldValuesAreNotValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("TNP1", "X10X0", "15");
-
-            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-            await act.Should().ThrowAsync<DomainException>();
-        }
-
-        [Test]
-        public async Task ShouldThrowException_WhenNewValuesAreNotValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("TNP1", "100", "1-t5");
-
-            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-            await act.Should().ThrowAsync<DomainException>();
-        }
-
-        [TestCase("TNP1", "-100", "10")]
-        [TestCase("TNP1", "100", "-10")]
-        [TestCase("TNP2", "-200", "20")]
-        [TestCase("TNP2", "200", "-20")]
-        public async Task ShouldThrowException_WhenValuesAreNegative(string field, string oldValue, string newValue)
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange(field, oldValue, newValue);
-
-            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-            await act.Should().ThrowAsync<DomainException>();
-        }
-
-        [TestCase("PlannedEndDate", "2023-09-01", "202-09-01")]
-        [TestCase("PlannedEndDate", "-09-01", "2020-09-01")]
-        [TestCase("PlannedEndDate", "XC-09-01", "XXXX-01")]
-        public async Task ShouldThrowException_WhenValuesAreNotValidDates(string field, string oldValue, string newValue)
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange(field, oldValue, newValue);
-
-            var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-            await act.Should().ThrowAsync<DomainException>();
-        }
-
-        [Test]
-        public async Task ShouldMapPlannedEndDateChangesData_WhenValuesAreValid()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            _fixture.AddFieldChange("PlannedEndDate", "2026-07-01", "2026-08-01");
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-
-            // Assert
-            command.Should().NotBeNull();
-            command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 07, 01));
-            command.Updates.PlannedEndDate.New.Should().Be(new DateTime(2026, 08, 01));
-            command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
-        }
-
-        [Test]
-        public async Task ShouldReturnNullApprenticeship_WhenApprenticeshipNotFound()
-        {
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-            command.Apprenticeship.Should().BeNull();
-        }
-
-        [Test]
-        public async Task ShouldReturnApprenticeship_WhenApprenticeshipFound()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-            command.Apprenticeship.Should().NotBeNull();
-            command.Apprenticeship.Should().Be(_fixture.ApprenticeshipFromDb);
-        }
-
-        [Test]
-        public async Task ShouldReturnNullCourse_WhenCourseNotFound()
-        {
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-            command.Course.Should().BeNull();
-        }
-
-        [Test]
-        public async Task ShouldReturnCourse_WhenCourseFound()
-        {
-            // Arrange
-            _fixture.SeedData();
-
-            var command = await _fixture.Mapper.Map(_fixture.Request);
-            command.Course.Should().NotBeNull();
-            command.Course.Should().Be(_fixture.CourseFromDb);
-        }
+        _fixture = new CocApprovalRequestToCocApprovalCommandMapperTestsFixture();
     }
 
-    public class CocApprovalRequestToCocApprovalCommandMapperTestsFixture : IDisposable
+    [TearDown]
+    public void TearDown()
     {
-        public const long ApprenticeshipId = 12;
-        public const long ProviderId = 123456;
-        public const long ULN = 1234567890;
+        _fixture?.Dispose();
+    }
 
-        public Fixture AutoFixture { get; set; }
-        public CocApprovalRequest Request { get; set; }
-        public List<CocApprovalFieldChange> FieldChanges { get; set; } = new();
-        public ProviderCommitmentsDbContext Db { get; set; }
-        public UnitOfWorkContext UnitOfWorkContext { get; set; }
-        public CocApprovalRequestToCocApprovalDetailsMapper Mapper { get; set; }
-        public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-        public Course CourseFromDb => Db.Courses.First();
+    [Test]
+    public async Task ShouldMapCoreData_WhenValuesAreValid()
+    {
+        // Arrange
+        _fixture.SeedData();
 
-        public CocApprovalRequestToCocApprovalCommandMapperTestsFixture()
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+
+        // Assert
+        command.Should().NotBeNull();
+        command.LearningKey.Should().Be(_fixture.Request.LearningKey);
+        command.ApprenticeshipId.Should().Be(_fixture.Request.ApprenticeshipId);
+        command.LearningType.ToString().Should().Be(_fixture.Request.LearningType);
+        command.ProviderId.ToString().Should().Be(_fixture.Request.UKPRN);
+        command.ULN.Should().Be(_fixture.Request.ULN);
+    }
+
+    [Test]
+    public async Task ShouldMapChangesData_WhenValuesAreValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("TNP1", "100", "15")
+            .AddFieldChange("TNP2", "20", "25");
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+
+        // Assert
+        command.Should().NotBeNull();
+        command.Updates.TNP1.Old.ToString().Should().Be("100");
+        command.Updates.TNP1.New.ToString().Should().Be("15");
+        command.Updates.TNP2.Old.ToString().Should().Be("20");
+        command.Updates.TNP2.New.ToString().Should().Be("25");
+        command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+    }
+
+    [Test]
+    public async Task ShouldMapChangesData_WhenFirstnameValuesAreValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("Firstname", "Bob", "Bobby");
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+
+        // Assert
+        command.Should().NotBeNull();
+        command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Firstname));
+        command.ApprovalFieldChanges[0].Data.Old.Should().Be("Bob");
+        command.ApprovalFieldChanges[0].Data.New.Should().Be("Bobby");
+        command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+    }
+
+    [TestCase(" ", "John")]
+    [TestCase("John", "")]
+    [TestCase("", "")]
+    [TestCase(" ", null)]
+    [TestCase(null, " ")]
+    [TestCase(null, "John")]
+    [TestCase("John", null)]
+    [TestCase(null, null)]
+    public async Task ShouldThrowException_WhenFirstnameValuesAreNullOrWhiteSpace(string oldValue, string newValue)
+    {
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("Firstname", oldValue, newValue);
+
+        var command = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await command.Should().ThrowAsync<DomainException>();
+    }
+
+    [Test]
+    public async Task ShouldMapChangesData_WhenLastnameValuesAreValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("Lastname", "Lewi", "Lewis");
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+
+        // Assert
+        command.Should().NotBeNull();
+        command.ApprovalFieldChanges[0].ChangeType.Should().Be(nameof(CocChangeField.Lastname));
+        command.ApprovalFieldChanges[0].Data.Old.Should().Be("Lewi");
+        command.ApprovalFieldChanges[0].Data.New.Should().Be("Lewis");
+        command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+    }
+
+    [TestCase(" ", "Lewis")]
+    [TestCase("Lewis", "")]
+    [TestCase("", "")]
+    [TestCase(" ", null)]
+    [TestCase(null, " ")]
+    [TestCase(null, "Lewis")]
+    [TestCase("Lewis", null)]
+    [TestCase(null, null)]
+    public async Task ShouldThrowException_WhenLastnameValuesAreNullOrWhiteSpace(string oldValue, string newValue)
+    {
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("Lastname", oldValue, newValue);
+
+        var command = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await command.Should().ThrowAsync<DomainException>();
+    }
+
+    [Test]
+    public async Task ShouldThrowException_WhenOldValuesAreNotValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("TNP1", "X10X0", "15");
+
+        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [Test]
+    public async Task ShouldThrowException_WhenNewValuesAreNotValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("TNP1", "100", "1-t5");
+
+        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [TestCase("TNP1", "-100", "10")]
+    [TestCase("TNP1", "100", "-10")]
+    [TestCase("TNP2", "-200", "20")]
+    [TestCase("TNP2", "200", "-20")]
+    public async Task ShouldThrowException_WhenValuesAreNegative(string field, string oldValue, string newValue)
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange(field, oldValue, newValue);
+
+        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [TestCase("PlannedEndDate", "2023-09-01", "202-09-01")]
+    [TestCase("PlannedEndDate", "-09-01", "2020-09-01")]
+    [TestCase("PlannedEndDate", "XC-09-01", "XXXX-01")]
+    public async Task ShouldThrowException_WhenValuesAreNotValidDates(string field, string oldValue, string newValue)
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange(field, oldValue, newValue);
+
+        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
+
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [Test]
+    public async Task ShouldMapPlannedEndDateChangesData_WhenValuesAreValid()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        _fixture.AddFieldChange("PlannedEndDate", "2026-07-01", "2026-08-01");
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+
+        // Assert
+        command.Should().NotBeNull();
+        command.Updates.PlannedEndDate.Old.Should().Be(new DateTime(2026, 07, 01));
+        command.Updates.PlannedEndDate.New.Should().Be(new DateTime(2026, 08, 01));
+        command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
+    }
+
+    [Test]
+    public async Task ShouldReturnNullApprenticeship_WhenApprenticeshipNotFound()
+    {
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+        command.Apprenticeship.Should().BeNull();
+    }
+
+    [Test]
+    public async Task ShouldReturnApprenticeship_WhenApprenticeshipFound()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+        command.Apprenticeship.Should().NotBeNull();
+        command.Apprenticeship.Should().Be(_fixture.ApprenticeshipFromDb);
+    }
+
+    [Test]
+    public async Task ShouldReturnNullCourse_WhenCourseNotFound()
+    {
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+        command.Course.Should().BeNull();
+    }
+
+    [Test]
+    public async Task ShouldReturnCourse_WhenCourseFound()
+    {
+        // Arrange
+        _fixture.SeedData();
+
+        var command = await _fixture.Mapper.Map(_fixture.Request);
+        command.Course.Should().NotBeNull();
+        command.Course.Should().Be(_fixture.CourseFromDb);
+    }
+}
+
+public class CocApprovalRequestToCocApprovalCommandMapperTestsFixture : IDisposable
+{
+    public const long ApprenticeshipId = 12;
+    public const long ProviderId = 123456;
+    public const long ULN = 1234567890;
+
+    public Fixture AutoFixture { get; set; }
+    public CocApprovalRequest Request { get; set; }
+    public List<CocApprovalFieldChange> FieldChanges { get; set; } = new();
+    public ProviderCommitmentsDbContext Db { get; set; }
+    public UnitOfWorkContext UnitOfWorkContext { get; set; }
+    public CocApprovalRequestToCocApprovalDetailsMapper Mapper { get; set; }
+    public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
+    public Course CourseFromDb => Db.Courses.First();
+
+    public CocApprovalRequestToCocApprovalCommandMapperTestsFixture()
+    {
+        AutoFixture = new Fixture();
+        AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        AutoFixture.Customizations.Add(new ModelSpecimenBuilder());
+
+        UnitOfWorkContext = new UnitOfWorkContext();
+
+        Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
+            .Options);
+
+        Request = AutoFixture.Build<CocApprovalRequest>()
+            .With(x => x.ApprenticeshipId, ApprenticeshipId)
+            .With(x => x.LearningType, nameof(CocLearningType.Apprenticeship))
+            .With(x => x.UKPRN, ProviderId.ToString())
+            .With(x => x.ULN, ULN.ToString())
+            .With(x => x.Changes, FieldChanges)
+            .Create();
+
+        Mapper = new CocApprovalRequestToCocApprovalDetailsMapper(new Lazy<ProviderCommitmentsDbContext>(Db), Mock.Of<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>>());
+    }
+
+    public CocApprovalRequestToCocApprovalCommandMapperTestsFixture SeedData()
+    {
+        var accountLegalEntityDetails = new AccountLegalEntity()
+            .Set(c => c.Id, 444);
+        Db.AccountLegalEntities.Add(accountLegalEntityDetails);
+
+        var provider = new Provider()
+            .Set(c => c.UkPrn, 333)
+            .Set(c => c.Name, "Test Provider");
+        Db.Providers.Add(provider);
+
+        var cohortDetails = new Cohort()
+            .Set(c => c.Id, 111)
+            .Set(c => c.EmployerAccountId, 222)
+            .Set(c => c.ProviderId, 333)
+            .Set(c => c.AccountLegalEntityId, accountLegalEntityDetails.Id);
+
+        Db.Cohorts.Add(cohortDetails);
+
+        var apprenticeshipDetails = AutoFixture.Build<Apprenticeship>()
+         .With(s => s.Id, ApprenticeshipId)
+         .With(s => s.CommitmentId, cohortDetails.Id)
+         .With(s => s.ProgrammeType, ProgrammeType.Standard)
+         .With(s => s.PaymentStatus, PaymentStatus.Completed)
+         .With(s => s.EndDate, DateTime.UtcNow)
+         .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
+         .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+         .With(s => s.CourseCode, "LarsCode")
+         .Without(s => s.Cohort)
+         .Without(s => s.PriceHistory)
+         .Without(s => s.ApprenticeshipUpdate)
+         .Without(s => s.DataLockStatus)
+         .Without(s => s.EpaOrg)
+         .Without(s => s.Continuation)
+         .Without(s => s.PreviousApprenticeship)
+         .Create();
+
+        Db.Apprenticeships.Add(apprenticeshipDetails);
+
+        var courseDetails = new Course()
+            .Set(c => c.LarsCode, "LarsCode")
+            .Set(c => c.LearningType, LearningType.Apprenticeship);
+
+        Db.Courses.Add(courseDetails);
+        Db.SaveChanges();
+
+        return this;
+    }
+
+    public CocApprovalRequestToCocApprovalCommandMapperTestsFixture AddFieldChange(string fieldName, string oldValue, string newValue)
+    {
+        FieldChanges.Add(new CocApprovalFieldChange
         {
-            AutoFixture = new Fixture();
-            AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            AutoFixture.Customizations.Add(new ModelSpecimenBuilder());
-
-            UnitOfWorkContext = new UnitOfWorkContext();
-
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
-                .Options);
-
-            Request = AutoFixture.Build<CocApprovalRequest>()
-                .With(x => x.ApprenticeshipId, ApprenticeshipId)
-                .With(x => x.LearningType, nameof(CocLearningType.Apprenticeship))
-                .With(x => x.UKPRN, ProviderId.ToString())
-                .With(x => x.ULN, ULN.ToString())
-                .With(x => x.Changes, FieldChanges)
-                .Create();
-
-            Mapper = new CocApprovalRequestToCocApprovalDetailsMapper(new Lazy<ProviderCommitmentsDbContext>(Db), Mock.Of<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>>());
-        }
-
-        public CocApprovalRequestToCocApprovalCommandMapperTestsFixture SeedData()
-        {
-            var accountLegalEntityDetails = new AccountLegalEntity()
-                .Set(c => c.Id, 444);
-            Db.AccountLegalEntities.Add(accountLegalEntityDetails);
-
-            var provider = new Provider()
-                .Set(c => c.UkPrn, 333)
-                .Set(c => c.Name, "Test Provider");
-            Db.Providers.Add(provider);
-
-            var cohortDetails = new Cohort()
-                .Set(c => c.Id, 111)
-                .Set(c => c.EmployerAccountId, 222)
-                .Set(c => c.ProviderId, 333)
-                .Set(c => c.AccountLegalEntityId, accountLegalEntityDetails.Id);
-
-            Db.Cohorts.Add(cohortDetails);
-
-            var apprenticeshipDetails = AutoFixture.Build<Apprenticeship>()
-             .With(s => s.Id, ApprenticeshipId)
-             .With(s => s.CommitmentId, cohortDetails.Id)
-             .With(s => s.ProgrammeType, ProgrammeType.Standard)
-             .With(s => s.PaymentStatus, PaymentStatus.Completed)
-             .With(s => s.EndDate, DateTime.UtcNow)
-             .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
-             .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
-             .With(s => s.CourseCode, "LarsCode")
-             .Without(s => s.Cohort)
-             .Without(s => s.PriceHistory)
-             .Without(s => s.ApprenticeshipUpdate)
-             .Without(s => s.DataLockStatus)
-             .Without(s => s.EpaOrg)
-             .Without(s => s.Continuation)
-             .Without(s => s.PreviousApprenticeship)
-             .Create();
-
-            Db.Apprenticeships.Add(apprenticeshipDetails);
-
-            var courseDetails = new Course()
-                .Set(c => c.LarsCode, "LarsCode")
-                .Set(c => c.LearningType, LearningType.Apprenticeship);
-
-            Db.Courses.Add(courseDetails);
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public CocApprovalRequestToCocApprovalCommandMapperTestsFixture AddFieldChange(string fieldName, string oldValue, string newValue)
-        {
-            FieldChanges.Add(new CocApprovalFieldChange
+            ChangeType = fieldName,
+            Data = new CocData
             {
-                ChangeType = fieldName,
-                Data = new CocData
-                {
-                    Old = oldValue,
-                    New = newValue
-                }
-            });
-            return this;
-        }
+                Old = oldValue,
+                New = newValue
+            }
+        });
+        return this;
+    }
 
-        public void Dispose()
-        {
-            Db?.Dispose();
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Db?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
