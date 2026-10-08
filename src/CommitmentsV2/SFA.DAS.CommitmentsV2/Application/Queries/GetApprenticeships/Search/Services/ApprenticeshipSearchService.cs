@@ -9,9 +9,15 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
 {
     public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
     {
-        var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
+        var filteredApprenticeships = GetApprenticeshipsQuery(searchParameters)
+            .Filter(searchParameters.Filters, searchParameters.ProviderId.HasValue);
 
-        var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithoutAlerts = await filteredApprenticeships
+            .WithAlerts(false, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithAlerts = await filteredApprenticeships
+            .WithAlerts(true, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
 
         var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
 
