@@ -17,6 +17,7 @@ public class WhenDownloadingApprentices : SearchParameterServiceTestBase
     {
         //Arrange
         searchParameters.PageNumber = 0;
+        searchParameters.PageItemCount = 0;
         searchParameters.ReverseSort = false;
         searchParameters.Filters = new ApprenticeshipSearchFilters();
         searchParameters.CancellationToken = CancellationToken.None;
@@ -26,7 +27,7 @@ public class WhenDownloadingApprentices : SearchParameterServiceTestBase
         var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
 
         apprenticeships[1].ProviderRef = null;
-        apprenticeships[1].EndDate = DateTime.UtcNow.AddMonths(-13);;
+        apprenticeships[1].EndDate = DateTime.UtcNow.AddMonths(-13);
 
         mockContext
             .Setup(context => context.Apprenticeships)
