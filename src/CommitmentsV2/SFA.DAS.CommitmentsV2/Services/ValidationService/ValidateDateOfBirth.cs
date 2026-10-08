@@ -2,12 +2,13 @@ using System.Text.RegularExpressions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    public IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults, Standard standard)
     {
         var domainErrors = new List<Error>();
 
@@ -29,7 +30,7 @@ public partial class BulkUploadValidateCommandHandler
             }
             else
             {
-                var courseLevel = GetStandardDetails(csvRecord.CourseCode)?.Level;
+                var courseLevel = standard?.Level;
 
                 if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
                 {
@@ -49,7 +50,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private static bool WillApprenticeBeAtLeastMinAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int minAge)
+    private bool WillApprenticeBeAtLeastMinAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int minAge)
     {
         if (startDate == null) return true; // Don't fail validation if both fields not set
 
@@ -59,7 +60,7 @@ public partial class BulkUploadValidateCommandHandler
         return age >= minAge;
     }
 
-    private static bool ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int maxAge)
+    private bool ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int maxAge)
     {
         if (startDate == null)
         {

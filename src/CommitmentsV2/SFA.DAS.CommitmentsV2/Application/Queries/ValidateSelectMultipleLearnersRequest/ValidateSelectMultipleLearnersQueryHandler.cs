@@ -1,47 +1,48 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Application.Queries.ValidateSelectMultipleLearnersRequest;
 
-public class BulkUploadValidateCommandHandler(
-    ILogger<BulkUploadValidateCommandHandler> logger,
+public class ValidateSelectMultipleLearnersQueryHandler(
+    ILogger<ValidateSelectMultipleLearnersQueryHandler> logger,
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IEmployerAgreementService employerAgreementService,
     RplSettingsConfiguration rplConfig,
     IValidationService validationService)
-    : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    : IRequestHandler<ValidateSelectMultipleLearnersQuery, ValidateSelectMultipleLearnersApiResponse>
 {
     private readonly EmployerSummaries _employerSummaries = [];
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
-    private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
+    //private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
 
     public long ProviderId { get; set; }
 
-    public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
+    public async Task<ValidateSelectMultipleLearnersApiResponse> Handle(ValidateSelectMultipleLearnersQuery command, CancellationToken cancellationToken)
     {
         ProviderId = command.ProviderId;
-        var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
+        var validationErrors = new List<BulkUploadValidationError>();
         _csvRecords = command.CsvRecords.ToList();
 
-        var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
+        var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, validationErrors);
 
         if (standardsError.Count != 0)
         {
-            return new BulkUploadValidateApiResponse
+            return new ValidateSelectMultipleLearnersApiResponse
             {
-                BulkUploadValidationErrors = standardsError
+                ValidationErrors = standardsError
             };
         }
 
         foreach (var csvRecord in command.CsvRecords)
         {
             var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
-            await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
+            await AddError(validationErrors, csvRecord, criticalDomainError);
 
             if (criticalDomainError.Count != 0)
             {
@@ -50,12 +51,12 @@ public class BulkUploadValidateCommandHandler(
 
             var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
 
-            await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
+            await AddError(validationErrors, csvRecord, domainErrors);
         }
 
-        return new BulkUploadValidateApiResponse
+        return new ValidateSelectMultipleLearnersApiResponse
         {
-            BulkUploadValidationErrors = bulkUploadValidationErrors
+            ValidationErrors = validationErrors
         };
     }
 
@@ -89,7 +90,8 @@ public class BulkUploadValidateCommandHandler(
         }
 
         if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
-            && !IsFundedByTransfer(csvRecord.CohortRef) && !await validationService.ValidatePermissionToCreateCohort(providerId, domainErrors, employerDetails.IsLevy, employerDetails))
+            //&& !IsFundedByTransfer(csvRecord.CohortRef) we don't have cohort details at this point 
+            && !await validationService.ValidatePermissionToCreateCohort(providerId, domainErrors, employerDetails.IsLevy, employerDetails))
         {
             // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
             return domainErrors;
@@ -121,21 +123,24 @@ public class BulkUploadValidateCommandHandler(
     /// </summary>
     /// <param name="cohortRef"></param>
     /// <returns></returns>
-    private bool IsFundedByTransfer(string cohortRef)
-    {
-        if (string.IsNullOrWhiteSpace(cohortRef))
-        {
-            return false;
-        }
+    //private bool IsFundedByTransfer(string cohortRef)
+    //{
+    //    if (string.IsNullOrWhiteSpace(cohortRef))
+    //    {
+    //        return false;
+    //    }
 
-        var cohortDetails = GetCohortDetails(cohortRef);
+    //    var cohortDetails = GetCohortDetails(cohortRef);
 
-        return cohortDetails.TransferSenderId.HasValue;
-    }
+    //    return cohortDetails.TransferSenderId.HasValue;
+    //}
 
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        //var cohortDetails =  GetCohortDetails(csvRecord.CohortRef);
+        var standardDetails = GetStandardDetails(csvRecord.CourseCode);
+
         var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord.AgreementId, employerDetails.Name);
 
         if (domainErrors.Count == 0)
@@ -149,16 +154,14 @@ public class BulkUploadValidateCommandHandler(
             }
         }
 
-        var cohortDetails = GetCohortDetails(csvRecord.CohortRef);
-        var standardDetails = GetStandardDetails(csvRecord.CourseCode);
-        domainErrors.AddRange(await validationService.ValidateCohortRef(csvRecord, providerId, cohortDetails, employerDetails.Name));
+        //domainErrors.AddRange(await validationService.ValidateCohortRef(csvRecord, providerId, cohortDetails, employerDetails.Name));
         domainErrors.AddRange(validationService.ValidateUln(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateLastName(csvRecord.LastName));
         domainErrors.AddRange(validationService.ValidateFirstName(csvRecord.FirstName));
         domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults, standardDetails));
         domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails));
-        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, cohortDetails));
+        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, null));
         domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
         domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));
         domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord.ProviderRef));
@@ -224,21 +227,21 @@ public class BulkUploadValidateCommandHandler(
         return employerSummary;
     }
 
-    private Cohort GetCohortDetails(string cohortRef)
-    {
-        if (_cachedCohortDetails.ContainsKey(cohortRef))
-        {
-            return _cachedCohortDetails.GetValueOrDefault(cohortRef);
-        }
+    //private Cohort GetCohortDetails(string cohortRef)
+    //{
+    //    if (_cachedCohortDetails.ContainsKey(cohortRef))
+    //    {
+    //        return _cachedCohortDetails.GetValueOrDefault(cohortRef);
+    //    }
 
-        var cohort = dbContext.Value.Cohorts
-            .Include(x => x.AccountLegalEntity)
-            .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
+    //    var cohort = dbContext.Value.Cohorts
+    //        .Include(x => x.AccountLegalEntity)
+    //        .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
 
-        _cachedCohortDetails.Add(cohortRef, cohort);
+    //    _cachedCohortDetails.Add(cohortRef, cohort);
 
-        return cohort;
-    }
+    //    return cohort;
+    //}
 
     private Standard GetStandardDetails(string stdCode)
     {
@@ -247,6 +250,14 @@ public class BulkUploadValidateCommandHandler(
             return null;
         }
 
-        return int.TryParse(stdCode, out var result) ? dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result) : null;
+        var couse = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == stdCode);
+
+        return new Standard
+        {
+            Title = couse.Title,
+            Level = int.TryParse(couse.Level, out var level) ? level : 0,
+            EffectiveFrom = couse.EffectiveFrom,
+            EffectiveTo = couse.EffectiveTo
+        };
     }
 }
