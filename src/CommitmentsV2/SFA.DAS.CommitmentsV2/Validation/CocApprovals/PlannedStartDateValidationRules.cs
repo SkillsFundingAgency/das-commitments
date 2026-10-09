@@ -27,7 +27,7 @@ public class PlannedStartDateValidationRules(
 
     public bool IsPlannedStartDateBeforeFundingWindowHasClosed(DateTime plannedStartDate)
     {
-        return (DateTime.UtcNow > Constants.FundingWindowClosedOn) && (plannedStartDate < academicYearDateProvider.CurrentAcademicYearStartDate);
+        return (DateTime.UtcNow > academicYearDateProvider.FundingWindowClosedOn) && (plannedStartDate < academicYearDateProvider.CurrentAcademicYearStartDate);
     }
 
     public bool IsPlannedStartDateBeforeLarsEffectiveFrom(DateTime plannedStartDate, Course course)
