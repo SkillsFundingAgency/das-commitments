@@ -42,6 +42,7 @@ public static class ServiceRegistrationExtensions
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddNServiceBusUnitOfWork();
+            services.AddValidationRuleServices();
             services.AddDomainServices();
             services.AddEmployerAccountServices(context.Configuration);
             services.AddSingleton<IEncodingService, EncodingService>();

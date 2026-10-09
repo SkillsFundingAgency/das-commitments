@@ -399,12 +399,12 @@ public class CocApprovalCommandHandlerTests
                 Items =
                 [
                     new ApprovalFieldRequest
-                    {
-                        Field = nameof(CocChangeField.Firstname),
-                        Old = "Bob",
-                        New = "Bobby",
-                        Status = CocApprovalItemStatus.AutoApproved
-                    }
+                {
+                    Field = nameof(CocChangeField.Firstname),
+                    Old = "Bob",
+                    New = "Bobby",
+                    Status = CocApprovalItemStatus.AutoApproved
+                }
                 ]
             },
             ApprovalResult = new CocApprovalResult()
@@ -449,12 +449,12 @@ public class CocApprovalCommandHandlerTests
                 Items =
                 [
                     new ApprovalFieldRequest
-                    {
-                        Field = "Random",
-                        Old = "Value1",
-                        New = "Value2",
-                        Status = CocApprovalItemStatus.AutoApproved
-                    }
+                {
+                    Field = "Random",
+                    Old = "Value1",
+                    New = "Value2",
+                    Status = CocApprovalItemStatus.AutoApproved
+                }
                 ]
             },
             ApprovalResult = new CocApprovalResult()
@@ -475,6 +475,107 @@ public class CocApprovalCommandHandlerTests
                 It.IsAny<SendOptions>()),
             Times.Once);
     }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndPlannedStartDateIsAutoApproved_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.PlannedStartDate),
+                        Old = "2026-08-02",
+                        New = "2026-09-02",
+                        Status = CocApprovalItemStatus.AutoApproved
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoApproved &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Planned start date change from 2026-08-02 to 2026-09-02"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndPlannedStartDateIsAutoRejected_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.PlannedStartDate),
+                        Old = "2026-08-02",
+                        New = "1000-01-01",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoRejected &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Planned start date change from 2026-08-02 to 1000-01-01"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
 
     [Test]
     public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoApproved_SendsStoreLearningHistoryCommand()

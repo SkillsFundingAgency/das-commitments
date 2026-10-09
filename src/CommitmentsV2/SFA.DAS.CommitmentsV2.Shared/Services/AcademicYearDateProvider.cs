@@ -17,4 +17,6 @@ public class AcademicYearDateProvider(ICurrentDateTime currentDateTime) : IAcade
     public DateTime CurrentAcademicYearEndDate => CurrentAcademicYearStartDate.AddYears(1).AddDays(-1);
 
     public DateTime LastAcademicYearFundingPeriod => new DateTime(CurrentAcademicYearStartDate.Year, 10, 19, 18, 0, 0, DateTimeKind.Utc);
+
+    public DateTime FundingWindowClosedOn => new DateTime(DateTime.UtcNow.Year, 10, 19, 18, 00, 00, DateTimeKind.Utc);
 }

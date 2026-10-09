@@ -97,6 +97,8 @@ public class Startup
         services.AddApiClients();
         services.AddTelemetryUriRedaction("firstName,lastName,dateOfBirth,email");
 
+        services.AddValidationRuleServices();
+
         services.AddAcademicYearDateProviderServices();
         services.AddApprovalsOuterApiServiceServices();
 
