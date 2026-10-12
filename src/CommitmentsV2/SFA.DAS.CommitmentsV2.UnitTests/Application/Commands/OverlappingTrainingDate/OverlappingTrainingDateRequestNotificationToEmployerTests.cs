@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 
@@ -211,15 +212,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             internal void AddSecondValidRecord()
             {
                 var sourceRecord = Db.OverlappingTrainingDateRequests.Single(r => r.Id == 1);
+                var sourceApprenticeship = sourceRecord.PreviousApprenticeship;
                 var secondPreviousApprenticeship = new CommitmentsV2.Models.Apprenticeship()
-                    .Set(x => x.Id, sourceRecord.PreviousApprenticeship.Id + 1)
-                    .Set(x => x.Uln, $"{sourceRecord.PreviousApprenticeship.Uln}2")
-                    .Set(x => x.FirstName, sourceRecord.PreviousApprenticeship.FirstName)
-                    .Set(x => x.LastName, sourceRecord.PreviousApprenticeship.LastName)
-                    .Set(x => x.Cohort, sourceRecord.PreviousApprenticeship.Cohort)
-                    .Set(x => x.PaymentStatus, sourceRecord.PreviousApprenticeship.PaymentStatus)
-                    .Set(x => x.StartDate, sourceRecord.PreviousApprenticeship.StartDate)
-                    .Set(x => x.EndDate, sourceRecord.PreviousApprenticeship.EndDate);
+                    .Set(x => x.Id, Math.Max(sourceApprenticeship.Id, sourceRecord.DraftApprenticeship.Id) + 1)
+                    .Set(x => x.ApprenticeshipStatus, sourceApprenticeship.ApprenticeshipStatus)
+                    .Set(x => x.Uln, $"{sourceApprenticeship.Uln}2")
+                    .Set(x => x.FirstName, sourceApprenticeship.FirstName)
+                    .Set(x => x.LastName, sourceApprenticeship.LastName)
+                    .Set(x => x.PaymentStatus, sourceApprenticeship.PaymentStatus)
+                    .Set(x => x.StartDate, sourceApprenticeship.StartDate)
+                    .Set(x => x.EndDate, sourceApprenticeship.EndDate);
+
+                Db.Apprenticeships.Add(secondPreviousApprenticeship);
+                secondPreviousApprenticeship.Cohort = sourceApprenticeship.Cohort;
 
                 var secondRecord = new OverlappingTrainingDateRequest()
                     .Set(x => x.Id, 2)
@@ -227,7 +232,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                     .Set(x => x.PreviousApprenticeship, secondPreviousApprenticeship)
                     .Set(x => x.CreatedOn, currentProxyDateTime.AddDays(-20))
                     .Set(x => x.DraftApprenticeship, sourceRecord.DraftApprenticeship);
-                Db.Apprenticeships.Add(secondPreviousApprenticeship);
                 Db.OverlappingTrainingDateRequests.Add(secondRecord);
                 Db.SaveChanges();
             }
@@ -258,6 +262,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                  .With(s => s.PaymentStatus, Types.PaymentStatus.Active)
                  .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                  .With(s => s.EndDate, DateTime.UtcNow.AddDays(100))
+                 .With(s => s.ApprenticeshipStatus, ApprenticeshipStatus.WaitingToStart)
                  .Without(s => s.DataLockStatus)
                  .Without(s => s.EpaOrg)
                  .Without(s => s.ApprenticeshipUpdate)

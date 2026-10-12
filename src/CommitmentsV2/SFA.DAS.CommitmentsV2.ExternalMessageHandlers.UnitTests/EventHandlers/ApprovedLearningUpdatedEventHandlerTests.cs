@@ -43,6 +43,14 @@ public class ApprovedLearningUpdatedEventHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenApprovedLearningUpdatedEventReceived_PublishedApprovedLearningUpdatedEvent()
+    {
+        await _fixture.SetEvent().Handle();
+        _fixture.VerifyLearnerUpdated();
+    }
+
+
+    [Test]
     public async Task Handle_WhenApprovedLearningUpdatedEventReceived_NotificationEventIsPublished()
     {
         await _fixture.SetEvent().Handle();

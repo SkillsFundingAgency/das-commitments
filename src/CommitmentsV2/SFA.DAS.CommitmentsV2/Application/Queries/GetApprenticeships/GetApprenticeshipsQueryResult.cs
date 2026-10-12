@@ -47,5 +47,6 @@ public class GetApprenticeshipsQueryResult
         public string TrainingCourseVersion { get; set; }
         public EmployerVerificationRequestStatus? EmployerVerificationStatus { get; set; }
         public string EmployerVerificationNotes { get; set; }
+        public Guid? PendingApprovalRequestId { get; set; }
     }
 }

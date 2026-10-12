@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using System.Globalization;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
@@ -17,6 +18,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 {
     public async Task<CocApprovalDetails> Map(CocApprovalRequest request)
     {
+        var apprenticeship = await GetApprenticeship(request.ApprenticeshipId);
         var result = new CocApprovalDetails
         {
             LearningKey = request.LearningKey,
@@ -26,7 +28,8 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ULN = request.ULN,
             Updates = new CocUpdates(),
             ApprovalFieldChanges = request.Changes,
-            Apprenticeship = await GetApprenticeship(request.ApprenticeshipId)
+            Apprenticeship = apprenticeship,
+            Course = await GetCourseAsync(apprenticeship?.CourseCode)
         };
 
         foreach (var change in request.Changes)
@@ -35,7 +38,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
 
             if(changeType == CocChangeField.TNP1 || changeType == CocChangeField.TNP2)
             {
-                var update = new CocUpdate<int>
+                var update = new CocUpdate<int?>
                 {
                     Old = ToInt(change.Data.Old),
                     New = ToInt(change.Data.New),
@@ -52,19 +55,44 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                         break; 
                 }
             }
+            else if (changeType == CocChangeField.Firstname)
+            {
+                result.Updates.Firstname = new CocUpdate<string>
+                {
+                    Old = AssignRealStringsOnly(change.Data?.Old),
+                    New = AssignRealStringsOnly(change.Data?.New),
+                };
+            }
+            else if (changeType == CocChangeField.PlannedEndDate)
+            {
+                result.Updates.PlannedEndDate = new CocUpdate<DateTime?>
+                {
+                    Old = ToDate(change.Data.Old),
+                    New = ToDate(change.Data.New),
+                };
+            }
         }
         return result;
     }
 
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
+        return await dbContext.Value.Apprenticeships
+            .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
+            .Include(a => a.Cohort).ThenInclude(c => c.Provider)
+            .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
+    }
+
+    public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
+    {
         try
         {
-            return await dbContext.Value.GetApprenticeshipAggregate(id, CancellationToken.None);
+            return await dbContext.Value.GetCourseBasedOnApprenticeshipCourseCode(apprenticeshipCourseCode, CancellationToken.None);
+            
         }
         catch (BadRequestException ex)
         {
-            logger.LogError(ex, "ApprenticeshipId {ApprenticeshipId} not found, set it to null", id);
+            logger.LogError(ex, $"Course associated with Apprenticeship course code {apprenticeshipCourseCode} not found, set it to null");
             return null;
         }
     }
@@ -91,4 +119,25 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         throw new DomainException("Data", "String could not be converted to an integer");
     }
 
+    private string AssignRealStringsOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new DomainException("Data", "String value cannot be null or allow only whitespace");
+        }
+        return value;
+    }
+    public static DateTime? ToDate(string dateString)
+    {
+        if(dateString == null)
+        {
+            return null;
+        }
+
+        if (!DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+        {
+            throw new DomainException("Data", $"String could not be converted to a date");
+        }
+        return result;
+    }
 }

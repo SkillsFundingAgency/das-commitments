@@ -9,9 +9,15 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
 {
     public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
     {
-        var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
+        var filteredApprenticeships = GetApprenticeshipsQuery(searchParameters)
+            .Filter(searchParameters.Filters, searchParameters.ProviderId.HasValue);
 
-        var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithoutAlerts = await filteredApprenticeships
+            .WithAlerts(false, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
+        var totalApprenticeshipsWithAlerts = await filteredApprenticeships
+            .WithAlerts(true, searchParameters)
+            .CountAsync(searchParameters.CancellationToken);
 
         var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
 
@@ -127,7 +133,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
         else
         {
@@ -144,7 +152,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
 
         if (skipCount > 0)
@@ -180,7 +190,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
         else
         {
@@ -197,7 +209,9 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
-                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest);
+                .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
+                .Include(apprenticeship => apprenticeship.ApprovalRequests)
+                .ThenInclude(request => request.Items);
         }
 
         if (skipCount > 0)
