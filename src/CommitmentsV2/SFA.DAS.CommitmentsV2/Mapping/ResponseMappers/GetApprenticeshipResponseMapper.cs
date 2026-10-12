@@ -70,7 +70,8 @@ public class GetApprenticeshipResponseMapper : IMapper<GetApprenticeshipQueryRes
             HasChangeHistory = source.HasChangeHistory,
             HasUnacknowledgedInvalidIlrChanges = source.HasUnacknowledgedInvalidIlrChanges,
             HasUnacknowledgedDeclinedChanges = source.HasUnacknowledgedDeclinedChanges,
-            PendingApprovalRequestId = source.PendingApprovalRequestId
+            PendingApprovalRequestId = source.PendingApprovalRequestId,
+            HasAutoApprovedRequests = source.HasAutoApprovedRequests
         });
     }
 }
