@@ -40,6 +40,14 @@ public class ApprovedLearningUpdatedEventHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenApprovedLearningUpdatedEventReceived_PublishedApprovedLearningUpdatedEvent()
+    {
+        await _fixture.SetEvent().Handle();
+        _fixture.VerifyLearnerUpdated();
+    }
+
+
+    [Test]
     public async Task ThenLogsWarning_WhenUnknownChangeTypeReceived()
     {
         await _fixture.SetEventWithUnKnownChangeType().Handle();
