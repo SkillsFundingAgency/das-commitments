@@ -18,8 +18,8 @@
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
 
 
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.6" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.6" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.10" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
