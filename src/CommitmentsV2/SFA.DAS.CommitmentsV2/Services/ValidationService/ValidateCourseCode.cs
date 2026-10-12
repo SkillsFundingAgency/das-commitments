@@ -6,18 +6,18 @@ namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    public IEnumerable<Error> ValidateCourseCode(long providerId, string courseCode, ProviderStandardResults providerStandardResults, Standard standard)
+    public IEnumerable<Error> ValidateCourseCode(long providerId, string courseCode, ProviderStandardResults providerStandardResults, Standard standard, bool allowAppUnits = false)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(courseCode))
         {
             domainErrors.Add(new Error("CourseCode", "<b>Standard code</b> must be entered"));
         }
-        else if (!courseCode.All(char.IsDigit) && !int.TryParse(courseCode, out _))
+        else if (!allowAppUnits && !courseCode.All(char.IsDigit) && !int.TryParse(courseCode, out _))
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>. Apprenticeship units must be added by ILR upload"));
         }
-        else if (courseCode.Length > 5)
+        else if (!allowAppUnits && courseCode.Length > 5)
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
@@ -25,7 +25,12 @@ public partial class ValidationService
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
         }
-        else if (providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(courseCode, providerStandardResults))
+        else if (!allowAppUnits && providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(courseCode, providerStandardResults))
+        {
+            domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href="
+                + urlHelper.CourseManagementLink($"{providerId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
+        }
+        else if (allowAppUnits && providerStandardResults.IsMainProvider && !IsValidMainProviderCourseDetails(courseCode, providerStandardResults))
         {
             domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href="
                 + urlHelper.CourseManagementLink($"{providerId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
@@ -53,6 +58,16 @@ public partial class ValidationService
         var result = int.Parse(stdCode);
 
         var standard = providerStandardResults.Standards.FirstOrDefault(x => int.Parse(x.CourseCode) == result);
+
+        return standard != null;
+    }
+
+    private bool IsValidMainProviderCourseDetails(string courseCode, ProviderStandardResults providerStandardResults)
+    {
+        if (string.IsNullOrWhiteSpace(courseCode)) return false;
+        if (providerStandardResults.Standards == null) return false;
+
+        var standard = providerStandardResults.Standards.FirstOrDefault(x => x.CourseCode == courseCode);
 
         return standard != null;
     }

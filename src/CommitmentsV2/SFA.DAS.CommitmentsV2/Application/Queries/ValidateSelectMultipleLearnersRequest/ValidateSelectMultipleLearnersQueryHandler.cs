@@ -160,7 +160,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         domainErrors.AddRange(validationService.ValidateFirstName(csvRecord.FirstName));
         domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults, standardDetails));
         domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
-        domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails));
+        domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails, true));
         domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, null));
         domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
         domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));
