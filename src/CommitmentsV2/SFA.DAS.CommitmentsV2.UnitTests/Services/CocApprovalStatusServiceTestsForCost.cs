@@ -123,9 +123,9 @@ public class CocApprovalStatusServiceTestsForCost
         var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
         result.Should().HaveCount(2);
-        result[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
+        result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         result[0].Field.Should().Be(CocChangeField.TNP1);
-        result[1].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
+        result[1].Status.Should().Be(CocApprovalItemStatus.Pending);
         result[1].Field.Should().Be(CocChangeField.TNP2);
     }
 
