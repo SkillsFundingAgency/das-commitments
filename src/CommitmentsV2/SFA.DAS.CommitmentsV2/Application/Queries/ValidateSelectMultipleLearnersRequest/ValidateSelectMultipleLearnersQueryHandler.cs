@@ -118,27 +118,9 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         return bulkUploadValidationErrors;
     }
 
-    /// <summary>
-    /// If it is funded by Transfer - non-levy employer doesn't need to check for the permission to create cohort.
-    /// </summary>
-    /// <param name="cohortRef"></param>
-    /// <returns></returns>
-    //private bool IsFundedByTransfer(string cohortRef)
-    //{
-    //    if (string.IsNullOrWhiteSpace(cohortRef))
-    //    {
-    //        return false;
-    //    }
-
-    //    var cohortDetails = GetCohortDetails(cohortRef);
-
-    //    return cohortDetails.TransferSenderId.HasValue;
-    //}
-
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-        //var cohortDetails =  GetCohortDetails(csvRecord.CohortRef);
         var standardDetails = GetStandardDetails(csvRecord.CourseCode);
 
         var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord.AgreementId, employerDetails.Name);
@@ -154,7 +136,6 @@ public class ValidateSelectMultipleLearnersQueryHandler(
             }
         }
 
-        //domainErrors.AddRange(await validationService.ValidateCohortRef(csvRecord, providerId, cohortDetails, employerDetails.Name));
         domainErrors.AddRange(validationService.ValidateUln(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateLastName(csvRecord.LastName));
         domainErrors.AddRange(validationService.ValidateFirstName(csvRecord.FirstName));
@@ -167,8 +148,6 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord.ProviderRef));
         domainErrors.AddRange(validationService.ValidateEPAOrgId(csvRecord.EPAOrgId));
         domainErrors.AddRange(validationService.ValidateReservation(csvRecord, reservationValidationResults));
-
-        domainErrors.AddRange(validationService.ValidateRecognisePriorLearning(csvRecord));
 
         var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
         domainErrors.AddRange(validationService.ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
@@ -226,22 +205,6 @@ public class ValidateSelectMultipleLearnersQueryHandler(
 
         return employerSummary;
     }
-
-    //private Cohort GetCohortDetails(string cohortRef)
-    //{
-    //    if (_cachedCohortDetails.ContainsKey(cohortRef))
-    //    {
-    //        return _cachedCohortDetails.GetValueOrDefault(cohortRef);
-    //    }
-
-    //    var cohort = dbContext.Value.Cohorts
-    //        .Include(x => x.AccountLegalEntity)
-    //        .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
-
-    //    _cachedCohortDetails.Add(cohortRef, cohort);
-
-    //    return cohort;
-    //}
 
     private Standard GetStandardDetails(string stdCode)
     {
