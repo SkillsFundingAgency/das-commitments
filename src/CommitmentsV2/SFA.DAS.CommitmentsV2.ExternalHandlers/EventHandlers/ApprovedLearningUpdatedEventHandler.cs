@@ -138,7 +138,7 @@ public class ApprovedLearningUpdatedEventHandler(
                 TrainingPrice = priceEpisodes[i].TrainingPrice,
                 AssessmentPrice = priceEpisodes[i].AssessmentPrice,
                 FromDate = priceEpisodes[i].EffectiveFrom,
-                ToDate = i < priceEpisodes.Count - 1 ? priceEpisodes[i + 1].EffectiveFrom.AddDays(-1) : (DateTime?)null
+                ToDate = i < priceEpisodes.Count - 1 ? priceEpisodes[i + 1].EffectiveFrom.AddDays(-1) : null
             };
 
             if (newPrice.FromDate <= DateTime.Today && (newPrice.ToDate == null || newPrice.ToDate >= DateTime.Today))
