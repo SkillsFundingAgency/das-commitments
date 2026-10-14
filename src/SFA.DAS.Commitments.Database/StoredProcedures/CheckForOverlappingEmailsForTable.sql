@@ -32,7 +32,8 @@ BEGIN
 		END = 1
 		AND NOT (A.StopDate IS NOT NULL
 			AND A.StartDate = A.StopDate)
-		AND A.Id != ISNULL(E.ApprenticeshipId,0) 
+		AND A.Id != ISNULL(E.ApprenticeshipId,0)
+		AND A.Id != ISNULL((SELECT ContinuationOfId FROM Apprenticeship WHERE Id = E.ApprenticeshipId), 0)
 		AND A.Email = E.Email 
 		AND dbo.CourseDatesOverlap(
 			A.StartDate,
