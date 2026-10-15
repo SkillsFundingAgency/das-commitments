@@ -63,6 +63,14 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                     New = AssignRealStringsOnly(change.Data?.New),
                 };
             }
+            else if (changeType == CocChangeField.Lastname)
+            {
+                result.Updates.Lastname = new CocUpdate<string>
+                {
+                    Old = AssignRealStringsOnly(change.Data?.Old),
+                    New = AssignRealStringsOnly(change.Data?.New),
+                };
+            }
             else if (changeType == CocChangeField.PlannedEndDate)
             {
                 result.Updates.PlannedEndDate = new CocUpdate<DateTime?>
