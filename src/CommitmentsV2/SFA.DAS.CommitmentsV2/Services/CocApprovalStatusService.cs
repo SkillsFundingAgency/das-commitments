@@ -42,6 +42,12 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
             updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
         }
 
+        if (updates.Lastname != null)
+        {
+            logger.LogInformation("Change of Lastname detected");
+            updateResults.Add(DetermineApprovalStatusesForLastnameField(updates, apprenticeship));
+        }
+
         if (updates.TNP1 != null || updates.TNP2 != null)
         {
             logger.LogInformation("Change of TNP1 or TNP2 detected");
@@ -151,5 +157,15 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         }
 
         return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForLastnameField(CocUpdates updates, Apprenticeship apprenticeship)
+    {
+        if (updates.Lastname.Old != apprenticeship.LastName)
+        {
+            logger.LogWarning("Old last name value from changes, does not match apprenticeship last name value");
+        }
+
+        return new CocUpdateResult { Field = CocChangeField.Lastname, Status = CocApprovalItemStatus.AutoApproved };
     }
 }
