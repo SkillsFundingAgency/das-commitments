@@ -2,11 +2,11 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using System.Text.RegularExpressions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private static IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.EndDateAsString))

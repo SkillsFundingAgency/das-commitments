@@ -1,0 +1,226 @@
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
+
+namespace SFA.DAS.CommitmentsV2.Application.Queries.ValidateSelectMultipleLearnersRequest;
+
+public class ValidateSelectMultipleLearnersQueryHandler(
+    ILogger<ValidateSelectMultipleLearnersQueryHandler> logger,
+    Lazy<ProviderCommitmentsDbContext> dbContext,
+    IEmployerAgreementService employerAgreementService,
+    RplSettingsConfiguration rplConfig,
+    IValidationService validationService)
+    : IRequestHandler<ValidateSelectMultipleLearnersQuery, ValidateSelectMultipleLearnersApiResponse>
+{
+    private readonly EmployerSummaries _employerSummaries = [];
+    private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
+    //private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
+
+    public long ProviderId { get; set; }
+
+    public async Task<ValidateSelectMultipleLearnersApiResponse> Handle(ValidateSelectMultipleLearnersQuery command, CancellationToken cancellationToken)
+    {
+        ProviderId = command.ProviderId;
+        var validationErrors = new List<BulkUploadValidationError>();
+        _csvRecords = command.CsvRecords.ToList();
+
+        var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, validationErrors);
+
+        if (standardsError.Count != 0)
+        {
+            return new ValidateSelectMultipleLearnersApiResponse
+            {
+                ValidationErrors = standardsError
+            };
+        }
+
+        foreach (var csvRecord in command.CsvRecords)
+        {
+            var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
+            await AddError(validationErrors, csvRecord, criticalDomainError);
+
+            if (criticalDomainError.Count != 0)
+            {
+                continue;
+            }
+
+            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults, command.OtjTrainingHours);
+
+            await AddError(validationErrors, csvRecord, domainErrors);
+        }
+
+        return new ValidateSelectMultipleLearnersApiResponse
+        {
+            ValidationErrors = validationErrors
+        };
+    }
+
+    private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
+    {
+        if (domainErrors.Count != 0)
+        {
+            bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                csvRecord.RowNumber,
+                await GetEmployerName(csvRecord.AgreementId),
+                csvRecord.Uln,
+                csvRecord.FirstName + " " + csvRecord.LastName,
+                domainErrors
+            ));
+        }
+    }
+
+    private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+    {
+        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord.AgreementId, employerDetails.Name);
+        if (domainErrors.Count == 0)
+        {
+            domainErrors.AddRange(await validationService.ValidateAgreementIdIsSigned(employerDetails.IsSigned));
+
+            // when a valid agreement has not been signed validation will stop
+            if (domainErrors.Count != 0)
+            {
+                return domainErrors;
+            }
+        }
+
+        if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
+            //&& !IsFundedByTransfer(csvRecord.CohortRef) we don't have cohort details at this point 
+            && !await validationService.ValidatePermissionToCreateCohort(providerId, domainErrors, employerDetails.IsLevy, employerDetails))
+        {
+            // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
+            return domainErrors;
+        }
+
+        return domainErrors;
+    }
+
+    private List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
+    {
+        var domainErrors = validationService.ValidateDeclaredStandards(providerStandardResults);
+
+        if (domainErrors.Count != 0)
+        {
+            bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                0,
+                null,
+                null,
+                null,
+                domainErrors
+            ));
+        }
+
+        return bulkUploadValidationErrors;
+    }
+
+    private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
+    {
+        var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+        var standardDetails = GetStandardDetails(csvRecord.CourseCode);
+
+        var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord.AgreementId, employerDetails.Name);
+
+        if (domainErrors.Count == 0)
+        {
+            domainErrors.AddRange(await validationService.ValidateAgreementIdIsSigned(employerDetails.IsSigned));
+
+            // when a valid agreement has not been signed validation will stop
+            if (domainErrors.Count != 0)
+            {
+                return domainErrors;
+            }
+        }
+
+        domainErrors.AddRange(validationService.ValidateUln(csvRecord, _csvRecords));
+        domainErrors.AddRange(validationService.ValidateLastName(csvRecord.LastName));
+        domainErrors.AddRange(validationService.ValidateFirstName(csvRecord.FirstName));
+        domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults, standardDetails));
+        domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
+        domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails, true));
+        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, null));
+        domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
+        domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));
+        domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord.ProviderRef));
+        domainErrors.AddRange(validationService.ValidateEPAOrgId(csvRecord.EPAOrgId));
+        domainErrors.AddRange(validationService.ValidateReservation(csvRecord, reservationValidationResults));
+
+        var minimumOffTheJobTrainingHoursForCourse = GetCourseSpecificMinimumOtjHours(csvRecord.CourseCode, otjTrainingHours);
+        domainErrors.AddRange(validationService.ValidateTrainingTotalHours(csvRecord, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(validationService.ValidateTrainingHoursReduction(csvRecord, rplConfig.MaximumTrainingTimeReduction, minimumOffTheJobTrainingHoursForCourse));
+        domainErrors.AddRange(validationService.ValidateDurationReducedBy(csvRecord));
+        domainErrors.AddRange(validationService.ValidatePriceReducedBy(csvRecord, rplConfig.MinimumPriceReduction));
+
+        return domainErrors;
+    }
+
+    private static int GetCourseSpecificMinimumOtjHours(string courseCode, Dictionary<string, int?> otjTrainingHours)
+    {
+        if (otjTrainingHours != null && otjTrainingHours.TryGetValue(courseCode, out var courseSpecificHours) && courseSpecificHours.HasValue)
+        {
+            return courseSpecificHours.Value;
+        }
+
+        return 187;
+    }
+
+    private async Task<string> GetEmployerName(string agreementId)
+    {
+        var employerDetails = await GetEmployerDetails(agreementId);
+        return employerDetails.Name;
+    }
+
+    private async Task<EmployerSummary> GetEmployerDetails(string agreementId)
+    {
+        if (string.IsNullOrEmpty(agreementId))
+        {
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
+
+        if (_employerSummaries.ContainsKey(agreementId))
+        {
+            var result = _employerSummaries.GetValueOrDefault(agreementId);
+            return result;
+        }
+
+        var accountLegalEntity = dbContext.Value.AccountLegalEntities
+            .Include(x => x.Account)
+            .FirstOrDefault(x => x.PublicHashedId == agreementId);
+
+        if (accountLegalEntity == null)
+        {
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
+
+        var employerName = accountLegalEntity.Account.Name;
+        var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
+        var isSigned = await employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+        var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
+
+        _employerSummaries.Add(employerSummary);
+
+        return employerSummary;
+    }
+
+    private Standard GetStandardDetails(string stdCode)
+    {
+        if (string.IsNullOrWhiteSpace(stdCode))
+        {
+            return null;
+        }
+
+        var couse = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == stdCode);
+
+        return new Standard
+        {
+            Title = couse.Title,
+            Level = int.TryParse(couse.Level, out var level) ? level : 0,
+            EffectiveFrom = couse.EffectiveFrom,
+            EffectiveTo = couse.EffectiveTo
+        };
+    }
+}
