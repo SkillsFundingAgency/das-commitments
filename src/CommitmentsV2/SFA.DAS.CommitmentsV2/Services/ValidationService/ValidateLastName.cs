@@ -7,7 +7,7 @@ public partial class ValidationService
     public IEnumerable<Error> ValidateLastName(string lastName)
     {
         var domainErrors = new List<Error>();
-        if (string.IsNullOrEmpty(lastName))
+        if (string.IsNullOrEmpty(lastName) || string.IsNullOrWhiteSpace(lastName))
         {
             domainErrors.Add(new Error("FamilyName", "<b>Last name</b> must be entered"));
         }
