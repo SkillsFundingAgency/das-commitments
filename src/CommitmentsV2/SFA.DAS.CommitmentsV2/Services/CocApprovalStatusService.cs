@@ -55,6 +55,12 @@ public class CocApprovalStatusService(
             updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
         }
 
+        if (updates.Lastname != null)
+        {
+            logger.LogInformation("Change of Lastname detected");
+            updateResults.Add(DetermineApprovalStatusesForLastnameField(updates, apprenticeship));
+        }
+
         if (updates.PlannedStartDate != null)
         {
             logger.LogInformation("Change of PlannedStartDate detected");
@@ -228,5 +234,15 @@ public class CocApprovalStatusService(
         }
 
         return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoApproved };
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForLastnameField(CocUpdates updates, Apprenticeship apprenticeship)
+    {
+        if (updates.Lastname.Old != apprenticeship.LastName)
+        {
+            logger.LogWarning("Old last name value from changes, does not match apprenticeship last name value");
+        }
+
+        return new CocUpdateResult { Field = CocChangeField.Lastname, Status = CocApprovalItemStatus.AutoApproved };
     }
 }
