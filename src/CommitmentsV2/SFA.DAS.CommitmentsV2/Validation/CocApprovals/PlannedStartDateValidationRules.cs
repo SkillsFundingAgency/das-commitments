@@ -32,7 +32,6 @@ public class PlannedStartDateValidationRules(
 
     public bool IsPlannedStartDateBeforeLarsEffectiveFrom(DateTime plannedStartDate, Course course)
     {
-        ArgumentNullException.ThrowIfNull(course.EffectiveFrom);
         return plannedStartDate < course.EffectiveFrom;
     }
 

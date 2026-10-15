@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -12,6 +13,9 @@ public class CocApprovalStatusServiceTestsForLastName
 {
     private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
     private Mock<IOverlapCheckService> _overlapCheckServiceMock;
+
+    private Mock<IAcademicYearDateProvider> _academicYearDateProviderMock;
+    private Mock<IPlannedStartDateValidationRules> _plannedStartDateValidationRulesMock;
     private CocApprovalStatusService _service;
 
     [SetUp]
@@ -19,10 +23,9 @@ public class CocApprovalStatusServiceTestsForLastName
     {
         _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
         _overlapCheckServiceMock = new Mock<IOverlapCheckService>();
-        _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new OverlapCheckResult(false, false));
-
-        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _loggerMock.Object);
+        _academicYearDateProviderMock = new Mock<IAcademicYearDateProvider>();
+        _plannedStartDateValidationRulesMock = new Mock<IPlannedStartDateValidationRules>();
+        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _plannedStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
     }
 
     [Test]
@@ -40,8 +43,9 @@ public class CocApprovalStatusServiceTestsForLastName
         {
             LastName = "Lewi"
         };
+        var course = new Course();
 
-        await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -68,8 +72,9 @@ public class CocApprovalStatusServiceTestsForLastName
         {
             LastName = "Lewi"
         };
+        var course = new Course();
 
-        await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -96,8 +101,9 @@ public class CocApprovalStatusServiceTestsForLastName
         {
             LastName = "Lewi"
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);

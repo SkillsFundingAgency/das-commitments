@@ -30,7 +30,7 @@ public class CocApprovalStatusServiceTestsForCost
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrow_WhenUpdatesIsNull()
     {
-        var act = async () => await _service.DetermineCocUpdateStatusesAsync(null, new Apprenticeship(), new Course());
+        var act = async () => await _service.DetermineCocUpdateStatuses(null, new Apprenticeship(), new Course());
 
         act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("updates");
     }
@@ -38,7 +38,7 @@ public class CocApprovalStatusServiceTestsForCost
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrow_WhenApprenticeshipIsNull()
     {
-        var act = async () => await _service.DetermineCocUpdateStatusesAsync(new CocUpdates(), null, new Course());
+        var act = async () => await _service.DetermineCocUpdateStatuses(new CocUpdates(), null, new Course());
 
         act.Should().ThrowAsync<ArgumentNullException>()
             .WithParameterName("apprenticeship");
@@ -47,7 +47,7 @@ public class CocApprovalStatusServiceTestsForCost
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrow_WhenCourseIsNull()
     {
-        var act = async () => await _service.DetermineCocUpdateStatusesAsync(new CocUpdates(), new Apprenticeship(), null);
+        var act = async () => await _service.DetermineCocUpdateStatuses(new CocUpdates(), new Apprenticeship(), null);
 
         act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("course");
     }
@@ -59,7 +59,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 1000 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().BeEmpty();
     }
@@ -75,7 +75,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 1000 };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -99,7 +99,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 300 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().HaveCount(2);
         result.Should().OnlyContain(r => r.Status == CocApprovalItemStatus.Pending);
@@ -117,7 +117,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 202 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -138,7 +138,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 202 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().HaveCount(2);
         result[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -159,7 +159,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 500 };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -184,7 +184,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 202 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().HaveCount(2);
         result.Where(r => r.Field == CocChangeField.TNP1).First().Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -203,7 +203,7 @@ public class CocApprovalStatusServiceTestsForCost
         var apprenticeship = new Apprenticeship { Cost = 202 };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().HaveCount(2);
         result[0].Field.Should().Be(CocChangeField.TNP1);

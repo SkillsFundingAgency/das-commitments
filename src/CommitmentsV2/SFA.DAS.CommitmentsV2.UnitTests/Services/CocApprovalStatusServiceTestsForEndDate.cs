@@ -38,7 +38,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         var apprenticeship = new Apprenticeship { EndDate = DateTime.Today };
         var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().BeEmpty();
     }
@@ -59,7 +59,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -87,7 +87,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -115,7 +115,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -138,7 +138,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -160,7 +160,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -182,7 +182,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -205,7 +205,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -232,7 +232,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OverlapCheckResult(true, true));
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -259,7 +259,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OverlapCheckResult(false, false));
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.Pending);

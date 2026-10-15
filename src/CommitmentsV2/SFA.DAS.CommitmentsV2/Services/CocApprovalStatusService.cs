@@ -16,7 +16,7 @@ public class CocApprovalStatusService(
         ILogger<CocApprovalStatusService> logger)
     : ICocApprovalStatusService
 {
-    public async Task<List<CocUpdateResult>> DetermineCocUpdateStatusesAsync(CocUpdates updates, Apprenticeship apprenticeship, Course course)
+    public async Task<List<CocUpdateResult>> DetermineCocUpdateStatuses(CocUpdates updates, Apprenticeship apprenticeship, Course course)
     {
         var updateResults = new List<CocUpdateResult>();
 
@@ -28,11 +28,6 @@ public class CocApprovalStatusService(
         if (apprenticeship == null)
         {
             throw new ArgumentNullException(nameof(apprenticeship));
-        }
-
-        if (course == null)
-        {
-            throw new ArgumentNullException(nameof(course));
         }
 
         if (apprenticeship.StopDate != null)
@@ -196,13 +191,13 @@ public class CocApprovalStatusService(
         }
         else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeLarsEffectiveFrom(plannedStartDateNew, course))
         {
-            var previousMonth = course?.EffectiveFrom.Value.AddMonths(-1);
-            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date after {previousMonth.Value.Month} {previousMonth.Value.Year}" };
+            var previousMonth = course?.EffectiveFrom?.AddMonths(-1);
+            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date after {previousMonth?.Month} {previousMonth?.Year}" };
         }
         else if (plannedStartDateValidationRules.IsPlannedStartDateAfterLarsEffectiveTo(plannedStartDateNew, course))
         {
-            var nextMonth = course?.EffectiveTo.Value.AddMonths(1);
-            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date before {nextMonth.Value.Month} {nextMonth.Value.Year}" };
+            var nextMonth = course?.EffectiveTo?.AddMonths(1);
+            return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date before {nextMonth?.Month} {nextMonth?.Year}" };
         }
         else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeTransferFundedDate(plannedStartDateNew, apprenticeship.Cohort))
         {

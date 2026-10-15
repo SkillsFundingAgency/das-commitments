@@ -40,7 +40,7 @@ public class CocApprovalStatusServiceTestsForFirstName
         };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -65,7 +65,7 @@ public class CocApprovalStatusServiceTestsForFirstName
         };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -90,7 +90,7 @@ public class CocApprovalStatusServiceTestsForFirstName
         };
         var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatusesAsync(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);

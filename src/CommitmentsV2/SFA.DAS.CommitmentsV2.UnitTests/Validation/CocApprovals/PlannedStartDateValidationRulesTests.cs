@@ -86,18 +86,6 @@ public class PlannedStartDateValidationRulesTests
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeLarsEffectiveFrom_WhenEffectiveFromNull_ThrowsArgumentException()
-    {
-        var course = new Course
-        {
-            EffectiveFrom = null
-        };
-
-        Assert.Throws<ArgumentNullException>(() =>
-            _plannedStartDateRules.IsPlannedStartDateBeforeLarsEffectiveFrom(DateTime.Today, course));
-    }
-
-    [Test]
     public void IsPlannedStartDateAfterLarsEffectiveTo_WhenAfterEffectiveTo_ReturnsTrue()
     {
         var course = new Course
