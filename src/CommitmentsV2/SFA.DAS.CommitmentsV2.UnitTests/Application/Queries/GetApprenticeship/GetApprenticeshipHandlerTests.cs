@@ -161,6 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
                 var previousCohort = new Cohort
                 {
+                    Id = _autoFixture.Create<long>(),
                     ProviderId = Provider.UkPrn,
                     Provider = Provider,
                     EmployerAccountId = previousAccount.Id,

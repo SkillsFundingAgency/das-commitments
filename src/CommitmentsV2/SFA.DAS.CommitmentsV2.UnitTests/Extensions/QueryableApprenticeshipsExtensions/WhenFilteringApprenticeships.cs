@@ -345,6 +345,80 @@ public class WhenFilteringApprenticeships
     }
 
     [Test]
+    public void ThenShouldFilterStatuses()
+    {
+        //Arrange
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new() { Id = 1, PaymentStatus = PaymentStatus.Paused },
+            new() { Id = 2, PaymentStatus = PaymentStatus.Completed },
+            new() { Id = 3, PaymentStatus = PaymentStatus.Withdrawn }
+        }.AsQueryable();
+
+        var filterValues = new ApprenticeshipSearchFilters
+        {
+            Statuses = [ApprenticeshipStatus.Paused, ApprenticeshipStatus.Completed]
+        };
+
+        //Act
+        var result = apprenticeships.Filter(filterValues).ToList();
+
+        //Assert
+        result.Should().HaveCount(2);
+        result.Should().OnlyContain(x => x.Id == 1 || x.Id == 2);
+    }
+
+    [Test]
+    public void ThenShouldFilterCombinedStatusAndStatuses()
+    {
+        //Arrange
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new() { Id = 1, PaymentStatus = PaymentStatus.Active, StartDate = DateTime.UtcNow.AddMonths(-1) },
+            new() { Id = 2, PaymentStatus = PaymentStatus.Paused },
+            new() { Id = 3, PaymentStatus = PaymentStatus.Completed }
+        }.AsQueryable();
+
+        var filterValues = new ApprenticeshipSearchFilters
+        {
+            Status = ApprenticeshipStatus.Live,
+            Statuses = [ApprenticeshipStatus.Paused]
+        };
+
+        //Act
+        var result = apprenticeships.Filter(filterValues).ToList();
+
+        //Assert
+        result.Should().HaveCount(2);
+        result.Should().OnlyContain(x => x.Id == 1 || x.Id == 2);
+    }
+    
+    [Test]
+    public void ThenShouldFilterCombinedStatusAndStatusesWithSameStatus()
+    {
+        //Arrange
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new() { Id = 1, PaymentStatus = PaymentStatus.Active, StartDate = DateTime.UtcNow.AddMonths(-1) },
+            new() { Id = 2, PaymentStatus = PaymentStatus.Paused },
+            new() { Id = 3, PaymentStatus = PaymentStatus.Completed }
+        }.AsQueryable();
+
+        var filterValues = new ApprenticeshipSearchFilters
+        {
+            Status = ApprenticeshipStatus.Live,
+            Statuses = [ApprenticeshipStatus.Live, ApprenticeshipStatus.Paused]
+        };
+
+        //Act
+        var result = apprenticeships.Filter(filterValues).ToList();
+
+        //Assert
+        result.Should().HaveCount(2);
+        result.Should().OnlyContain(x => x.Id == 1 || x.Id == 2);
+    }
+
+    [Test]
     public void ThenShouldFilterStartDate()
     {
         //Arrange
@@ -821,6 +895,49 @@ public class WhenFilteringApprenticeships
         //Assert
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result.All(a => a.Uln == "2" && a.DataLockStatus.Any(x => !x.IsExpired)), Is.True);
+    }
+    
+    [Test]
+    public void ThenShouldFilterByCohortTransferSenderId()
+    {
+        //Arrange
+        long? filterValue = 1000;
+
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = filterValue,
+                }
+            },
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = filterValue,
+                }
+            },
+            new()
+            {
+                Cohort = new Cohort
+                {
+                    TransferSenderId = 1,
+                }
+            },
+            new()
+            {
+                Cohort = null
+            }
+        }.AsQueryable();
+
+        //Act
+        var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { TransferSenderId = filterValue }).ToList();
+
+        //Assert
+        result.Should().HaveCount(2);
+        result.Should().AllSatisfy(a => a.Cohort.TransferSenderId.Should().Be(filterValue));
     }
 
     private static AccountLegalEntity CreateAccountLegalEntity(string name)
