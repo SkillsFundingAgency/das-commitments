@@ -550,6 +550,16 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         return this;
     }
 
+    internal BulkUploadValidateCommandHandlerTestsFixture SetValidRplCompanionFields()
+    {
+        CsvRecords[0].TrainingTotalHoursAsString = "400";
+        CsvRecords[0].TrainingHoursReductionAsString = "10";
+        CsvRecords[0].IsDurationReducedByRPLAsString = "true";
+        CsvRecords[0].DurationReducedByAsString = "12";
+        CsvRecords[0].PriceReducedByAsString = "100";
+        return this;
+    }
+
     internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRpl = null)
     {
         CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();

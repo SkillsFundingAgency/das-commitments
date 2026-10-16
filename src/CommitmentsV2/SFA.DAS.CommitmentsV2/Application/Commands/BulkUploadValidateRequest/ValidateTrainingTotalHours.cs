@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Domain;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
@@ -10,6 +11,12 @@ public partial class BulkUploadValidateCommandHandler
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
             yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> cannot be set when there is no prior learning");
+            yield break;
+        }
+
+        if (IsRplRequired(csvRecord) && string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString))
+        {
+            yield return new Error("TrainingTotalHours", "You must enter the total <b>off-the-job training time</b> for this apprenticeship standard");
             yield break;
         }
 

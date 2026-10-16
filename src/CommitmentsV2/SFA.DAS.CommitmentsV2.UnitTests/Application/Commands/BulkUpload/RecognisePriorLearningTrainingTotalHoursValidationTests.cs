@@ -20,11 +20,40 @@
                 e.ErrorText == error).Should().Be(true);
         }
 
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Blank_And_Rpl_Is_True(string trainingTotalHours)
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
+            fixture.SetTrainingTotalHours(trainingTotalHours);
+
+            var errors = await fixture.Handle();
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "You must enter the total <b>off-the-job training time</b> for this apprenticeship standard");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Blank_And_Start_Is_Before_Aug2022()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-07-31");
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("");
+
+            var errors = await fixture.Handle();
+            errors.BulkUploadValidationErrors.SelectMany(x => x.Errors)
+                .Any(e => e.Property == "TrainingTotalHours")
+                .Should().BeFalse();
+        }
+
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Greater_Than_9999()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("10001");
 
             var errors = await fixture.Handle();
@@ -36,10 +65,11 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("-10");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
         }
 
         [Test]
@@ -47,10 +77,11 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("34");
 
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 187 hours or more");
         }
 
         [Test]
@@ -58,6 +89,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("1000 2000");
 
             var errors = await fixture.Handle();
@@ -69,6 +101,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("6282ABC");
 
             var errors = await fixture.Handle();
@@ -80,6 +113,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("#22738");
 
             var errors = await fixture.Handle();
@@ -91,6 +125,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("250");
             
             fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
@@ -108,6 +143,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("180");
             
             fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
@@ -125,6 +161,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("180");
             
             fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
@@ -142,6 +179,7 @@
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("350");
             
             fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
@@ -155,10 +193,29 @@
         }
 
         [Test]
+        public async Task Prior_Learning_Training_When_CourseCode_Is_Blank_Does_Not_Throw()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
+            fixture.CsvRecords[0].CourseCode = null;
+            fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
+            {
+                { "59", 300 }
+            };
+
+            var errors = await fixture.Handle();
+
+            errors.BulkUploadValidationErrors.SelectMany(x => x.Errors)
+                .Should().NotContain(e => e.Property == "TrainingTotalHours");
+        }
+
+        [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Multiple_Courses_With_Different_Minimums()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRecognisePriorLearning("true");
+            fixture.SetValidRplCompanionFields();
             fixture.SetTrainingTotalHours("250");
             
             fixture.Command.OtjTrainingHours = new Dictionary<string, int?>
