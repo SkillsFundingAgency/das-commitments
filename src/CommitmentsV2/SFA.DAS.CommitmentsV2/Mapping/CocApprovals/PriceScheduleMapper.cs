@@ -34,7 +34,7 @@ public class PriceScheduleMapper
         var episodes = new List<PriceScheduleEpisode>();
         foreach (var priceRecord in priceRecords)
         {
-            if (priceRecord?.TrainingPrice == null || priceRecord.AssessmentPrice == null)
+            if (priceRecord?.TrainingPrice == null || priceRecord?.AssessmentPrice == null)
             {
                 throw new ArgumentException("A price episode must include both trainingPrice and assessmentPrice.");
             }
@@ -75,11 +75,6 @@ public class PriceScheduleMapper
         };
     }
 
-    private static bool IsCostOnly(PriceScheduleEpisode episode)
-    {
-        return episode.TrainingPrice == null && episode.AssessmentPrice == null;
-    }
-
     private static string FormatDate(DateTime value)
     {
         return value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -113,6 +108,11 @@ public class PriceScheduleMapper
         public decimal Cost { get; set; }
         public decimal? TrainingPrice { get; set; }
         public decimal? AssessmentPrice { get; set; }
+
+        public bool IsCostOnly()
+        {
+            return TrainingPrice == null && AssessmentPrice == null;
+        }
     }
 
     private sealed class PriceScheduleEpisodeComparer : IEqualityComparer<PriceScheduleEpisode>
@@ -136,7 +136,7 @@ public class PriceScheduleMapper
                 return false;
             }
 
-            if (IsCostOnly(x) || IsCostOnly(y))
+            if (x.IsCostOnly() || y.IsCostOnly())
             {
                 return true;
             }
