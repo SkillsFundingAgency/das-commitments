@@ -207,7 +207,6 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
 
         for (var i = 0; i < list.Count; i++)
         {
-
             list[i].TrainingPrice.Should().Be(_priceEpisodes[i].TrainingPrice);  
             list[i].AssessmentPrice.Should().Be(_priceEpisodes[i].AssessmentPrice);
             list[i].Cost.Should().Be(_priceEpisodes[i].TrainingPrice + _priceEpisodes[i].AssessmentPrice);
