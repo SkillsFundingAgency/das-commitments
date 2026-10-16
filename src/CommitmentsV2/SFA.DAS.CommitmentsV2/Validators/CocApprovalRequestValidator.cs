@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -29,5 +30,9 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
         RuleFor(x => x.ApprovedUri)
             .Must(ApprovedUriValidation.IsValidOptional)
             .WithMessage("ApprovedUri contains invalid characters.");
+        RuleFor(x => x.PriceRecords)
+            .Must(priceRecords => priceRecords == null || priceRecords.Count <= Constants.MaximumPriceEpisodes)
+            .WithMessage($"A schedule can have at most {Constants.MaximumPriceEpisodes} episodes.")
+            .OverridePropertyName("priceRecords");
     }
 }
