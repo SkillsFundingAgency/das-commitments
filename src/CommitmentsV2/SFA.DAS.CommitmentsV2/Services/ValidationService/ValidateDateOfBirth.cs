@@ -31,12 +31,18 @@ public partial class ValidationService
             else
             {
                 var courseLevel = standard?.Level;
+                var isAppUnit = standard?.LearningType == Types.LearningType.ApprenticeshipUnit;
 
-                if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
+                if (isAppUnit && csvRecord.StartDate >= new DateTime(2026, 04, 28)
+                    && !WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtShortCourseStart))
+                {
+                    domainErrors.Add(new Error("DateOfBirth", $"The learner's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtShortCourseStart} years old at the start of their training"));
+                }
+                else if (!isAppUnit && !WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
                 {
                     domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training"));
                 }
-                else if (courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
+                else if (!isAppUnit && courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
                 {
                     domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training"));
                 }

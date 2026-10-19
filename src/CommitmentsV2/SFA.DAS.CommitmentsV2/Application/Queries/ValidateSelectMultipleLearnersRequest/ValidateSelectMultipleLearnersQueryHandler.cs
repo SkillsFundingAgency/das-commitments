@@ -213,14 +213,15 @@ public class ValidateSelectMultipleLearnersQueryHandler(
             return null;
         }
 
-        var couse = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == stdCode);
+        var course = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == stdCode);
 
         return new Standard
         {
-            Title = couse.Title,
-            Level = int.TryParse(couse.Level, out var level) ? level : 0,
-            EffectiveFrom = couse.EffectiveFrom,
-            EffectiveTo = couse.EffectiveTo
+            Title = course.Title,
+            Level = int.TryParse(course.Level, out var level) ? level : 0,
+            EffectiveFrom = course.EffectiveFrom,
+            EffectiveTo = course.EffectiveTo,
+            LearningType = course.LearningType
         };
     }
 }
