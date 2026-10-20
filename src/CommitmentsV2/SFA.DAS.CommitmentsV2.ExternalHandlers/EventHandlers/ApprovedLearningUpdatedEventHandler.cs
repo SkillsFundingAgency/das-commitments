@@ -127,7 +127,6 @@ public class ApprovedLearningUpdatedEventHandler(
 
         var priceEpisodes = message.PriceEpisodes.OrderBy(pe => pe.EffectiveFrom).ToList();
         apprentice.PriceHistory.Clear();
-        var newPrices = new List<PriceHistory>();
 
         for (var i = 0; i < priceEpisodes.Count; i++)
         {
