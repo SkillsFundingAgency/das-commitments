@@ -31,8 +31,8 @@ public class CocApprovalCommandHandler(
 
         if (command.Action == AggregrationAction.CancelPrevious)
         {
-            logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.CocApprovalDetails.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.CocApprovalDetails.LearningKey, CocApprovalItemStatus.Cancelled);
+            logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
+            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Cancelled);
 
             return new CocApprovalResult
             {
@@ -43,18 +43,29 @@ public class CocApprovalCommandHandler(
 
         if (command.Action == AggregrationAction.SupersedePrevious)
         {
-            logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.CocApprovalDetails.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.CocApprovalDetails.LearningKey, CocApprovalItemStatus.Superceded);
+            logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
+            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Superceded);
         }
 
         var approvalState = await cocApprovalRules.DetermineApprovalState(command.CocApprovalDetails);
 
-        db.ApprovalRequests.Add(approvalState.ApprovalRequest);
-
         if (approvalState.ApprovalRequest?.Items != null)
         {
-            foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items.Where(x => x.Field != nameof(CocChangeField.TNP1) && x.Field != nameof(CocChangeField.TNP2)))
+            foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items)
             {
+                db.CocApprovalItems.Add(new CocApprovalItem
+                {
+                    LearningKey = approvalState.ApprovalRequest.LearningKey,
+                    ApprenticeshipId = approvalState.ApprovalRequest.ApprenticeshipId,
+                    LearningType = approvalState.ApprovalRequest.LearningType,
+                    UKPRN = approvalState.ApprovalRequest.UKPRN,
+                    ULN = approvalState.ApprovalRequest.ULN,
+                    Field = approvalFieldRequest.Field,
+                    Old = approvalFieldRequest.Old,
+                    New = approvalFieldRequest.New,
+                    Status = approvalFieldRequest.Status
+                });
+
                 var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
                 if (approvalFieldRequest.Status == CocApprovalItemStatus.AutoRejected)
                 {
@@ -95,9 +106,9 @@ public class CocApprovalCommandHandler(
     {
         var updated = DateTime.UtcNow;
         await db.CocApprovalItems
-            .Where(x => x.LearningKey == learningKey && x.Status == status)
+            .Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending)
             .ExecuteUpdateAsync(x => x
-                .SetProperty(f => f.Status, CocApprovalItemStatus.Cancelled)
+                .SetProperty(f => f.Status, status)
                 .SetProperty(f => f.Updated, updated)
             );
     }

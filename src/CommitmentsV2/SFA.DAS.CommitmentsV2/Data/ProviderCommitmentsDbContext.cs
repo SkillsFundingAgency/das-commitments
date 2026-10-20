@@ -122,7 +122,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
         modelBuilder.ApplyConfiguration(new ApprovalRequestConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalFieldRequestConfiguration());
         modelBuilder.ApplyConfiguration(new LearningChangeHistoryConfiguration());
-        //modelBuilder.ApplyConfiguration(new CocApprovalItemConfiguration());
+        modelBuilder.ApplyConfiguration(new CocApprovalItemConfiguration());
     }
 
     public override void Dispose()

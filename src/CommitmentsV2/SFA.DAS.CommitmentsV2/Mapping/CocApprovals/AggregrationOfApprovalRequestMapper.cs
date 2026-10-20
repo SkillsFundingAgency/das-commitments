@@ -40,6 +40,7 @@ public class AggregrationOfApprovalRequestMapper(
             return new CocApprovalCommand
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
+                LearningKey = request.LearningKey,
                 Action = AggregrationAction.SupersedePrevious,
             };
         }
@@ -48,6 +49,7 @@ public class AggregrationOfApprovalRequestMapper(
         return new CocApprovalCommand
         {
             CocApprovalDetails = null,
+            LearningKey = request.LearningKey,
             Action = AggregrationAction.CancelPrevious,
         };
     }
