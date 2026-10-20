@@ -31,17 +31,8 @@ public class CocApprovalCommandHandler(
 
         if (command.Action == AggregrationAction.CancelPrevious)
         {
-            logger.LogInformation("Cancelling Previous ApprovalRequest {0}", command.PreviousApprovalRequestId);
-            if (!command.PreviousApprovalRequestId.HasValue)
-            {
-                throw new ArgumentNullException(nameof(command.PreviousApprovalRequestId));
-            }
-            var existingApprovalRequest = await db.ApprovalRequests.FindAsync(command.PreviousApprovalRequestId.Value);
-            if(existingApprovalRequest == null)
-            {
-                throw new KeyNotFoundException($"Could not find PreviousApprovalRequestId {command.PreviousApprovalRequestId}");
-            }
-            MarkAsCancelled(db, existingApprovalRequest);
+            logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.CocApprovalDetails.LearningKey);
+            await MarkPendingItemsForLearningKeyAs(db, command.CocApprovalDetails.LearningKey, CocApprovalItemStatus.Cancelled);
 
             return new CocApprovalResult
             {
@@ -52,13 +43,8 @@ public class CocApprovalCommandHandler(
 
         if (command.Action == AggregrationAction.SupersedePrevious)
         {
-            logger.LogInformation("Superseding Previous ApprovalRequest {0}", command.PreviousApprovalRequestId);
-            if (!command.PreviousApprovalRequestId.HasValue)
-            {
-                throw new ArgumentNullException(nameof(command.PreviousApprovalRequestId));
-            }
-            var existingRequest = await db.ApprovalRequests.FindAsync(command.PreviousApprovalRequestId.Value);
-            MarkAsSuperseded(db, existingRequest);
+            logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.CocApprovalDetails.LearningKey);
+            await MarkPendingItemsForLearningKeyAs(db, command.CocApprovalDetails.LearningKey, CocApprovalItemStatus.Superceded);
         }
 
         var approvalState = await cocApprovalRules.DetermineApprovalState(command.CocApprovalDetails);
@@ -67,13 +53,6 @@ public class CocApprovalCommandHandler(
 
         if (approvalState.ApprovalRequest?.Items != null)
         {
-            if (approvalState.ApprovalRequest.Items.Any(x => (x.Field == nameof(CocChangeField.TNP1) || x.Field == nameof(CocChangeField.TNP2)) && x.Status == CocApprovalItemStatus.AutoRejected))
-            {
-                var oldTotal = (command.CocApprovalDetails.Updates?.TNP1?.Old ?? 0) + (command.CocApprovalDetails.Updates?.TNP2?.Old ?? 0);
-                var newTotal = (command.CocApprovalDetails.Updates?.TNP1?.New ?? 0) + (command.CocApprovalDetails.Updates?.TNP2?.New ?? 0);
-
-                await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, $"Total price change from {oldTotal.ToGdsCostFormat()} to {newTotal.ToGdsCostFormat()}");
-            }
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items.Where(x => x.Field != nameof(CocChangeField.TNP1) && x.Field != nameof(CocChangeField.TNP2)))
             {
                 var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
@@ -112,22 +91,14 @@ public class CocApprovalCommandHandler(
         _ => null
     };
 
-    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
+    private static async Task MarkPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, Guid learningKey, CocApprovalItemStatus status)
     {
         var updated = DateTime.UtcNow;
-        existingApprovalRequest.Status = CocApprovalResultStatus.Superseded;
-        existingApprovalRequest.Updated = updated;
-        
-        db.ApprovalRequests.Update(existingApprovalRequest);
+        await db.CocApprovalItems
+            .Where(x => x.LearningKey == learningKey && x.Status == status)
+            .ExecuteUpdateAsync(x => x
+                .SetProperty(f => f.Status, CocApprovalItemStatus.Cancelled)
+                .SetProperty(f => f.Updated, updated)
+            );
     }
-
-    private static void MarkAsCancelled(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
-    {
-        var updated = DateTime.UtcNow;
-        existingApprovalRequest.Status = CocApprovalResultStatus.Cancelled;
-        existingApprovalRequest.Updated = updated;
-
-        db.ApprovalRequests.Update(existingApprovalRequest);
-    }
-
 }
