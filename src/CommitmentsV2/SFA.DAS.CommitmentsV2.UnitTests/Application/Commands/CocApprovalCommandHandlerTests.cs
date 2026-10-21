@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 [TestFixture]
 public class CocApprovalCommandHandlerTests
 {
+    private Fixture _fixture;
     private Mock<ICocApprovalRulesEngine> _cocApprovalRules;
     private Mock<ILogger<CocApprovalCommandHandler>> _logger;
     private Mock<IMessageSession> _messageSession;
@@ -27,6 +28,7 @@ public class CocApprovalCommandHandlerTests
     [SetUp]
     public void SetUp()
     {
+        _fixture = new Fixture();
         var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -54,15 +56,10 @@ public class CocApprovalCommandHandlerTests
         _dbContext.Dispose();
     }
 
-    private static ApprovalRequest CreateApprovalRequest(Guid id, CocApprovalResultStatus status = CocApprovalResultStatus.Pending)
+    private CocApprovalItem CreateCocApprovalItem(Guid learningKey, CocApprovalItemStatus status = CocApprovalItemStatus.Pending, string field = "PlannedEndDate")
     {
-        return new ApprovalRequest
-        {
-            Id = id,
-            LearningKey = Guid.NewGuid(),
-            Status = status,
-            Items = new List<ApprovalFieldRequest>()
-        };
+        var item = _fixture.Build<CocApprovalItem>().With(f => f.LearningKey, learningKey).With(f => f.Status, status).With(x=>x.Field, field).Create();
+        return item;
     }
 
     [Test]
@@ -79,18 +76,18 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenActionIsCancelPrevious_AndPreviousRequestExists_RemovesItAndReturnsCancelledResult()
+    public async Task Handle_WhenActionIsCancelPrevious_AndPreviousApprovalItemExists_MarkAsCancelledAndReturnEmptyList()
     {
         // Arrange
-        var previousId = Guid.NewGuid();
-        var existing = CreateApprovalRequest(previousId);
-        await _dbContext.ApprovalRequests.AddAsync(existing);
+        var learningKey = Guid.NewGuid();
+        var existing = CreateCocApprovalItem(learningKey);
+        await _dbContext.CocApprovalItems.AddAsync(existing);
         await _dbContext.SaveChangesAsync();
 
         var command = new CocApprovalCommand
         {
             Action = AggregrationAction.CancelPrevious,
-            //PreviousApprovalRequestId = previousId,
+            LearningKey = learningKey,
             CocApprovalDetails = null
         };
 
@@ -101,70 +98,36 @@ public class CocApprovalCommandHandlerTests
         result.Status.Should().Be(CocApprovalResultStatus.Cancelled);
         result.Items.Should().NotBeNull().And.BeEmpty();
 
-        existing.Status.Should().Be(CocApprovalResultStatus.Cancelled);
+        var updatedItem = _dbContext.CocApprovalItems.Where(x => x.LearningKey == learningKey).FirstOrDefault();
+        updatedItem.Status.Should().Be(CocApprovalItemStatus.Cancelled);
 
         _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
+
     [Test]
-    public async Task Handle_WhenActionIsCancelPrevious_AndPreviousApprovalRequestIdIsNull_ThrowsArgumentNullException()
+    public async Task Handle_WhenActionIsSupersedePrevious_AndPreviousApprovalItemExists_MarksItSupersededAndReturnsRulesEngineResult()
     {
         // Arrange
-        var command = new CocApprovalCommand
-        {
-            Action = AggregrationAction.CancelPrevious,
-            //PreviousApprovalRequestId = null
-        };
-
-        // Act
-        Func<Task> act = async () => await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<ArgumentNullException>()
-            .WithParameterName("PreviousApprovalRequestId");
-
-        _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Handle_WhenActionIsCancelPrevious_AndPreviousRequestDoesNotExist_Throws()
-    {
-        // Arrange: nothing seeded, FindAsync will return null, Remove(null) throws ArgumentNullException from EF
-        var command = new CocApprovalCommand
-        {
-            Action = AggregrationAction.CancelPrevious,
-            //PreviousApprovalRequestId = Guid.NewGuid()
-        };
-
-        // Act
-        Func<Task> act = async () => await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<KeyNotFoundException>();
-
-        _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Handle_WhenActionIsSupersedePrevious_AndPreviousRequestExists_MarksItSupersededAndReturnsRulesEngineResult()
-    {
-        // Arrange
-        var previousId = Guid.NewGuid();
-        var existing = CreateApprovalRequest(previousId, CocApprovalResultStatus.Pending);
-        await _dbContext.ApprovalRequests.AddAsync(existing);
+        var learningKey = Guid.NewGuid();
+        var existing = CreateCocApprovalItem(learningKey);
+        await _dbContext.CocApprovalItems.AddAsync(existing);
         await _dbContext.SaveChangesAsync();
 
-        var details = new CocApprovalDetails { LearningKey = Guid.NewGuid() };
+        var details = _fixture.Build<CocApprovalDetails>().With(x=>x.LearningKey, learningKey).Without(x=>x.Apprenticeship).With(x=>x.ApprovalFieldChanges, new List<CocApprovalFieldChange>()).Create();
+        var item = new CocApprovalFieldChange() { ChangeType = "PlannedEndDate", Data = new CocData { New = "2026-01-01", Old = "2026=02-01" } };
+        details.ApprovalFieldChanges.Add(item);
+
         var command = new CocApprovalCommand
         {
             Action = AggregrationAction.SupersedePrevious,
-            //PreviousApprovalRequestId = previousId,
+            LearningKey = learningKey,
             CocApprovalDetails = details
         };
 
         var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = new List<ApprovalFieldRequest>() };
-        var expectedResult = new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = new List<CocUpdateResult>() };
+        var expectedResult = new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = new List<CocUpdateResult>() { new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Pending } } };
         var state = new CocApprovalState { ApprovalRequest = newApprovalRequest, ApprovalResult = expectedResult };
 
         _cocApprovalRules
@@ -179,58 +142,14 @@ public class CocApprovalCommandHandlerTests
         // Assert
         result.Should().BeSameAs(expectedResult);
 
-        existing.Status.Should().Be(CocApprovalResultStatus.Superseded);
+        existing.Status.Should().Be(CocApprovalItemStatus.Superseded);
         existing.Updated.Should().NotBeNull();
         existing.Updated!.Value.Should().BeOnOrAfter(beforeCall);
 
-        var supersededEntry = _dbContext.ChangeTracker.Entries<ApprovalRequest>()
-            .First(e => e.Entity.Id == previousId);
-        supersededEntry.State.Should().Be(EntityState.Modified);
-
-        var addedEntry = _dbContext.ChangeTracker.Entries<ApprovalRequest>()
-            .First(e => e.Entity.Id == newApprovalRequest.Id);
-        addedEntry.State.Should().Be(EntityState.Added);
+        var updatedItem = _dbContext.CocApprovalItems.Where(x => x.LearningKey == learningKey).FirstOrDefault();
+        updatedItem.Status.Should().Be(CocApprovalItemStatus.Superseded);
 
         _cocApprovalRules.Verify(r => r.DetermineApprovalState(details), Times.Once);
-    }
-
-    [Test]
-    public async Task Handle_WhenActionIsSupersedePrevious_AndPreviousApprovalRequestIdIsNull_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var command = new CocApprovalCommand
-        {
-            Action = AggregrationAction.SupersedePrevious,
-            //PreviousApprovalRequestId = null
-        };
-
-        // Act
-        Func<Task> act = async () => await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<ArgumentNullException>()
-            .WithParameterName("PreviousApprovalRequestId");
-
-        _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Handle_WhenActionIsSupersedePrevious_AndPreviousRequestDoesNotExist_ThrowsNullReferenceException()
-    {
-        // Arrange: nothing seeded, FindAsync returns null, MarkAsSuperseded dereferences .Status on null
-        var command = new CocApprovalCommand
-        {
-            Action = AggregrationAction.SupersedePrevious,
-            //PreviousApprovalRequestId = Guid.NewGuid()
-        };
-
-        // Act
-        Func<Task> act = async () => await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<NullReferenceException>();
-
-        _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
     }
 
     [Test]
@@ -238,14 +157,15 @@ public class CocApprovalCommandHandlerTests
     {
         // Arrange
         var details = new CocApprovalDetails { LearningKey = Guid.NewGuid() };
+        var learningKey = Guid.NewGuid();
         var command = new CocApprovalCommand
         {
             Action = AggregrationAction.CreateNew,
-            //PreviousApprovalRequestId = null,
+            LearningKey = learningKey,
             CocApprovalDetails = details
         };
 
-        var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = new List<ApprovalFieldRequest>() };
+        var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(),  Items = new List<ApprovalFieldRequest> { new ApprovalFieldRequest { Field = "PlannedEndDate", Old = "2026-01-02", New = "2026-02-01", Status = CocApprovalItemStatus.Pending } } };
         var expectedResult = new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = new List<CocUpdateResult>() };
         var state = new CocApprovalState { ApprovalRequest = newApprovalRequest, ApprovalResult = expectedResult };
 
@@ -256,74 +176,86 @@ public class CocApprovalCommandHandlerTests
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
 
+        await _dbContext.SaveChangesAsync();
+
         // Assert
         result.Should().BeSameAs(expectedResult);
 
-        var addedEntry = _dbContext.ChangeTracker.Entries<ApprovalRequest>()
-            .FirstOrDefault(e => e.Entity.Id == newApprovalRequest.Id);
-        addedEntry.Should().NotBeNull();
-        addedEntry!.State.Should().Be(EntityState.Added);
+        var addedItem = _dbContext.CocApprovalItems.Where(x => x.LearningKey == learningKey).FirstOrDefault();
+        addedItem.Status.Should().Be(CocApprovalItemStatus.Pending);
 
         _cocApprovalRules.Verify(r => r.DetermineApprovalState(details), Times.Once);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
-    //[Test]
-    //public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoRejected_SendsStoreLearningHistoryCommand()
-    //{
-    //    var learningKey = Guid.NewGuid();
-    //    var details = new CocApprovalDetails
-    //    {
-    //        LearningKey = learningKey,
-    //        ApprenticeshipId = 12345,
-    //        Updates = new CocUpdates
-    //        {
-    //            TNP1 = new CocUpdate<int?> { Old = 5000, New = 0 },
-    //            TNP2 = new CocUpdate<int?> { Old = 3000, New = 0 }
-    //        }
-    //    };
-    //    var command = new CocApprovalCommand
-    //    {
-    //        Action = AggregrationAction.CreateNew,
-    //        CocApprovalDetails = details
-    //    };
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoRejected_SendsStoreLearningHistoryCommand()
+    {
+        var learningKey = Guid.NewGuid();
+        var details = new CocApprovalDetails
+        {
+            LearningKey = learningKey,
+            ApprenticeshipId = 12345,
+            Updates = new CocUpdates
+            {
+                Firstname = new CocUpdate<string> { Old = "Test1", New = "Test2" },
+                Lastname = new CocUpdate<string> { Old = "Last1", New = "Last2" }
+            }
+        };
+        var command = new CocApprovalCommand
+        {
+            Action = AggregrationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        };
 
-    //    var items = new List<ApprovalFieldRequest>
-    //    {
-    //        new() { Field = "TNP1", Old = "5000", New = "0", Status = CocApprovalItemStatus.AutoRejected },
-    //        new() { Field = "TNP2", Old = "3000", New = "0", Status = CocApprovalItemStatus.AutoRejected }
-    //    };
-    //    var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = items };
-    //    var expectedResult = new CocApprovalResult
-    //    {
-    //        Status = CocApprovalResultStatus.Complete,
-    //        Items = new List<CocUpdateResult>
-    //        {
-    //            new() { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected },
-    //            new() { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected }
-    //        }
-    //    };
-    //    var state = new CocApprovalState { ApprovalRequest = newApprovalRequest, ApprovalResult = expectedResult };
+        var items = new List<ApprovalFieldRequest>
+            {
+                new() { Field = "Firstname", Old = "Test1", New = "Test2", Status = CocApprovalItemStatus.AutoRejected },
+                new() { Field = "Lastname", Old = "Last1", New = "Last2", Status = CocApprovalItemStatus.AutoRejected }
+            };
+        var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = items };
+        var expectedResult = new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items = new List<CocUpdateResult>
+                {
+                    new() { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoRejected },
+                    new() { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoRejected }
+                }
+        };
+        var state = new CocApprovalState { ApprovalRequest = newApprovalRequest, ApprovalResult = expectedResult };
 
-    //    _cocApprovalRules
-    //        .Setup(r => r.DetermineApprovalState(details))
-    //        .ReturnsAsync(state);
+        _cocApprovalRules
+            .Setup(r => r.DetermineApprovalState(details))
+            .ReturnsAsync(state);
 
-    //    var result = await _sut.Handle(command, CancellationToken.None);
+        var result = await _sut.Handle(command, CancellationToken.None);
 
-    //    result.Should().BeSameAs(expectedResult);
+        result.Should().BeSameAs(expectedResult);
 
-    //    var expectedDescription = $"Total price change from {8000.ToGdsCostFormat()} to {0.ToGdsCostFormat()}";
-    //    _messageSession.Verify(x => x.Send(
-    //        It.Is<StoreLearningHistoryCommand>(c =>
-    //            c.ApprenticeshipId == details.ApprenticeshipId &&
-    //            c.LearningKey == learningKey &&
-    //            c.Source == LearningSourceType.ApprovalAPI &&
-    //            c.ChangeType == LearningChangeType.AutoRejected &&
-    //            c.AppliedDate == _utcNow &&
-    //            c.Description == expectedDescription),
-    //        It.IsAny<SendOptions>()), Times.Once);
-    //}
+        var expectedDescription = "First name change from Test1 to Test2";
+        _messageSession.Verify(x => x.Send(
+            It.Is<StoreLearningHistoryCommand>(c =>
+                c.ApprenticeshipId == details.ApprenticeshipId &&
+                c.LearningKey == learningKey &&
+                c.Source == LearningSourceType.ApprovalAPI &&
+                c.ChangeType == LearningChangeType.AutoRejected &&
+                c.AppliedDate == _utcNow &&
+                c.Description == expectedDescription),
+            It.IsAny<SendOptions>()), Times.Once);
+
+        var anotherExpectedDescription = "Last name change from Last1 to Last2";
+        _messageSession.Verify(x => x.Send(
+            It.Is<StoreLearningHistoryCommand>(c =>
+                c.ApprenticeshipId == details.ApprenticeshipId &&
+                c.LearningKey == learningKey &&
+                c.Source == LearningSourceType.ApprovalAPI &&
+                c.ChangeType == LearningChangeType.AutoRejected &&
+                c.AppliedDate == _utcNow &&
+                c.Description == expectedDescription),
+            It.IsAny<SendOptions>()), Times.Once);
+    }
 
     [Test]
     public async Task Handle_WhenActionIsCreateNew_AndFirstnameIsAutoRejected_SendsAutoRejectedLearningHistory()
@@ -739,42 +671,5 @@ public class CocApprovalCommandHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Handle_WhenActionIsCreateNew_DoesNotTouchAnyExistingApprovalRequest()
-    {
-        // Arrange: seed an unrelated pending request that should be left alone
-        var unrelatedId = Guid.NewGuid();
-        var unrelated = CreateApprovalRequest(unrelatedId, CocApprovalResultStatus.Pending);
-        await _dbContext.ApprovalRequests.AddAsync(unrelated);
-        await _dbContext.SaveChangesAsync();
-
-        var details = new CocApprovalDetails { LearningKey = Guid.NewGuid() };
-        var command = new CocApprovalCommand
-        {
-            Action = AggregrationAction.CreateNew,
-            CocApprovalDetails = details
-        };
-
-        var newApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = new List<ApprovalFieldRequest>() };
-        var state = new CocApprovalState
-        {
-            ApprovalRequest = newApprovalRequest,
-            ApprovalResult = new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = new List<CocUpdateResult>() }
-        };
-
-        _cocApprovalRules
-            .Setup(r => r.DetermineApprovalState(details))
-            .ReturnsAsync(state);
-
-        // Act
-        await _sut.Handle(command, CancellationToken.None);
-
-        // Assert
-        unrelated.Status.Should().Be(CocApprovalResultStatus.Pending);
-        var unrelatedEntry = _dbContext.ChangeTracker.Entries<ApprovalRequest>()
-            .First(e => e.Entity.Id == unrelatedId);
-        unrelatedEntry.State.Should().Be(EntityState.Unchanged);
     }
 }

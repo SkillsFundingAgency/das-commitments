@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -44,7 +43,7 @@ public class CocApprovalCommandHandler(
         if (command.Action == AggregrationAction.SupersedePrevious)
         {
             logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Superceded);
+            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Superseded);
         }
 
         var approvalState = await cocApprovalRules.DetermineApprovalState(command.CocApprovalDetails);
@@ -55,7 +54,7 @@ public class CocApprovalCommandHandler(
             {
                 db.CocApprovalItems.Add(new CocApprovalItem
                 {
-                    LearningKey = approvalState.ApprovalRequest.LearningKey,
+                    LearningKey = command.LearningKey,
                     ApprenticeshipId = approvalState.ApprovalRequest.ApprenticeshipId,
                     LearningType = approvalState.ApprovalRequest.LearningType,
                     UKPRN = approvalState.ApprovalRequest.UKPRN,
@@ -105,11 +104,12 @@ public class CocApprovalCommandHandler(
     private static async Task MarkPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, Guid learningKey, CocApprovalItemStatus status)
     {
         var updated = DateTime.UtcNow;
-        await db.CocApprovalItems
-            .Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending)
-            .ExecuteUpdateAsync(x => x
-                .SetProperty(f => f.Status, status)
-                .SetProperty(f => f.Updated, updated)
-            );
+        var items = await db.CocApprovalItems.Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending).ToListAsync();
+
+        foreach (var item in items)
+        {
+            item.Status = status;
+            item.Updated = updated;
+        }
     }
 }
