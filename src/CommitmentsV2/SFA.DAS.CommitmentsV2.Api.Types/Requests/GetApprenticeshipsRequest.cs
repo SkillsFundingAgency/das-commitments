@@ -29,4 +29,5 @@ public class GetApprenticeshipsRequest
     public DeliveryModel? DeliveryModel { get; set; }
     public long? TransferSenderId { get; set; }
     public List<ApprenticeshipStatus> Statuses { get; set; }
+    public DateTime? LastUpdated { get; set; }
 }

@@ -161,6 +161,11 @@ public static class QueryableApprenticeshipsExtensions
             apprenticeships = apprenticeships.Where(x => x.Cohort != null && x.Cohort.TransferSenderId == filters.TransferSenderId);
         }
 
+        if (filters.LastUpdated.HasValue)
+        {
+            apprenticeships = apprenticeships.Where(x => x.LastUpdated >= filters.LastUpdated);
+        }
+
         return apprenticeships;
     }
 
