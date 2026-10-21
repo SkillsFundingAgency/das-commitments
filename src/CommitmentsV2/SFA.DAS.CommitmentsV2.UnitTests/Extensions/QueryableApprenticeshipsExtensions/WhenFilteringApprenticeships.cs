@@ -940,6 +940,45 @@ public class WhenFilteringApprenticeships
         result.Should().AllSatisfy(a => a.Cohort.TransferSenderId.Should().Be(filterValue));
     }
 
+    [Test]
+    public void ThenShouldFilterByLastUpdatedOnOrAfterFilterValue()
+    {
+        //Arrange
+        var filterValue = new DateTime(2025, 6, 1, 12, 0, 0);
+
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new() { Uln = "Before", LastUpdated = filterValue.AddSeconds(-1) },
+            new() { Uln = "Equal", LastUpdated = filterValue },
+            new() { Uln = "After", LastUpdated = filterValue.AddDays(1) },
+            new() { Uln = "Null", LastUpdated = null }
+        }.AsQueryable();
+
+        //Act
+        var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { LastUpdated = filterValue }).ToList();
+
+        //Assert
+        result.Select(a => a.Uln).Should().BeEquivalentTo("Equal", "After");
+    }
+
+    [Test]
+    public void ThenShouldNotFilterByLastUpdatedWhenNoFilterValue()
+    {
+        //Arrange
+        var apprenticeships = new List<Apprenticeship>
+        {
+            new() { LastUpdated = DateTime.MinValue },
+            new() { LastUpdated = DateTime.UtcNow },
+            new() { LastUpdated = null }
+        }.AsQueryable();
+
+        //Act
+        var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { LastUpdated = null }).ToList();
+
+        //Assert
+        result.Should().HaveCount(3);
+    }
+
     private static AccountLegalEntity CreateAccountLegalEntity(string name)
     {
         var account = new Account(1, "", "", name, DateTime.UtcNow);
