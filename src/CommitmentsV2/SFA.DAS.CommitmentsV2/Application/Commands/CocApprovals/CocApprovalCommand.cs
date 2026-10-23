@@ -1,6 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-
-namespace SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 
 public class CocApprovalCommand : IRequest<CocApprovalResult>
 {
