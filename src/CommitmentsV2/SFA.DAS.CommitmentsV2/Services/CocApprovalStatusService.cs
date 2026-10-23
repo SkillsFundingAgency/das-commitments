@@ -48,12 +48,6 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
             updateResults.Add(DetermineApprovalStatusesForLastnameField(updates, apprenticeship));
         }
 
-        if (updates.TNP1 != null || updates.TNP2 != null)
-        {
-            logger.LogInformation("Change of TNP1 or TNP2 detected");
-            updateResults.AddRange(DetermineApprovalStatusesForCostFields(updates, apprenticeship));
-        }
-
         return updateResults;
     }
 
@@ -113,40 +107,6 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         var courseDateRange = new Domain.Entities.CourseDateRange(apprenticeship.StartDate.Value, newPlannedEndDate);
         var overlap = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, courseDateRange, apprenticeship.Id, default);
         return overlap.HasOverlaps;
-    }
-
-    private IEnumerable<CocUpdateResult> DetermineApprovalStatusesForCostFields(CocUpdates updates, Apprenticeship apprenticeship)
-    {
-        var oldTotalCost = (updates.TNP1?.Old ?? 0) + (updates.TNP2?.Old ?? 0);
-        var newTotalCost = (updates.TNP1?.New ?? 0) + (updates.TNP2?.New ?? 0);
-
-        if (oldTotalCost != apprenticeship.Cost)
-        {
-            // TODO raise concerns, that we are ignoring this mismatch
-            logger.LogWarning("Old total cost from changes does not match apprenticeship cost");
-        }
-
-        if (updates.TNP1?.New == 0)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
-            yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
-        }
-        else if (newTotalCost > Constants.MaximumTotalTrainingCost)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
-            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
-        }
-        else
-        {
-            if (updates.TNP1 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.Pending };
-            }
-            if (updates.TNP2 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
-            }
-        }
     }
 
     private CocUpdateResult DetermineApprovalStatusesForFirstnameField(CocUpdates updates, Apprenticeship apprenticeship)

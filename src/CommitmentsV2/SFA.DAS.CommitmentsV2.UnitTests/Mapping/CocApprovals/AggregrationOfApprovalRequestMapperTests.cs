@@ -39,7 +39,7 @@ public class AggregrationOfApprovalRequestMapperTests
         _dbContext.Dispose();
     }
 
-    private static CocApprovalRequest CreateRequest(Guid learningKey, params CocApprovalFieldChange[] changes)
+    private static CocApprovalRequest CreateChangeRequest(Guid learningKey, params CocApprovalFieldChange[] changes)
     {
         return new CocApprovalRequest
         {
@@ -53,7 +53,7 @@ public class AggregrationOfApprovalRequestMapperTests
         };
     }
 
-    private static CocApprovalFieldChange CreateChange(string field, string oldValue, string newValue, DateTime? effectiveFrom = null)
+    private static CocApprovalFieldChange CreateChangeItem(string field, string oldValue, string newValue)
     {
         return new CocApprovalFieldChange
         {
@@ -62,7 +62,6 @@ public class AggregrationOfApprovalRequestMapperTests
             {
                 Old = oldValue,
                 New = newValue,
-                EffectiveFromDate = effectiveFrom
             }
         };
     }
@@ -75,11 +74,11 @@ public class AggregrationOfApprovalRequestMapperTests
     }
 
     [Test]
-    public async Task Map_WhenNoPreviousPendingRequestExists_ReturnsCreateNewCommand()
+    public async Task Map_WhenNoPreviousPendingItemsExist_ReturnsCreateNewCommand()
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = CreateRequest(learningKey, CreateChange("TNP1", null, "10000"));
+        var request = CreateChangeRequest(learningKey, CreateChangeItem("TNP1", null, "10000"));
         var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
         SetUpModelMapperReturns(expectedDetails);
 
@@ -88,42 +87,32 @@ public class AggregrationOfApprovalRequestMapperTests
 
         // Assert
         result.Action.Should().Be(AggregrationAction.CreateNew);
-        result.PreviousApprovalRequestId.Should().BeNull();
+        result.LearningKey.Should().Be(learningKey);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
         _modelMapper.Verify(m => m.Map<CocApprovalDetails>(request), Times.Once);
     }
 
     [Test]
-    public async Task Map_WhenPreviousPendingRequestExists_AndThereAreAggregatedChanges_ReturnsSupersedePreviousCommand()
+    public async Task Map_WhenPreviousPendingItemsExist_AndThereAreAggregatedChanges_ReturnsSupersedePreviousCommand()
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var previousRequestId = Guid.NewGuid();
 
-        var previousRequest = new ApprovalRequest
+        var previousItem = new CocApprovalItem
         {
-            Id = previousRequestId,
             LearningKey = learningKey,
-            Status = CocApprovalResultStatus.Pending,
-            Items = new List<ApprovalFieldRequest>
-            {
-                new ApprovalFieldRequest
-                {
-                    Id = Guid.NewGuid(),
-                    Field = "TNP1",
-                    Old = "10000",
-                    New = "12000",
-                    EffectiveFromDate = new DateTime(2025, 1, 1)
-                }
-            }
+            Status = CocApprovalItemStatus.Pending,
+            Field = "TNP1",
+            Old = "10000",
+            New = "12000"
         };
 
-        await _dbContext.ApprovalRequests.AddAsync(previousRequest);
+        await _dbContext.CocApprovalItems.AddAsync(previousItem);
         await _dbContext.SaveChangesAsync();
 
-        var newChange = CreateChange("TNP1", "12000", "15000", new DateTime(2025, 6, 1));
-        var request = CreateRequest(learningKey, newChange);
+        var newChange = CreateChangeItem("TNP1", "12000", "15000");
+        var request = CreateChangeRequest(learningKey, newChange);
 
         var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
         SetUpModelMapperReturns(expectedDetails);
@@ -133,7 +122,7 @@ public class AggregrationOfApprovalRequestMapperTests
 
         // Assert
         result.Action.Should().Be(AggregrationAction.SupersedePrevious);
-        result.PreviousApprovalRequestId.Should().Be(previousRequestId);
+        //result.PreviousApprovalRequestId.Should().Be(previousRequestId);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
         // request.Changes is mutated in place by Map() before being passed to the model mapper
@@ -152,121 +141,75 @@ public class AggregrationOfApprovalRequestMapperTests
         var learningKey = Guid.NewGuid();
         var previousRequestId = Guid.NewGuid();
 
-        var previousRequest = new ApprovalRequest
-        {
-            Id = previousRequestId,
+        var previousItem = new CocApprovalItem 
+        { 
+            Id = Guid.NewGuid(),
             LearningKey = learningKey,
-            Status = CocApprovalResultStatus.Pending,
-            Items = new List<ApprovalFieldRequest>
-            {
-                new ApprovalFieldRequest
-                {
-                    Id = Guid.NewGuid(),
-                    Field = "TNP1",
-                    Old = "10000",
-                    New = "12000",
-                    EffectiveFromDate = new DateTime(2025, 1, 1)
-                }
-            }
+            Status = CocApprovalItemStatus.Pending,
+            Field = "TNP1",
+            Old = "10000",
+            New = "12000",
         };
 
-        await _dbContext.ApprovalRequests.AddAsync(previousRequest);
+        await _dbContext.CocApprovalItems.AddAsync(previousItem);
         await _dbContext.SaveChangesAsync();
 
         // New change resolves back to the same old/new value as the previous request -> net no-op
-        var newChange = CreateChange("TNP1", "12000", "10000", new DateTime(2025, 6, 1));
-        var request = CreateRequest(learningKey, newChange);
+        var newChange = CreateChangeItem("TNP1", "12000", "10000");
+        var request = CreateChangeRequest(learningKey, newChange);
 
         // Act
         var result = await _sut.Map(request);
 
         // Assert
         result.Action.Should().Be(AggregrationAction.CancelPrevious);
-        result.PreviousApprovalRequestId.Should().Be(previousRequestId);
+        result.LearningKey.Should().Be(learningKey);
         result.CocApprovalDetails.Should().BeNull();
 
         _modelMapper.Verify(m => m.Map<CocApprovalDetails>(It.IsAny<object>()), Times.Never);
     }
 
     [Test]
-    public async Task GetPreviousPendingApprovalRequestForLearningKey_WhenPendingRequestExistsForKey_ReturnsIt()
+    public async Task GetPreviousPendingApprovalItemForLearningKey_WhenPendingItemExistsForKey_ReturnsSupersedePrevious()
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var approvalRequest = new ApprovalRequest
+        var existingItem = new CocApprovalItem
         {
             Id = Guid.NewGuid(),
             LearningKey = learningKey,
-            Status = CocApprovalResultStatus.Pending,
-            Items = new List<ApprovalFieldRequest>()
+            Status = CocApprovalItemStatus.Pending,
+            Field = "TNP1",
+            New = "12000",
+            Old = "10000"   
         };
 
-        await _dbContext.ApprovalRequests.AddAsync(approvalRequest);
+        await _dbContext.CocApprovalItems.AddAsync(existingItem);
         await _dbContext.SaveChangesAsync();
 
+        var newChange = CreateChangeItem("Firstname", "Fred", "Fred1");
+        var request = CreateChangeRequest(learningKey, newChange);
+
+
         // Act
-        var result = await _sut.GetPreviousPendingApprovalRequestForLearningKey(learningKey);
+        var result = await _sut.Map(request);
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(approvalRequest.Id);
-    }
-
-    [Test]
-    public async Task GetPreviousPendingApprovalRequestForLearningKey_WhenRequestForKeyIsNotPending_ReturnsNull()
-    {
-        // Arrange
-        var learningKey = Guid.NewGuid();
-        var approvalRequest = new ApprovalRequest
-        {
-            Id = Guid.NewGuid(),
-            LearningKey = learningKey,
-            Status = CocApprovalResultStatus.Complete,
-            Items = new List<ApprovalFieldRequest>()
-        };
-
-        await _dbContext.ApprovalRequests.AddAsync(approvalRequest);
-        await _dbContext.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.GetPreviousPendingApprovalRequestForLearningKey(learningKey);
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Test]
-    public async Task GetPreviousPendingApprovalRequestForLearningKey_WhenNoRequestMatchesKey_ReturnsNull()
-    {
-        // Arrange
-        var approvalRequest = new ApprovalRequest
-        {
-            Id = Guid.NewGuid(),
-            LearningKey = Guid.NewGuid(),
-            Status = CocApprovalResultStatus.Pending,
-            Items = new List<ApprovalFieldRequest>()
-        };
-
-        await _dbContext.ApprovalRequests.AddAsync(approvalRequest);
-        await _dbContext.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.GetPreviousPendingApprovalRequestForLearningKey(Guid.NewGuid());
-
-        // Assert
-        result.Should().BeNull();
+        result.LearningKey.Should().Be(learningKey);
+        result.Action.Should().Be(AggregrationAction.SupersedePrevious);
     }
 
     [Test]
     public void CreateAggregratedItems_WhenFieldOnlyExistsInNewRequest_IsAddedAsIs()
     {
         // Arrange
-        var newChange = CreateChange("TNP2", null, "20000", new DateTime(2025, 3, 1));
-        var request = CreateRequest(Guid.NewGuid(), newChange);
-        var previousRequest = new ApprovalRequest { Items = new List<ApprovalFieldRequest>() };
+        var newChange = CreateChangeItem("TNP2", null, "20000");
+        var request = CreateChangeRequest(Guid.NewGuid(), newChange);
+        var previousItems = new List<CocApprovalItem>();
 
         // Act
-        var result = _sut.CreateAggregratedItems(request, previousRequest);
+        var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
         result.Should().ContainSingle();
@@ -277,19 +220,13 @@ public class AggregrationOfApprovalRequestMapperTests
     public void CreateAggregratedItems_WhenFieldExistsInBoth_AndValuesDiffer_MergesOldFromPreviousAndNewFromRequest()
     {
         // Arrange
-        var newChange = CreateChange("TNP1", "12000", "15000", new DateTime(2025, 6, 1));
-        var request = CreateRequest(Guid.NewGuid(), newChange);
+        var newChange = CreateChangeItem("TNP1", "12000", "15000");
+        var request = CreateChangeRequest(Guid.NewGuid(), newChange);
 
-        var previousRequest = new ApprovalRequest
-        {
-            Items = new List<ApprovalFieldRequest>
-            {
-                new ApprovalFieldRequest { Field = "TNP1", Old = "10000", New = "12000" }
-            }
-        };
+        var previousItems = new List<CocApprovalItem>() { new CocApprovalItem { Field = "TNP1", Old = "10000", New = "12000" } };
 
         // Act
-        var result = _sut.CreateAggregratedItems(request, previousRequest);
+        var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
         result.Should().ContainSingle();
@@ -297,7 +234,6 @@ public class AggregrationOfApprovalRequestMapperTests
         merged.ChangeType.Should().Be("TNP1");
         merged.Data.Old.Should().Be("10000");
         merged.Data.New.Should().Be("15000");
-        merged.Data.EffectiveFromDate.Should().Be(new DateTime(2025, 6, 1));
     }
 
     [Test]
@@ -305,19 +241,13 @@ public class AggregrationOfApprovalRequestMapperTests
     {
         // Arrange
         // Previous request's Old value ("10000") equals the new request's New value ("10000") -> net no-op
-        var newChange = CreateChange("TNP1", "12000", "10000", new DateTime(2025, 6, 1));
-        var request = CreateRequest(Guid.NewGuid(), newChange);
+        var newChange = CreateChangeItem("TNP1", "12000", "10000");
+        var request = CreateChangeRequest(Guid.NewGuid(), newChange);
 
-        var previousRequest = new ApprovalRequest
-        {
-            Items = new List<ApprovalFieldRequest>
-            {
-                new ApprovalFieldRequest { Field = "TNP1", Old = "10000", New = "12000" }
-            }
-        };
+        var previousItems = new List<CocApprovalItem>() { new CocApprovalItem { Field = "TNP1", Old = "10000", New = "12000" } };
 
         // Act
-        var result = _sut.CreateAggregratedItems(request, previousRequest);
+        var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
         result.Should().BeEmpty();
@@ -327,22 +257,18 @@ public class AggregrationOfApprovalRequestMapperTests
     public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsCarriedOver()
     {
         // Arrange
-        var request = CreateRequest(Guid.NewGuid()); // no changes in the new request
+        var request = CreateChangeRequest(Guid.NewGuid()); // no changes in the new request
 
-        var previousItem = new ApprovalFieldRequest
+        var previousItem = new CocApprovalItem
         {
             Field = "TNP2",
             Old = "20000",
             New = "22000",
-            EffectiveFromDate = new DateTime(2025, 2, 1)
         };
-        var previousRequest = new ApprovalRequest
-        {
-            Items = new List<ApprovalFieldRequest> { previousItem }
-        };
+        var previousItems = new List<CocApprovalItem> { previousItem };
 
         // Act
-        var result = _sut.CreateAggregratedItems(request, previousRequest);
+        var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
         result.Should().ContainSingle();
@@ -350,28 +276,24 @@ public class AggregrationOfApprovalRequestMapperTests
         carried.ChangeType.Should().Be("TNP2");
         carried.Data.Old.Should().Be("20000");
         carried.Data.New.Should().Be("22000");
-        carried.Data.EffectiveFromDate.Should().Be(new DateTime(2025, 2, 1));
     }
 
     [Test]
     public void CreateAggregratedItems_WhenMultipleFieldsInvolved_CombinesNewMergedAndCarriedOverItems()
     {
         // Arrange: one field only in new request, one field in both (merges), one field only in previous request
-        var onlyNew = CreateChange("LastName", null, "LastName123");
-        var mergedChange = CreateChange("TNP1", "12000", "15000");
-        var request = CreateRequest(Guid.NewGuid(), onlyNew, mergedChange);
+        var onlyNew = CreateChangeItem("LastName", null, "LastName123");
+        var mergedChange = CreateChangeItem("TNP1", "12000", "15000");
+        var request = CreateChangeRequest(Guid.NewGuid(), onlyNew, mergedChange);
 
-        var previousRequest = new ApprovalRequest
-        {
-            Items = new List<ApprovalFieldRequest>
+        var previousItems = new List<CocApprovalItem>
             {
-                new ApprovalFieldRequest { Field = "TNP1", Old = "10000", New = "12000" },
-                new ApprovalFieldRequest { Field = "TNP2", Old = "20000", New = "22000" }
-            }
-        };
+                new CocApprovalItem { Field = "TNP1", Old = "10000", New = "12000" },
+                new CocApprovalItem { Field = "TNP2", Old = "20000", New = "22000" }
+            };
 
         // Act
-        var result = _sut.CreateAggregratedItems(request, previousRequest);
+        var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
         result.Should().HaveCount(3);

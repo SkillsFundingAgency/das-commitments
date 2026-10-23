@@ -69,7 +69,6 @@ public class CocApprovalRulesEngine(
                 Field = change.ChangeType,
                 Old = change.Data.Old,
                 New = change.Data.New,
-                EffectiveFromDate = change.Data.EffectiveFromDate,
                 Status = status.Status,
                 Reason = status.Reason
             }

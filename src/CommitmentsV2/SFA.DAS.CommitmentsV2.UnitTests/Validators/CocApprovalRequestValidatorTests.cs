@@ -75,8 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(r => r.LearningType, request, expected);
         }
 
-        [TestCase("TNP1", true)]
-        [TestCase("TNP2", true)]
+        [TestCase("Firstname", true)]
         [TestCase("XXXXXX", false)]
         public void Validate_ChangeType_ShouldBeInEnumList(string changeType, bool expected)
         {
