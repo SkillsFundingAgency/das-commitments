@@ -22,6 +22,7 @@ public class AggregrationOfApprovalRequestMapper(
             return new CocApprovalCommand
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
+                LearningKey = request.LearningKey,
                 Action = AggregrationAction.CreateNew,
             };
         }
@@ -54,7 +55,7 @@ public class AggregrationOfApprovalRequestMapper(
         };
     }
 
-    public async Task<List<CocApprovalItem>> GetPreviousPendingItemsForLearningKey(Guid learningKey)
+    private async Task<List<CocApprovalItem>> GetPreviousPendingItemsForLearningKey(Guid learningKey)
     {
         var db = dbContext.Value;
         logger.LogInformation("Looking for previous pending requests for LearningKey {0}", learningKey);
