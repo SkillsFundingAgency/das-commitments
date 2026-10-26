@@ -119,39 +119,49 @@ public class ApprovedLearningUpdatedEventHandler(
 
     private void ApplyPriceChanges(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice)
     {
-        logger.LogInformation("Processing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-
-        var currentCost = apprentice.Cost;
-        var currentTrainingPrice = apprentice.TrainingPrice;
-        var currentAssessmentPrice = apprentice.EndPointAssessmentPrice;
-
-        var priceEpisodes = message.Prices.OrderBy(pe => pe.EffectiveFrom).ToList();
-        apprentice.PriceHistory.Clear();
-
-        for (var i = 0; i < priceEpisodes.Count; i++)
+        try
         {
-            var newPrice = new PriceHistory
-            {
-                ApprenticeshipId = apprentice.Id,
-                Cost = priceEpisodes[i].TrainingPrice + priceEpisodes[i].AssessmentPrice,
-                TrainingPrice = priceEpisodes[i].TrainingPrice,
-                AssessmentPrice = priceEpisodes[i].AssessmentPrice,
-                FromDate = priceEpisodes[i].EffectiveFrom,
-                ToDate = i < priceEpisodes.Count - 1 ? priceEpisodes[i + 1].EffectiveFrom.AddDays(-1) : null
-            };
+            logger.LogInformation("Processing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
 
-            if (newPrice.FromDate <= DateTime.Today && (newPrice.ToDate == null || newPrice.ToDate >= DateTime.Today))
+            var currentCost = apprentice.Cost;
+            var currentTrainingPrice = apprentice.TrainingPrice;
+            var currentAssessmentPrice = apprentice.EndPointAssessmentPrice;
+
+            var priceEpisodes = message.Prices.OrderBy(pe => pe.EffectiveFrom).ToList();
+            logger.LogInformation("Clearing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
+            apprentice.PriceHistory.Clear();
+
+            for (var i = 0; i < priceEpisodes.Count; i++)
             {
-                currentCost = newPrice.Cost;
-                currentTrainingPrice = (int)newPrice.TrainingPrice;
-                currentAssessmentPrice = (int)newPrice.AssessmentPrice;
+                var newPrice = new PriceHistory
+                {
+                    ApprenticeshipId = apprentice.Id,
+                    Cost = priceEpisodes[i].TrainingPrice + priceEpisodes[i].AssessmentPrice,
+                    TrainingPrice = priceEpisodes[i].TrainingPrice,
+                    AssessmentPrice = priceEpisodes[i].AssessmentPrice,
+                    FromDate = priceEpisodes[i].EffectiveFrom,
+                    ToDate = i < priceEpisodes.Count - 1 ? priceEpisodes[i + 1].EffectiveFrom.AddDays(-1) : null
+                };
+
+                if (newPrice.FromDate <= DateTime.Today && (newPrice.ToDate == null || newPrice.ToDate >= DateTime.Today))
+                {
+                    currentCost = newPrice.Cost;
+                    currentTrainingPrice = (int)newPrice.TrainingPrice;
+                    currentAssessmentPrice = (int)newPrice.AssessmentPrice;
+                }
+                logger.LogInformation("Adding new PriceEpisode for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
+                apprentice.PriceHistory.Add(newPrice);
             }
-            apprentice.PriceHistory.Add(newPrice);
-        }
 
-        apprentice.Cost = currentCost;
-        apprentice.TrainingPrice = currentTrainingPrice;
-        apprentice.EndPointAssessmentPrice = currentAssessmentPrice;    
+            apprentice.Cost = currentCost;
+            apprentice.TrainingPrice = currentTrainingPrice;
+            apprentice.EndPointAssessmentPrice = currentAssessmentPrice;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error processing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
+            throw;
+        }
     }
 
     private void ApplyDOBChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
