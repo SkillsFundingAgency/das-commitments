@@ -51,5 +51,6 @@ public class GetApprenticeshipsResponse
         public string EmployerVerificationNotes { get; set; }
         public bool HasChangeHistory { get; set; }
         public Guid? PendingApprovalRequestId { get; set; }
+        public DateTime? FreezedDate { get; set; }
     }
 }
