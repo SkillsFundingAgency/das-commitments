@@ -170,7 +170,7 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
             ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes = [],
-            PriceEpisodes = [],
+            Prices = [],
         };
         return this;
     }
@@ -182,7 +182,7 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
             ApprenticeshipId = ApprenticeshipId,
             LearningKey = Guid.NewGuid(),
             Changes = [],
-            PriceEpisodes = _priceEpisodes,
+            Prices = _priceEpisodes,
         };
 
         return this;

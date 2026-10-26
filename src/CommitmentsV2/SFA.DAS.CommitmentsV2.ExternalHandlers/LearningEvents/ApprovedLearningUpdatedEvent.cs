@@ -10,7 +10,7 @@ public class ApprovedLearningUpdatedEvent
     public string LearningType { get; set; }
     public string LearningUri { get; set; }
     public List<ApprenticeshipFieldChange> Changes { get; set; } = new();
-    public List<PriceEpisode> PriceEpisodes { get; set; } = new();
+    public List<PriceEpisode> Prices { get; set; } = new();
 }
 
 public class ApprenticeshipFieldChange

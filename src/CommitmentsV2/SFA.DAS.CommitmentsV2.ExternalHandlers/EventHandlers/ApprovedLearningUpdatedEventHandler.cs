@@ -48,7 +48,7 @@ public class ApprovedLearningUpdatedEventHandler(
                 ApplyChange(message, apprentice, change);
             }
 
-            if(message.PriceEpisodes != null && message.PriceEpisodes.Any())
+            if(message.Prices != null && message.Prices.Any())
             {
                 ApplyPriceChanges(message, apprentice);
             }
@@ -125,7 +125,7 @@ public class ApprovedLearningUpdatedEventHandler(
         var currentTrainingPrice = apprentice.TrainingPrice;
         var currentAssessmentPrice = apprentice.EndPointAssessmentPrice;
 
-        var priceEpisodes = message.PriceEpisodes.OrderBy(pe => pe.EffectiveFrom).ToList();
+        var priceEpisodes = message.Prices.OrderBy(pe => pe.EffectiveFrom).ToList();
         apprentice.PriceHistory.Clear();
 
         for (var i = 0; i < priceEpisodes.Count; i++)
