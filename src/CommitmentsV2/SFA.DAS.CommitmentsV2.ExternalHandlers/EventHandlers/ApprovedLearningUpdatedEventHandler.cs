@@ -117,7 +117,7 @@ public class ApprovedLearningUpdatedEventHandler(
         return;
     }
 
-    private void ApplyPriceChanges(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice)
+    private void ApplyPriceChanges(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice)
     {
         try
         {
@@ -129,7 +129,12 @@ public class ApprovedLearningUpdatedEventHandler(
 
             var priceEpisodes = message.Prices.OrderBy(pe => pe.EffectiveFrom).ToList();
             logger.LogInformation("Clearing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-            apprentice.PriceHistory.Clear();
+
+            var db = dbContext.Value;
+            foreach (var item in apprentice.PriceHistory)
+            {
+                db.PriceHistory.Remove(item);
+            }
 
             for (var i = 0; i < priceEpisodes.Count; i++)
             {

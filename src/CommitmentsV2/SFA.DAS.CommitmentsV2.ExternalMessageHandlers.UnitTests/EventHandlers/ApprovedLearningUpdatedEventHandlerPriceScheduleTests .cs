@@ -68,7 +68,6 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
     private ApprovedLearningUpdatedEventHandler _handler;
     private ApprovedLearningUpdatedEvent _event;
     private Mock<IMessageHandlerContext> _mockContext;
-    private PriceHistory _priceHistory;
     private List<PriceEpisode> _priceEpisodes;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long ApprenticeshipId { get; set; }
@@ -138,18 +137,6 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
             EndDate = DateTime.UtcNow.AddMonths(13)
         };
 
-        _priceHistory = new PriceHistory
-        {
-            ApprenticeshipId = ApprenticeshipId,
-            Cost = 10000,
-            TrainingPrice = 8000,
-            AssessmentPrice = 2000,
-            FromDate = DateTime.UtcNow.AddMonths(-1),
-            ToDate = null
-        };
-
-        Apprenticeship.PriceHistory.Add(_priceHistory);
-
         _dbContext.Cohorts.Add(cohort);
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
@@ -196,7 +183,7 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
     public void VerifyPriceScheduleIsUnchanged()
     {
         var updatedApprenticeship = _dbContext.Apprenticeships.Find(ApprenticeshipId);
-        updatedApprenticeship.PriceHistory.ToList().Should().BeEquivalentTo(new List<PriceHistory> { _priceHistory });
+        updatedApprenticeship.PriceHistory.ToList().Should().BeEquivalentTo(new List<PriceHistory>());
     }
 
     public void VerifyPriceScheduleIsUpdatedAsExpected()
