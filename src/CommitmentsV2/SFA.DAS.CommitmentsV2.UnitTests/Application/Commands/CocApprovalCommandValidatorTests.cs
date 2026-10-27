@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var command = new CocApprovalCommand
             {
-                Action = AggregrationAction.CancelPrevious,
+                Action = AggregationAction.CancelPrevious,
                 CocApprovalDetails = null
             };
 
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var command = new CocApprovalCommand
             {
-                Action = AggregrationAction.CreateNew,
+                Action = AggregationAction.CreateNew,
                 CocApprovalDetails = null
             };
 
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var command = new CocApprovalCommand
             {
-                Action = AggregrationAction.CreateNew,
+                Action = AggregationAction.CreateNew,
                 CocApprovalDetails = new CocApprovalDetails()
             };
 

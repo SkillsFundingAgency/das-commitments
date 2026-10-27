@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
-public class AggregrationOfApprovalRequestMapper(
+public class AggregationOfApprovalRequestMapper(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IModelMapper modelMapper,
     ILogger<CocApprovalRequestToCocApprovalDetailsMapper> logger) : IMapper<CocApprovalRequest, CocApprovalCommand>
@@ -23,7 +23,7 @@ public class AggregrationOfApprovalRequestMapper(
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
-                Action = AggregrationAction.CreateNew,
+                Action = AggregationAction.CreateNew,
             };
         }
 
@@ -42,7 +42,7 @@ public class AggregrationOfApprovalRequestMapper(
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
-                Action = AggregrationAction.SupersedePrevious,
+                Action = AggregationAction.SupersedePrevious,
             };
         }
 
@@ -51,7 +51,7 @@ public class AggregrationOfApprovalRequestMapper(
         {
             CocApprovalDetails = null,
             LearningKey = request.LearningKey,
-            Action = AggregrationAction.CancelPrevious,
+            Action = AggregationAction.CancelPrevious,
         };
     }
 

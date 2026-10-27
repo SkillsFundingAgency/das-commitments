@@ -4,10 +4,10 @@ public class CocApprovalCommand : IRequest<CocApprovalResult>
 {
     public CocApprovalDetails CocApprovalDetails { get; set; }
     public Guid LearningKey { get; set; }
-    public AggregrationAction Action { get; set; }
+    public AggregationAction Action { get; set; }
 }
 
-public enum AggregrationAction
+public enum AggregationAction
 {
     CreateNew,
     SupersedePrevious,

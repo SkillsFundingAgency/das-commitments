@@ -25,7 +25,7 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
 
         var result = await mediator.Send(command);
         logger.LogInformation("PostApprovals completed Returning status of {0}", result?.Status);
-        if (command.Action == AggregrationAction.CancelPrevious)
+        if (command.Action == AggregationAction.CancelPrevious)
         {
             return Ok(MapToApprovalFieldChangeList(new List<CocUpdateResult>(), incomingChanges).ToList());
         }

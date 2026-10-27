@@ -9,13 +9,13 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals;
 
 [TestFixture]
-public class AggregrationOfApprovalRequestMapperTests
+public class AggregationOfApprovalRequestMapperTests
 {
     private Mock<IModelMapper> _modelMapper;
     private Mock<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>> _logger;
     private ProviderCommitmentsDbContext _dbContext;
     private Lazy<ProviderCommitmentsDbContext> _lazyDbContext;
-    private AggregrationOfApprovalRequestMapper _sut;
+    private AggregationOfApprovalRequestMapper _sut;
 
     [SetUp]
     public void SetUp()
@@ -30,7 +30,7 @@ public class AggregrationOfApprovalRequestMapperTests
         _modelMapper = new Mock<IModelMapper>();
         _logger = new Mock<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>>();
 
-        _sut = new AggregrationOfApprovalRequestMapper(_lazyDbContext, _modelMapper.Object, _logger.Object);
+        _sut = new AggregationOfApprovalRequestMapper(_lazyDbContext, _modelMapper.Object, _logger.Object);
     }
 
     [TearDown]
@@ -86,7 +86,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = await _sut.Map(request);
 
         // Assert
-        result.Action.Should().Be(AggregrationAction.CreateNew);
+        result.Action.Should().Be(AggregationAction.CreateNew);
         result.LearningKey.Should().Be(learningKey);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
@@ -121,7 +121,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = await _sut.Map(request);
 
         // Assert
-        result.Action.Should().Be(AggregrationAction.SupersedePrevious);
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
         //result.PreviousApprovalRequestId.Should().Be(previousRequestId);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
@@ -162,7 +162,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = await _sut.Map(request);
 
         // Assert
-        result.Action.Should().Be(AggregrationAction.CancelPrevious);
+        result.Action.Should().Be(AggregationAction.CancelPrevious);
         result.LearningKey.Should().Be(learningKey);
         result.CocApprovalDetails.Should().BeNull();
 
@@ -197,7 +197,7 @@ public class AggregrationOfApprovalRequestMapperTests
         // Assert
         result.Should().NotBeNull();
         result.LearningKey.Should().Be(learningKey);
-        result.Action.Should().Be(AggregrationAction.SupersedePrevious);
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
     }
 
     [Test]

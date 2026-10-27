@@ -33,7 +33,7 @@ public class ApprovalsControllerTests
         // Arrange
         var request = CreateCocApprovalRequest(true);
         var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
-        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>().With(x => x.CocApprovalDetails, cocApprovalDetails).With(x => x.Action, AggregrationAction.CreateNew).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>().With(x => x.CocApprovalDetails, cocApprovalDetails).With(x => x.Action, AggregationAction.CreateNew).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -75,7 +75,7 @@ public class ApprovalsControllerTests
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .With(x => x.CocApprovalDetails, cocApprovalDetails)
             //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.SupersedePrevious).Create();
+            .With(x => x.Action, AggregationAction.SupersedePrevious).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -101,7 +101,7 @@ public class ApprovalsControllerTests
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .With(x => x.CocApprovalDetails, cocApprovalDetails)
             //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.SupersedePrevious).Create();
+            .With(x => x.Action, AggregationAction.SupersedePrevious).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -131,7 +131,7 @@ public class ApprovalsControllerTests
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .Without(x => x.CocApprovalDetails)
             //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.CancelPrevious).Create();
+            .With(x => x.Action, AggregationAction.CancelPrevious).Create();
         var commandResult = _fixture.Create<CocApprovalResult>();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
