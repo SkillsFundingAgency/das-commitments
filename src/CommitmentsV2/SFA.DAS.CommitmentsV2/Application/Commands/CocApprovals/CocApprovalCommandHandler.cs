@@ -31,7 +31,7 @@ public class CocApprovalCommandHandler(
         if (command.Action == AggregationAction.CancelPrevious)
         {
             logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Cancelled);
+            await MarkMatchingFieldPendingItemsForLearningKeyAs(db, command, CocApprovalItemStatus.Cancelled);
 
             return new CocApprovalResult
             {
@@ -43,7 +43,7 @@ public class CocApprovalCommandHandler(
         if (command.Action == AggregationAction.SupersedePrevious)
         {
             logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Superseded);
+            await MarkMatchingFieldPendingItemsForLearningKeyAs(db, command, CocApprovalItemStatus.Superseded);
         }
 
         var approvalState = await cocApprovalRules.DetermineApprovalState(command.CocApprovalDetails);
@@ -52,6 +52,7 @@ public class CocApprovalCommandHandler(
         {
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items)
             {
+
                 db.CocApprovalItems.Add(new CocApprovalItem
                 {
                     LearningKey = command.LearningKey,
@@ -105,6 +106,19 @@ public class CocApprovalCommandHandler(
     {
         var updated = DateTime.UtcNow;
         var items = await db.CocApprovalItems.Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending).ToListAsync();
+
+        foreach (var item in items)
+        {
+            item.Status = status;
+            item.Updated = updated;
+        }
+    }
+
+    private static async Task MarkMatchingFieldPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalItemStatus status)
+    {
+        var updated = DateTime.UtcNow;
+        var fields = command.CocApprovalDetails.ApprovalFieldChanges.Select(f => f.ChangeType).ToList();
+        var items = await db.CocApprovalItems.Where(x => x.LearningKey == command.LearningKey && x.Status == CocApprovalItemStatus.Pending && fields.Contains(x.Field)).ToListAsync();
 
         foreach (var item in items)
         {

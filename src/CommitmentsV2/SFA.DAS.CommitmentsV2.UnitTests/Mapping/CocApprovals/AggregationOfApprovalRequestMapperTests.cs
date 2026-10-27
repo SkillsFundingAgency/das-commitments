@@ -254,7 +254,7 @@ public class AggregationOfApprovalRequestMapperTests
     }
 
     [Test]
-    public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsCarriedOver()
+    public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsNotCarriedOver()
     {
         // Arrange
         var request = CreateChangeRequest(Guid.NewGuid()); // no changes in the new request
@@ -271,11 +271,7 @@ public class AggregationOfApprovalRequestMapperTests
         var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
-        result.Should().ContainSingle();
-        var carried = result[0];
-        carried.ChangeType.Should().Be("TNP2");
-        carried.Data.Old.Should().Be("20000");
-        carried.Data.New.Should().Be("22000");
+        result.Count.Should().Be(0);
     }
 
     [Test]
@@ -296,9 +292,8 @@ public class AggregationOfApprovalRequestMapperTests
         var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
-        result.Should().HaveCount(3);
+        result.Should().HaveCount(2);
         result.Should().Contain(c => c.ChangeType == "LastName" && c.Data.New == "LastName123");
         result.Should().Contain(c => c.ChangeType == "TNP1" && c.Data.Old == "10000" && c.Data.New == "15000");
-        result.Should().Contain(c => c.ChangeType == "TNP2" && c.Data.Old == "20000" && c.Data.New == "22000");
     }
 }

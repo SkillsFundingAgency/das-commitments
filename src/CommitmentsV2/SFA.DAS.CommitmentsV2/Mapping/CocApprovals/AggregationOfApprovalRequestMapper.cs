@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Models;
 
-
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
 public class AggregationOfApprovalRequestMapper(
@@ -100,24 +99,25 @@ public class AggregationOfApprovalRequestMapper(
 
         // Add any previous changes that are not in the new request, as they are still effective. I'm guessing here as the requirements don't specify what to do in this case,
         // but it seems reasonable to keep them.
-        foreach (var item in previousItems)
-        {
-            var newChange = request.Changes.FirstOrDefault(c => c.ChangeType == item.Field);
-            if (newChange == null)
-            {
-                var change = new CocApprovalFieldChange
-                {
-                    ChangeType = item.Field,
-                    Data = new CocData
-                    {
-                        Old = item.Old,
-                        New = item.New
-                    }
-                };
-                list.Add(change);
-            }
-        }
 
+        // I've removed this as suggested, but I think the code review is wrong. We will now just be comparing the new chnages without the existing Pending changes,
+        //foreach (var item in previousItems)
+        //{
+        //    var newChange = request.Changes.FirstOrDefault(c => c.ChangeType == item.Field);
+        //    if (newChange == null)
+        //    {
+        //        var change = new CocApprovalFieldChange
+        //        {
+        //            ChangeType = item.Field,
+        //            Data = new CocData
+        //            {
+        //                Old = item.Old,
+        //                New = item.New
+        //            }
+        //        };
+        //        list.Add(change);
+        //    }
+        //}
         return list;
     }
 }

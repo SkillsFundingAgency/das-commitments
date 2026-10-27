@@ -84,11 +84,19 @@ public class CocApprovalCommandHandlerTests
         await _dbContext.CocApprovalItems.AddAsync(existing);
         await _dbContext.SaveChangesAsync();
 
+        var newChange = new List<CocApprovalFieldChange> { new CocApprovalFieldChange { ChangeType = "PlannedEndDate", Data = new CocData { Old = "2022-01-01", New = "2023-01-01" } } };
+
+        var details = _fixture.Build<CocApprovalDetails>()
+                .With(x => x.LearningKey, learningKey)
+                .Without(x => x.Apprenticeship)
+                .With(x => x.ApprovalFieldChanges, newChange)
+                .Create();
+
         var command = new CocApprovalCommand
         {
             Action = AggregationAction.CancelPrevious,
             LearningKey = learningKey,
-            CocApprovalDetails = null
+            CocApprovalDetails = details
         };
 
         // Act
