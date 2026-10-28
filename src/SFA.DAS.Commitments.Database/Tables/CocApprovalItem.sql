@@ -11,7 +11,7 @@
 	[Field] [nvarchar](100) NOT NULL,
 	[Old] [nvarchar](MAX) NOT NULL,
 	[New] [nvarchar](MAX) NOT NULL,
-	[Status] TINYINT NULL,						
+	[Status] TINYINT NOT NULL,
     [Reason] NVARCHAR(1000) NULL,
 	[ProviderAcknowledgedAt] DATETIME2 NULL,
 	[ProviderAcknowledgedBy] NVARCHAR(255) NULL,
@@ -21,3 +21,9 @@
 	INDEX [IX_CocApprovalFieldRequest_ApprenticeshipId] NONCLUSTERED ([ApprenticeshipId] ASC),
 	INDEX [IX_CocApprovalFieldRequest_LearningKey] NONCLUSTERED ([LearningKey] ASC)
 )
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [UX_CocApprovalItem_LearningKey_Field_Pending]
+    ON [dbo].[CocApprovalItem] ([LearningKey], [Field])
+    WHERE [Status] = 3
+GO

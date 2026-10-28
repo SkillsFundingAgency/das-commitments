@@ -37,6 +37,8 @@ public class CocApprovalCommandHandler(
 
         var db = dbContext.Value;
 
+        await MarkFields(db, command.LearningKey, command.ReversedFields, CocApprovalItemStatus.Reversal);
+
         if (command.Action == AggregationAction.CancelPrevious)
         {
             logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
@@ -51,8 +53,6 @@ public class CocApprovalCommandHandler(
                 Items = new List<CocUpdateResult>()
             };
         }
-
-        await MarkFields(db, command.LearningKey, command.ReversedFields, CocApprovalItemStatus.Reversal);
 
         if (command.Action == AggregationAction.SupersedePrevious)
         {
@@ -80,7 +80,7 @@ public class CocApprovalCommandHandler(
                     Field = approvalFieldRequest.Field,
                     Old = approvalFieldRequest.Old,
                     New = approvalFieldRequest.New,
-                    Status = approvalFieldRequest.Status,
+                    Status = approvalFieldRequest.Status.Value,
                     Reason = approvalFieldRequest.Reason
                 });
 

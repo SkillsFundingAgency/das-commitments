@@ -103,6 +103,24 @@ public class AggregationOfApprovalRequestMapper(
             }
         }
 
+        // TODO: Remove this commented loop once testing shows an omitted field should not be carried forward.
+        //foreach (var item in previousItems)
+        //{
+        //    var newChange = request.Changes?.FirstOrDefault(c => c.ChangeType == item.Field);
+        //    if (newChange == null)
+        //    {
+        //        list.Add(new CocApprovalFieldChange
+        //        {
+        //            ChangeType = item.Field,
+        //            Data = new CocData
+        //            {
+        //                Old = item.Old,
+        //                New = item.New
+        //            }
+        //        });
+        //    }
+        //}
+
         return (list, reversedFields);
     }
 }
