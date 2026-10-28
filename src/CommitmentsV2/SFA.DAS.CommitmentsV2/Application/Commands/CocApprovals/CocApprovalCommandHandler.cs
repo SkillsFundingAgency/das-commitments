@@ -40,7 +40,10 @@ public class CocApprovalCommandHandler(
         if (command.Action == AggregationAction.CancelPrevious)
         {
             logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Reversal, null);
+            var cancelledFields = command.CocApprovalDetails?.ApprovalFieldChanges?
+                .Select(change => change.ChangeType)
+                .ToList();
+            await MarkFields(db, command.LearningKey, cancelledFields, CocApprovalItemStatus.Reversal);
 
             return new CocApprovalResult
             {

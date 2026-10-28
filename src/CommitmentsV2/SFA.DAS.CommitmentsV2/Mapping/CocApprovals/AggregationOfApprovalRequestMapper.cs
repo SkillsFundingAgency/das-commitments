@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Models;
 
-
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
 public class AggregationOfApprovalRequestMapper(
@@ -101,28 +100,6 @@ public class AggregationOfApprovalRequestMapper(
                     continue;
                 }
                 list.Add(newChange);
-            }
-        }
-
-        foreach (var item in previousItems)
-        {
-            if (item.Field == nameof(CocChangeField.Prices))
-            {
-                continue;
-            }
-
-            var newChange = request.Changes?.FirstOrDefault(c => c.ChangeType == item.Field);
-            if (newChange == null)
-            {
-                list.Add(new CocApprovalFieldChange
-                {
-                    ChangeType = item.Field,
-                    Data = new CocData
-                    {
-                        Old = item.Old,
-                        New = item.New
-                    }
-                });
             }
         }
 
