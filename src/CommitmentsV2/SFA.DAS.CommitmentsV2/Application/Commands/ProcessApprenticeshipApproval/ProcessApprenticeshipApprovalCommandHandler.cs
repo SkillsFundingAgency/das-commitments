@@ -23,110 +23,86 @@ public class ProcessApprenticeshipApprovalCommandHandler(
     {
         var db = dbContext.Value;
 
-        var approval = await db.ApprovalRequests.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == command.ApprovalRequestId, cancellationToken);
+        var pendingItems = await db.CocApprovalItems
+            .Where(item => item.ApprenticeshipId == command.ApprenticeshipId && item.Status == CocApprovalItemStatus.Pending)
+            .ToListAsync(cancellationToken);
 
-        if (approval == null)
+        if (pendingItems.Count == 0)
         {
-            throw new NotFoundException($"Approval request {command.ApprovalRequestId} not found");
-        }
-        if (approval.ApprenticeshipId != command.ApprenticeshipId)
-        {
-            throw new NotFoundException($"Approval request {command.ApprovalRequestId} not found for apprenticeship {command.ApprenticeshipId}");
-        }
-        if (approval.Status != CocApprovalResultStatus.Pending)
-        {
-            throw new NotFoundException($"Approval request {command.ApprovalRequestId} is no longer pending. It's status is {approval.Status}");
+            throw new NotFoundException($"No pending changes were found for apprenticeship {command.ApprenticeshipId}");
         }
 
-        if (TotalPriceExceedsLimit(approval))
+        if (TotalPriceExceedsLimit(pendingItems))
         {
             throw new DomainException("ApproveChanges", "The total cost must be £100,000 or less");
         }
 
+        var decision = command.ApplyChanges ? CocApprovalItemStatus.EmployerApproved : CocApprovalItemStatus.EmployerRejected;
+        foreach (var item in pendingItems)
+        {
+            item.Status = decision;
+            item.Updated = DateTime.UtcNow;
+        }
+
+        var changes = ConvertItemsToChangeDictionary(pendingItems);
         if (command.ApplyChanges)
         {
-            approval.Status = CocApprovalResultStatus.Complete;
-            foreach (var item in approval.Items)
+            await messageSession.Publish(new LearningChangeApprovedEvent
             {
-                item.Status = CocApprovalItemStatus.EmployerApproved;
-                item.ApproverId = command.UserInfo?.UserId;
-            }
+                LearningKey = pendingItems[0].LearningKey,
+                ApprenticeshipId = command.ApprenticeshipId,
+                Changes = changes
+            });
 
-            var approved = new LearningChangeApprovedEvent
-            {
-                LearningKey = approval.LearningKey,
-                ApprenticeshipId = approval.ApprenticeshipId,
-                Changes = ConvertItemsToChangeDictionary(approval.Items)
-            };
-            await messageSession.Publish(approved);
-
-            await NotifyProviderAboutApproval(db, approval, cancellationToken);
+            await NotifyProvider(db, command.ApprenticeshipId, "ProviderLearningChangeApprovedNotification", cancellationToken);
         }
         else
         {
-            approval.Status = CocApprovalResultStatus.Complete;
-            foreach (var item in approval.Items)
+            await messageSession.Publish(new LearningChangeRejectedEvent
             {
-                item.Status = CocApprovalItemStatus.EmployerRejected;
-                item.ApproverId = command.UserInfo?.UserId;
-            }
+                LearningKey = pendingItems[0].LearningKey,
+                ApprenticeshipId = command.ApprenticeshipId,
+                Changes = changes
+            });
 
-            var rejected = new LearningChangeRejectedEvent
-            {
-                LearningKey = approval.LearningKey,
-                ApprenticeshipId = approval.ApprenticeshipId,
-                Changes = ConvertItemsToChangeDictionary(approval.Items)
-            };
-            await messageSession.Publish(rejected);
-
-            await NotifyProviderAboutRejection(db, approval, cancellationToken);
+            await NotifyProvider(db, command.ApprenticeshipId, "ProviderLearningChangeRejectedNotification", cancellationToken);
         }
 
-        await RecordCocUpdatesInLearnerHistory(approval, command.UserInfo, command.ApplyChanges);
+        await RecordCocUpdatesInLearnerHistory(command.ApprenticeshipId, pendingItems, command.UserInfo, command.ApplyChanges);
     }
 
-    private async Task NotifyProviderAboutRejection(ProviderCommitmentsDbContext db, ApprovalRequest approval, CancellationToken cancellationToken)
+    private async Task NotifyProvider(ProviderCommitmentsDbContext db, long apprenticeshipId, string template, CancellationToken cancellationToken)
     {
-        await NotifyProvider(db, approval, "ProviderLearningChangeRejectedNotification", cancellationToken);
-    }
-
-    private async Task NotifyProviderAboutApproval(ProviderCommitmentsDbContext db, ApprovalRequest approval, CancellationToken cancellationToken)
-    {
-        await NotifyProvider(db, approval, "ProviderLearningChangeApprovedNotification", cancellationToken);
-    }
-
-    private async Task NotifyProvider(ProviderCommitmentsDbContext db, ApprovalRequest approval, string template, CancellationToken cancellationToken)
-    {
-        var details = await db.Apprenticeships.Where(x => x.Id == approval.ApprenticeshipId)
+        var details = await db.Apprenticeships.Where(x => x.Id == apprenticeshipId)
             .Include(x => x.Cohort)
             .Select(x => new { x.Cohort.ProviderId, x.Cohort.AccountLegalEntity.Name })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (details == null)
         {
-            throw new Exception($"Apprenticeship {approval.ApprenticeshipId} not found");
+            throw new Exception($"Apprenticeship {apprenticeshipId} not found");
         }
 
         if (details.ProviderId <= 0 || details.Name is null)
         {
-            throw new Exception($"Cohort details for apprenticeship {approval.ApprenticeshipId} not found");
+            throw new Exception($"Cohort details for apprenticeship {apprenticeshipId} not found");
         }
 
-        var apprencticeshipIdEncoded = encodingService.Encode(approval.ApprenticeshipId, EncodingType.ApprenticeshipId);
+        var apprencticeshipIdEncoded = encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId);
 
         await notifyProviderService.NotifyProvider(details.ProviderId, apprencticeshipIdEncoded, template, details.Name);
     }
 
-    private async Task RecordCocUpdatesInLearnerHistory(ApprovalRequest approval, UserInfo userInfo, bool applyChanges)
+    private async Task RecordCocUpdatesInLearnerHistory(long apprenticeshipId, ICollection<CocApprovalItem> items, UserInfo userInfo, bool applyChanges)
     {
-        if (approval.Items != null && approval.Items.Any(x => x.Field == "TNP1" || x.Field == "TNP2"))
+        if (items.Any(x => x.Field == "TNP1" || x.Field == "TNP2"))
         {
-            var totalOldValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
-            var totalNewValues = SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
+            var totalOldValues = SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
+            var totalNewValues = SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
 
             await messageSession.Send(new StoreLearningHistoryCommand
             {
-                ApprenticeshipId = approval.ApprenticeshipId,
+                ApprenticeshipId = apprenticeshipId,
                 Source = LearningSourceType.ApprovalAPI,
                 ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
                 AppliedDate = DateTime.UtcNow,
@@ -136,11 +112,9 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         }
     }
 
-    private bool TotalPriceExceedsLimit(ApprovalRequest approval)
+    private bool TotalPriceExceedsLimit(ICollection<CocApprovalItem> items)
     {
-        if (approval.Items == null)
-            return false;
-        return SumStringList(approval.Items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
+        return SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
     }
 
     public static string ToCurrency(int input)
@@ -171,7 +145,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         return null;
     }
 
-    private Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<ApprovalFieldRequest> items)
+    private Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<CocApprovalItem> items)
     {
         var changes = new Dictionary<string, LearningChangeEvent.Change>();
         foreach (var item in items)
@@ -180,7 +154,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             {
                 Old = item.Old,
                 New = item.New,
-                EffectiveFromDate = item.EffectiveFromDate
+                EffectiveFromDate = null
             };
         }
         return changes;

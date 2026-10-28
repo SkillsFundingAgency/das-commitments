@@ -147,20 +147,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 new Apprenticeship
                 {
                     Id = 9,
-                    ApprovalRequests = new List<ApprovalRequest>
+                    CocApprovalItems = new List<CocApprovalItem>
                     {
-                        new ApprovalRequest
+                        new CocApprovalItem
                         {
-                            Status = CocApprovalResultStatus.Complete,
-                            ProviderAcknowledgedAt = null,
-                            Items = new List<ApprovalFieldRequest>
-                            {
-                                new ApprovalFieldRequest
-                                {
-                                    Field = "TNP1",
-                                    Status = CocApprovalItemStatus.AutoRejected
-                                }
-                            }
+                            Field = "TNP1",
+                            Status = CocApprovalItemStatus.AutoRejected
                         }
                     }
                 },

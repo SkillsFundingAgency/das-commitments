@@ -131,14 +131,14 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
             }, CancellationToken.None);
         }
 
-        public ApprovalRequest GetRequest()
+        public CocApprovalItem GetRequest()
         {
-            return _db.ApprovalRequests.Single(request => request.Id == _requestId);
+            return _db.CocApprovalItems.Single(item => item.Id == _requestId);
         }
 
         public void SetItemStatus(CocApprovalItemStatus itemStatus)
         {
-            var item = _db.ApprovalRequests.Single(request => request.Id == _requestId).Items.Single();
+            var item = _db.CocApprovalItems.Single(fieldRow => fieldRow.Id == _requestId);
             item.Status = itemStatus;
             _db.SaveChanges();
         }
@@ -157,24 +157,32 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
                 PaymentStatus = PaymentStatus.Active
             };
 
-            apprenticeship.ApprovalRequests = new List<ApprovalRequest>
+            _db.CocApprovalItems.Add(new CocApprovalItem
             {
-                new()
-                {
-                    Id = _requestId,
-                    ApprenticeshipId = 1001,
-                    Status = CocApprovalResultStatus.Complete,
-                    Items = new List<ApprovalFieldRequest>
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Field = "TNP1",
-                            Status = CocApprovalItemStatus.AutoRejected
-                        }
-                    }
-                }
-            };
+                Id = _requestId,
+                ApprenticeshipId = 1001,
+                Field = "TNP1",
+                Old = "1000",
+                New = "0",
+                Status = CocApprovalItemStatus.AutoRejected,
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            });
+            _db.CocApprovalItems.Add(new CocApprovalItem
+            {
+                Id = Guid.NewGuid(),
+                ApprenticeshipId = 1001,
+                Field = "Prices",
+                Old = "{}",
+                New = "{}",
+                Status = CocApprovalItemStatus.Pending,
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            });
 
             _db.Cohorts.Add(cohort);
             _db.Apprenticeships.Add(apprenticeship);

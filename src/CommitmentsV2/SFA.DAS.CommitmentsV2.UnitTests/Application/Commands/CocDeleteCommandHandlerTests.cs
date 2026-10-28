@@ -22,7 +22,7 @@ public class CocDeleteCommandHandlerTests
     [Test]
     public async Task Handle_WhenHandlingCommandAndThereIsACancelledExistingApprovalRequest_ThenShouldReturnNotPending()
     {
-        var fixture = new CocDeleteCommandHandlerTestsFixture().WithExistingApprovalRequest(CocApprovalResultStatus.Cancelled);
+        var fixture = new CocDeleteCommandHandlerTestsFixture().WithExistingFieldRow(CocApprovalItemStatus.EmployerApproved);
 
         var act = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
 
@@ -32,11 +32,12 @@ public class CocDeleteCommandHandlerTests
     [Test]
     public async Task Handle_WhenHandlingCommandAndThereIsAPendingExistingApprovalRequest_ThenShouldReturnCancelled()
     {
-        var fixture = new CocDeleteCommandHandlerTestsFixture().WithExistingApprovalRequest(CocApprovalResultStatus.Pending);
+        var fixture = new CocDeleteCommandHandlerTestsFixture().WithExistingFieldRow(CocApprovalItemStatus.Pending);
 
         var act = await fixture.Handler.Handle(fixture.Command, CancellationToken.None);
 
         act.Status.Should().Be(DeleteValidationState.Cancelled);
+        fixture.DbContext.CocApprovalItems.Single().Status.Should().Be(CocApprovalItemStatus.Reversal);
     }
 
     [Test]
@@ -74,12 +75,20 @@ public class CocDeleteCommandHandlerTestsFixture : IDisposable
         CancellationToken = new CancellationToken();
     }
 
-    public CocDeleteCommandHandlerTestsFixture WithExistingApprovalRequest(CocApprovalResultStatus status)
+    public CocDeleteCommandHandlerTestsFixture WithExistingFieldRow(CocApprovalItemStatus status)
     {
-        DbContext.ApprovalRequests.Add(new ApprovalRequest
+        DbContext.CocApprovalItems.Add(new CocApprovalItem
         {
+            Id = Guid.NewGuid(),
             LearningKey = Command.LearningKey,
-            Status = status
+            ApprenticeshipId = 1,
+            Status = status,
+            Field = "PlannedEndDate",
+            Old = "2026-01-01",
+            New = "2026-02-01",
+            LearningType = CocLearningType.Apprenticeship,
+            UKPRN = "10000000",
+            ULN = "1234567890"
         });
         DbContext.SaveChanges();
         return this;

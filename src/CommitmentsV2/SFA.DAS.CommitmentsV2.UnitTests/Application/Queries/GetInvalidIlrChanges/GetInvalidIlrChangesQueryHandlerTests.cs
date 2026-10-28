@@ -139,49 +139,40 @@ public class GetInvalidIlrChangesQueryHandlerTests
                 PaymentStatus = PaymentStatus.Active
             };
 
-            apprenticeship.ApprovalRequests = new List<ApprovalRequest>
-            {
-                CreateRequest(UnacknowledgedRequestId, CocApprovalResultStatus.Complete, null, CocApprovalItemStatus.AutoRejected, "Price is zero"),
-                CreateRequest(AcknowledgedRequestId, CocApprovalResultStatus.Complete, DateTime.UtcNow, CocApprovalItemStatus.AutoRejected, "Already seen"),
-                CreateRequest(PendingRequestId, CocApprovalResultStatus.Pending, null, CocApprovalItemStatus.Pending, "Waiting"),
-                CreateRequest(EmployerRejectedRequestId, CocApprovalResultStatus.Complete, null, CocApprovalItemStatus.EmployerRejected, "Employer declined", "7268", "8268")
-            };
+            _db.CocApprovalItems.AddRange(
+                CreateFieldRow(UnacknowledgedRequestId, null, CocApprovalItemStatus.AutoRejected, "Price is zero"),
+                CreateFieldRow(AcknowledgedRequestId, DateTime.UtcNow, CocApprovalItemStatus.AutoRejected, "Already seen"),
+                CreateFieldRow(PendingRequestId, null, CocApprovalItemStatus.Pending, "Waiting"),
+                CreateFieldRow(EmployerRejectedRequestId, null, CocApprovalItemStatus.EmployerRejected, "Employer declined", "7268", "8268"));
 
             _db.Cohorts.Add(cohort);
             _db.Apprenticeships.Add(apprenticeship);
             _db.SaveChanges();
         }
 
-        private static ApprovalRequest CreateRequest(
+        private static CocApprovalItem CreateFieldRow(
             Guid id,
-            CocApprovalResultStatus status,
             DateTime? acknowledgedAt,
             CocApprovalItemStatus itemStatus,
             string reason,
             string oldValue = "1000",
             string newValue = "0")
         {
-            return new ApprovalRequest
+            return new CocApprovalItem
             {
                 Id = id,
                 ApprenticeshipId = 1001,
-                Status = status,
                 ProviderAcknowledgedAt = acknowledgedAt,
                 ProviderAcknowledgedBy = acknowledgedAt == null ? null : "user-1",
+                Field = "TNP1",
+                Old = oldValue,
+                New = newValue,
+                Status = itemStatus,
                 Reason = reason,
-                Items = new List<ApprovalFieldRequest>
-                {
-                    new()
-                    {
-                        Id = Guid.NewGuid(),
-                        Field = "TNP1",
-                        Old = oldValue,
-                        New = newValue,
-                        EffectiveFromDate = new DateTime(2026, 8, 1),
-                        Status = itemStatus,
-                        Reason = reason
-                    }
-                }
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
             };
         }
 

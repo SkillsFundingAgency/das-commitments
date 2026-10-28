@@ -154,24 +154,15 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture
 
     public UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture SetMultipleApprovalRequests()
     {
-        var approvalRequest = new ApprovalRequest
+        ApprovalRequestId2 = Guid.NewGuid();
+        Db.Object.CocApprovalItems.Add(CreateAutoApprovedRow(ApprovalRequestId));
+        Db.Object.CocApprovalItems.Add(CreateAutoApprovedRow(ApprovalRequestId2));
+        Command.ApprovalRequests.Add(new UpdateApprovalRequestAlertAcknowledge
         {
-            Id = ApprovalRequestId,
-            ApprenticeshipId = ApprenticeshipId,
-            EmployerAcknowledgedAt = null,
-            EmployerAcknowledgedBy = null
-        };
-
-        var approvalRequest2 = new ApprovalRequest
-        {
-            Id = ApprovalRequestId2,
-            ApprenticeshipId = ApprenticeshipId2,
-            EmployerAcknowledgedAt = null,
-            EmployerAcknowledgedBy = null
-        };
-
-        Db.Object.ApprovalRequests.Add(approvalRequest);
-        Db.Object.ApprovalRequests.Add(approvalRequest2);
+            ApprovalRequestId = ApprovalRequestId2,
+            Acknowledged = true,
+            UserInfo = Command.ApprovalRequests[0].UserInfo
+        });
         Db.Object.SaveChanges();
 
         return this;
@@ -179,18 +170,43 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture
 
     public UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture SetApprovalRequest()
     {
-        var approvalRequest = new ApprovalRequest
+        Db.Object.CocApprovalItems.Add(CreateAutoApprovedRow(ApprovalRequestId));
+        PendingRowId = Guid.NewGuid();
+        Db.Object.CocApprovalItems.Add(new CocApprovalItem
         {
-            Id = ApprovalRequestId,
+            Id = PendingRowId,
             ApprenticeshipId = ApprenticeshipId,
-            EmployerAcknowledgedAt = null,
-            EmployerAcknowledgedBy = null
-        };
-
-        Db.Object.ApprovalRequests.Add(approvalRequest);
+            Status = CocApprovalItemStatus.Pending,
+            Field = "Prices",
+            Old = "{}",
+            New = "{}",
+            LearningKey = Guid.NewGuid(),
+            LearningType = CocLearningType.Apprenticeship,
+            UKPRN = "10000000",
+            ULN = "1234567890"
+        });
         Db.Object.SaveChanges();
 
         return this;
+    }
+
+    public Guid PendingRowId { get; private set; }
+
+    private CocApprovalItem CreateAutoApprovedRow(Guid id)
+    {
+        return new CocApprovalItem
+        {
+            Id = id,
+            ApprenticeshipId = ApprenticeshipId,
+            Status = CocApprovalItemStatus.AutoApproved,
+            Field = "Firstname",
+            Old = "Ann",
+            New = "Anne",
+            LearningKey = Guid.NewGuid(),
+            LearningType = CocLearningType.Apprenticeship,
+            UKPRN = "10000000",
+            ULN = "1234567890"
+        };
     }
 
     public UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture SetCommandApprenticeshipId()
@@ -203,9 +219,17 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture
     {
         foreach (var request in Command.ApprovalRequests)
         {
-            var approvalRequestToVerify = Db.Object.ApprovalRequests.FirstOrDefault(ar => ar.Id == request.ApprovalRequestId);
-            var expectedRequestToVerify = Command.ApprovalRequests.Where(id => id.ApprovalRequestId == approvalRequestToVerify.Id).FirstOrDefault();
-            approvalRequestToVerify.EmployerAcknowledgedBy.Should().Be(expectedRequestToVerify.UserInfo.UserId);
+            var fieldRow = Db.Object.CocApprovalItems.First(item => item.Id == request.ApprovalRequestId);
+            var expectedRequestToVerify = Command.ApprovalRequests.First(id => id.ApprovalRequestId == fieldRow.Id);
+            fieldRow.EmployerAcknowledgedBy.Should().Be(expectedRequestToVerify.UserInfo.UserId);
+            fieldRow.EmployerAcknowledgedAt.Should().NotBeNull();
+        }
+
+        if (PendingRowId != Guid.Empty)
+        {
+            var pendingRow = Db.Object.CocApprovalItems.Single(item => item.Id == PendingRowId);
+            pendingRow.Status.Should().Be(CocApprovalItemStatus.Pending);
+            pendingRow.EmployerAcknowledgedAt.Should().BeNull();
         }
     }
 
@@ -213,7 +237,7 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandlerTestsFixture
     {
         foreach (var request in Command.ApprovalRequests)
         {
-            var approvalRequestToVerify = Db.Object.ApprovalRequests.FirstOrDefault(ar => ar.Id == request.ApprovalRequestId);
+            var approvalRequestToVerify = Db.Object.CocApprovalItems.FirstOrDefault(item => item.Id == request.ApprovalRequestId);
             var expectedRequestToVerify = Command.ApprovalRequests.Where(id => id.ApprovalRequestId == approvalRequestToVerify.Id).FirstOrDefault();
             approvalRequestToVerify.EmployerAcknowledgedAt.Should().BeNull();
             approvalRequestToVerify.EmployerAcknowledgedBy.Should().BeNull();

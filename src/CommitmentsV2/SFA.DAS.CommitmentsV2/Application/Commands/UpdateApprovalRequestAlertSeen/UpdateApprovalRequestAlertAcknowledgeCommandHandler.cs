@@ -16,7 +16,6 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
 
             var apprenticeship = await dbContext.Value.Apprenticeships
            .Include(a => a.Cohort)
-           .Include(a => a.ApprovalRequests)
            .SingleOrDefaultAsync(a => a.Id == command.ApprenticeshipId, cancellationToken);
 
             if (apprenticeship == null)
@@ -29,19 +28,23 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
                 throw new UnauthorizedAccessException($"Employer {command.AccountId} cannot access apprenticeship {command.ApprenticeshipId}");
             }
 
-            var approvalRequests = (apprenticeship.ApprovalRequests ?? [])
-                .Where(ar => ar.ApprenticeshipId == command.ApprenticeshipId
-                && ar.EmployerAcknowledgedBy == null && ar.EmployerAcknowledgedAt == null).ToList();
+            var acknowledgedIds = (command.ApprovalRequests ?? [])
+                .Where(alert => alert.Acknowledged == true)
+                .Select(alert => alert.ApprovalRequestId)
+                .ToList();
 
-            foreach (var approvalRequest in approvalRequests)
+            var fieldRows = await dbContext.Value.CocApprovalItems
+                .Where(item => item.ApprenticeshipId == command.ApprenticeshipId
+                    && item.Status == Models.CocApprovalItemStatus.AutoApproved
+                    && item.EmployerAcknowledgedAt == null
+                    && acknowledgedIds.Contains(item.Id))
+                .ToListAsync(cancellationToken);
+
+            foreach (var fieldRow in fieldRows)
             {
-                var request = command.ApprovalRequests.FirstOrDefault(ar => ar.ApprovalRequestId == approvalRequest.Id && ar.Acknowledged == true);
-                if (request == null)
-                {
-                    continue;
-                }
-                approvalRequest.EmployerAcknowledgedBy = request?.UserInfo?.UserId;
-                approvalRequest.EmployerAcknowledgedAt = DateTime.UtcNow;
+                var request = command.ApprovalRequests.First(alert => alert.ApprovalRequestId == fieldRow.Id);
+                fieldRow.EmployerAcknowledgedBy = request.UserInfo?.UserId;
+                fieldRow.EmployerAcknowledgedAt = DateTime.UtcNow;
             }
 
             await dbContext.Value.SaveChangesAsync(cancellationToken);

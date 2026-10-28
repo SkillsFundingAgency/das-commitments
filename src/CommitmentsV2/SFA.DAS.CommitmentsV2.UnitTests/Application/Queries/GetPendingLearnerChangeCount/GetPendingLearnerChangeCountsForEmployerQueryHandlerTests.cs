@@ -68,10 +68,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingLearnerC
             result.IlrPendingChangeCount.Should().Be(0);
         }
 
-        [TestCase(CocApprovalResultStatus.Complete)]
-        [TestCase(CocApprovalResultStatus.Superseded)]
-        [TestCase(CocApprovalResultStatus.Cancelled)]
-        public async Task Handle_ThenShouldNotFindPendingIlrRequestsWhenStatusIs(CocApprovalResultStatus status)
+        [Test]
+        public async Task Handle_ThenCountsOneApprenticeshipWhenItHasTwoPendingFields()
+        {
+            var result = await _fixture.AddTwoPendingFieldsOnOneApprenticeship().Handle(222);
+
+            result.IlrPendingChangeCount.Should().Be(1);
+        }
+
+        [TestCase(CocApprovalItemStatus.AutoApproved)]
+        [TestCase(CocApprovalItemStatus.Superseded)]
+        [TestCase(CocApprovalItemStatus.Reversal)]
+        public async Task Handle_ThenShouldNotFindPendingIlrRequestsWhenStatusIs(CocApprovalItemStatus status)
         {
             var result = await _fixture.AddIlrUpdates(status).Handle(222);
 
@@ -135,6 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingLearnerC
                      .Without(s => s.EpaOrg)
                      .Without(s => s.ApprenticeshipUpdate)
                      .Without(s => s.ApprovalRequests)
+                     .Without(s => s.CocApprovalItems)
                      .Without(s => s.Continuation)
                      .Without(s => s.PreviousApprenticeship)
                      .Without(s => s.CompletionDate)
@@ -171,21 +180,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingLearnerC
             }
 
             public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddIlrUpdates(
-                CocApprovalResultStatus withStatus = CocApprovalResultStatus.Pending)
+                CocApprovalItemStatus withStatus = CocApprovalItemStatus.Pending)
             {
                 var apprenticeship1 = _db.Apprenticeships.First();
-                _db.ApprovalRequests.Add(CreateIlrUpdate(apprenticeship1));
+                _db.CocApprovalItems.Add(CreateFieldRow(apprenticeship1, withStatus, "PlannedEndDate"));
                 var apprenticeship2 = _db.Apprenticeships.Last();
-                _db.ApprovalRequests.Add(CreateIlrUpdate(apprenticeship2));
+                _db.CocApprovalItems.Add(CreateFieldRow(apprenticeship2, withStatus, "PlannedEndDate"));
 
                 _db.SaveChanges();
                 return this;
+            }
 
-                ApprovalRequest CreateIlrUpdate(Apprenticeship apprenticeship) => _autoFixture.Build<ApprovalRequest>()
-                     .With(s => s.ApprenticeshipId, apprenticeship.Id)
-                     .With(s => s.Status, withStatus)
-                     .With(s => s.Apprenticeship, apprenticeship)
-                     .Create();
+            public GetPendingLearnerChangeCountsForEmployerQueryHandlerTestsFixture AddTwoPendingFieldsOnOneApprenticeship()
+            {
+                var apprenticeship = _db.Apprenticeships.First();
+                _db.CocApprovalItems.Add(CreateFieldRow(apprenticeship, CocApprovalItemStatus.Pending, "PlannedEndDate"));
+                _db.CocApprovalItems.Add(CreateFieldRow(apprenticeship, CocApprovalItemStatus.Pending, "Prices"));
+                _db.SaveChanges();
+                return this;
+            }
+
+            private CocApprovalItem CreateFieldRow(Apprenticeship apprenticeship, CocApprovalItemStatus status, string field)
+            {
+                return new CocApprovalItem
+                {
+                    Id = Guid.NewGuid(),
+                    ApprenticeshipId = apprenticeship.Id,
+                    Status = status,
+                    Field = field,
+                    Old = "old",
+                    New = "new",
+                    LearningKey = Guid.NewGuid(),
+                    LearningType = CocLearningType.Apprenticeship,
+                    UKPRN = "10000000",
+                    ULN = "1234567890"
+                };
             }
 
             public void Dispose()
