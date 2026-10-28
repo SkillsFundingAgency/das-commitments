@@ -99,7 +99,6 @@ public class PriceScheduleMapper
     {
         return episodes
             .OrderBy(episode => episode.EffectiveFrom, StringComparer.Ordinal)
-            .ThenBy(episode => episode.Cost)
             .LastOrDefault();
     }
 
