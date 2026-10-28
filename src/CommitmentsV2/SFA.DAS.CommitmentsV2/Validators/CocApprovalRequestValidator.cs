@@ -14,7 +14,9 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
     public CocApprovalRequestValidator(IUlnValidator ulnValidator)
     {
         var learningTypes = EnumExtensions.GetEnumDescriptions<CocLearningType>();
-        var fields = EnumExtensions.GetEnumDescriptions<CocChangeField>();
+        var fields = EnumExtensions.GetEnumDescriptions<CocChangeField>()
+            .Where(field => field != nameof(CocChangeField.Prices))
+            .ToList();
 
         RuleFor(model => model.LearningKey).GreaterThan(ctx => Guid.Empty).WithMessage("The LearningKey is not valid");
         RuleFor(model => model.ApprenticeshipId).GreaterThan(ctx => 0).WithMessage("The ApprenticeshipId must be greater than 0");
@@ -22,17 +24,21 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
         RuleFor(model => model.ULN).NotNull().MaximumLength(10).WithMessage("The ULN not be more that {MaxLenth} characters");
         RuleFor(model => model.ULN).MustBeValidUln(ulnValidator);
         RuleFor(model => model.LearningType).NotNull().Must(learningTypes.Contains).WithMessage("LearningType must be " + string.Join(", ", learningTypes[..^1]) + " or " + learningTypes[^1]);
-        RuleFor(model => model.Changes).NotEmpty().NotNull();
+        RuleFor(model => model.Changes).NotEmpty().When(model => model.Prices == null || model.Prices.Count == 0);
         RuleFor(x => x.Changes).Must(items => items == null || items.GroupBy(i => i.ChangeType, StringComparer.OrdinalIgnoreCase).All(g => g.Count() == 1)).WithMessage("ChangeType must be unique within the listed values.");
-        RuleFor(x => x.Changes).Must(list => list.All(p => fields.Contains(p.ChangeType))).WithMessage("ChangeType must be " + string.Join(", ", fields[..^1]) + " or " + fields[^1]);
-        RuleFor(x => x.Changes).Must(list => list.All(p => p.Data != null)).WithMessage("ChangeType must contain a Data structure");
-        RuleFor(x => x.Changes).Must(list => list.All(p => p.Data?.Old != p.Data?.New)).When(r => r.Changes.All(p => p.Data != null)).WithMessage("New and Old values cannot be the same");
+        RuleFor(x => x.Changes).Must(list => list == null || list.All(p => fields.Contains(p.ChangeType))).WithMessage("ChangeType must be " + string.Join(", ", fields[..^1]) + " or " + fields[^1]);
+        RuleFor(x => x.Changes).Must(list => list == null || list.All(p => p.Data != null)).WithMessage("ChangeType must contain a Data structure");
+        RuleFor(x => x.Changes).Must(list => list == null || list.All(p => p.Data?.Old != p.Data?.New)).When(r => r.Changes == null || r.Changes.All(p => p.Data != null)).WithMessage("New and Old values cannot be the same");
         RuleFor(x => x.ApprovedUri)
             .Must(ApprovedUriValidation.IsValidOptional)
             .WithMessage("ApprovedUri contains invalid characters.");
-        RuleFor(x => x.PriceRecords)
-            .Must(priceRecords => priceRecords == null || priceRecords.Count <= Constants.MaximumPriceEpisodes)
+        RuleFor(x => x.Prices)
+            .Must(prices => prices == null || prices.Count <= Constants.MaximumPriceEpisodes)
             .WithMessage($"A schedule can have at most {Constants.MaximumPriceEpisodes} episodes.")
-            .OverridePropertyName("priceRecords");
+            .OverridePropertyName("prices");
+        RuleFor(x => x.Prices)
+            .Must(prices => prices == null || prices.All(price => price != null && price.TrainingPrice != null && price.AssessmentPrice != null))
+            .WithMessage("A price episode must include both trainingPrice and assessmentPrice.")
+            .OverridePropertyName("prices");
     }
 }

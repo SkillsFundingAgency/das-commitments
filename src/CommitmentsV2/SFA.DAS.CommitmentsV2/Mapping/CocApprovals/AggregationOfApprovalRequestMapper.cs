@@ -16,7 +16,10 @@ public class AggregationOfApprovalRequestMapper(
     public async Task<CocApprovalCommand> Map(CocApprovalRequest request)
     {
         var previousPendingItems = await GetPreviousPendingItemsForLearningKey(request.LearningKey);
-        if (!previousPendingItems.Any())
+        var nonPricePendingItems = previousPendingItems
+            .Where(item => item.Field != nameof(CocChangeField.Prices))
+            .ToList();
+        if (!nonPricePendingItems.Any())
         {
             logger.LogInformation("Creating a brand new request for LearningKey {0}", request.LearningKey);
             return new CocApprovalCommand
@@ -24,34 +27,33 @@ public class AggregationOfApprovalRequestMapper(
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.CreateNew,
+                Prices = request.Prices
             };
         }
 
-        // Should we validate that the ApprenticeshipId and other fields match between the previous request and the new request?
-        // There is nothing in the requirements that says we should, but it might be a good idea to ensure that the new request
-        // is for the same apprenticeship and learning type as the previous request.
-
-        var aggregatedItems = CreateAggregratedItems(request, previousPendingItems);
-
-        if (aggregatedItems.Any())
+        var aggregated = Aggregate(request, nonPricePendingItems);
+        request.Changes = aggregated.Items;
+        if (aggregated.Items.Any())
         {
             logger.LogInformation("Creating a superseded request for LearningKey {0}", request.LearningKey);
-
-            request.Changes = aggregatedItems;
             return new CocApprovalCommand
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.SupersedePrevious,
+                Prices = request.Prices,
+                ReversedFields = aggregated.ReversedFields
             };
         }
 
-        logger.LogInformation("Cancelling the pending requests for LearningKey {0}", request.LearningKey);
+        logger.LogInformation("Reversing pending fields for LearningKey {0}", request.LearningKey);
         return new CocApprovalCommand
         {
-            CocApprovalDetails = null,
+            CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
             LearningKey = request.LearningKey,
-            Action = AggregationAction.CancelPrevious,
+            Action = AggregationAction.CreateNew,
+            Prices = request.Prices,
+            ReversedFields = aggregated.ReversedFields
         };
     }
 
@@ -65,12 +67,15 @@ public class AggregationOfApprovalRequestMapper(
 
     public List<CocApprovalFieldChange> CreateAggregratedItems(CocApprovalRequest request, List<CocApprovalItem> previousItems)
     {
-        var list = new List<CocApprovalFieldChange>();
+        return Aggregate(request, previousItems).Items;
+    }
 
-        // Aggregate the changes from the new request with the previous request, 
-        // keep new fields as they are, and for existing fields,
-        // get the old value from the previous request and the new value from the new request.
-        foreach (var change in request.Changes)
+    private (List<CocApprovalFieldChange> Items, List<string> ReversedFields) Aggregate(CocApprovalRequest request, List<CocApprovalItem> previousItems)
+    {
+        var list = new List<CocApprovalFieldChange>();
+        var reversedFields = new List<string>();
+
+        foreach (var change in request.Changes ?? [])
         {
             var previousChange = previousItems.FirstOrDefault(i => i.Field == change.ChangeType);
             if (previousChange == null)
@@ -89,23 +94,27 @@ public class AggregationOfApprovalRequestMapper(
                     }
                 };
 
-                if(newChange.Data.Old == newChange.Data.New)
+                if (newChange.Data.Old == newChange.Data.New)
                 {
                     logger.LogInformation("Change for field {Field} has no effective change, skipping", newChange.ChangeType);
+                    reversedFields.Add(newChange.ChangeType);
                     continue;
                 }
                 list.Add(newChange);
             }
         }
 
-        // Add any previous changes that are not in the new request, as they are still effective. I'm guessing here as the requirements don't specify what to do in this case,
-        // but it seems reasonable to keep them.
         foreach (var item in previousItems)
         {
-            var newChange = request.Changes.FirstOrDefault(c => c.ChangeType == item.Field);
+            if (item.Field == nameof(CocChangeField.Prices))
+            {
+                continue;
+            }
+
+            var newChange = request.Changes?.FirstOrDefault(c => c.ChangeType == item.Field);
             if (newChange == null)
             {
-                var change = new CocApprovalFieldChange
+                list.Add(new CocApprovalFieldChange
                 {
                     ChangeType = item.Field,
                     Data = new CocData
@@ -113,11 +122,10 @@ public class AggregationOfApprovalRequestMapper(
                         Old = item.Old,
                         New = item.New
                     }
-                };
-                list.Add(change);
+                });
             }
         }
 
-        return list;
+        return (list, reversedFields);
     }
 }

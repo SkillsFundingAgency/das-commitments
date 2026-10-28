@@ -4,5 +4,6 @@ public enum CocChangeField
 {
     Firstname,
     Lastname,
-    PlannedEndDate
+    PlannedEndDate,
+    Prices
 }
