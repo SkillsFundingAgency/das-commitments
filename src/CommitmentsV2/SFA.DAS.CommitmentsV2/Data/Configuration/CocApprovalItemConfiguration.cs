@@ -10,12 +10,7 @@ public class CocApprovalItemConfiguration : IEntityTypeConfiguration<CocApproval
         builder.ToTable("CocApprovalItem")
             .HasKey("Id");
         builder.Property(e => e.Created).HasDefaultValueSql("(getdate())").ValueGeneratedOnAddOrUpdate();
-        //builder.Property(e => e.ProviderAcknowledgedBy).HasMaxLength(255);
-        //builder.Property(e => e.EmployerAcknowledgedBy).HasMaxLength(255);
-
-        //builder.HasOne(ar => ar.Apprenticeship)
-        //    .WithMany(a => a.ApprovalRequests)
-        //    .HasForeignKey(ar => ar.ApprenticeshipId)
-        //    .HasPrincipalKey(a => a.Id);
+        builder.Property(e => e.ProviderAcknowledgedBy).HasMaxLength(255);
+        builder.Property(e => e.EmployerAcknowledgedBy).HasMaxLength(255);
     }
 }

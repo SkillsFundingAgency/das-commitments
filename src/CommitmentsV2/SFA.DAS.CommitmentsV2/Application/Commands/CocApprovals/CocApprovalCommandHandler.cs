@@ -28,7 +28,7 @@ public class CocApprovalCommandHandler(
 
         var db = dbContext.Value;
 
-        if (command.Action == AggregrationAction.CancelPrevious)
+        if (command.Action == AggregationAction.CancelPrevious)
         {
             logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
             await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Cancelled);
@@ -40,7 +40,7 @@ public class CocApprovalCommandHandler(
             };
         }
 
-        if (command.Action == AggregrationAction.SupersedePrevious)
+        if (command.Action == AggregationAction.SupersedePrevious)
         {
             logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
             await MarkPendingItemsForLearningKeyAs(db, command.LearningKey, CocApprovalItemStatus.Superseded);

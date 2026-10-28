@@ -86,7 +86,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CancelPrevious,
+            Action = AggregationAction.CancelPrevious,
             LearningKey = learningKey,
             CocApprovalDetails = null
         };
@@ -121,7 +121,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.SupersedePrevious,
+            Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -160,7 +160,7 @@ public class CocApprovalCommandHandlerTests
         var learningKey = Guid.NewGuid();
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -204,7 +204,7 @@ public class CocApprovalCommandHandlerTests
         };
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -268,7 +268,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -318,7 +318,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -368,7 +368,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -418,7 +418,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -468,7 +468,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -518,7 +518,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -568,7 +568,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -613,7 +613,7 @@ public class CocApprovalCommandHandlerTests
         var details = new CocApprovalDetails { LearningKey = Guid.NewGuid(), ApprenticeshipId = 12345 };
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -664,7 +664,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
