@@ -28,10 +28,15 @@ public class CocApprovalCommandHandler(
 
         var db = dbContext.Value;
 
+        await MarkFields(db, command.LearningKey, command.ReversedFields, CocApprovalItemStatus.Reversal);
+
         if (command.Action == AggregationAction.CancelPrevious)
         {
             logger.LogInformation("Cancelling Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkMatchingFieldPendingItemsForLearningKeyAs(db, command, CocApprovalItemStatus.Cancelled);
+            var cancelledFields = command.CocApprovalDetails?.ApprovalFieldChanges?
+                .Select(change => change.ChangeType)
+                .ToList();
+            await MarkFields(db, command.LearningKey, cancelledFields, CocApprovalItemStatus.Reversal);
 
             return new CocApprovalResult
             {
@@ -43,7 +48,10 @@ public class CocApprovalCommandHandler(
         if (command.Action == AggregationAction.SupersedePrevious)
         {
             logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
-            await MarkMatchingFieldPendingItemsForLearningKeyAs(db, command, CocApprovalItemStatus.Superseded);
+            var replacedFields = command.CocApprovalDetails?.ApprovalFieldChanges?
+                .Select(change => change.ChangeType)
+                .ToList();
+            await MarkFields(db, command.LearningKey, replacedFields, CocApprovalItemStatus.Superseded);
         }
 
         var approvalState = await cocApprovalRules.DetermineApprovalState(command.CocApprovalDetails);
@@ -63,7 +71,7 @@ public class CocApprovalCommandHandler(
                     Field = approvalFieldRequest.Field,
                     Old = approvalFieldRequest.Old,
                     New = approvalFieldRequest.New,
-                    Status = approvalFieldRequest.Status
+                    Status = approvalFieldRequest.Status.Value
                 });
 
                 var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
@@ -114,11 +122,15 @@ public class CocApprovalCommandHandler(
         }
     }
 
-    private static async Task MarkMatchingFieldPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalItemStatus status)
+    private static async Task MarkFields(ProviderCommitmentsDbContext db, Guid learningKey, IReadOnlyCollection<string> fields, CocApprovalItemStatus status)
     {
+        if (fields == null || fields.Count == 0)
+        {
+            return;
+        }
+
         var updated = DateTime.UtcNow;
-        var fields = command.CocApprovalDetails.ApprovalFieldChanges.Select(f => f.ChangeType).ToList();
-        var items = await db.CocApprovalItems.Where(x => x.LearningKey == command.LearningKey && x.Status == CocApprovalItemStatus.Pending && fields.Contains(x.Field)).ToListAsync();
+        var items = await db.CocApprovalItems.Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending && fields.Contains(x.Field)).ToListAsync();
 
         foreach (var item in items)
         {

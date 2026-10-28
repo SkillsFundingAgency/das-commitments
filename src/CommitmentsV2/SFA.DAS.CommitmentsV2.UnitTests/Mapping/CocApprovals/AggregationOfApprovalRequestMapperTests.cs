@@ -135,14 +135,14 @@ public class AggregationOfApprovalRequestMapperTests
     }
 
     [Test]
-    public async Task Map_WhenPreviousPendingRequestExists_AndNoAggregatedChangesRemain_ReturnsCancelPreviousCommand()
+    public async Task Map_WhenPreviousPendingRequestExists_AndNoAggregatedChangesRemain_ReturnsCreateNewWithReversedFields()
     {
-        // Arrange
         var learningKey = Guid.NewGuid();
-        var previousRequestId = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
 
-        var previousItem = new CocApprovalItem 
-        { 
+        var previousItem = new CocApprovalItem
+        {
             Id = Guid.NewGuid(),
             LearningKey = learningKey,
             Status = CocApprovalItemStatus.Pending,
@@ -154,19 +154,59 @@ public class AggregationOfApprovalRequestMapperTests
         await _dbContext.CocApprovalItems.AddAsync(previousItem);
         await _dbContext.SaveChangesAsync();
 
-        // New change resolves back to the same old/new value as the previous request -> net no-op
         var newChange = CreateChangeItem("TNP1", "12000", "10000");
         var request = CreateChangeRequest(learningKey, newChange);
 
-        // Act
         var result = await _sut.Map(request);
 
-        // Assert
-        result.Action.Should().Be(AggregationAction.CancelPrevious);
+        result.Action.Should().Be(AggregationAction.CreateNew);
         result.LearningKey.Should().Be(learningKey);
-        result.CocApprovalDetails.Should().BeNull();
+        result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
+        result.ReversedFields.Should().ContainSingle().Which.Should().Be("TNP1");
 
-        _modelMapper.Verify(m => m.Map<CocApprovalDetails>(It.IsAny<object>()), Times.Never);
+        _modelMapper.Verify(m => m.Map<CocApprovalDetails>(request), Times.Once);
+    }
+
+    [Test]
+    public async Task Map_WhenOneFieldRevertsAndAnotherChanges_ReversesOnlyTheRevertedField()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+
+        await _dbContext.CocApprovalItems.AddRangeAsync(
+            new CocApprovalItem
+            {
+                LearningKey = learningKey,
+                Status = CocApprovalItemStatus.Pending,
+                Field = "Firstname",
+                Old = "Ann",
+                New = "Anne"
+            },
+            new CocApprovalItem
+            {
+                LearningKey = learningKey,
+                Status = CocApprovalItemStatus.Pending,
+                Field = "Lastname",
+                Old = "Smith",
+                New = "Jones"
+            });
+        await _dbContext.SaveChangesAsync();
+
+        var request = CreateChangeRequest(
+            learningKey,
+            CreateChangeItem("Firstname", "Anne", "Ann"),
+            CreateChangeItem("Lastname", "Jones", "Joneson"));
+
+        var result = await _sut.Map(request);
+
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
+        result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
+        result.ReversedFields.Should().ContainSingle().Which.Should().Be("Firstname");
+        request.Changes.Should().ContainSingle();
+        request.Changes[0].ChangeType.Should().Be("Lastname");
+        request.Changes[0].Data.Old.Should().Be("Smith");
+        request.Changes[0].Data.New.Should().Be("Joneson");
     }
 
     [Test]

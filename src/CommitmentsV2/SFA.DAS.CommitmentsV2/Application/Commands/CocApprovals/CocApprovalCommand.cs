@@ -5,6 +5,7 @@ public class CocApprovalCommand : IRequest<CocApprovalResult>
     public CocApprovalDetails CocApprovalDetails { get; set; }
     public Guid LearningKey { get; set; }
     public AggregationAction Action { get; set; }
+    public List<string> ReversedFields { get; set; } = [];
 }
 
 public enum AggregationAction
