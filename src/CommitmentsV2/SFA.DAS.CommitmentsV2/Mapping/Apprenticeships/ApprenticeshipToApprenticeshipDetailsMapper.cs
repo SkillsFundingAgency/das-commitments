@@ -30,6 +30,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EndDate = source.EndDate.GetValueOrDefault(),
             PauseDate = source.PauseDate.GetValueOrDefault(),
             StopDate = source.StopDate,
+            AgreedOn = source.AgreedOn ?? source.Cohort.EmployerAndProviderApprovedOn,
             EmployerRef = source.EmployerRef,
             ProviderRef = source.ProviderRef,
             CohortReference = source.Cohort.Reference,

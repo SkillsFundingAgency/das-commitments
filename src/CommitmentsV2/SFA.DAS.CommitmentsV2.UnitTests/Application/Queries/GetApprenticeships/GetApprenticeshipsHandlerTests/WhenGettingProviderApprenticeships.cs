@@ -6,12 +6,47 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.GetApprenticeshipsHandlerTests;
 
 public class WhenGettingProviderApprenticeships
 {
+    [Test, RecursiveMoqAutoData]
+    public async Task ThenPopulatesLearningTypeFromCourse(
+        [Frozen] GetApprenticeshipsQuery query,
+        Mock<IApprenticeshipSearch> search,
+        Mock<ProviderCommitmentsDbContext> mockContext,
+        Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper)
+    {
+        // Arrange
+        var apprenticeship = new Apprenticeship { CourseCode = "LARS-123" };
+        var details = new GetApprenticeshipsQueryResult.ApprenticeshipDetails();
+
+        search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+            .ReturnsAsync(new ApprenticeshipSearchResult
+            {
+                Apprenticeships = [apprenticeship]
+            });
+        mockMapper.Setup(x => x.Map(apprenticeship)).ReturnsAsync(details);
+        mockContext.Setup(x => x.Courses).ReturnsDbSet([
+            new Course { LarsCode = "LARS-123", LearningType = LearningType.FoundationApprenticeship }
+        ]);
+        mockContext.Setup(x => x.LearningChangeHistory).ReturnsDbSet([]);
+
+        var handler = new GetApprenticeshipsQueryHandler(
+            mockMapper.Object,
+            search.Object,
+            new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object));
+
+        // Act
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Apprenticeships.Single().LearningType.Should().Be(LearningType.FoundationApprenticeship);
+    }
+
     [Test, RecursiveMoqAutoData]
     public async Task ThenReturnUnsortedApprenticeshipsWhenNotOrdering(
         List<Apprenticeship> apprenticeships,
@@ -36,6 +71,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsDbSet(new List<Apprenticeship>());
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -80,6 +116,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsDbSet(new List<Apprenticeship>());
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -117,6 +154,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsDbSet(new List<Apprenticeship>());
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -164,6 +202,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsAsync(apprenticeshipDetails);
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -210,6 +249,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsAsync(apprenticeshipDetails);
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -245,6 +285,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsDbSet(apprenticeships);
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -290,6 +331,7 @@ public class WhenGettingProviderApprenticeships
             .ReturnsAsync(apprenticeshipDetails);
 
         mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([new LearningChangeHistory() { UKPRN = query.ProviderId.Value }]);
+        mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
 
         var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
