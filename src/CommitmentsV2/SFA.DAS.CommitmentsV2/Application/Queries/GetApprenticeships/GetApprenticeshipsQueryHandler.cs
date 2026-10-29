@@ -100,8 +100,9 @@ public class GetApprenticeshipsQueryHandler(
                 && courseLearningTypes.TryGetValue(apprenticeship.CourseCode, out var learningType)
                 ? learningType ?? LearningType.Apprenticeship
                 : LearningType.Apprenticeship;
+            
             matchedApprenticeshipDetails.Add(details);
-        }       
+        }
 
         return new GetApprenticeshipsQueryResult
         {
