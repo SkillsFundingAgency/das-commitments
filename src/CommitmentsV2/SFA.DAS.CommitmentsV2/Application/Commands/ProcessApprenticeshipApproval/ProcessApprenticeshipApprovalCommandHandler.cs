@@ -19,8 +19,6 @@ public class ProcessApprenticeshipApprovalCommandHandler(
      IEncodingService encodingService)
     : IRequestHandler<ProcessApprenticeshipApprovalCommand>
 {
-    private readonly PriceScheduleMapper _priceScheduleMapper = new();
-
     public async Task Handle(ProcessApprenticeshipApprovalCommand command, CancellationToken cancellationToken)
     {
         var db = dbContext.Value;
@@ -77,12 +75,12 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
         if (details == null)
         {
-            throw new Exception($"Apprenticeship {apprenticeshipId} not found");
+            throw new NotFoundException($"Apprenticeship {apprenticeshipId} not found");
         }
 
         if (details.ProviderId <= 0 || details.Name is null)
         {
-            throw new Exception($"Cohort details for apprenticeship {apprenticeshipId} not found");
+            throw new NotFoundException($"Cohort details for apprenticeship {apprenticeshipId} not found");
         }
 
         var apprencticeshipIdEncoded = encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId);
@@ -98,8 +96,8 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             return;
         }
 
-        var totalOldValue = _priceScheduleMapper.GetLatestCost(pricesItem.Old) ?? 0;
-        var totalNewValue = _priceScheduleMapper.GetLatestCost(pricesItem.New) ?? 0;
+        var totalOldValue = PriceScheduleMapper.GetLatestCost(pricesItem.Old) ?? 0;
+        var totalNewValue = PriceScheduleMapper.GetLatestCost(pricesItem.New) ?? 0;
 
         await messageSession.Send(new StoreLearningHistoryCommand
         {

@@ -29,7 +29,7 @@ public class UpdateApprovalRequestAlertAcknowledgeCommandHandler(
             }
 
             var acknowledgedIds = (command.ApprovalRequests ?? [])
-                .Where(alert => alert.Acknowledged == true)
+                .Where(alert => alert.Acknowledged)
                 .Select(alert => alert.ApprovalRequestId)
                 .ToList();
 

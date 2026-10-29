@@ -231,7 +231,6 @@ public static class QueryableApprenticeshipsExtensions
             ? apprenticeships
                 .Include(app => app.ApprenticeshipConfirmationStatus)
                 .Include(app => app.Cohort)
-                .Include(app => app.ApprovalRequests).ThenInclude(ar => ar.Items)
                 .Include(app => app.CocApprovalItems)
                 .Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId)
             : apprenticeships;

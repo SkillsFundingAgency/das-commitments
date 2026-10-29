@@ -200,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingLearnerC
                 return this;
             }
 
-            private CocApprovalItem CreateFieldRow(Apprenticeship apprenticeship, CocApprovalItemStatus status, string field)
+            private static CocApprovalItem CreateFieldRow(Apprenticeship apprenticeship, CocApprovalItemStatus status, string field)
             {
                 return new CocApprovalItem
                 {

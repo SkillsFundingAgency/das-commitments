@@ -58,7 +58,7 @@ public class PriceScheduleMapper
         return leftEpisodes.SequenceEqual(rightEpisodes, PriceScheduleEpisodeComparer.Instance);
     }
 
-    public decimal? GetLatestCost(string scheduleJson)
+    public static decimal? GetLatestCost(string scheduleJson)
     {
         if (string.IsNullOrWhiteSpace(scheduleJson))
         {

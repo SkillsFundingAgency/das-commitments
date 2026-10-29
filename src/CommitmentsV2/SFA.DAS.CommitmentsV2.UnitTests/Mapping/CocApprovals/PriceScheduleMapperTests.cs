@@ -172,13 +172,13 @@ public class PriceScheduleMapperTests
             new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 300 }
         });
 
-        _mapper.GetLatestCost(schedule).Should().Be(1500m);
+        PriceScheduleMapper.GetLatestCost(schedule).Should().Be(1500m);
     }
 
     [Test]
     public void GetLatestCost_ReturnsNullForUnreadableJson()
     {
-        _mapper.GetLatestCost("not-json").Should().BeNull();
+        PriceScheduleMapper.GetLatestCost("not-json").Should().BeNull();
     }
 
     [Test]
