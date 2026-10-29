@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocApprovalStatusService(
         IOverlapCheckService overlapCheckService,
-        IPlannedStartDateValidationRules plannedStartDateValidationRules,
+        ICocApprovalStartDateValidationRules cocApprovalStartDateValidationRules,
         IAcademicYearDateProvider academicYearDateProvider,
         ILogger<CocApprovalStatusService> logger)
     : ICocApprovalStatusService
@@ -59,7 +59,7 @@ public class CocApprovalStatusService(
         if (updates.PlannedStartDate != null)
         {
             logger.LogInformation("Change of PlannedStartDate detected");
-            updateResults.Add(await DetermineApprovalStatusesForPlannedStartDateFieldAsync(updates, apprenticeship, course));
+            updateResults.Add(await DetermineApprovalStatusesForCocApprovalStartDateField(updates, apprenticeship, course));
         }
 
         if (updates.TNP1 != null || updates.TNP2 != null)
@@ -172,38 +172,41 @@ public class CocApprovalStatusService(
         return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
     }
 
-    private async Task<CocUpdateResult> DetermineApprovalStatusesForPlannedStartDateFieldAsync(CocUpdates updates, Apprenticeship apprenticeship, Course course)
+    private async Task<CocUpdateResult> DetermineApprovalStatusesForCocApprovalStartDateField(CocUpdates updates, Apprenticeship apprenticeship, Course course)
     {
-        var plannedStartDateNew = updates.PlannedStartDate.New ?? DateTime.MinValue;
-        var reservationValidationResult = await plannedStartDateValidationRules.IsPlannedStartDateValidForReservationAsync(plannedStartDateNew, apprenticeship);
+        // Validation is on PlannedStartDate (or StartDate), which is the 1st of the month (01-MM-YYYY) derived from the ActualStartDate coming from ILR.
+        // The only exception is when we are comparing for the Course - LARS EffectiveFrom and EffectiveTo dates, which are based on the ActualStartDate (DD-MM-YYYY) coming from ILR. 
+        var startDateNew = updates.PlannedStartDate.New.HasValue ? new DateTime(updates.PlannedStartDate.New.Value.Year, updates.PlannedStartDate.New.Value.Month, 1) : DateTime.MinValue;
+        var actualStartDateNew = updates.PlannedStartDate?.New ?? DateTime.MinValue;
+        var reservationValidationResult = await cocApprovalStartDateValidationRules.IsStartDateValidForReservationAsync(startDateNew, apprenticeship);
 
-        if (plannedStartDateValidationRules.IsPlannedStartDateBeforeAbsoluteMinimum(plannedStartDateNew))
+        if (cocApprovalStartDateValidationRules.IsStartDateBeforeAbsoluteMinimum(startDateNew))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The start date must not be earlier than May 2017" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateAfterMaximum(plannedStartDateNew))
+        else if (cocApprovalStartDateValidationRules.IsStartDateAfterMaximum(startDateNew))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The start date must be no later than one year after the end of the current teaching year" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeFundingWindowHasClosed(plannedStartDateNew))
+        else if (cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(startDateNew))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The earliest start date you can use is {academicYearDateProvider.CurrentAcademicYearStartDate.ToGdsFormatShortMonthWithoutDay()}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeLarsEffectiveFrom(plannedStartDateNew, course))
+        else if (cocApprovalStartDateValidationRules.IsActualStartDateBeforeLarsEffectiveFrom(actualStartDateNew, course))
         {
             var previousMonth = course?.EffectiveFrom?.AddMonths(-1);
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date after {previousMonth?.Month} {previousMonth?.Year}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateAfterLarsEffectiveTo(plannedStartDateNew, course))
+        else if (cocApprovalStartDateValidationRules.IsActualStartDateAfterLarsEffectiveTo(actualStartDateNew, course))
         {
             var nextMonth = course?.EffectiveTo?.AddMonths(1);
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"This training course is only available to learners with a start date before {nextMonth?.Month} {nextMonth?.Year}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateBeforeTransferFundedDate(plannedStartDateNew, apprenticeship.Cohort))
+        else if (cocApprovalStartDateValidationRules.IsStartDateBeforeTransferFundedDate(startDateNew, apprenticeship.Cohort))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "Learners funded through a transfer can't start earlier than May 2018" };
         }
-        else if (await plannedStartDateValidationRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDateNew, apprenticeship))
+        else if (await cocApprovalStartDateValidationRules.IsStartDateOverlappingWithUlnDateRangeAsync(startDateNew, apprenticeship))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "Learners overlapping dates and therefore cant start" };
         }
@@ -211,19 +214,19 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"{reservationValidationResult.ValidationErrors?.FirstOrDefault()?.Reason}" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateLessThanMinAge(plannedStartDateNew, apprenticeship.DateOfBirth))
+        else if (cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDateNew, apprenticeship.DateOfBirth))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAge(plannedStartDateNew, apprenticeship.DateOfBirth))
+        else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDateNew, apprenticeship.DateOfBirth))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training" };
         }
-        else if (plannedStartDateValidationRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDateNew, apprenticeship, course))
+        else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAgeForLevel7Course(startDateNew, apprenticeship, course))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training" };
         }
-        else if (await plannedStartDateValidationRules.IsThereEmailOverlapForPlannedStartDateAsync(plannedStartDateNew, apprenticeship))
+        else if (await cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDateNew, apprenticeship))
         {
             return new CocUpdateResult { Field = CocChangeField.PlannedStartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "This email address is already used for another apprenticeship in the same training period - use a different email address" };
         }

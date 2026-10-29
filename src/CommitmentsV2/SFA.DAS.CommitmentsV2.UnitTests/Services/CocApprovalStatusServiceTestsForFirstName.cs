@@ -14,7 +14,7 @@ public class CocApprovalStatusServiceTestsForFirstName
     private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
     private Mock<IOverlapCheckService> _overlapCheckServiceMock;
     private Mock<IAcademicYearDateProvider> _academicYearDateProviderMock;
-    private Mock<IPlannedStartDateValidationRules> _plannedStartDateValidationRulesMock;
+    private Mock<ICocApprovalStartDateValidationRules> _cocApprovalStartDateValidationRulesMock;
     private CocApprovalStatusService _service;
 
     [SetUp]
@@ -23,8 +23,8 @@ public class CocApprovalStatusServiceTestsForFirstName
         _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
         _overlapCheckServiceMock = new Mock<IOverlapCheckService>();
         _academicYearDateProviderMock = new Mock<IAcademicYearDateProvider>();
-        _plannedStartDateValidationRulesMock = new Mock<IPlannedStartDateValidationRules>();
-        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _plannedStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
+        _cocApprovalStartDateValidationRulesMock = new Mock<ICocApprovalStartDateValidationRules>();
+        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _cocApprovalStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
     }
 
     [Test]

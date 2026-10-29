@@ -9,14 +9,14 @@ using SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validation.CocApprovals;
 
 [TestFixture]
-public class PlannedStartDateValidationRulesTests
+public class CocApprovalStartDateValidationRulesTests
 {
     private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
     private Mock<IAgeCalculationService> _ageCalculationService;
     private Mock<IOverlapCheckService> _overlapCheckService;
     private Mock<IReservationValidationService> _reservationValidationService;
 
-    private PlannedStartDateValidationRules _plannedStartDateRules;
+    private CocApprovalStartDateValidationRules _cocApprovalStartDateValidationRules;
 
     [SetUp]
     public void Arrange()
@@ -26,7 +26,7 @@ public class PlannedStartDateValidationRulesTests
         _overlapCheckService = new Mock<IOverlapCheckService>();
         _reservationValidationService = new Mock<IReservationValidationService>();
 
-        _plannedStartDateRules = new PlannedStartDateValidationRules(
+        _cocApprovalStartDateValidationRules = new CocApprovalStartDateValidationRules(
             _academicYearDateProvider.Object,
             _ageCalculationService.Object,
             _overlapCheckService.Object,
@@ -34,95 +34,95 @@ public class PlannedStartDateValidationRulesTests
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeAbsoluteMinimum_WhenBeforeMinimum_ReturnsTrue()
+    public void IsStartDateBeforeAbsoluteMinimum_WhenBeforeMinimum_ReturnsTrue()
     {
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeAbsoluteMinimum(Constants.DasStartDate.AddDays(-1));
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeAbsoluteMinimum(Constants.DasStartDate.AddDays(-1));
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeAbsoluteMinimum_WhenOnMinimum_ReturnsFalse()
+    public void IsStartDateBeforeAbsoluteMinimum_WhenOnMinimum_ReturnsFalse()
     {
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeAbsoluteMinimum(Constants.DasStartDate);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeAbsoluteMinimum(Constants.DasStartDate);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public void IsPlannedStartDateAfterMaximum_WhenAfterAcademicYearEndPlusOneYear_ReturnsTrue()
+    public void IsStartDateAfterMaximum_WhenAfterAcademicYearEndPlusOneYear_ReturnsTrue()
     {
         _academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2025, 7, 31));
 
-        var result = _plannedStartDateRules.IsPlannedStartDateAfterMaximum(new DateTime(2026, 8, 1));
+        var result = _cocApprovalStartDateValidationRules.IsStartDateAfterMaximum(new DateTime(2026, 8, 1));
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeFundingWindowHasClosed_WhenPlannedStartDateIsAfterAcademicYearStart_ReturnsFalse()
+    public void IsStartDateBeforeFundingWindowHasClosed_WhenStartDateIsAfterAcademicYearStart_ReturnsFalse()
     {
         var academicYearStartDate = new DateTime(2025, 8, 1);
 
         _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStartDate);
 
-        var plannedStartDate = academicYearStartDate.AddDays(1);
+        var startDate = academicYearStartDate.AddDays(1);
 
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeFundingWindowHasClosed(plannedStartDate);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(startDate);
         result.Should().BeFalse();
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeLarsEffectiveFrom_WhenBeforeEffectiveFrom_ReturnsTrue()
+    public void IsActualStartDateBeforeLarsEffectiveFrom_WhenBeforeEffectiveFrom_ReturnsTrue()
     {
         var course = new Course
         {
             EffectiveFrom = new DateTime(2025, 8, 1)
         };
 
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeLarsEffectiveFrom(new DateTime(2025, 7, 1), course);
+        var result = _cocApprovalStartDateValidationRules.IsActualStartDateBeforeLarsEffectiveFrom(new DateTime(2025, 7, 1), course);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateAfterLarsEffectiveTo_WhenAfterEffectiveTo_ReturnsTrue()
+    public void IsActualStartDateAfterLarsEffectiveTo_WhenAfterEffectiveTo_ReturnsTrue()
     {
         var course = new Course
         {
             EffectiveTo = new DateTime(2025, 7, 31)
         };
 
-        var result = _plannedStartDateRules.IsPlannedStartDateAfterLarsEffectiveTo(new DateTime(2025, 8, 1), course);
+        var result = _cocApprovalStartDateValidationRules.IsActualStartDateAfterLarsEffectiveTo(new DateTime(2025, 8, 1), course);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeTransferFundedDate_WhenTransferFundedAndBeforeFeatureDate_ReturnsTrue()
+    public void IsStartDateBeforeTransferFundedDate_WhenTransferFundedAndBeforeFeatureDate_ReturnsTrue()
     {
         var cohort = new Cohort
         {
             TransferSenderId = 123
         };
 
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeTransferFundedDate(Constants.TransferFeatureStartDate.AddDays(-1), cohort);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeTransferFundedDate(Constants.TransferFeatureStartDate.AddDays(-1), cohort);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateBeforeTransferFundedDate_WhenCohortNull_ReturnsFalse()
+    public void IsStartDateBeforeTransferFundedDate_WhenCohortNull_ReturnsFalse()
     {
-        var result = _plannedStartDateRules.IsPlannedStartDateBeforeTransferFundedDate(DateTime.Today, null);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeTransferFundedDate(DateTime.Today, null);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsPlannedStartDateOverlappingWithUlnDateRangeAsync_WhenOverlapExists_ReturnsTrue()
+    public async Task IsStartDateOverlappingWithUlnDateRangeAsync_WhenOverlapExists_ReturnsTrue()
     {
-        var plannedStartDate = new DateTime(2025, 2, 1);
+        var startDate = new DateTime(2025, 2, 1);
         var apprenticeship = new Apprenticeship
         {
             Uln = "1234567890",
@@ -134,15 +134,15 @@ public class PlannedStartDateValidationRulesTests
         _overlapCheckService.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, CancellationToken.None))
             .ReturnsAsync(new OverlapCheckResult(true, true));
 
-        var result = await _plannedStartDateRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDate, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsStartDateOverlappingWithUlnDateRangeAsync(startDate, apprenticeship);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public async Task IsPlannedStartDateOverlappingWithUlnDateRangeAsync_WhenThereIsNoOverlap_ReturnsFalse()
+    public async Task IsStartDateOverlappingWithUlnDateRangeAsync_WhenThereIsNoOverlap_ReturnsFalse()
     {
-        var plannedStartDate = DateTime.Today;
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             Uln = "1234567890",
@@ -154,42 +154,45 @@ public class PlannedStartDateValidationRulesTests
         _overlapCheckService.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, CancellationToken.None))
             .ReturnsAsync(new OverlapCheckResult(false, false));
 
-        var result = await _plannedStartDateRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDate, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsStartDateOverlappingWithUlnDateRangeAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsPlannedStartDateOverlappingWithUlnDateRangeAsync_WhenDatesMissing_ReturnsFalse()
+    public async Task IsStartDateOverlappingWithUlnDateRangeAsync_WhenDatesMissing_ReturnsFalse()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             StartDate = null,
             EndDate = null
         };
 
-        var result = await _plannedStartDateRules.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsStartDateOverlappingWithUlnDateRangeAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsPlannedStartDateValidForReservationAsync_WhenReservationMissing_ReturnsNull()
+    public async Task IsStartDateValidForReservationAsync_WhenReservationMissing_ReturnsNull()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             ReservationId = null,
             CourseCode = "25"
         };
 
-        var result = await _plannedStartDateRules.IsPlannedStartDateValidForReservationAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsStartDateValidForReservationAsync(startDate, apprenticeship);
 
         result.Should().BeNull();
     }
 
     [Test]
-    public async Task IsPlannedStartDateValidForReservationAsync_WhenReservationExists_ReturnsValidationResult()
+    public async Task IsStartDateValidForReservationAsync_WhenReservationExists_ReturnsValidationResult()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             ReservationId = Guid.NewGuid(),
@@ -200,35 +203,37 @@ public class PlannedStartDateValidationRulesTests
 
         _reservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), CancellationToken.None)).ReturnsAsync(expected);
 
-        var result = await _plannedStartDateRules.IsPlannedStartDateValidForReservationAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsStartDateValidForReservationAsync(startDate, apprenticeship);
 
         result.Should().BeSameAs(expected);
     }
 
     [Test]
-    public void IsPlannedStartDateLessThanMinAge_WhenLearnerBelowMinimumAge_ReturnsTrue()
+    public void IsStartDateLessThanMinAge_WhenLearnerBelowMinimumAge_ReturnsTrue()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         _ageCalculationService.Setup(x => x.WillLearnerBeAtLeastMinAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MinimumAgeAtApprenticeshipStart))
             .Returns(false);
 
-        var result = _plannedStartDateRules.IsPlannedStartDateLessThanMinAge(DateTime.Today, DateTime.Today);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDate, startDate);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateMoreThanMaxAge_WhenLearnerTooOld_ReturnsTrue()
+    public void IsStartDateMoreThanMaxAge_WhenLearnerTooOld_ReturnsTrue()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         _ageCalculationService.Setup(x => x.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MaximumAgeAtApprenticeshipStart))
             .Returns(false);
 
-        var result = _plannedStartDateRules.IsPlannedStartDateMoreThanMaxAge(DateTime.Today, DateTime.Today.AddYears(-100));
+        var result = _cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDate, startDate.AddYears(-100));
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public void IsPlannedStartDateMoreThanMaxAgeForLevel7Course_WhenTooOld_ReturnsTrue()
+    public void IsStartDateMoreThanMaxAgeForLevel7Course_WhenTooOld_ReturnsTrue()
     {
         _ageCalculationService.Setup(x => x.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MaximumAgeAtApprenticeshipStartForLevel7))
             .Returns(false);
@@ -245,15 +250,15 @@ public class PlannedStartDateValidationRulesTests
             Level = "7"
         };
 
-        var result = _plannedStartDateRules.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(Constants.MaxAgeAt25RequiredOn, apprenticeship, course);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAgeForLevel7Course(Constants.MaxAgeAt25RequiredOn, apprenticeship, course);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public async Task IsThereEmailOverlapForPlannedStartDateAsync_WhenOverlapExists_ReturnsTrue()
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenOverlapExists_ReturnsTrue()
     {
-        var plannedStartDate = new DateTime(2026, 1, 2);
+        var startDate = new DateTime(2026, 1, 1);
         var apprenticeship = new Apprenticeship
         {
             Id = 1,
@@ -269,19 +274,47 @@ public class PlannedStartDateValidationRulesTests
         _overlapCheckService.Setup(x => x.CheckForEmailOverlaps(apprenticeship.Email, It.IsAny<CourseDateRange>(), apprenticeship.Id, 99, CancellationToken.None))
             .ReturnsAsync(new EmailOverlapCheckResult(2, OverlapStatus.OverlappingStartDate, true));
 
-        var result = await _plannedStartDateRules.IsThereEmailOverlapForPlannedStartDateAsync(plannedStartDate, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeTrue();
     }
 
-    [Test]
-    public async Task IsThereEmailOverlapForPlannedStartDateAsync_WhenStartDateEqualsPlannedStartDate_ReturnsFalse()
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(null, true)]
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenEmailAddressConfirmed(bool? emailAddressConfirmed, bool expectedResult)
     {
+        var startDate = new DateTime(2026, 1, 1);
         var apprenticeship = new Apprenticeship
         {
             Id = 1,
             Email = "test@test.com",
-            StartDate = DateTime.Today,
+            StartDate = new DateTime(2025, 1, 1),
+            EndDate = new DateTime(2025, 12, 31),
+            Cohort = new Cohort
+            {
+                Id = 99
+            },
+            EmailAddressConfirmed = emailAddressConfirmed
+        };
+
+        _overlapCheckService.Setup(x => x.CheckForEmailOverlaps(apprenticeship.Email, It.IsAny<CourseDateRange>(), apprenticeship.Id, 99, CancellationToken.None))
+            .ReturnsAsync(new EmailOverlapCheckResult(2, OverlapStatus.OverlappingStartDate, true));
+
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
+
+        result.Should().Be(expectedResult);
+    }
+
+    [Test]
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenApprenticeshipStartDateEqualsStartDate_ReturnsFalse()
+    {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var apprenticeship = new Apprenticeship
+        {
+            Id = 1,
+            Email = "test@test.com",
+            StartDate = startDate,
             EndDate = new DateTime(2025, 12, 31),
             Cohort = new Cohort
             {
@@ -289,14 +322,15 @@ public class PlannedStartDateValidationRulesTests
             }
         };
 
-        var result = await _plannedStartDateRules.IsThereEmailOverlapForPlannedStartDateAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsThereEmailOverlapForPlannedStartDateAsync_WhenStartDateIsNull_ReturnsFalse()
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenStartDateIsNull_ReturnsFalse()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             Id = 1,
@@ -309,14 +343,15 @@ public class PlannedStartDateValidationRulesTests
             }
         };
 
-        var result = await _plannedStartDateRules.IsThereEmailOverlapForPlannedStartDateAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsThereEmailOverlapForPlannedStartDateAsync_WhenEndDateIsNull_ReturnsFalse()
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenEndDateIsNull_ReturnsFalse()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             Id = 1,
@@ -329,23 +364,22 @@ public class PlannedStartDateValidationRulesTests
             }
         };
 
-        var result = await _plannedStartDateRules.IsThereEmailOverlapForPlannedStartDateAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 
     [Test]
-    public async Task IsThereEmailOverlapForPlannedStartDateAsync_WhenNoEmail_ReturnsFalse()
+    public async Task IsThereEmailOverlapForStartDateAsync_WhenNoEmail_ReturnsFalse()
     {
+        var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var apprenticeship = new Apprenticeship
         {
             Email = null
         };
 
-        var result = await _plannedStartDateRules.IsThereEmailOverlapForPlannedStartDateAsync(DateTime.Today, apprenticeship);
+        var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
     }
 }
-
-

@@ -9,54 +9,54 @@ using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 
-public class PlannedStartDateValidationRules(
+public class CocApprovalStartDateValidationRules(
     IAcademicYearDateProvider academicYearDateProvider,
     IAgeCalculationService ageCalculationService,
     IOverlapCheckService overlapCheckService,
     IReservationValidationService reservationValidationService) 
-    :IPlannedStartDateValidationRules
+    :ICocApprovalStartDateValidationRules
 {
-    public bool IsPlannedStartDateBeforeAbsoluteMinimum(DateTime plannedStartDate)
+    public bool IsStartDateBeforeAbsoluteMinimum(DateTime startDate)
     {
-        return plannedStartDate < Constants.DasStartDate;
+        return startDate < Constants.DasStartDate;
     }
-    public bool IsPlannedStartDateAfterMaximum(DateTime plannedStartDate)
+    public bool IsStartDateAfterMaximum(DateTime startDate)
     {
-        return plannedStartDate > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1);
-    }
-
-    public bool IsPlannedStartDateBeforeFundingWindowHasClosed(DateTime plannedStartDate)
-    {
-        return (DateTime.UtcNow > academicYearDateProvider.FundingWindowClosedOn) && (plannedStartDate < academicYearDateProvider.CurrentAcademicYearStartDate);
+        return startDate > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1);
     }
 
-    public bool IsPlannedStartDateBeforeLarsEffectiveFrom(DateTime plannedStartDate, Course course)
+    public bool IsStartDateBeforeFundingWindowHasClosed(DateTime startDate)
     {
-        return plannedStartDate < course.EffectiveFrom;
+        return (DateTime.UtcNow > academicYearDateProvider.FundingWindowClosedOn) && (startDate < academicYearDateProvider.CurrentAcademicYearStartDate);
     }
 
-    public bool IsPlannedStartDateAfterLarsEffectiveTo(DateTime plannedStartDate, Course course)
+    public bool IsActualStartDateBeforeLarsEffectiveFrom(DateTime actualStartDate, Course course)
     {
-        return plannedStartDate > course.EffectiveTo;
+        return actualStartDate < course.EffectiveFrom;
     }
 
-    public bool IsPlannedStartDateBeforeTransferFundedDate(DateTime plannedStartDate, Cohort cohort)
+    public bool IsActualStartDateAfterLarsEffectiveTo(DateTime actualStartDate, Course course)
+    {
+        return actualStartDate > course.EffectiveTo;
+    }
+
+    public bool IsStartDateBeforeTransferFundedDate(DateTime startDate, Cohort cohort)
     {
         if (cohort != null)
         {
-            return cohort.TransferSenderId.HasValue && plannedStartDate < Constants.TransferFeatureStartDate;
+            return cohort.TransferSenderId.HasValue && startDate < Constants.TransferFeatureStartDate;
         }
 
         return false;
     }
 
-    public async Task<bool> IsPlannedStartDateOverlappingWithUlnDateRangeAsync(DateTime plannedStartDate, Apprenticeship apprenticeship)
+    public async Task<bool> IsStartDateOverlappingWithUlnDateRangeAsync(DateTime startDate, Apprenticeship apprenticeship)
     {
         if (apprenticeship.EndDate != null)
         {
             var endDate = apprenticeship.EndDate.Value.Date;
 
-            var range = plannedStartDate.To(endDate);
+            var range = startDate.To(endDate);
 
             var overlap = await overlapCheckService.CheckForOverlaps(apprenticeship.Uln, range, apprenticeship.Id, CancellationToken.None);
 
@@ -69,47 +69,48 @@ public class PlannedStartDateValidationRules(
         return false;
     }
 
-    public async Task<ReservationValidationResult> IsPlannedStartDateValidForReservationAsync(DateTime plannedStartDate, Apprenticeship apprenticeship)
+    public async Task<ReservationValidationResult> IsStartDateValidForReservationAsync(DateTime startDate, Apprenticeship apprenticeship)
     {
         if (!apprenticeship.ReservationId.HasValue || string.IsNullOrEmpty(apprenticeship.CourseCode))
         {
             return null;
         }
 
-        var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, plannedStartDate, apprenticeship.CourseCode);
+        var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, startDate, apprenticeship.CourseCode);
 
         var validationResult = await reservationValidationService.Validate(validationRequest, CancellationToken.None);
 
         return validationResult;
     }
 
-    public bool IsPlannedStartDateLessThanMinAge(DateTime plannedStartDate, DateTime? dateOfBirth)
+    public bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth)
     {
-        return !ageCalculationService.WillLearnerBeAtLeastMinAgeAtStartOfTraining(plannedStartDate, dateOfBirth, Constants.MinimumAgeAtApprenticeshipStart);
+        return !ageCalculationService.WillLearnerBeAtLeastMinAgeAtStartOfTraining(startDate, dateOfBirth, Constants.MinimumAgeAtApprenticeshipStart);
     }
 
-    public bool IsPlannedStartDateMoreThanMaxAge(DateTime plannedStartDate, DateTime? dateOfBirth)
+    public bool IsStartDateMoreThanMaxAge(DateTime startDate, DateTime? dateOfBirth)
     {
-        return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(plannedStartDate, dateOfBirth, Constants.MaximumAgeAtApprenticeshipStart);
+        return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(startDate, dateOfBirth, Constants.MaximumAgeAtApprenticeshipStart);
     }
 
-    public bool IsPlannedStartDateMoreThanMaxAgeForLevel7Course(DateTime plannedStartDate, Apprenticeship apprenticeship, Course course)
+    public bool IsStartDateMoreThanMaxAgeForLevel7Course(DateTime startDate, Apprenticeship apprenticeship, Course course)
     {
         if (course.Level == Constants.ApprenticeshipCourseLevel7.ToString()
-            && plannedStartDate >= Constants.MaxAgeAt25RequiredOn
+            && startDate >= Constants.MaxAgeAt25RequiredOn
             && apprenticeship.Continuation == null)
         {
-            return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(plannedStartDate, apprenticeship.DateOfBirth, Constants.MaximumAgeAtApprenticeshipStartForLevel7);
+            return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(startDate, apprenticeship.DateOfBirth, Constants.MaximumAgeAtApprenticeshipStartForLevel7);
         }
 
         return false;
     }
 
-    public async Task<bool> IsThereEmailOverlapForPlannedStartDateAsync(DateTime plannedStartDate, Apprenticeship apprenticeship)
+    public async Task<bool> IsThereEmailOverlapForStartDateAsync(DateTime startDate, Apprenticeship apprenticeship)
     {
         if (!string.IsNullOrWhiteSpace(apprenticeship.Email)
             && apprenticeship.StartDate != null
-            && apprenticeship.StartDate != plannedStartDate)
+            && apprenticeship.StartDate != startDate
+            && apprenticeship.EmailAddressConfirmed != true)
         {
             if (apprenticeship.EndDate == null)
             {
@@ -118,7 +119,7 @@ public class PlannedStartDateValidationRules(
 
             var endDate = apprenticeship.EndDate.Value.Date;
 
-            var range = plannedStartDate.To(endDate);
+            var range = startDate.To(endDate);
 
             var overlap = await overlapCheckService.CheckForEmailOverlaps(apprenticeship.Email, range, apprenticeship.Id, apprenticeship.Cohort?.Id, CancellationToken.None);
 

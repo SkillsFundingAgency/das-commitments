@@ -148,7 +148,7 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddValidationRuleServices(this IServiceCollection services)
     {
-        services.AddTransient<IPlannedStartDateValidationRules, PlannedStartDateValidationRules>();
+        services.AddTransient<ICocApprovalStartDateValidationRules, CocApprovalStartDateValidationRules>();
         return services;
     }
 

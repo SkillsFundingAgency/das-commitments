@@ -11,12 +11,12 @@ using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
-public class CocApprovalStatusServiceTestsForPlannedStartDate
+public class CocApprovalStatusServiceTestsForStartDate
 {
     private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
     private Mock<IOverlapCheckService> _overlapCheckServiceMock;
     private Mock<IAcademicYearDateProvider> _academicYearDateProviderMock;
-    private Mock<IPlannedStartDateValidationRules> _plannedStartDateValidationRulesMock;
+    private Mock<ICocApprovalStartDateValidationRules> _cocApprovalStartDateValidationRulesMock;
     private CocApprovalStatusService _service;
 
     [SetUp]
@@ -25,8 +25,8 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
         _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
         _overlapCheckServiceMock = new Mock<IOverlapCheckService>();
         _academicYearDateProviderMock = new Mock<IAcademicYearDateProvider>();
-        _plannedStartDateValidationRulesMock = new Mock<IPlannedStartDateValidationRules>();
-        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _plannedStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
+        _cocApprovalStartDateValidationRulesMock = new Mock<ICocApprovalStartDateValidationRules>();
+        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _cocApprovalStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
     }
 
     [Test]
@@ -34,7 +34,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2027, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync((ReservationValidationResult)null);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync((ReservationValidationResult)null);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -48,7 +48,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2016, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateBeforeAbsoluteMinimum(plannedStartDate)).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateBeforeAbsoluteMinimum(plannedStartDate)).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -65,7 +65,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2030, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateAfterMaximum(plannedStartDate)).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateAfterMaximum(plannedStartDate)).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -82,7 +82,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
         var plannedStartDate = new DateTime(2024, 1, 1);
         var academicYearStart = new DateTime(2025, 8, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateBeforeFundingWindowHasClosed(plannedStartDate)).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateBeforeFundingWindowHasClosed(plannedStartDate)).Returns(true);
 
         _academicYearDateProviderMock.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStart);
 
@@ -101,7 +101,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
         var plannedStartDate = new DateTime(2025, 1, 1);
         var effectiveFrom = new DateTime(2025, 5, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateBeforeLarsEffectiveFrom(plannedStartDate, It.IsAny<Course>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsActualStartDateBeforeLarsEffectiveFrom(plannedStartDate, It.IsAny<Course>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
         approvalDetails.Course.EffectiveFrom = effectiveFrom;
@@ -119,7 +119,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
         var plannedStartDate = new DateTime(2025, 1, 1);
         var effectiveTo = new DateTime(2025, 5, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateAfterLarsEffectiveTo(plannedStartDate, It.IsAny<Course>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsActualStartDateAfterLarsEffectiveTo(plannedStartDate, It.IsAny<Course>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
         approvalDetails.Course.EffectiveTo = effectiveTo;
@@ -136,7 +136,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2017, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateBeforeTransferFundedDate(plannedStartDate, It.IsAny<Cohort>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateBeforeTransferFundedDate(plannedStartDate, It.IsAny<Cohort>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -152,7 +152,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateOverlappingWithUlnDateRangeAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateOverlappingWithUlnDateRangeAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -173,7 +173,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
             new ReservationValidationError("Property", "Reservation validation failed")
         };
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(new ReservationValidationResult(reservationValidationErrors));
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(new ReservationValidationResult(reservationValidationErrors));
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -189,7 +189,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateLessThanMinAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateLessThanMinAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -205,7 +205,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateMoreThanMaxAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -221,7 +221,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsPlannedStartDateMoreThanMaxAgeForLevel7Course(plannedStartDate, It.IsAny<Apprenticeship>(), It.IsAny<Course>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAgeForLevel7Course(plannedStartDate, It.IsAny<Apprenticeship>(), It.IsAny<Course>())).Returns(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 
@@ -237,7 +237,7 @@ public class CocApprovalStatusServiceTestsForPlannedStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _plannedStartDateValidationRulesMock.Setup(x => x.IsThereEmailOverlapForPlannedStartDateAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsThereEmailOverlapForStartDateAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
 
         var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
 

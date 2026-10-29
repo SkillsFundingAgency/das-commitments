@@ -108,8 +108,8 @@ public class CocApprovalCommandHandler(
     {
         nameof(CocChangeField.Firstname) => "First name",
         nameof(CocChangeField.Lastname) => "Last name",
-        nameof(CocChangeField.PlannedEndDate) => "Planned end date",
         nameof(CocChangeField.PlannedStartDate) => "Planned start date",
+        nameof(CocChangeField.PlannedEndDate) => "Planned end date",
         _ => null
     };
 
