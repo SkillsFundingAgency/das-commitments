@@ -50,7 +50,7 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
             };
         }
 
-        foreach (var change in changes)
+        foreach (var change in changes ?? [])
         {
             if (items.Any(x => x.Field.GetEnumDescription() == change.ChangeType))
             {
@@ -67,10 +67,16 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
 
     private string GetApprovalStatus(CocApprovalItemStatus status)
     {
-        if(status == CocApprovalItemStatus.Pending)
+        if (status == CocApprovalItemStatus.Pending)
         {
             return "EmployerApprovalRequested";
         }
+
+        if (status == CocApprovalItemStatus.Reversal)
+        {
+            return CocApprovalItemStatus.AutoApproved.GetEnumDescription();
+        }
+
         return status.GetEnumDescription();
     }
 }

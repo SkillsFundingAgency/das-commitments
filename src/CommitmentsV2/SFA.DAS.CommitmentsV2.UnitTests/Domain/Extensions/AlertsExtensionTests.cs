@@ -729,7 +729,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                 {
                     new()
                     {
-                        Field = "TNP1",
+                        Field = nameof(CocChangeField.Prices),
                         Status = itemStatus
                     }
                 }

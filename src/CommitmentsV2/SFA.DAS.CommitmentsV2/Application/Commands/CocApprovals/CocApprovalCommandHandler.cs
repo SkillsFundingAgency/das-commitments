@@ -2,10 +2,13 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 
@@ -14,9 +17,15 @@ public class CocApprovalCommandHandler(
     ICocApprovalRulesEngine cocApprovalRules,
     ILogger<CocApprovalCommandHandler> logger,
     IMessageSession messageSession,
-    ICurrentDateTime currentDateTime)
+    ICurrentDateTime currentDateTime,
+    INotifyProviderService notifyProviderService,
+    IEncodingService encodingService)
     : IRequestHandler<CocApprovalCommand, CocApprovalResult>
 {
+    private const string ProviderRequestRejectedNotificationEmailTemplate = "ProviderRequestRejectedNotification";
+
+    private readonly PriceChangeDecider _priceChangeDecider = new(new PriceScheduleMapper());
+
     public async Task<CocApprovalResult> Handle(CocApprovalCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("CocApprovalCommandHandler.Handle called");
@@ -47,10 +56,11 @@ public class CocApprovalCommandHandler(
 
         if (command.Action == AggregationAction.SupersedePrevious)
         {
-            logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
             var replacedFields = command.CocApprovalDetails?.ApprovalFieldChanges?
                 .Select(change => change.ChangeType)
+                .Where(field => field != nameof(CocChangeField.Prices))
                 .ToList();
+            logger.LogInformation("Superseding Previous CocApprovalItems for LearningKey {0}", command.LearningKey);
             await MarkFields(db, command.LearningKey, replacedFields, CocApprovalItemStatus.Superseded);
         }
 
@@ -60,7 +70,6 @@ public class CocApprovalCommandHandler(
         {
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items)
             {
-
                 db.CocApprovalItems.Add(new CocApprovalItem
                 {
                     LearningKey = command.LearningKey,
@@ -71,7 +80,8 @@ public class CocApprovalCommandHandler(
                     Field = approvalFieldRequest.Field,
                     Old = approvalFieldRequest.Old,
                     New = approvalFieldRequest.New,
-                    Status = approvalFieldRequest.Status.Value
+                    Status = approvalFieldRequest.Status.Value,
+                    Reason = approvalFieldRequest.Reason
                 });
 
                 var fieldNameDescription = GetFieldDescription(approvalFieldRequest.Field) ?? approvalFieldRequest.Field;
@@ -86,7 +96,71 @@ public class CocApprovalCommandHandler(
             }
         }
 
+        await ApplyPriceDecision(db, command, approvalState);
+
         return approvalState.ApprovalResult;
+    }
+
+    private async Task ApplyPriceDecision(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalState approvalState)
+    {
+        var decision = _priceChangeDecider.Decide(
+            command.Prices,
+            command.CocApprovalDetails?.Apprenticeship?.PriceHistory,
+            currentDateTime.UtcNow);
+
+        if (decision == null)
+        {
+            return;
+        }
+
+        approvalState.ApprovalResult ??= new CocApprovalResult { Items = [] };
+        approvalState.ApprovalResult.Items ??= [];
+
+        var anotherFieldWasAutoRejected = approvalState.ApprovalResult.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected);
+
+        if (decision.PendingPriceAction == PendingPriceAction.MarkReversal)
+        {
+            await MarkFields(db, command.LearningKey, [nameof(CocChangeField.Prices)], CocApprovalItemStatus.Reversal);
+        }
+        else if (decision.PendingPriceAction == PendingPriceAction.MarkSuperseded)
+        {
+            await MarkFields(db, command.LearningKey, [nameof(CocChangeField.Prices)], CocApprovalItemStatus.Superseded);
+        }
+
+        if (decision.StoreNewRow)
+        {
+            var approvalRequest = approvalState.ApprovalRequest;
+            db.CocApprovalItems.Add(new CocApprovalItem
+            {
+                LearningKey = command.LearningKey,
+                ApprenticeshipId = approvalRequest?.ApprenticeshipId ?? command.CocApprovalDetails.ApprenticeshipId,
+                LearningType = approvalRequest?.LearningType ?? command.CocApprovalDetails.LearningType,
+                UKPRN = approvalRequest?.UKPRN ?? command.CocApprovalDetails.ProviderId.ToString(),
+                ULN = approvalRequest?.ULN ?? command.CocApprovalDetails.ULN,
+                Field = nameof(CocChangeField.Prices),
+                Old = decision.Old,
+                New = decision.New,
+                Status = decision.Status,
+                Reason = decision.Reason
+            });
+        }
+
+        if (decision.Status == CocApprovalItemStatus.AutoRejected)
+        {
+            await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, decision.Reason);
+            if (!anotherFieldWasAutoRejected)
+            {
+                var apprenticeship = encodingService.Encode(command.CocApprovalDetails.ApprenticeshipId, EncodingType.ApprenticeshipId);
+                await notifyProviderService.NotifyProvider(command.CocApprovalDetails.ProviderId, apprenticeship, ProviderRequestRejectedNotificationEmailTemplate);
+            }
+        }
+
+        approvalState.ApprovalResult.Items.Add(new CocUpdateResult
+        {
+            Field = CocChangeField.Prices,
+            Status = decision.Status,
+            Reason = decision.Reason
+        });
     }
 
     private async Task CreateLearningHistoryAsync(CocApprovalDetails details, LearningSourceType learningSourceType, LearningChangeType learningChangeType, string description)
@@ -110,32 +184,25 @@ public class CocApprovalCommandHandler(
         _ => null
     };
 
-    private static async Task MarkPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, Guid learningKey, CocApprovalItemStatus status)
+    private static async Task MarkPendingItemsForLearningKeyAs(ProviderCommitmentsDbContext db, Guid learningKey, CocApprovalItemStatus status, IReadOnlyCollection<string> fields)
     {
         var updated = DateTime.UtcNow;
         var items = await db.CocApprovalItems.Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending).ToListAsync();
 
-        foreach (var item in items)
+        foreach (var item in items.Where(item => fields == null || fields.Contains(item.Field)))
         {
             item.Status = status;
             item.Updated = updated;
         }
     }
 
-    private static async Task MarkFields(ProviderCommitmentsDbContext db, Guid learningKey, IReadOnlyCollection<string> fields, CocApprovalItemStatus status)
+    private static Task MarkFields(ProviderCommitmentsDbContext db, Guid learningKey, IReadOnlyCollection<string> fields, CocApprovalItemStatus status)
     {
         if (fields == null || fields.Count == 0)
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        var updated = DateTime.UtcNow;
-        var items = await db.CocApprovalItems.Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending && fields.Contains(x.Field)).ToListAsync();
-
-        foreach (var item in items)
-        {
-            item.Status = status;
-            item.Updated = updated;
-        }
+        return MarkPendingItemsForLearningKeyAs(db, learningKey, status, fields);
     }
 }

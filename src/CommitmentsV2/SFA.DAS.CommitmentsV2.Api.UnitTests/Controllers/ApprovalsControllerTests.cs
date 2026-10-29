@@ -94,6 +94,42 @@ public class ApprovalsControllerTests
     }
 
     [Test]
+    public async Task CocApprovals_ReturnsAutoApproved_WhenTheStoredPriceStatusIsReversal()
+    {
+        var request = CreateCocApprovalRequest(true);
+        var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
+            .With(x => x.CocApprovalDetails, cocApprovalDetails)
+            .With(x => x.Action, AggregationAction.CreateNew)
+            .Create();
+        var commandResult = new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items =
+            [
+                new CocUpdateResult
+                {
+                    Field = CocChangeField.Prices,
+                    Status = CocApprovalItemStatus.Reversal
+                }
+            ]
+        };
+
+        _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
+        _mediator.Setup(m => m.Send(cocApprovalCommand, It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
+
+        var result = await _controller.PutApprovals(request.LearningKey, request);
+
+        var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
+        jsonResult.Value.Should().BeEquivalentTo(new[]
+        {
+            new { ChangeType = "Prices", ApprovalStatus = "AutoApproved", Reason = (string)null },
+            new { ChangeType = "Firstname", ApprovalStatus = "AutoApproved", Reason = (string)null },
+            new { ChangeType = "Lastname", ApprovalStatus = "AutoApproved", Reason = (string)null }
+        });
+    }
+
+    [Test]
     public async Task CocApprovals_Processes_A_Request_And_Pending_Request_Exists_Then_ReturnsResponseAndDoBAsAutoApproved()
     {
         var request = CreateCocApprovalRequest(false);
