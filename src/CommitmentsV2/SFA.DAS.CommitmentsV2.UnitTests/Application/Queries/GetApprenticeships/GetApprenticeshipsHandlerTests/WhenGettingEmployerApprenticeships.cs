@@ -36,6 +36,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+            mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
+            mockContext.Setup(t => t.CustomProviderPaymentPriorities).ReturnsDbSet([]);
 
             var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -74,6 +76,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+            mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
+            mockContext.Setup(t => t.CustomProviderPaymentPriorities).ReturnsDbSet([]);
 
             var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -112,6 +116,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+            mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
+            mockContext.Setup(t => t.CustomProviderPaymentPriorities).ReturnsDbSet([]);
 
             var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -153,6 +159,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
                 .ReturnsAsync(searchResult);
             mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet([]);
+            mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
+            mockContext.Setup(t => t.CustomProviderPaymentPriorities).ReturnsDbSet([]);
 
             var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 
@@ -195,6 +203,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsAsync(apprenticeshipDetails);
 
             mockContext.Setup(t => t.LearningChangeHistory).ReturnsDbSet(changeHistory);
+            mockContext.Setup(t => t.Courses).ReturnsDbSet([]);
+            mockContext.Setup(t => t.CustomProviderPaymentPriorities).ReturnsDbSet([]);
 
             var lazyContext = new Lazy<ProviderCommitmentsDbContext>(() => mockContext.Object);
 

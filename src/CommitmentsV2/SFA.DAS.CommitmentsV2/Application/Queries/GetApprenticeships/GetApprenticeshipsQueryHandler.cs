@@ -3,6 +3,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Servic
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
@@ -79,11 +80,29 @@ public class GetApprenticeshipsQueryHandler(
             .Select(c => { c.IsProviderSearch = query.ProviderId.HasValue; return c; })
             .ToList();
 
+        var courseCodes = searchResult.Apprenticeships
+            .Where(apprenticeship => !string.IsNullOrEmpty(apprenticeship.CourseCode))
+            .Select(apprenticeship => apprenticeship.CourseCode)
+            .Distinct()
+            .ToList();
+
+        var courseLearningTypes = courseCodes.Count == 0
+            ? new Dictionary<string, LearningType?>()
+            : await dbContext.Value.Courses
+                .AsNoTracking()
+                .Where(course => courseCodes.Contains(course.LarsCode))
+                .ToDictionaryAsync(course => course.LarsCode, course => course.LearningType, cancellationToken);
+
         foreach (var apprenticeship in searchResult.Apprenticeships)
         {
             var details = await mapper.Map(apprenticeship);
+            details.LearningType = !string.IsNullOrEmpty(apprenticeship.CourseCode)
+                && courseLearningTypes.TryGetValue(apprenticeship.CourseCode, out var learningType)
+                ? learningType ?? LearningType.Apprenticeship
+                : LearningType.Apprenticeship;
+            
             matchedApprenticeshipDetails.Add(details);
-        }       
+        }
 
         return new GetApprenticeshipsQueryResult
         {
