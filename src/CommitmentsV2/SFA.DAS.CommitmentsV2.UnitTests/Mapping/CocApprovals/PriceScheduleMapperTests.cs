@@ -164,6 +164,24 @@ public class PriceScheduleMapperTests
     }
 
     [Test]
+    public void GetLatestCost_ReturnsTheCostOfTheLatestEpisode()
+    {
+        var schedule = _mapper.Map(new[]
+        {
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 },
+            new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 300 }
+        });
+
+        PriceScheduleMapper.GetLatestCost(schedule).Should().Be(1500m);
+    }
+
+    [Test]
+    public void GetLatestCost_ReturnsNullForUnreadableJson()
+    {
+        PriceScheduleMapper.GetLatestCost("not-json").Should().BeNull();
+    }
+
+    [Test]
     public void Map_OneHundredHistoryEpisodes_MapsAllOfThem()
     {
         var history = Enumerable.Range(0, Constants.MaximumPriceEpisodes)

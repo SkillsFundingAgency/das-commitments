@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipApproval;
 
@@ -6,16 +7,12 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
 {
     public async Task<GetApprenticeshipApprovalQueryResult> Handle(GetApprenticeshipApprovalQuery request, CancellationToken cancellationToken)
     {
-        var approvalRequest = await dbContext.Value.ApprovalRequests
-            .Include(x => x.Items)
-            .FirstOrDefaultAsync(x => x.Id == request.ApprovalRequestId, cancellationToken);
+        var pendingItems = await dbContext.Value.CocApprovalItems
+            .Where(item => item.ApprenticeshipId == request.ApprenticeshipId && item.Status == CocApprovalItemStatus.Pending)
+            .OrderBy(item => item.Field)
+            .ToListAsync(cancellationToken);
 
-        if (approvalRequest == null)
-        {
-            return null;
-        }
-
-        if (approvalRequest.ApprenticeshipId != request.ApprenticeshipId)
+        if (pendingItems.Count == 0)
         {
             return null;
         }
@@ -24,6 +21,11 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
             .Include(x => x.Cohort).ThenInclude(x => x.Provider)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .FirstOrDefaultAsync(x => x.Id == request.ApprenticeshipId, cancellationToken);
+
+        if (apprenticeship == null)
+        {
+            return null;
+        }
 
         return new GetApprenticeshipApprovalQueryResult
         {
@@ -39,14 +41,14 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
             StartDate = apprenticeship.OriginalStartDate ?? apprenticeship.StartDate,
             CourseCode = apprenticeship.CourseCode,
             CourseName = apprenticeship.CourseName,
-            ApprovalRequestStatus = approvalRequest.Status,
-            ApprovalRequestId = approvalRequest.Id,
-            Items = approvalRequest.Items.Select(i => new GetApprenticeshipApprovalQueryResult.ChangeItem
+            ApprovalRequestStatus = CocApprovalResultStatus.Pending,
+            ApprovalRequestId = pendingItems[0].Id,
+            Items = pendingItems.Select(item => new GetApprenticeshipApprovalQueryResult.ChangeItem
             {
-                FieldName = i.Field,
-                OldValue = i.Old,
-                NewValue = i.New,
-                EffectiveFromDate = i.EffectiveFromDate
+                FieldName = item.Field,
+                OldValue = item.Old,
+                NewValue = item.New,
+                EffectiveFromDate = null
             }).ToList()
         };
     }

@@ -63,6 +63,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
 
         var result = await mapper.Map(source);
 
@@ -87,6 +88,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.ApprenticeshipUpdate.Clear(); // isprovidesearch true
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.OverlappingTrainingDateRequests.Clear();
 
         var result = await mapper.Map(source);
@@ -112,6 +114,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
 
         var result = await mapper.Map(source);
 
@@ -136,6 +139,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
 
         var result = await mapper.Map(source);
 
@@ -160,6 +164,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
 
         var result = await mapper.Map(source);
 
@@ -183,6 +188,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.IsProviderSearch = false;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate.Clear();
         source.OverlappingTrainingDateRequests.Clear();
 
@@ -199,6 +205,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.ApprenticeshipUpdate = null;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.OverlappingTrainingDateRequests = null;
 
         var result = await mapper.Map(source);
@@ -213,6 +220,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.IsProviderSearch = true;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -236,6 +244,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.IsProviderSearch = false; 
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -259,6 +268,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.IsProviderSearch = true;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -282,6 +292,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.IsProviderSearch = false;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate
@@ -305,6 +316,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.ApprenticeshipUpdate = null;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.OverlappingTrainingDateRequests = null;
 
         var result = await mapper.Map(source);
@@ -320,6 +332,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         source.IsProviderSearch = false;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
         source.ApprenticeshipUpdate = null;
         source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
@@ -345,6 +358,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapperTests
         };
         source.IsProviderSearch = false;
         source.ApprovalRequests = new List<ApprovalRequest>();
+        source.CocApprovalItems = new List<CocApprovalItem>();
         source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
         {
             new ApprenticeshipUpdate

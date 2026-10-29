@@ -16,11 +16,11 @@ public class CocDeleteCommandHandler(
         ArgumentNullException.ThrowIfNull(command);
 
         var db = dbContext.Value;
-        var latestApprovalRequest = await db.ApprovalRequests.Where(r => r.LearningKey == command.LearningKey)
-                     .OrderByDescending(r => r.Created)
-                     .FirstOrDefaultAsync(cancellationToken);
+        var fieldRows = await db.CocApprovalItems
+            .Where(item => item.LearningKey == command.LearningKey)
+            .ToListAsync(cancellationToken);
 
-        if (latestApprovalRequest is null)
+        if (fieldRows.Count == 0)
         {
             return new CocDeleteResult
             {
@@ -29,7 +29,8 @@ public class CocDeleteCommandHandler(
             };
         }
 
-        if (latestApprovalRequest.Status != CocApprovalResultStatus.Pending)
+        var pendingRows = fieldRows.Where(item => item.Status == CocApprovalItemStatus.Pending).ToList();
+        if (pendingRows.Count == 0)
         {
             return new CocDeleteResult
             {
@@ -38,10 +39,12 @@ public class CocDeleteCommandHandler(
             };
         }
 
-        latestApprovalRequest.Status = CocApprovalResultStatus.Cancelled;
-        latestApprovalRequest.Updated = DateTime.UtcNow;
-
-        db.ApprovalRequests.Update(latestApprovalRequest);
+        var updated = DateTime.UtcNow;
+        foreach (var pendingRow in pendingRows)
+        {
+            pendingRow.Status = CocApprovalItemStatus.Reversal;
+            pendingRow.Updated = updated;
+        }
 
         return new CocDeleteResult
         {

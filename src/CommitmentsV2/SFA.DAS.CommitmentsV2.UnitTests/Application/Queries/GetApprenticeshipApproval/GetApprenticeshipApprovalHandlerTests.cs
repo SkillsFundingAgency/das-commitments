@@ -25,7 +25,7 @@ public class GetApprenticeshipApprovalHandlerTests
         result.Should().NotBeNull();
         result.ApprenticeshipId.Should().Be(_fixture.ApprenticeshipId);
         result.ApprenticeshipStatus.Should().Be(_fixture.Apprenticeship.GetApprenticeshipStatus(null));
-        result.ApprovalRequestId.Should().Be(_fixture.ApprovalRequestId);
+        result.ApprovalRequestId.Should().Be(_fixture.PendingItems.OrderBy(item => item.Field).First().Id);
         result.AccountLegalEntityId.Should().Be(_fixture.AccountLegalEntityId);
         result.AccountLegalEntityName.Should().Be(_fixture.AccountLegalEntity.Name);
         result.AccountId.Should().Be(_fixture.AccountLegalEntity.AccountId);
@@ -36,8 +36,8 @@ public class GetApprenticeshipApprovalHandlerTests
         result.CourseName.Should().Be(_fixture.Apprenticeship.CourseName);
         result.ProviderName.Should().Be(_fixture.Provider.Name);
         result.UKPRN.Should().Be(_fixture.Provider.UkPrn);
-        result.ApprovalRequestStatus.Should().Be(_fixture.ApprovalRequest.Status);
-        result.Items.Should().HaveCount(_fixture.ApprovalFieldRequests.Count);
+        result.ApprovalRequestStatus.Should().Be(CocApprovalResultStatus.Pending);
+        result.Items.Should().HaveCount(_fixture.PendingItems.Count);
     }
 
     [Test]
@@ -57,13 +57,14 @@ public class GetApprenticeshipApprovalHandlerTests
         var result = await _fixture.Handle();
 
         result.Should().NotBeNull();
-        result.Items.Should().BeEquivalentTo(_fixture.ApprovalFieldRequests
-            .Select(x=> new GetApprenticeshipApprovalQueryResult.ChangeItem {  FieldName = x.Field, NewValue = x.New, OldValue = x.Old, EffectiveFromDate = x.EffectiveFromDate } ));
+        result.Items.Should().BeEquivalentTo(_fixture.PendingItems
+            .Select(x => new GetApprenticeshipApprovalQueryResult.ChangeItem { FieldName = x.Field, NewValue = x.New, OldValue = x.Old, EffectiveFromDate = null }));
     }
 
     [Test]
     public async Task WhenApprovalRequestNotFound_ThenShouldReturn_Null()
     {
+        _fixture.ClearPendingItems();
         _fixture.Request = new GetApprenticeshipApprovalQuery(_fixture.ApprenticeshipId, Guid.NewGuid());
         var result = await _fixture.Handle();
 
@@ -85,8 +86,7 @@ public class GetApprenticeshipApprovalHandlerTests
         public ApprenticeshipStatus ApprenticeshipStatus { get; private set; }
         public Guid ApprovalRequestId { get; private set; } = Guid.NewGuid();
         public long AccountLegalEntityId { get; private set; }
-        public ApprovalRequest ApprovalRequest { get; private set; }
-        public List<ApprovalFieldRequest> ApprovalFieldRequests { get; private set; }
+        public List<CocApprovalItem> PendingItems { get; private set; }
         public Apprenticeship Apprenticeship { get; private set; }
         public Cohort Cohort { get; private set; }
         public Provider Provider { get; private set; }
@@ -205,23 +205,40 @@ public class GetApprenticeshipApprovalHandlerTests
             Course = _autoFixture.Build<Course>().With(c => c.LarsCode, courseCode).Create();
             _db.Courses.Add(Course);
 
-            ApprovalFieldRequests = _autoFixture.Build<ApprovalFieldRequest>()
-                .With(afr => afr.ApprovalRequestId, ApprovalRequestId)
-                .Without(afr => afr.ApprovalRequest)
-                .CreateMany(3).ToList();
-
-            ApprovalRequest = _autoFixture.Build<ApprovalRequest>()
-                .With(ar => ar.Id, ApprovalRequestId)
-                .With(ar => ar.ApprenticeshipId, ApprenticeshipId)
-                .With(ar => ar.Status, CocApprovalResultStatus.Pending)
-                .With(ar => ar.Items, ApprovalFieldRequests)
-                .Without(ar => ar.Apprenticeship)
-                .Create();
-            _db.ApprovalRequests.Add(ApprovalRequest);
+            PendingItems =
+            [
+                CreatePendingItem(ApprovalRequestId, "PlannedEndDate", "2026-01-01", "2026-06-01"),
+                CreatePendingItem(Guid.NewGuid(), "Prices", "{\"trainingPrice\":1000}", "{\"trainingPrice\":2000}")
+            ];
+            _db.CocApprovalItems.AddRange(PendingItems);
+            _db.CocApprovalItems.Add(CreatePendingItem(Guid.NewGuid(), "Firstname", "Ann", "Anne", CocApprovalItemStatus.AutoApproved));
 
             _db.SaveChanges();
 
             return this;
+        }
+
+        public void ClearPendingItems()
+        {
+            _db.CocApprovalItems.RemoveRange(_db.CocApprovalItems);
+            _db.SaveChanges();
+        }
+
+        private CocApprovalItem CreatePendingItem(Guid id, string field, string oldValue, string newValue, CocApprovalItemStatus status = CocApprovalItemStatus.Pending)
+        {
+            return new CocApprovalItem
+            {
+                Id = id,
+                ApprenticeshipId = ApprenticeshipId,
+                Status = status,
+                Field = field,
+                Old = oldValue,
+                New = newValue,
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            };
         }
     }
 }

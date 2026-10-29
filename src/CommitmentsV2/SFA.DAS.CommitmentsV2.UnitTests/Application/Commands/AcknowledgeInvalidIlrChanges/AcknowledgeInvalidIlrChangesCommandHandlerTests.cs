@@ -131,14 +131,14 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
             }, CancellationToken.None);
         }
 
-        public ApprovalRequest GetRequest()
+        public CocApprovalItem GetRequest()
         {
-            return _db.ApprovalRequests.Single(request => request.Id == _requestId);
+            return _db.CocApprovalItems.Single(item => item.Id == _requestId);
         }
 
         public void SetItemStatus(CocApprovalItemStatus itemStatus)
         {
-            var item = _db.ApprovalRequests.Single(request => request.Id == _requestId).Items.Single();
+            var item = _db.CocApprovalItems.Single(fieldRow => fieldRow.Id == _requestId);
             item.Status = itemStatus;
             _db.SaveChanges();
         }
@@ -157,24 +157,33 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
                 PaymentStatus = PaymentStatus.Active
             };
 
-            apprenticeship.ApprovalRequests = new List<ApprovalRequest>
+            _db.CocApprovalItems.Add(new CocApprovalItem
             {
-                new()
-                {
-                    Id = _requestId,
-                    ApprenticeshipId = 1001,
-                    Status = CocApprovalResultStatus.Complete,
-                    Items = new List<ApprovalFieldRequest>
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Field = nameof(CocChangeField.Prices),
-                            Status = CocApprovalItemStatus.AutoRejected
-                        }
-                    }
-                }
-            };
+                Id = _requestId,
+                ApprenticeshipId = 1001,
+                Field = nameof(CocChangeField.Prices),
+                Old = """[{"effectiveFrom":"2024-08-01","cost":1500.0,"trainingPrice":1000.0,"assessmentPrice":500.0}]""",
+                New = """[{"effectiveFrom":"2026-12-01","cost":2100.0,"trainingPrice":1400.0,"assessmentPrice":700.0}]""",
+                Status = CocApprovalItemStatus.AutoRejected,
+                Reason = "The price change includes a date in the future.",
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            });
+            _db.CocApprovalItems.Add(new CocApprovalItem
+            {
+                Id = Guid.NewGuid(),
+                ApprenticeshipId = 1001,
+                Field = "Firstname",
+                Old = "Ann",
+                New = "Anne",
+                Status = CocApprovalItemStatus.Pending,
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            });
 
             _db.Cohorts.Add(cohort);
             _db.Apprenticeships.Add(apprenticeship);

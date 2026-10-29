@@ -135,7 +135,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
                 .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
                 .Include(apprenticeship => apprenticeship.ApprovalRequests)
-                .ThenInclude(request => request.Items);
+                .ThenInclude(request => request.Items)
+                .Include(apprenticeship => apprenticeship.CocApprovalItems);
         }
         else
         {
@@ -154,7 +155,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
                 .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
                 .Include(apprenticeship => apprenticeship.ApprovalRequests)
-                .ThenInclude(request => request.Items);
+                .ThenInclude(request => request.Items)
+                .Include(apprenticeship => apprenticeship.CocApprovalItems);
         }
 
         if (skipCount > 0)
@@ -192,7 +194,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
                 .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
                 .Include(apprenticeship => apprenticeship.ApprovalRequests)
-                .ThenInclude(request => request.Items);
+                .ThenInclude(request => request.Items)
+                .Include(apprenticeship => apprenticeship.CocApprovalItems);
         }
         else
         {
@@ -211,7 +214,8 @@ public class ApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext
                 .Include(apprenticeship => apprenticeship.OverlappingTrainingDateRequests)
                 .Include(apprenticeship => apprenticeship.EmployerVerificationRequest)
                 .Include(apprenticeship => apprenticeship.ApprovalRequests)
-                .ThenInclude(request => request.Items);
+                .ThenInclude(request => request.Items)
+                .Include(apprenticeship => apprenticeship.CocApprovalItems);
         }
 
         if (skipCount > 0)

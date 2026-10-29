@@ -2,7 +2,6 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -27,38 +26,32 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
     [Test]
     public async Task When_HandlingCommand_And_ApprovalRequest_NotFound_Throw_Exception()
     {
-        _fixture.ApprovalRequest = null;
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"No pending changes were found for apprenticeship {_fixture.Command.ApprenticeshipId}");
     }
 
     [Test]
     public async Task When_HandlingCommand_And_ApprovalRequest_Found_But_Wrong_Apprenticeship_Throw_Exception()
     {
-        _fixture.ApprovalRequest.ApprenticeshipId = _fixture.Command.ApprenticeshipId + 1;
+        foreach (var item in _fixture.PendingItems)
+        {
+            item.ApprenticeshipId = _fixture.Command.ApprenticeshipId + 1;
+        }
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} not found for apprenticeship {_fixture.Command.ApprenticeshipId}");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"No pending changes were found for apprenticeship {_fixture.Command.ApprenticeshipId}");
     }
 
     [Test]
     public async Task When_HandlingCommand_And_ApprovalRequest_Found_But_Status_Not_Pending_Throw_Exception()
     {
-        var items = new List<ApprovalFieldRequest>();
-        _fixture.ApprovalRequest.Status = CocApprovalResultStatus.Cancelled;
+        foreach (var item in _fixture.PendingItems)
+        {
+            item.Status = CocApprovalItemStatus.EmployerApproved;
+        }
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"Approval request {_fixture.Command.ApprovalRequestId} is no longer pending. It's status is {_fixture.ApprovalRequest.Status}");
-    }
-
-    [Test]
-    public async Task When_HandlingCommand_And_ApprovalRequest_TNPValues_Exceed_Upper_Limit_Throw_DomainException()
-    {
-        var items = new List<ApprovalFieldRequest>();
-        await _fixture.SeedData();
-        _fixture.ApprovalRequest.Items.First(x => x.Field == "TNP1").New = "100001";
-        var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<DomainException>();
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage($"No pending changes were found for apprenticeship {_fixture.Command.ApprenticeshipId}");
     }
 
     [Test]
@@ -81,16 +74,12 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+        var items = await _fixture.Db.CocApprovalItems.Where(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId).ToListAsync();
 
-        request.Status.Should().Be(CocApprovalResultStatus.Complete);
-        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
-        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
-        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerApproved);
-        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        items.Should().OnlyContain(item => item.Status == CocApprovalItemStatus.EmployerApproved);
 
         _fixture.NotifyProviderService.Verify(x => x.NotifyProvider(
-           _fixture.ApprovalRequest.Apprenticeship.Cohort.ProviderId,
+           _fixture.Apprenticeship.Cohort.ProviderId,
            It.Is<string>(t => t == "encoded-apprenticeship-id"),
            It.Is<string>(t => t == "ProviderLearningChangeApprovedNotification"),
            It.Is<string>(t => t == _fixture.AccountLegalEntity.Name)), Times.Once);
@@ -103,16 +92,12 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        var request = await _fixture.Db.ApprovalRequests.FirstOrDefaultAsync(x => x.Id == _fixture.Command.ApprovalRequestId);
+        var items = await _fixture.Db.CocApprovalItems.Where(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId).ToListAsync();
 
-        request.Status.Should().Be(CocApprovalResultStatus.Complete);
-        request.Items.First().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
-        request.Items.First().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
-        request.Items.Last().Status.Should().Be(CocApprovalItemStatus.EmployerRejected);
-        request.Items.Last().ApproverId.Should().Be(_fixture.Command.UserInfo.UserId);
+        items.Should().OnlyContain(item => item.Status == CocApprovalItemStatus.EmployerRejected);
 
         _fixture.NotifyProviderService.Verify(x => x.NotifyProvider(
-            _fixture.ApprovalRequest.Apprenticeship.Cohort.ProviderId,
+            _fixture.Apprenticeship.Cohort.ProviderId,
             It.Is<string>(t => t == "encoded-apprenticeship-id"),
             It.Is<string>(t => t == "ProviderLearningChangeRejectedNotification"),
             It.Is<string>(t => t == _fixture.AccountLegalEntity.Name)), Times.Once);
@@ -125,12 +110,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
-            x.LearningKey == _fixture.ApprovalRequest.LearningKey &&
-            x.Changes["TrainingPrice"].Old == "1000" &&
-            x.Changes["TrainingPrice"].New == "2000" &&
-            x.Changes["AssessmentPrice"].Old == "100" &&
-            x.Changes["AssessmentPrice"].New == "200"), It.IsAny<PublishOptions>()), Times.Once);
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+            x.LearningKey == _fixture.LearningKey &&
+            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
+            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]
@@ -140,12 +124,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
-            x.LearningKey == _fixture.ApprovalRequest.LearningKey &&
-            x.Changes["TrainingPrice"].Old == "1000" &&
-            x.Changes["TrainingPrice"].New == "2000" &&
-            x.Changes["AssessmentPrice"].Old == "100" &&
-            x.Changes["AssessmentPrice"].New == "200"), It.IsAny<PublishOptions>()), Times.Once);
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+            x.LearningKey == _fixture.LearningKey &&
+            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
+            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture
@@ -153,13 +136,14 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         public ProcessApprenticeshipApprovalCommandHandler Handler;
         public ProcessApprenticeshipApprovalCommand Command;
         public ProviderCommitmentsDbContext Db { get; set; }
-        public ApprovalRequest ApprovalRequest;
-        public List<ApprovalFieldRequest> Items;
+        public List<CocApprovalItem> PendingItems;
+        public Guid LearningKey;
         public Mock<IMessageSession> MessageSession;
         public AccountLegalEntity AccountLegalEntity;
         public Mock<INotifyProviderService> NotifyProviderService;
         public Mock<IEncodingService> EncodingService;
-
+        public string OldPricesJson;
+        public string NewPricesJson;
 
         public Apprenticeship Apprenticeship;
 
@@ -190,33 +174,13 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 NotifyProviderService.Object, EncodingService.Object);
 
             Command = autoFixture.Create<ProcessApprenticeshipApprovalCommand>();
-            Items =
+            LearningKey = Guid.NewGuid();
+            OldPricesJson = Schedule(1100m, 1000m, 100m);
+            NewPricesJson = Schedule(2200m, 2000m, 200m);
+            PendingItems =
             [
-                autoFixture.Build<ApprovalFieldRequest>()
-                    .With(x => x.Id, Guid.NewGuid())
-                    .With(x => x.Field, "TNP1")
-                    .With(x => x.Old, "1000")
-                    .With(x => x.New, "2000")
-                    .Without(x => x.ApprovalRequestId)
-                    .Without(x => x.ApprovalRequest)
-                    .Create(),
-                autoFixture.Build<ApprovalFieldRequest>()
-                    .With(x => x.Id, Guid.NewGuid())
-                    .With(x => x.Field, "TNP2")
-                    .With(x => x.Old, "100")
-                    .With(x => x.New, "200")
-                    .Without(x => x.ApprovalRequestId)
-                    .Without(x => x.ApprovalRequest)
-                    .Create(),
+                CreateItem(nameof(CocChangeField.Prices), OldPricesJson, NewPricesJson)
             ];
-
-            ApprovalRequest = autoFixture.Build<ApprovalRequest>()
-                .With(x => x.Items, Items)
-                .With(x => x.Id, Command.ApprovalRequestId)
-                .With(x => x.ApprenticeshipId, Command.ApprenticeshipId)
-                .With(x => x.Status, CocApprovalResultStatus.Pending)
-                .Without(x => x.Apprenticeship)
-                .Create();
 
             var AccountLegalEntityId = autoFixture.Create<long>();
 
@@ -245,6 +209,7 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 .With(x => x.Id, Command.ApprenticeshipId)
                 .With(x => x.Cohort, Cohort)
                 .With(x => x.CommitmentId, Cohort.Id)
+                .Without(x => x.CocApprovalItems)
                 .Create();
         }
 
@@ -255,13 +220,38 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
 
         public async Task<ProcessApprenticeshipApprovalCommandHandlerTestsFixture> SeedData()
         {
-            if (ApprovalRequest != null)
-            {
-                Db.Apprenticeships.Add(Apprenticeship);
-                Db.ApprovalRequests.Add(ApprovalRequest);
-                await Db.SaveChangesAsync();
-            }
+            Db.Apprenticeships.Add(Apprenticeship);
+            Db.CocApprovalItems.AddRange(PendingItems);
+            await Db.SaveChangesAsync();
             return this;
+        }
+
+        public static string Schedule(decimal cost, decimal trainingPrice = 0m, decimal assessmentPrice = 0m)
+        {
+            if (trainingPrice == 0m && assessmentPrice == 0m)
+            {
+                trainingPrice = cost;
+            }
+
+            return
+                $$"""[{"effectiveFrom":"2024-08-01","cost":{{cost.ToString(System.Globalization.CultureInfo.InvariantCulture)}},"trainingPrice":{{trainingPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)}},"assessmentPrice":{{assessmentPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)}}}]""";
+        }
+
+        private CocApprovalItem CreateItem(string field, string oldValue, string newValue)
+        {
+            return new CocApprovalItem
+            {
+                Id = Guid.NewGuid(),
+                ApprenticeshipId = Command.ApprenticeshipId,
+                LearningKey = LearningKey,
+                Status = CocApprovalItemStatus.Pending,
+                Field = field,
+                Old = oldValue,
+                New = newValue,
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            };
         }
     }
 }
