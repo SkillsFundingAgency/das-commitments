@@ -28,6 +28,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Shared.Services;
+using SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
@@ -118,6 +119,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<ICocApprovalStatusService, CocApprovalStatusService>();
         services.AddTransient<ICocApprovalRulesEngine, CocApprovalRulesEngine>();
         services.AddTransient<INotifyProviderService, NotifyProviderService>();
+        services.AddTransient<IValidationService, ValidationService>();
 
         return services;
     }
