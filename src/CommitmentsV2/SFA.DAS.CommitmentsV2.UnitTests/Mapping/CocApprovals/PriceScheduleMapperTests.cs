@@ -142,7 +142,25 @@ public class PriceScheduleMapperTests
             }
         });
 
-        act.Should().Throw<ArgumentException>();
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("A price episode must include both trainingPrice and assessmentPrice.");
+    }
+
+    [Test]
+    public void Map_SubmittedEpisodeMissingEffectiveFrom_Throws()
+    {
+        var act = () => _mapper.Map(new[]
+        {
+            new PriceRecord
+            {
+                TrainingPrice = 1000,
+                AssessmentPrice = 500,
+                EffectiveFrom = null
+            }
+        });
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("A price episode must include an effectiveFrom date.");
     }
 
     [Test]
