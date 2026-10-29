@@ -60,7 +60,8 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             TrainingCourseVersion = source.TrainingCourseVersion,
             EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
             EmployerVerificationNotes = source.EmployerVerificationNotes,
-            PendingApprovalRequestId = source.PendingApprovalRequestId
+            PendingApprovalRequestId = source.PendingApprovalRequestId,
+            FreezedDate = source.FreezedDate
         };
     }
 }
