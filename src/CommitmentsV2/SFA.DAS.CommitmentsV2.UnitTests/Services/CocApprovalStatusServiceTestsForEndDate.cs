@@ -115,7 +115,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenApprenticeshipIsStopped()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsStopped()
     {
         var updates = new CocUpdates
         {
@@ -131,9 +131,9 @@ public class CocApprovalStatusServiceTestsForEndDate
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
         results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date cannot be changed on a stopped record");
+        results[0].Reason.Should().Be(null);
     }
 
     [Test]
