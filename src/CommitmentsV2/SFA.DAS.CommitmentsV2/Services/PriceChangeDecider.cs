@@ -19,7 +19,7 @@ public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
         var oldJson = priceScheduleMapper.Map(history);
         var newJson = priceScheduleMapper.Map(prices);
 
-        if (prices.Any(price => price.EffectiveFrom.Date > utcToday.Date))
+        if (prices.Any(price => price.EffectiveFrom?.Date > utcToday.Date))
         {
             return new PriceChangeDecision
             {

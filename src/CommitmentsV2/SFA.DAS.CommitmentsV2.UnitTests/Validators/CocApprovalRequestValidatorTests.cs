@@ -242,6 +242,22 @@ public class CocApprovalRequestValidatorTests
     }
 
     [Test]
+    public void Validate_Prices_ShouldRejectAnEpisodeMissingEffectiveFrom()
+    {
+        var request = CreateValidRequest();
+        request.Prices =
+        [
+            new PriceRecord { EffectiveFrom = null, TrainingPrice = 1000, AssessmentPrice = 500 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        error.ErrorMessage.Should().Be("A price episode must include an effectiveFrom date.");
+    }
+
+    [Test]
     public void Validate_ApprovedUri_ShouldRejectWhenLengthExceedsMaximum()
     {
         var tooLong = "https://" + new string('a', ApprovedUriValidation.MaxLength + 1);

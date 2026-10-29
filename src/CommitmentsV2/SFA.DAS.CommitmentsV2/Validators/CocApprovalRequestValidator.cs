@@ -40,5 +40,9 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
             .Must(prices => prices == null || prices.All(price => price != null && price.TrainingPrice != null && price.AssessmentPrice != null))
             .WithMessage("A price episode must include both trainingPrice and assessmentPrice.")
             .OverridePropertyName("prices");
+        RuleFor(x => x.Prices)
+            .Must(prices => prices == null || prices.All(price => price != null && price.EffectiveFrom != null))
+            .WithMessage("A price episode must include an effectiveFrom date.")
+            .OverridePropertyName("prices");
     }
 }

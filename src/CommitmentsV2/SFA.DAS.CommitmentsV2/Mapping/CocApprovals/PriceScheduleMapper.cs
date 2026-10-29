@@ -83,9 +83,14 @@ public class PriceScheduleMapper
                 throw new ArgumentException("A price episode must include both trainingPrice and assessmentPrice.");
             }
 
+            if (priceRecord.EffectiveFrom == null)
+            {
+                throw new ArgumentException("A price episode must include an effectiveFrom date.");
+            }
+
             episodes.Add(new PriceScheduleEpisode
             {
-                EffectiveFrom = FormatDate(priceRecord.EffectiveFrom),
+                EffectiveFrom = FormatDate(priceRecord.EffectiveFrom.Value),
                 Cost = priceRecord.TrainingPrice.Value + priceRecord.AssessmentPrice.Value,
                 TrainingPrice = priceRecord.TrainingPrice,
                 AssessmentPrice = priceRecord.AssessmentPrice

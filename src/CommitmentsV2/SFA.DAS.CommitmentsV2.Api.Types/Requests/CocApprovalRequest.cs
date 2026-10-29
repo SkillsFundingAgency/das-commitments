@@ -19,7 +19,7 @@ public class PriceRecord
 {
     public decimal? TrainingPrice { get; set; }
     public decimal? AssessmentPrice { get; set; }
-    public DateTime EffectiveFrom { get; set; }
+    public DateTime? EffectiveFrom { get; set; }
 }
 
 public class CocApprovalFieldChange
