@@ -44,5 +44,29 @@ public class CocApprovalRequestValidator : AbstractValidator<CocApprovalRequest>
             .Must(prices => prices == null || prices.All(price => price != null && price.EffectiveFrom != null))
             .WithMessage("A price episode must include an effectiveFrom date.")
             .OverridePropertyName("prices");
+        RuleFor(x => x.Prices)
+            .Must(LatestEpisodeTotalDoesNotExceedMaximum)
+            .WithMessage("The total cost must be £100,000 or less")
+            .OverridePropertyName("prices");
+    }
+
+    private static bool LatestEpisodeTotalDoesNotExceedMaximum(List<PriceRecord> prices)
+    {
+        if (prices == null || prices.Count == 0)
+        {
+            return true;
+        }
+
+        var latest = prices
+            .Where(price => price?.EffectiveFrom != null && price.TrainingPrice != null && price.AssessmentPrice != null)
+            .OrderByDescending(price => price.EffectiveFrom)
+            .FirstOrDefault();
+
+        if (latest == null)
+        {
+            return true;
+        }
+
+        return latest.TrainingPrice.Value + latest.AssessmentPrice.Value <= Constants.MaximumApprenticeshipCost;
     }
 }

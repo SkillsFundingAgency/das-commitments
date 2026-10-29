@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -19,6 +19,8 @@ public class ProcessApprenticeshipApprovalCommandHandler(
      IEncodingService encodingService)
     : IRequestHandler<ProcessApprenticeshipApprovalCommand>
 {
+    private readonly PriceScheduleMapper _priceScheduleMapper = new();
+
     public async Task Handle(ProcessApprenticeshipApprovalCommand command, CancellationToken cancellationToken)
     {
         var db = dbContext.Value;
@@ -30,11 +32,6 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         if (pendingItems.Count == 0)
         {
             throw new NotFoundException($"No pending changes were found for apprenticeship {command.ApprenticeshipId}");
-        }
-
-        if (TotalPriceExceedsLimit(pendingItems))
-        {
-            throw new DomainException("ApproveChanges", "The total cost must be £100,000 or less");
         }
 
         var decision = command.ApplyChanges ? CocApprovalItemStatus.EmployerApproved : CocApprovalItemStatus.EmployerRejected;
@@ -95,44 +92,30 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private async Task RecordCocUpdatesInLearnerHistory(long apprenticeshipId, ICollection<CocApprovalItem> items, UserInfo userInfo, bool applyChanges)
     {
-        if (items.Any(x => x.Field == "TNP1" || x.Field == "TNP2"))
+        var pricesItem = items.FirstOrDefault(item => item.Field == nameof(CocChangeField.Prices));
+        if (pricesItem == null)
         {
-            var totalOldValues = SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.Old).ToList());
-            var totalNewValues = SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList());
-
-            await messageSession.Send(new StoreLearningHistoryCommand
-            {
-                ApprenticeshipId = apprenticeshipId,
-                Source = LearningSourceType.ApprovalAPI,
-                ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
-                AppliedDate = DateTime.UtcNow,
-                Description = $"Total price change from {ToCurrency(totalOldValues)} to {ToCurrency(totalNewValues)}",
-                UserId = GetUserId(userInfo)
-            });
+            return;
         }
+
+        var totalOldValue = _priceScheduleMapper.GetLatestCost(pricesItem.Old) ?? 0;
+        var totalNewValue = _priceScheduleMapper.GetLatestCost(pricesItem.New) ?? 0;
+
+        await messageSession.Send(new StoreLearningHistoryCommand
+        {
+            ApprenticeshipId = apprenticeshipId,
+            Source = LearningSourceType.ApprovalAPI,
+            ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
+            AppliedDate = DateTime.UtcNow,
+            Description = $"Total price change from {ToCurrency(totalOldValue)} to {ToCurrency(totalNewValue)}",
+            UserId = GetUserId(userInfo)
+        });
     }
 
-    private bool TotalPriceExceedsLimit(ICollection<CocApprovalItem> items)
-    {
-        return SumStringList(items.Where(x => x.Field == "TNP1" || x.Field == "TNP2").Select(x => x.New).ToList()) > 100000;
-    }
-
-    public static string ToCurrency(int input)
+    public static string ToCurrency(decimal input)
     {
         var culture = new CultureInfo("en-GB");
         return input.ToString("C0", culture);
-    }
-
-    private int SumStringList(List<string> list)
-    {
-        int total = 0;
-
-        foreach (var s in list)
-        {
-            if (int.TryParse(s, out int value))
-                total += value;
-        }
-        return total;
     }
 
     private static Guid? GetUserId(UserInfo userInfo)
@@ -145,12 +128,12 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         return null;
     }
 
-    private Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<CocApprovalItem> items)
+    private static Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<CocApprovalItem> items)
     {
         var changes = new Dictionary<string, LearningChangeEvent.Change>();
         foreach (var item in items)
         {
-            changes[MapToLearningFieldName(item.Field)] = new LearningChangeEvent.Change
+            changes[item.Field] = new LearningChangeEvent.Change
             {
                 Old = item.Old,
                 New = item.New,
@@ -158,15 +141,5 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             };
         }
         return changes;
-    }
-
-    private string MapToLearningFieldName(string fieldName)
-    {
-        return fieldName switch
-        {
-            "TNP1" => "TrainingPrice",
-            "TNP2" => "AssessmentPrice",
-            _ => fieldName
-        };
     }
 }

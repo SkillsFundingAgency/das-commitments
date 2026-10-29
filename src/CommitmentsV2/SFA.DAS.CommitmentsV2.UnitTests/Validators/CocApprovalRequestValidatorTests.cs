@@ -82,7 +82,7 @@ public class CocApprovalRequestValidatorTests
         {
             var changes = new List<CocApprovalFieldChange>
             {
-                new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "NewValue", Old = "OldValue" } }
+                new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "Anne", Old = "Ann" } }
             };
             var request = new CocApprovalRequest { Changes = changes };
 
@@ -94,8 +94,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "NewValue", Old = "OldValue" } },
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Anne", Old = "Ann" } },
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Annie", Old = "Anne" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -107,8 +107,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
-            new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = null },
+            new CocApprovalFieldChange { ChangeType = "Lastname", Data = new CocData { New = "Jones", Old = "Smith" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -120,8 +120,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
-            new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "Value2", Old = "Value2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = null },
+            new CocApprovalFieldChange { ChangeType = "Lastname", Data = new CocData { New = "Smith", Old = "Smith" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -258,6 +258,38 @@ public class CocApprovalRequestValidatorTests
     }
 
     [Test]
+    public void Validate_Prices_ShouldRejectWhenLatestEpisodeTotalExceedsMaximum()
+    {
+        var request = CreateValidRequest();
+        request.Prices =
+        [
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 1000, AssessmentPrice = 500 },
+            new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 90000, AssessmentPrice = 10001 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        error.ErrorMessage.Should().Be("The total cost must be £100,000 or less");
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldAllowWhenLatestEpisodeTotalEqualsMaximum()
+    {
+        var request = CreateValidRequest();
+        request.Prices =
+        [
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 200000, AssessmentPrice = 1 },
+            new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 60000, AssessmentPrice = 40000 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Test]
     public void Validate_ApprovedUri_ShouldRejectWhenLengthExceedsMaximum()
     {
         var tooLong = "https://" + new string('a', ApprovedUriValidation.MaxLength + 1);
@@ -299,7 +331,7 @@ public class CocApprovalRequestValidatorTests
             LearningType = "Apprenticeship",
             Changes =
             [
-                new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "1", Old = "2" } }
+                new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Anne", Old = "Ann" } }
             ]
         };
     }

@@ -2,7 +2,6 @@
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApproval;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -53,15 +52,6 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         var act = async () => await _fixture.Handle();
         await act.Should().ThrowAsync<NotFoundException>().WithMessage($"No pending changes were found for apprenticeship {_fixture.Command.ApprenticeshipId}");
-    }
-
-    [Test]
-    public async Task When_HandlingCommand_And_ApprovalRequest_TNPValues_Exceed_Upper_Limit_Throw_DomainException()
-    {
-        await _fixture.SeedData();
-        _fixture.PendingItems.First(x => x.Field == "TNP1").New = "100001";
-        var act = async () => await _fixture.Handle();
-        await act.Should().ThrowAsync<DomainException>();
     }
 
     [Test]
@@ -120,12 +110,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes["TrainingPrice"].Old == "1000" &&
-            x.Changes["TrainingPrice"].New == "2000" &&
-            x.Changes["AssessmentPrice"].Old == "100" &&
-            x.Changes["AssessmentPrice"].New == "200"), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
+            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]
@@ -135,12 +124,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         await _fixture.SeedData();
         await _fixture.Handle();
 
-        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes["TrainingPrice"].Old == "1000" &&
-            x.Changes["TrainingPrice"].New == "2000" &&
-            x.Changes["AssessmentPrice"].Old == "100" &&
-            x.Changes["AssessmentPrice"].New == "200"), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
+            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture
@@ -154,7 +142,8 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         public AccountLegalEntity AccountLegalEntity;
         public Mock<INotifyProviderService> NotifyProviderService;
         public Mock<IEncodingService> EncodingService;
-
+        public string OldPricesJson;
+        public string NewPricesJson;
 
         public Apprenticeship Apprenticeship;
 
@@ -186,10 +175,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
 
             Command = autoFixture.Create<ProcessApprenticeshipApprovalCommand>();
             LearningKey = Guid.NewGuid();
+            OldPricesJson = Schedule(1100m, 1000m, 100m);
+            NewPricesJson = Schedule(2200m, 2000m, 200m);
             PendingItems =
             [
-                CreateItem("TNP1", "1000", "2000"),
-                CreateItem("TNP2", "100", "200")
+                CreateItem(nameof(CocChangeField.Prices), OldPricesJson, NewPricesJson)
             ];
 
             var AccountLegalEntityId = autoFixture.Create<long>();
@@ -234,6 +224,17 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             Db.CocApprovalItems.AddRange(PendingItems);
             await Db.SaveChangesAsync();
             return this;
+        }
+
+        public static string Schedule(decimal cost, decimal trainingPrice = 0m, decimal assessmentPrice = 0m)
+        {
+            if (trainingPrice == 0m && assessmentPrice == 0m)
+            {
+                trainingPrice = cost;
+            }
+
+            return
+                $$"""[{"effectiveFrom":"2024-08-01","cost":{{cost.ToString(System.Globalization.CultureInfo.InvariantCulture)}},"trainingPrice":{{trainingPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)}},"assessmentPrice":{{assessmentPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)}}}]""";
         }
 
         private CocApprovalItem CreateItem(string field, string oldValue, string newValue)

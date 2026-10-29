@@ -1,6 +1,7 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetInvalidIlrChanges;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 
@@ -35,10 +36,10 @@ public class GetInvalidIlrChangesQueryHandlerTests
         result.RequestSets[0].ApprovalRequestId.Should().Be(_fixture.UnacknowledgedRequestId);
         result.RequestSets[0].Decision.Should().Be("Auto rejected");
         result.RequestSets[0].Fields.Should().ContainSingle(field =>
-            field.Field == "TNP1" &&
-            field.Old == "1000" &&
-            field.New == "0" &&
-            field.Reason == "Price is zero");
+            field.Field == nameof(CocChangeField.Prices) &&
+            field.Old == _fixture.OldPricesJson &&
+            field.New == _fixture.NewPricesJson &&
+            field.Reason == PriceChangeDecider.FuturePriceReason);
     }
 
     [Test]
@@ -59,7 +60,10 @@ public class GetInvalidIlrChangesQueryHandlerTests
         result.RequestSets.Should().ContainSingle(set =>
             set.ApprovalRequestId == _fixture.EmployerRejectedRequestId &&
             set.Decision == "Declined" &&
-            set.Fields.Any(field => field.Field == "TNP1" && field.Old == "7268" && field.New == "8268"));
+            set.Fields.Any(field =>
+                field.Field == nameof(CocChangeField.Prices) &&
+                field.Old == _fixture.OldPricesJson &&
+                field.New == _fixture.EmployerRejectedPricesJson));
         result.RequestSets.Should().NotContain(set => set.ApprovalRequestId == _fixture.UnacknowledgedRequestId);
     }
 
@@ -97,6 +101,12 @@ public class GetInvalidIlrChangesQueryHandlerTests
         public Guid AcknowledgedRequestId { get; } = Guid.NewGuid();
         public Guid PendingRequestId { get; } = Guid.NewGuid();
         public Guid EmployerRejectedRequestId { get; } = Guid.NewGuid();
+        public string OldPricesJson { get; } =
+            """[{"effectiveFrom":"2024-08-01","cost":1500.0,"trainingPrice":1000.0,"assessmentPrice":500.0}]""";
+        public string NewPricesJson { get; } =
+            """[{"effectiveFrom":"2026-12-01","cost":2100.0,"trainingPrice":1400.0,"assessmentPrice":700.0}]""";
+        public string EmployerRejectedPricesJson { get; } =
+            """[{"effectiveFrom":"2025-09-01","cost":2100.0,"trainingPrice":1400.0,"assessmentPrice":700.0}]""";
 
         public GetInvalidIlrChangesQueryHandlerTestsFixture()
         {
@@ -140,10 +150,10 @@ public class GetInvalidIlrChangesQueryHandlerTests
             };
 
             _db.CocApprovalItems.AddRange(
-                CreateFieldRow(UnacknowledgedRequestId, null, CocApprovalItemStatus.AutoRejected, "Price is zero"),
-                CreateFieldRow(AcknowledgedRequestId, DateTime.UtcNow, CocApprovalItemStatus.AutoRejected, "Already seen"),
-                CreateFieldRow(PendingRequestId, null, CocApprovalItemStatus.Pending, "Waiting"),
-                CreateFieldRow(EmployerRejectedRequestId, null, CocApprovalItemStatus.EmployerRejected, "Employer declined", "7268", "8268"));
+                CreateFieldRow(UnacknowledgedRequestId, null, CocApprovalItemStatus.AutoRejected, PriceChangeDecider.FuturePriceReason, OldPricesJson, NewPricesJson),
+                CreateFieldRow(AcknowledgedRequestId, DateTime.UtcNow, CocApprovalItemStatus.AutoRejected, "Already seen", OldPricesJson, NewPricesJson),
+                CreateFieldRow(PendingRequestId, null, CocApprovalItemStatus.Pending, "Waiting", OldPricesJson, NewPricesJson),
+                CreateFieldRow(EmployerRejectedRequestId, null, CocApprovalItemStatus.EmployerRejected, "Employer declined", OldPricesJson, EmployerRejectedPricesJson));
 
             _db.Cohorts.Add(cohort);
             _db.Apprenticeships.Add(apprenticeship);
@@ -155,8 +165,8 @@ public class GetInvalidIlrChangesQueryHandlerTests
             DateTime? acknowledgedAt,
             CocApprovalItemStatus itemStatus,
             string reason,
-            string oldValue = "1000",
-            string newValue = "0")
+            string oldValue,
+            string newValue)
         {
             return new CocApprovalItem
             {
@@ -164,7 +174,7 @@ public class GetInvalidIlrChangesQueryHandlerTests
                 ApprenticeshipId = 1001,
                 ProviderAcknowledgedAt = acknowledgedAt,
                 ProviderAcknowledgedBy = acknowledgedAt == null ? null : "user-1",
-                Field = "TNP1",
+                Field = nameof(CocChangeField.Prices),
                 Old = oldValue,
                 New = newValue,
                 Status = itemStatus,

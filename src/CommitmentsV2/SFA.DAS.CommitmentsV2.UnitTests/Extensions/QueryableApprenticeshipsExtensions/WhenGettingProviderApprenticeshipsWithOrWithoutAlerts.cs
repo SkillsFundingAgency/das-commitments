@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                     {
                         new CocApprovalItem
                         {
-                            Field = "TNP1",
+                            Field = nameof(CocChangeField.Prices),
                             Status = CocApprovalItemStatus.AutoRejected
                         }
                     }

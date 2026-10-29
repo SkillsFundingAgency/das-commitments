@@ -117,11 +117,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     {
                         new CocApprovalFieldChange
                         {
-                            ChangeType = "TNP1",
+                            ChangeType = "Firstname",
                             Data = new CocData
                             {
-                                Old = "10",
-                                New = "20",
+                                Old = "Ann",
+                                New = "Anne",
                             }
                         }
                     }
@@ -159,11 +159,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     {
                         new CocApprovalFieldChange
                         {
-                            ChangeType = "TNP1",
+                            ChangeType = "Firstname",
                             Data = new CocData
                             {
-                                Old = "10",
-                                New = "20",
+                                Old = "Ann",
+                                New = "Anne",
                             }
                         }
                     }
@@ -201,11 +201,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     {
                         new CocApprovalFieldChange
                         {
-                            ChangeType = "TNP1",
+                            ChangeType = "Firstname",
                             Data = new CocData
                             {
-                                Old = "10",
-                                New = "20",
+                                Old = "Ann",
+                                New = "Anne",
                             }
                         }
                     }
@@ -243,11 +243,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     {
                         new CocApprovalFieldChange
                         {
-                            ChangeType = "TNP1",
+                            ChangeType = "Firstname",
                             Data = new CocData
                             {
-                                Old = "10",
-                                New = "20",
+                                Old = "Ann",
+                                New = "Anne",
                             }
                         }
                     }
@@ -295,11 +295,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 {
                     new CocApprovalFieldChange
                     {
-                        ChangeType = "TNP1",
+                        ChangeType = "Firstname",
                         Data = new CocData
                         {
-                            Old = "10",
-                            New = "20",
+                            Old = "Ann",
+                            New = "Anne",
                         }
                     }
                 }
