@@ -10,6 +10,7 @@ public static class Constants
     public static readonly DateTime MaxAgeAt25RequiredOn = new DateTime(2026, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
     public const int MinimumAgeAtApprenticeshipStart = 15;
+    public const int MinimumAgeAtShortCourseStart = 19;
     public const int MaximumAgeAtApprenticeshipStart = 115;
     public const int MaximumAgeAtApprenticeshipStartForLevel7 = 25;
     public const int MaximumApprenticeshipCost = 100000;
