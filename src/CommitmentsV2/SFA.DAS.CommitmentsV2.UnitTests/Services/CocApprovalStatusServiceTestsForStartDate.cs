@@ -110,11 +110,11 @@ public class CocApprovalStatusServiceTestsForStartDate
 
         result.Should().HaveCount(1);
         result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
-        result[0].Reason.Should().Be("This training course is only available to learners with a start date after 4 2025");
+        result[0].Reason.Should().Be("This training course is only available to learners with a start date after 04 2025");
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesAync_ShouldAutoReject_WhenPlannedStartDateAfterLarsEffectiveTo()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateAfterLarsEffectiveTo()
     {
         var plannedStartDate = new DateTime(2025, 1, 1);
         var effectiveTo = new DateTime(2025, 5, 1);
@@ -128,7 +128,7 @@ public class CocApprovalStatusServiceTestsForStartDate
 
         result.Should().HaveCount(1);
         result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
-        result[0].Reason.Should().Be("This training course is only available to learners with a start date before 6 2025");
+        result[0].Reason.Should().Be("This training course is only available to learners with a start date before 06 2025");
     }
 
     [Test]

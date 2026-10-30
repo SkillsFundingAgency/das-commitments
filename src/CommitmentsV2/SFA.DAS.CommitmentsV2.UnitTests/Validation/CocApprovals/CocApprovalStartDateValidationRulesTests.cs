@@ -12,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validation.CocApprovals;
 public class CocApprovalStartDateValidationRulesTests
 {
     private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
+    private Mock<ICurrentDateTime> _currentDateTime;
     private Mock<IAgeCalculationService> _ageCalculationService;
     private Mock<IOverlapCheckService> _overlapCheckService;
     private Mock<IReservationValidationService> _reservationValidationService;
@@ -22,12 +23,14 @@ public class CocApprovalStartDateValidationRulesTests
     public void Arrange()
     {
         _academicYearDateProvider = new Mock<IAcademicYearDateProvider>();
+        _currentDateTime = new Mock<ICurrentDateTime>();
         _ageCalculationService = new Mock<IAgeCalculationService>();
         _overlapCheckService = new Mock<IOverlapCheckService>();
         _reservationValidationService = new Mock<IReservationValidationService>();
 
         _cocApprovalStartDateValidationRules = new CocApprovalStartDateValidationRules(
             _academicYearDateProvider.Object,
+            _currentDateTime.Object,
             _ageCalculationService.Object,
             _overlapCheckService.Object,
             _reservationValidationService.Object);
@@ -60,15 +63,62 @@ public class CocApprovalStartDateValidationRulesTests
     }
 
     [Test]
-    public void IsStartDateBeforeFundingWindowHasClosed_WhenStartDateIsAfterAcademicYearStart_ReturnsFalse()
+    public void IsStartDateBeforeFundingWindowHasClosed_WhenFundingWindowHasClosedAndStartDateIsBeforeAcademicYearStart_ReturnsTrue()
     {
-        var academicYearStartDate = new DateTime(2025, 8, 1);
+        var academicYearStartDate = new DateTime(2026, 8, 1);
+        var lastAcademicYearFundingPeriod = new DateTime(2026, 10, 18);
 
         _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStartDate);
+        _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+        _currentDateTime.Setup(x => x.UtcNow).Returns(lastAcademicYearFundingPeriod.AddDays(1));
 
-        var startDate = academicYearStartDate.AddDays(1);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(academicYearStartDate.AddDays(-1));
 
-        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(startDate);
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsStartDateBeforeFundingWindowHasClosed_WhenFundingWindowHasNotClosed_ReturnsFalse()
+    {
+        var academicYearStartDate = new DateTime(2026, 8, 1);
+        var lastAcademicYearFundingPeriod = new DateTime(2026, 10, 18);
+
+        _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStartDate);
+        _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+        _currentDateTime.Setup(x => x.UtcNow).Returns(lastAcademicYearFundingPeriod);
+
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(academicYearStartDate.AddDays(-1));
+
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void IsStartDateBeforeFundingWindowHasClosed_WhenStartDateIsOnAcademicYearStart_ReturnsFalse()
+    {
+        var academicYearStartDate = new DateTime(2026, 8, 1);
+        var lastAcademicYearFundingPeriod = new DateTime(2026, 10, 18);
+
+        _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStartDate);
+        _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+        _currentDateTime.Setup(x => x.UtcNow).Returns(lastAcademicYearFundingPeriod.AddDays(1));
+
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(academicYearStartDate);
+
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void IsStartDateBeforeFundingWindowHasClosed_WhenStartDateIsAfterAcademicYearStart_ReturnsFalse()
+    {
+        var academicYearStartDate = new DateTime(2026, 8, 1);
+        var lastAcademicYearFundingPeriod = new DateTime(2026, 10, 18);
+
+        _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStartDate);
+        _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+        _currentDateTime.Setup(x => x.UtcNow).Returns(lastAcademicYearFundingPeriod.AddDays(1));
+
+        var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeFundingWindowHasClosed(academicYearStartDate.AddDays(1));
+
         result.Should().BeFalse();
     }
 

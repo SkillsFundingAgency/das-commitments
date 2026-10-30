@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 
 public class CocApprovalStartDateValidationRules(
     IAcademicYearDateProvider academicYearDateProvider,
+    ICurrentDateTime currentDateTime,
     IAgeCalculationService ageCalculationService,
     IOverlapCheckService overlapCheckService,
     IReservationValidationService reservationValidationService) 
@@ -27,17 +28,17 @@ public class CocApprovalStartDateValidationRules(
 
     public bool IsStartDateBeforeFundingWindowHasClosed(DateTime startDate)
     {
-        return (DateTime.UtcNow > academicYearDateProvider.FundingWindowClosedOn) && (startDate < academicYearDateProvider.CurrentAcademicYearStartDate);
+        return (currentDateTime.UtcNow > academicYearDateProvider.LastAcademicYearFundingPeriod) && (startDate < academicYearDateProvider.CurrentAcademicYearStartDate);
     }
 
     public bool IsActualStartDateBeforeLarsEffectiveFrom(DateTime actualStartDate, Course course)
     {
-        return actualStartDate < course.EffectiveFrom;
+        return actualStartDate < course?.EffectiveFrom;
     }
 
     public bool IsActualStartDateAfterLarsEffectiveTo(DateTime actualStartDate, Course course)
     {
-        return actualStartDate > course.EffectiveTo;
+        return actualStartDate > course?.EffectiveTo;
     }
 
     public bool IsStartDateBeforeTransferFundedDate(DateTime startDate, Cohort cohort)
