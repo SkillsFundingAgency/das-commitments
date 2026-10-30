@@ -33,12 +33,12 @@ public class CocApprovalStartDateValidationRules(
 
     public bool IsActualStartDateBeforeLarsEffectiveFrom(DateTime actualStartDate, Course course)
     {
-        return actualStartDate < course?.EffectiveFrom;
+        return actualStartDate < course.EffectiveFrom;
     }
 
     public bool IsActualStartDateAfterLarsEffectiveTo(DateTime actualStartDate, Course course)
     {
-        return actualStartDate > course?.EffectiveTo;
+        return actualStartDate > course.EffectiveTo;
     }
 
     public bool IsStartDateBeforeTransferFundedDate(DateTime startDate, Cohort cohort)

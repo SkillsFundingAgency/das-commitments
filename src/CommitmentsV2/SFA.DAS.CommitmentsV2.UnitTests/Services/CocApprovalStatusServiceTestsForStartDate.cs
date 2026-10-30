@@ -44,6 +44,17 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
+    public void DetermineCocUpdateStatuses_ShouldThrowAndNotInvokeStartDateRules_WhenCourseIsNull()
+    {
+        var approvalDetails = CreatePlannedStartDateApprovalDetails(new DateTime(2027, 1, 1));
+
+        var act = async () => await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, null);
+
+        act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("course");
+        _cocApprovalStartDateValidationRulesMock.Verify(x => x.IsStartDateValidForReservationAsync(It.IsAny<DateTime>(), It.IsAny<Apprenticeship>()), Times.Never);
+    }
+
+    [Test]
     public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateBeforeAbsoluteMinimum()
     {
         var plannedStartDate = new DateTime(2016, 1, 1);

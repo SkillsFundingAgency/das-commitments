@@ -30,6 +30,11 @@ public class CocApprovalStatusService(
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
+        if (course == null)
+        {
+            throw new ArgumentNullException(nameof(course));
+        }
+
         if (apprenticeship.StopDate != null)
         {
             updateResults.AddRange(AutoRejectFieldsAffectedByStoppedApprenticeship(updates));
