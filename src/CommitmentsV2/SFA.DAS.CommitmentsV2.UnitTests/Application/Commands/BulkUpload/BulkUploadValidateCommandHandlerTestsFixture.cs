@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services.ValidationService;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.ProviderRelationshipsApiClient;
 using SFA.DAS.CommitmentsV2.Types;
@@ -33,6 +34,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     public Cohort Cohort { get; set; }
     public Mock<IUlnValidator> MockUlnValidator;
     protected Mock<ILinkGenerator> MockLinkGenerator;
+    public IValidationService ValidationService;
     public const long ProviderId = 333;
 
     public BulkUploadValidateCommandHandlerTestsFixture()
@@ -94,15 +96,21 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
         RplSettingsConfig = new RplSettingsConfiguration { MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
 
+        ValidationService = new ValidationService(
+            Mock.Of<ILogger<ValidationService>>(),
+            OverlapCheckService.Object,
+            AcademicYearDateProvider.Object,
+            ProviderRelationshipsApiClient.Object,
+            EmployerAgreementService.Object,
+            MockUlnValidator.Object,
+            MockLinkGenerator.Object
+        );
+
         Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
             , new Lazy<ProviderCommitmentsDbContext>(() => Db)
-            , OverlapCheckService.Object
-            , AcademicYearDateProvider.Object
-            , ProviderRelationshipsApiClient.Object
             , EmployerAgreementService.Object
             , RplSettingsConfig
-            , MockUlnValidator.Object
-            , MockLinkGenerator.Object
+            , ValidationService
         );
     }
 
