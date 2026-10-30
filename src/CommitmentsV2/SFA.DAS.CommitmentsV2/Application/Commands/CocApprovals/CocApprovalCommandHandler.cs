@@ -108,11 +108,12 @@ public class CocApprovalCommandHandler(
     {
         nameof(CocChangeField.Firstname) => "First name",
         nameof(CocChangeField.Lastname) => "Last name",
+        nameof(CocChangeField.PlannedStartDate) => "Planned start date",
         nameof(CocChangeField.PlannedEndDate) => "Planned end date",
         _ => null
     };
 
-    private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
+private static void MarkAsSuperseded(ProviderCommitmentsDbContext db, ApprovalRequest existingApprovalRequest)
     {
         var updated = DateTime.UtcNow;
         existingApprovalRequest.Status = CocApprovalResultStatus.Superseded;

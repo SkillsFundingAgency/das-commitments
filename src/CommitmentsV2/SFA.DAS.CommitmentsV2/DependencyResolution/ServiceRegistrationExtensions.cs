@@ -28,6 +28,8 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Shared.Services;
+using SFA.DAS.CommitmentsV2.Validation.CocApprovals;
+using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 using SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
@@ -86,6 +88,8 @@ public static class ServiceRegistrationExtensions
             services.AddTransient<ICurrentDateTime, CurrentDateTime>();
         }
 
+        services.AddTransient<IAgeCalculationService, AgeCalculationService>();
+
         return services;
     }
 
@@ -139,6 +143,12 @@ public static class ServiceRegistrationExtensions
 
         services.AddMappers();
 
+        return services;
+    }
+
+    public static IServiceCollection AddValidationRuleServices(this IServiceCollection services)
+    {
+        services.AddTransient<ICocApprovalStartDateValidationRules, CocApprovalStartDateValidationRules>();
         return services;
     }
 
