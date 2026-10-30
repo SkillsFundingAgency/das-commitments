@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -112,10 +113,10 @@ public class CocApprovalStatusServiceTestsForEndDate
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
         results[0].Reason.Should().Be("The end date cannot be changed on a completed record");
-    }
+    }        
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenApprenticeshipIsStopped()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsWithdrawn()
     {
         var updates = new CocUpdates
         {
@@ -125,15 +126,16 @@ public class CocApprovalStatusServiceTestsForEndDate
         {
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3),
-            StopDate = DateTime.Today.AddMonths(-1)
+            StopDate = DateTime.Today.AddMonths(-1),
+            PaymentStatus = Types.PaymentStatus.Withdrawn
         };
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date cannot be changed on a stopped record");
+        results[0].Reason.Should().BeNull();
     }
 
     [Test]
