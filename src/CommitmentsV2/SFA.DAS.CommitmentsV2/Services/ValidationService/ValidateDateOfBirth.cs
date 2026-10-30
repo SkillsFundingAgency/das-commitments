@@ -2,12 +2,13 @@ using System.Text.RegularExpressions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
-public partial class BulkUploadValidateCommandHandler
+public partial class ValidationService
 {
-    private IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    public IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults, Standard standard)
     {
         var domainErrors = new List<Error>();
 
@@ -29,13 +30,19 @@ public partial class BulkUploadValidateCommandHandler
             }
             else
             {
-                var courseLevel = GetStandardDetails(csvRecord.CourseCode)?.Level;
+                var courseLevel = standard?.Level;
+                var isAppUnit = standard?.LearningType == Types.LearningType.ApprenticeshipUnit;
 
-                if (!WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
+                if (isAppUnit && csvRecord.StartDate >= new DateTime(2026, 04, 28)
+                    && !WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtShortCourseStart))
+                {
+                    domainErrors.Add(new Error("DateOfBirth", $"The learner's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtShortCourseStart} years old at the start of their training"));
+                }
+                else if (!isAppUnit && !WillApprenticeBeAtLeastMinAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart))
                 {
                     domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are at least {csvRecord.MinimumAgeAtApprenticeshipStart ?? Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training"));
                 }
-                else if (courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
+                else if (!isAppUnit && courseLevel == 7 && csvRecord.StartDate >= new DateTime(2026, 01, 01) && !ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(csvRecord.StartDate, dateOfBirth.Value, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
                 {
                     domainErrors.Add(new Error("DateOfBirth", $"The apprentice's <b>date of birth</b> must show that they are not older than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training"));
                 }
@@ -49,7 +56,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private static bool WillApprenticeBeAtLeastMinAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int minAge)
+    private bool WillApprenticeBeAtLeastMinAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int minAge)
     {
         if (startDate == null) return true; // Don't fail validation if both fields not set
 
@@ -59,7 +66,7 @@ public partial class BulkUploadValidateCommandHandler
         return age >= minAge;
     }
 
-    private static bool ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int maxAge)
+    private bool ApprenticeAgeMustBeLessThenMaxAgeAtStartOfTraining(DateTime? startDate, DateTime dobDate, int maxAge)
     {
         if (startDate == null)
         {

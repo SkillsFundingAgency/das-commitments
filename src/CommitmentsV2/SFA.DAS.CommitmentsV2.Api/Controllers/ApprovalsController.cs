@@ -24,12 +24,17 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         var command = await modelMapper.Map<CocApprovalCommand>(request);
 
         var result = await mediator.Send(command);
-        logger.LogInformation("PostApprovals completed Returning status of {0}", result?.Status);
-        if (command.Action == AggregrationAction.CancelPrevious)
+        if (result == null)
+        {
+            return Problem();
+        }
+
+        logger.LogInformation("PostApprovals completed Returning status of {Status}", result.Status);
+        if (command.Action == AggregationAction.CancelPrevious)
         {
             return Ok(MapToApprovalFieldChangeList(new List<CocUpdateResult>(), incomingChanges).ToList());
         }
-            
+
         return Created("", MapToApprovalFieldChangeList(result.Items, incomingChanges).ToList());
     }
 

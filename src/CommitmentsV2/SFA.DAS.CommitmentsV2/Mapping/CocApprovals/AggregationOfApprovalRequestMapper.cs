@@ -5,10 +5,9 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Models;
 
-
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
-public class AggregrationOfApprovalRequestMapper(
+public class AggregationOfApprovalRequestMapper(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IModelMapper modelMapper,
     ILogger<CocApprovalRequestToCocApprovalDetailsMapper> logger) : IMapper<CocApprovalRequest, CocApprovalCommand>
@@ -23,7 +22,7 @@ public class AggregrationOfApprovalRequestMapper(
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
-                Action = AggregrationAction.CreateNew,
+                Action = AggregationAction.CreateNew,
             };
         }
 
@@ -31,27 +30,28 @@ public class AggregrationOfApprovalRequestMapper(
         // There is nothing in the requirements that says we should, but it might be a good idea to ensure that the new request
         // is for the same apprenticeship and learning type as the previous request.
 
-        var aggregatedItems = CreateAggregratedItems(request, previousPendingItems);
+        var aggregated = Aggregate(request, previousPendingItems);
+        request.Changes = aggregated.Items;
 
-        if (aggregatedItems.Any())
+        if (aggregated.Items.Any())
         {
             logger.LogInformation("Creating a superseded request for LearningKey {0}", request.LearningKey);
-
-            request.Changes = aggregatedItems;
             return new CocApprovalCommand
             {
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
-                Action = AggregrationAction.SupersedePrevious,
+                Action = AggregationAction.SupersedePrevious,
+                ReversedFields = aggregated.ReversedFields
             };
         }
 
-        logger.LogInformation("Cancelling the pending requests for LearningKey {0}", request.LearningKey);
+        logger.LogInformation("Reversing pending fields for LearningKey {0}", request.LearningKey);
         return new CocApprovalCommand
         {
-            CocApprovalDetails = null,
+            CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
             LearningKey = request.LearningKey,
-            Action = AggregrationAction.CancelPrevious,
+            Action = AggregationAction.CreateNew,
+            ReversedFields = aggregated.ReversedFields
         };
     }
 
@@ -65,7 +65,13 @@ public class AggregrationOfApprovalRequestMapper(
 
     public List<CocApprovalFieldChange> CreateAggregratedItems(CocApprovalRequest request, List<CocApprovalItem> previousItems)
     {
+        return Aggregate(request, previousItems).Items;
+    }
+
+    private (List<CocApprovalFieldChange> Items, List<string> ReversedFields) Aggregate(CocApprovalRequest request, List<CocApprovalItem> previousItems)
+    {
         var list = new List<CocApprovalFieldChange>();
+        var reversedFields = new List<string>();
 
         // Aggregate the changes from the new request with the previous request, 
         // keep new fields as they are, and for existing fields,
@@ -89,9 +95,10 @@ public class AggregrationOfApprovalRequestMapper(
                     }
                 };
 
-                if(newChange.Data.Old == newChange.Data.New)
+                if (newChange.Data.Old == newChange.Data.New)
                 {
                     logger.LogInformation("Change for field {Field} has no effective change, skipping", newChange.ChangeType);
+                    reversedFields.Add(newChange.ChangeType);
                     continue;
                 }
                 list.Add(newChange);
@@ -100,24 +107,27 @@ public class AggregrationOfApprovalRequestMapper(
 
         // Add any previous changes that are not in the new request, as they are still effective. I'm guessing here as the requirements don't specify what to do in this case,
         // but it seems reasonable to keep them.
-        foreach (var item in previousItems)
-        {
-            var newChange = request.Changes.FirstOrDefault(c => c.ChangeType == item.Field);
-            if (newChange == null)
-            {
-                var change = new CocApprovalFieldChange
-                {
-                    ChangeType = item.Field,
-                    Data = new CocData
-                    {
-                        Old = item.Old,
-                        New = item.New
-                    }
-                };
-                list.Add(change);
-            }
-        }
 
-        return list;
+        // I've removed this as suggested, but I think the code review is wrong. We will now just be comparing the new chnages without the existing Pending changes,
+        // TODO: Remove this commented loop once testing shows an omitted field should not be carried forward.
+        //foreach (var item in previousItems)
+        //{
+        //    var newChange = request.Changes.FirstOrDefault(c => c.ChangeType == item.Field);
+        //    if (newChange == null)
+        //    {
+        //        var change = new CocApprovalFieldChange
+        //        {
+        //            ChangeType = item.Field,
+        //            Data = new CocData
+        //            {
+        //                Old = item.Old,
+        //                New = item.New
+        //            }
+        //        };
+        //        list.Add(change);
+        //    }
+        //}
+
+        return (list, reversedFields);
     }
 }

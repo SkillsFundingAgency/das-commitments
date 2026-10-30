@@ -84,11 +84,19 @@ public class CocApprovalCommandHandlerTests
         await _dbContext.CocApprovalItems.AddAsync(existing);
         await _dbContext.SaveChangesAsync();
 
+        var newChange = new List<CocApprovalFieldChange> { new CocApprovalFieldChange { ChangeType = "PlannedEndDate", Data = new CocData { Old = "2022-01-01", New = "2023-01-01" } } };
+
+        var details = _fixture.Build<CocApprovalDetails>()
+                .With(x => x.LearningKey, learningKey)
+                .Without(x => x.Apprenticeship)
+                .With(x => x.ApprovalFieldChanges, newChange)
+                .Create();
+
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CancelPrevious,
+            Action = AggregationAction.CancelPrevious,
             LearningKey = learningKey,
-            CocApprovalDetails = null
+            CocApprovalDetails = details
         };
 
         // Act
@@ -99,9 +107,69 @@ public class CocApprovalCommandHandlerTests
         result.Items.Should().NotBeNull().And.BeEmpty();
 
         var updatedItem = _dbContext.CocApprovalItems.Where(x => x.LearningKey == learningKey).FirstOrDefault();
-        updatedItem.Status.Should().Be(CocApprovalItemStatus.Cancelled);
+        updatedItem.Status.Should().Be(CocApprovalItemStatus.Reversal);
 
         _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCancelPrevious_AndDetailsAreNull_DoesNotThrowAndLeavesThePendingRow()
+    {
+        var learningKey = Guid.NewGuid();
+        var existing = CreateCocApprovalItem(learningKey);
+        await _dbContext.CocApprovalItems.AddAsync(existing);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CancelPrevious,
+            LearningKey = learningKey,
+            CocApprovalDetails = null
+        }, CancellationToken.None);
+
+        result.Items.Should().NotBeNull().And.BeEmpty();
+        existing.Status.Should().Be(CocApprovalItemStatus.Pending);
+        _cocApprovalRules.Verify(r => r.DetermineApprovalState(It.IsAny<CocApprovalDetails>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenOneFieldReversesAndAnotherIsSuperseded_ClosesOnlyTheRevertedField()
+    {
+        var learningKey = Guid.NewGuid();
+        var firstName = CreateCocApprovalItem(learningKey, field: "Firstname");
+        var lastName = CreateCocApprovalItem(learningKey, field: "Lastname");
+        await _dbContext.CocApprovalItems.AddRangeAsync(firstName, lastName);
+        await _dbContext.SaveChangesAsync();
+
+        var details = _fixture.Build<CocApprovalDetails>()
+            .With(x => x.LearningKey, learningKey)
+            .Without(x => x.Apprenticeship)
+            .With(x => x.ApprovalFieldChanges, new List<CocApprovalFieldChange>
+            {
+                new CocApprovalFieldChange { ChangeType = "Lastname", Data = new CocData { Old = "Smith", New = "Jones" } }
+            })
+            .Create();
+
+        var expectedResult = new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = new List<CocUpdateResult>() };
+        _cocApprovalRules
+            .Setup(r => r.DetermineApprovalState(details))
+            .ReturnsAsync(new CocApprovalState
+            {
+                ApprovalRequest = new ApprovalRequest { Id = Guid.NewGuid(), Items = new List<ApprovalFieldRequest>() },
+                ApprovalResult = expectedResult
+            });
+
+        await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.SupersedePrevious,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            ReversedFields = ["Firstname"]
+        }, CancellationToken.None);
+
+        firstName.Status.Should().Be(CocApprovalItemStatus.Reversal);
+        lastName.Status.Should().Be(CocApprovalItemStatus.Superseded);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
@@ -121,7 +189,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.SupersedePrevious,
+            Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -160,7 +228,7 @@ public class CocApprovalCommandHandlerTests
         var learningKey = Guid.NewGuid();
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -204,7 +272,7 @@ public class CocApprovalCommandHandlerTests
         };
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details
         };
@@ -268,7 +336,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -318,7 +386,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -368,7 +436,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -418,7 +486,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -468,7 +536,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -518,7 +586,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -568,7 +636,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -613,7 +681,7 @@ public class CocApprovalCommandHandlerTests
         var details = new CocApprovalDetails { LearningKey = Guid.NewGuid(), ApprenticeshipId = 12345 };
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 
@@ -664,7 +732,7 @@ public class CocApprovalCommandHandlerTests
 
         var command = new CocApprovalCommand
         {
-            Action = AggregrationAction.CreateNew,
+            Action = AggregationAction.CreateNew,
             CocApprovalDetails = details
         };
 

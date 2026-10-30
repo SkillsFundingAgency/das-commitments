@@ -8,5 +8,5 @@ public enum CocApprovalItemStatus : byte
     EmployerApproved = 4,
     EmployerRejected = 5,
     Superseded = 6,
-    Cancelled = 7,
+    Reversal = 7,
 }

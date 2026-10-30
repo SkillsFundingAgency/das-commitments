@@ -9,13 +9,13 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CocApprovals;
 
 [TestFixture]
-public class AggregrationOfApprovalRequestMapperTests
+public class AggregationOfApprovalRequestMapperTests
 {
     private Mock<IModelMapper> _modelMapper;
     private Mock<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>> _logger;
     private ProviderCommitmentsDbContext _dbContext;
     private Lazy<ProviderCommitmentsDbContext> _lazyDbContext;
-    private AggregrationOfApprovalRequestMapper _sut;
+    private AggregationOfApprovalRequestMapper _sut;
 
     [SetUp]
     public void SetUp()
@@ -30,7 +30,7 @@ public class AggregrationOfApprovalRequestMapperTests
         _modelMapper = new Mock<IModelMapper>();
         _logger = new Mock<ILogger<CocApprovalRequestToCocApprovalDetailsMapper>>();
 
-        _sut = new AggregrationOfApprovalRequestMapper(_lazyDbContext, _modelMapper.Object, _logger.Object);
+        _sut = new AggregationOfApprovalRequestMapper(_lazyDbContext, _modelMapper.Object, _logger.Object);
     }
 
     [TearDown]
@@ -86,7 +86,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = await _sut.Map(request);
 
         // Assert
-        result.Action.Should().Be(AggregrationAction.CreateNew);
+        result.Action.Should().Be(AggregationAction.CreateNew);
         result.LearningKey.Should().Be(learningKey);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
@@ -121,7 +121,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = await _sut.Map(request);
 
         // Assert
-        result.Action.Should().Be(AggregrationAction.SupersedePrevious);
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
         //result.PreviousApprovalRequestId.Should().Be(previousRequestId);
         result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
 
@@ -135,14 +135,14 @@ public class AggregrationOfApprovalRequestMapperTests
     }
 
     [Test]
-    public async Task Map_WhenPreviousPendingRequestExists_AndNoAggregatedChangesRemain_ReturnsCancelPreviousCommand()
+    public async Task Map_WhenPreviousPendingRequestExists_AndNoAggregatedChangesRemain_ReturnsCreateNewWithReversedFields()
     {
-        // Arrange
         var learningKey = Guid.NewGuid();
-        var previousRequestId = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
 
-        var previousItem = new CocApprovalItem 
-        { 
+        var previousItem = new CocApprovalItem
+        {
             Id = Guid.NewGuid(),
             LearningKey = learningKey,
             Status = CocApprovalItemStatus.Pending,
@@ -154,19 +154,59 @@ public class AggregrationOfApprovalRequestMapperTests
         await _dbContext.CocApprovalItems.AddAsync(previousItem);
         await _dbContext.SaveChangesAsync();
 
-        // New change resolves back to the same old/new value as the previous request -> net no-op
         var newChange = CreateChangeItem("TNP1", "12000", "10000");
         var request = CreateChangeRequest(learningKey, newChange);
 
-        // Act
         var result = await _sut.Map(request);
 
-        // Assert
-        result.Action.Should().Be(AggregrationAction.CancelPrevious);
+        result.Action.Should().Be(AggregationAction.CreateNew);
         result.LearningKey.Should().Be(learningKey);
-        result.CocApprovalDetails.Should().BeNull();
+        result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
+        result.ReversedFields.Should().ContainSingle().Which.Should().Be("TNP1");
 
-        _modelMapper.Verify(m => m.Map<CocApprovalDetails>(It.IsAny<object>()), Times.Never);
+        _modelMapper.Verify(m => m.Map<CocApprovalDetails>(request), Times.Once);
+    }
+
+    [Test]
+    public async Task Map_WhenOneFieldRevertsAndAnotherChanges_ReversesOnlyTheRevertedField()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+
+        await _dbContext.CocApprovalItems.AddRangeAsync(
+            new CocApprovalItem
+            {
+                LearningKey = learningKey,
+                Status = CocApprovalItemStatus.Pending,
+                Field = "Firstname",
+                Old = "Ann",
+                New = "Anne"
+            },
+            new CocApprovalItem
+            {
+                LearningKey = learningKey,
+                Status = CocApprovalItemStatus.Pending,
+                Field = "Lastname",
+                Old = "Smith",
+                New = "Jones"
+            });
+        await _dbContext.SaveChangesAsync();
+
+        var request = CreateChangeRequest(
+            learningKey,
+            CreateChangeItem("Firstname", "Anne", "Ann"),
+            CreateChangeItem("Lastname", "Jones", "Joneson"));
+
+        var result = await _sut.Map(request);
+
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
+        result.CocApprovalDetails.Should().BeSameAs(expectedDetails);
+        result.ReversedFields.Should().ContainSingle().Which.Should().Be("Firstname");
+        request.Changes.Should().ContainSingle();
+        request.Changes[0].ChangeType.Should().Be("Lastname");
+        request.Changes[0].Data.Old.Should().Be("Smith");
+        request.Changes[0].Data.New.Should().Be("Joneson");
     }
 
     [Test]
@@ -197,7 +237,7 @@ public class AggregrationOfApprovalRequestMapperTests
         // Assert
         result.Should().NotBeNull();
         result.LearningKey.Should().Be(learningKey);
-        result.Action.Should().Be(AggregrationAction.SupersedePrevious);
+        result.Action.Should().Be(AggregationAction.SupersedePrevious);
     }
 
     [Test]
@@ -254,7 +294,7 @@ public class AggregrationOfApprovalRequestMapperTests
     }
 
     [Test]
-    public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsCarriedOver()
+    public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsNotCarriedOver()
     {
         // Arrange
         var request = CreateChangeRequest(Guid.NewGuid()); // no changes in the new request
@@ -271,11 +311,7 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
-        result.Should().ContainSingle();
-        var carried = result[0];
-        carried.ChangeType.Should().Be("TNP2");
-        carried.Data.Old.Should().Be("20000");
-        carried.Data.New.Should().Be("22000");
+        result.Count.Should().Be(0);
     }
 
     [Test]
@@ -296,9 +332,8 @@ public class AggregrationOfApprovalRequestMapperTests
         var result = _sut.CreateAggregratedItems(request, previousItems);
 
         // Assert
-        result.Should().HaveCount(3);
+        result.Should().HaveCount(2);
         result.Should().Contain(c => c.ChangeType == "LastName" && c.Data.New == "LastName123");
         result.Should().Contain(c => c.ChangeType == "TNP1" && c.Data.Old == "10000" && c.Data.New == "15000");
-        result.Should().Contain(c => c.ChangeType == "TNP2" && c.Data.Old == "20000" && c.Data.New == "22000");
     }
 }

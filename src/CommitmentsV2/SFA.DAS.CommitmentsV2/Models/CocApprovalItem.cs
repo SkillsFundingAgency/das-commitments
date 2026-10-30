@@ -13,7 +13,7 @@ public class CocApprovalItem
     public string Field { get; set; }
     public string Old { get; set; }
     public string New { get; set; }
-    public CocApprovalItemStatus? Status { get; set; }
+    public CocApprovalItemStatus Status { get; set; }
     public string Reason { get; set; }
     public DateTime? ProviderAcknowledgedAt { get; set; }
     public string ProviderAcknowledgedBy { get; set; }
