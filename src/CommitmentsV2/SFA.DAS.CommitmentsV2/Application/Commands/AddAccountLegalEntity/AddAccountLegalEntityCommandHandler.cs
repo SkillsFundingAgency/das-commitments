@@ -11,7 +11,17 @@ public class AddAccountLegalEntityCommandHandler(
     public async Task Handle(AddAccountLegalEntityCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("{TypeName} processing started. Retrieving account with Id: {AccountId}.", nameof(AddAccountLegalEntityCommandHandler), request.AccountId);
-        
+
+        var alreadyExists = await db.Value.AccountLegalEntities
+            .IgnoreQueryFilters()
+            .AnyAsync(ale => ale.Id == request.AccountLegalEntityId, cancellationToken);
+
+        if (alreadyExists)
+        {
+            logger.LogInformation("{TypeName} skipped. Account legal entity {AccountLegalEntityId} already exists.", nameof(AddAccountLegalEntityCommandHandler), request.AccountLegalEntityId);
+            return;
+        }
+
         var account = await db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
 
         account.AddAccountLegalEntity(
