@@ -55,7 +55,8 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             TrainingCourseVersion = source.TrainingCourseVersion,
             EmployerVerificationStatus = source.EmployerVerificationRequest?.Status,
-            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes
+            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes,
+            FreezedDate = source.PaymentFreezeDate
         });
     }
 }
