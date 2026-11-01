@@ -54,6 +54,12 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
         result.TrainingCourseVersion = trainingProgramme?.Version;
         result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
         result.StandardUId = trainingProgramme?.StandardUId;
+        if (!int.TryParse(source.CourseCode, out _) && trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard)
+        {
+            result.TrainingCourseVersion = source.TrainingCourseVersion;
+            result.StandardUId = source.StandardUId;
+            result.TrainingCourseVersionConfirmed = !string.IsNullOrEmpty(source.TrainingCourseVersion);
+        }
     }
 
     private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
