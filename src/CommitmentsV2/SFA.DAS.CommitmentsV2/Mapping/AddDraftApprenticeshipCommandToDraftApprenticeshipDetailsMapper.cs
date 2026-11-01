@@ -46,6 +46,13 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
             result.StandardUId = trainingProgramme?.StandardUId;
         }
 
+        if (!int.TryParse(source.CourseCode, out _) && trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard)
+        {
+            result.TrainingCourseVersion = source.TrainingCourseVersion;
+            result.StandardUId = source.StandardUId;
+            result.TrainingCourseVersionConfirmed = !string.IsNullOrEmpty(source.TrainingCourseVersion);
+        }
+
         return result;
     }
 

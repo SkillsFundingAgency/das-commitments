@@ -20,6 +20,8 @@ public class BulkUploadAddDraftApprenticeshipRequest
     public string UserId { get; set; }
     public long ProviderId { get; set; }
     public string CourseCode { get; set; }
+    public string TrainingCourseVersion { get; set; }
+    public string StandardUId { get; set; }
     public DateTime? StartDate => GetDate(StartDateAsString, "yyyy-MM-dd", true);
     public string StartDateAsString { get; set; }
     public DateTime? EndDate => GetDate(EndDateAsString, "yyyy-MM");

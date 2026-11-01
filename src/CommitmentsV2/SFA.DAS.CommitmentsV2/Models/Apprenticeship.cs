@@ -424,7 +424,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             ProgrammeType = update.TrainingType;
 
-            if (update.TrainingType.Value == Types.ProgrammeType.Framework || learningType == LearningType.ApprenticeshipUnit)
+            if (update.TrainingType.Value == Types.ProgrammeType.Framework)
             {
                 TrainingCourseVersion = null;
                 TrainingCourseVersionConfirmed = false;

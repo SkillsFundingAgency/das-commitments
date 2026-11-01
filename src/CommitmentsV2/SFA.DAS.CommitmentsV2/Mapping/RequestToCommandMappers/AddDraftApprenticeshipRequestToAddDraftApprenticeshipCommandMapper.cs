@@ -13,6 +13,8 @@ public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper 
             UserId = source.UserId,
             ProviderId = source.ProviderId,
             CourseCode = source.CourseCode,
+            TrainingCourseVersion = source.TrainingCourseVersion,
+            StandardUId = source.StandardUId,
             DeliveryModel = source.DeliveryModel,
             Cost = source.Cost,
             StartDate = source.StartDate,
