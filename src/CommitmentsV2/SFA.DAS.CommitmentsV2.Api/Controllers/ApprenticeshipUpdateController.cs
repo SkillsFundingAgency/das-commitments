@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdateStatus;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -21,6 +22,15 @@ public class ApprenticeshipUpdateController(IMediator mediator, IModelMapper mod
         var response = await modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
         return Ok(response);
     }
+
+    [HttpGet]
+    [Route("status")]
+    public async Task<IActionResult> GetApprenticeshipUpdateStatus(long apprenticeshipId, [FromQuery] GetApprenticeshipUpdatesRequest request)
+    {
+        var result = await mediator.Send(new GetApprenticeshipUpdateStatusQuery(apprenticeshipId));
+        return Ok(result);
+    }
+
 
     [HttpPost]
     [Route("accept-apprenticeship-update")]
