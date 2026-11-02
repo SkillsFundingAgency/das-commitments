@@ -5,7 +5,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessApprenticeshipApprov
 public class ProcessApprenticeshipApprovalCommand : IRequest
 {
     public long ApprenticeshipId { get; set; }
-    public Guid ApprovalRequestId { get; set; }
     public bool ApplyChanges { get; set; }
 
     public UserInfo UserInfo { get; set; }

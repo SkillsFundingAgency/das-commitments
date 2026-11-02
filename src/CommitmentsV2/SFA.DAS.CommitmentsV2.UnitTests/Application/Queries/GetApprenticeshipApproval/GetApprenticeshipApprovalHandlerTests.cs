@@ -62,19 +62,23 @@ public class GetApprenticeshipApprovalHandlerTests
     }
 
     [Test]
-    public async Task WhenApprovalRequestNotFound_ThenShouldReturn_Null()
+    public async Task WhenNoPendingItems_ThenShouldReturn_EmptyItems()
     {
         _fixture.ClearPendingItems();
-        _fixture.Request = new GetApprenticeshipApprovalQuery(_fixture.ApprenticeshipId, Guid.NewGuid());
+        _fixture.Request = new GetApprenticeshipApprovalQuery(_fixture.ApprenticeshipId);
         var result = await _fixture.Handle();
 
-        result.Should().BeNull();
+        result.Should().NotBeNull();
+        result.ApprenticeshipId.Should().Be(_fixture.ApprenticeshipId);
+        result.Items.Should().BeEmpty();
+        result.ApprovalRequestId.Should().BeNull();
+        result.ApprovalRequestStatus.Should().BeNull();
     }
 
     [Test]
     public async Task WhenApprenticeshipIdDoesNotMatch_ThenShouldReturn_Null()
     {
-        _fixture.Request = new GetApprenticeshipApprovalQuery(_fixture.ApprenticeshipId + 1, _fixture.ApprovalRequestId);
+        _fixture.Request = new GetApprenticeshipApprovalQuery(_fixture.ApprenticeshipId + 1);
         var result = await _fixture.Handle();
 
         result.Should().BeNull();
@@ -104,7 +108,7 @@ public class GetApprenticeshipApprovalHandlerTests
         {
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             SeedData();
-            Request = new GetApprenticeshipApprovalQuery(ApprenticeshipId, ApprovalRequestId);
+            Request = new GetApprenticeshipApprovalQuery(ApprenticeshipId);
 
 
             _handler = new GetApprenticeshipApprovalQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));

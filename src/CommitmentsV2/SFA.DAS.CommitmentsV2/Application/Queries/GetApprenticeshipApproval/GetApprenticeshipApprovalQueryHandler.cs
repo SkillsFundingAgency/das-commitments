@@ -7,16 +7,6 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
 {
     public async Task<GetApprenticeshipApprovalQueryResult> Handle(GetApprenticeshipApprovalQuery request, CancellationToken cancellationToken)
     {
-        var pendingItems = await dbContext.Value.CocApprovalItems
-            .Where(item => item.ApprenticeshipId == request.ApprenticeshipId && item.Status == CocApprovalItemStatus.Pending)
-            .OrderBy(item => item.Field)
-            .ToListAsync(cancellationToken);
-
-        if (pendingItems.Count == 0)
-        {
-            return null;
-        }
-
         var apprenticeship = await dbContext.Value.Apprenticeships
             .Include(x => x.Cohort).ThenInclude(x => x.Provider)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
@@ -26,6 +16,11 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
         {
             return null;
         }
+
+        var pendingItems = await dbContext.Value.CocApprovalItems
+            .Where(item => item.ApprenticeshipId == request.ApprenticeshipId && item.Status == CocApprovalItemStatus.Pending)
+            .OrderBy(item => item.Field)
+            .ToListAsync(cancellationToken);
 
         return new GetApprenticeshipApprovalQueryResult
         {
@@ -41,8 +36,8 @@ public class GetApprenticeshipApprovalQueryHandler(Lazy<ProviderCommitmentsDbCon
             StartDate = apprenticeship.OriginalStartDate ?? apprenticeship.StartDate,
             CourseCode = apprenticeship.CourseCode,
             CourseName = apprenticeship.CourseName,
-            ApprovalRequestStatus = CocApprovalResultStatus.Pending,
-            ApprovalRequestId = pendingItems[0].Id,
+            ApprovalRequestStatus = pendingItems.Count == 0 ? null : CocApprovalResultStatus.Pending,
+            ApprovalRequestId = pendingItems.Count == 0 ? null : pendingItems[0].Id,
             Items = pendingItems.Select(item => new GetApprenticeshipApprovalQueryResult.ChangeItem
             {
                 FieldName = item.Field,
