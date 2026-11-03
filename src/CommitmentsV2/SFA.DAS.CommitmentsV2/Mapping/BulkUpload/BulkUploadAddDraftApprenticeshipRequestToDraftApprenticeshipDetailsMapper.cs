@@ -52,10 +52,8 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
         var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
         var trainingProgramme = await trainingProgrammeTask;
         result.TrainingProgramme = trainingProgramme;
-        result.TrainingCourseVersion = trainingProgramme?.Version;
-        result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
-        result.StandardUId = trainingProgramme?.StandardUId;
-        result.ApplyApprenticeshipUnitVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId);
+        result.ApplyTrainingCourseVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId,
+            populateStandardVersion: true);
     }
 
     private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)

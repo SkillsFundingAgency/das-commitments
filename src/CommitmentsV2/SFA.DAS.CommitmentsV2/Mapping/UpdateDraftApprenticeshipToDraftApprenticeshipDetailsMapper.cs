@@ -37,19 +37,8 @@ public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITraini
             LastLearnerDataSync = source.LastLearnerDataSync
         };
 
-        // Only populate standard version specific items if start is specified.
-        // The course is returned as latest version if no start date is specified
-        // Which is fine for setting the training programmer.
-        if (!source.IsContinuation  && startDate.HasValue)
-        {
-            result.TrainingCourseVersion = trainingProgramme?.Version;
-            result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
-            result.StandardUId = trainingProgramme?.StandardUId;
-        }
-
-        result.ApplyApprenticeshipUnitVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId);
-
-        return result;
+        return result.ApplyTrainingCourseVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId,
+            populateStandardVersion: !source.IsContinuation && startDate.HasValue);
     }
 
     private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)

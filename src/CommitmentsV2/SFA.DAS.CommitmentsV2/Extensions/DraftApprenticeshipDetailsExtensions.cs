@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 
 public static class DraftApprenticeshipDetailsExtensions
 {
-    public static void ApplyApprenticeshipUnitVersion(this DraftApprenticeshipDetails details, string courseCode, string version, string standardUId)
+    public static DraftApprenticeshipDetails ApplyTrainingCourseVersion(this DraftApprenticeshipDetails details, string courseCode, string version, string standardUId, bool populateStandardVersion)
     {
         if (!int.TryParse(courseCode, out _) && details.TrainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard)
         {
@@ -12,6 +12,14 @@ public static class DraftApprenticeshipDetailsExtensions
             details.StandardUId = standardUId;
             details.TrainingCourseVersionConfirmed = !string.IsNullOrEmpty(version);
         }
+        else if (populateStandardVersion)
+        {
+            details.TrainingCourseVersion = details.TrainingProgramme?.Version;
+            details.StandardUId = details.TrainingProgramme?.StandardUId;
+            details.TrainingCourseVersionConfirmed = details.TrainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
+        }
+
+        return details;
     }
 
     public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
