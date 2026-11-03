@@ -236,7 +236,7 @@ public class CocApprovalStatusService(
             return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "This email address is already used for another apprenticeship in the same training period - use a different email address" };
         }
 
-        return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoApproved };
+        return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.Pending };
     }
 
     private CocUpdateResult DetermineApprovalStatusesForLastnameField(CocUpdates updates, Apprenticeship apprenticeship)

@@ -676,7 +676,7 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsAutoApproved_SendsAutoRejectedLearningHistory()
+    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsPending_DoesNotSendLearningHistory()
     {
         var details = new CocApprovalDetails
         {
@@ -702,7 +702,7 @@ public class CocApprovalCommandHandlerTests
                         Field = nameof(CocChangeField.StartDate),
                         Old = "2026-08-02",
                         New = "2026-09-02",
-                        Status = CocApprovalItemStatus.AutoApproved
+                        Status = CocApprovalItemStatus.Pending
                     }
                 ]
             },
@@ -714,15 +714,9 @@ public class CocApprovalCommandHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _messageSession.Verify(x => x.Send(
-                It.Is<StoreLearningHistoryCommand>(c =>
-                    c.ApprenticeshipId == 12345 &&
-                    c.LearningKey == details.LearningKey &&
-                    c.Source == LearningSourceType.ApprovalAPI &&
-                    c.ChangeType == LearningChangeType.AutoApproved &&
-                    c.AppliedDate == _utcNow &&
-                    c.Description == "Start date change from 2026-08-02 to 2026-09-02"),
+                It.IsAny<StoreLearningHistoryCommand>(),
                 It.IsAny<SendOptions>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Test]

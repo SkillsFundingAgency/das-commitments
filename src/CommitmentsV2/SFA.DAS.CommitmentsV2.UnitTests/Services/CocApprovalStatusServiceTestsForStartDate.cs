@@ -30,7 +30,7 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoApproveStartDate_WhenAllValidationRulesPass()
+    public async Task DetermineCocUpdateStatuses_ShouldReturnPendingStartDate_WhenAllValidationRulesPass()
     {
         var plannedStartDate = new DateTime(2027, 1, 1);
 
@@ -40,7 +40,7 @@ public class CocApprovalStatusServiceTestsForStartDate
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
-        result.Should().ContainSingle(x => x.Field == CocChangeField.StartDate && x.Status == CocApprovalItemStatus.AutoApproved);
+        result.Should().ContainSingle(x => x.Field == CocChangeField.StartDate && x.Status == CocApprovalItemStatus.Pending);
     }
 
     [Test]
