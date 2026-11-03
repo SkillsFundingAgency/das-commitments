@@ -30,6 +30,6 @@ public class CommitmentsV2Configuration
     public bool ReplayApprenticeshipCreatedEventsDryRun { get; set; } = true;
     public bool LearningWithdrawalsIsActive { get; set; }
     public bool CoCApprovalsActive { get; set; }
-    public CoCApprovalsConfiguration CoCApprovalsConfiguration { get; set; }
+    public CocApprovalsConfiguration CoCApprovalsConfiguration { get; set; }
 
 }

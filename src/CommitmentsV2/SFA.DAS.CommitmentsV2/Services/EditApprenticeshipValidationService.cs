@@ -1,5 +1,6 @@
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -26,6 +27,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
     private readonly IMediator _mediator;
     private readonly ICurrentDateTime _currentDateTime;
     private readonly IAuthenticationService _authenticationService;
+    private readonly ICocManualApprovalsService _cocManualApprovalsService;
 
     public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
         IMediator mediator,
@@ -33,7 +35,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         IReservationValidationService reservationValidationService,
         IAcademicYearDateProvider academicYearDateProvider,
         ICurrentDateTime currentDateTime,
-        IAuthenticationService authenticationService)
+        IAuthenticationService authenticationService,
+        ICocManualApprovalsService cocManualApprovalsService)
     {
         _context = context;
         _overlapCheckService = overlapCheckService;
@@ -42,6 +45,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         _mediator = mediator;
         _currentDateTime = currentDateTime;
         _authenticationService = authenticationService;
+        _cocManualApprovalsService = cocManualApprovalsService;
     }
 
     public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken, Party party = Party.None)
@@ -64,6 +68,7 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         if (errors.Count == 0)
         {
             CheckForInvalidOperations(request, apprenticeship);
+            errors.AddRange(CocManualLocksValidationFailures(request, apprenticeship));
             errors.AddRange(BuildFirstNameValidationFailures(request, apprenticeship));
             errors.AddRange(BuildLastNameValidationFailures(request, apprenticeship));
             errors.AddRange(BuildDateOfBirthValidationFailures(request, apprenticeship));
@@ -93,6 +98,44 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         {
             Errors = errors
         };
+    }
+
+    private IEnumerable<DomainError> CocManualLocksValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
+    {
+        if (request.FirstName != apprenticeship.FirstName && _cocManualApprovalsService.IsFieldLockedForProvider("FirstName", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.FirstName));
+        }
+
+        if (request.LastName != apprenticeship.LastName && _cocManualApprovalsService.IsFieldLockedForProvider("LastName", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.LastName));
+        }
+
+        if (request.DateOfBirth != apprenticeship.DateOfBirth && _cocManualApprovalsService.IsFieldLockedForProvider("DateOfBirth", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.DateOfBirth));
+        }
+
+        if (request.StartDate != apprenticeship.StartDate && _cocManualApprovalsService.IsFieldLockedForProvider("StartDate", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.StartDate));
+        }
+
+        if (request.EndDate != apprenticeship.EndDate && _cocManualApprovalsService.IsFieldLockedForProvider("EndDate", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.EndDate));
+        }
+
+        if (request.Cost != apprenticeship.Cost && _cocManualApprovalsService.IsFieldLockedForProvider("Cost", apprenticeship.Cohort.ProviderId))
+        {
+            yield return CreateDomainErrorFor(nameof(request.Cost));
+        }
+
+        DomainError CreateDomainErrorFor(string propertyName)
+        {
+            return new DomainError(propertyName, $"{propertyName} cannot only be updated via the ILR");
+        }
     }
 
     /// <summary>

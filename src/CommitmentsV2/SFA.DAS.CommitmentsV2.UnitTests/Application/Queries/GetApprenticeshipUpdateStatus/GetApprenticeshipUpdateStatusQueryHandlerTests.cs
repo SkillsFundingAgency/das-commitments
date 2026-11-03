@@ -33,9 +33,9 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
 
         _fixture
             .SeedApprenticeship(providerId: 12345)
-            .WithConfiguration(new CoCApprovalsConfiguration
+            .WithConfiguration(new CocApprovalsConfiguration
             {
-                UKPRNS = new List<long> { 12345, 99999 },
+                UkPrns = new List<long> { 12345, 99999 },
                 LockedManualFields = expectedLockedManualFields
             });
 
@@ -49,9 +49,9 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
     {
         _fixture
             .SeedApprenticeship(providerId: 12345)
-            .WithConfiguration(new CoCApprovalsConfiguration
+            .WithConfiguration(new CocApprovalsConfiguration
             {
-                UKPRNS = new List<long> { 54321 },
+                UkPrns = new List<long> { 54321 },
                 LockedManualFields = new List<string> { "StartDate", "Cost" }
             });
 
@@ -75,7 +75,7 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
     public class GetApprenticeshipUpdateStatusQueryHandlerTestsFixture
     {
         private readonly Mock<ProviderCommitmentsDbContext> _db;
-        private CoCApprovalsConfiguration _configuration;
+        private CocApprovalsConfiguration _configuration;
         private GetApprenticeshipUpdateStatusQuery _request;
 
         public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture()
@@ -106,7 +106,7 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
             return this;
         }
 
-        public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture WithConfiguration(CoCApprovalsConfiguration configuration)
+        public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture WithConfiguration(CocApprovalsConfiguration configuration)
         {
             _configuration = configuration;
             return this;

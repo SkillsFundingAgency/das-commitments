@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdateStatus;
 
-public class GetApprenticeshipUpdateStatusQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, CoCApprovalsConfiguration cocApprovals) : IRequestHandler<GetApprenticeshipUpdateStatusQuery, GetApprenticeshipUpdateStatusQueryResult>
+public class GetApprenticeshipUpdateStatusQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, CocApprovalsConfiguration cocApprovals) : IRequestHandler<GetApprenticeshipUpdateStatusQuery, GetApprenticeshipUpdateStatusQueryResult>
 {
     public async Task<GetApprenticeshipUpdateStatusQueryResult> Handle(GetApprenticeshipUpdateStatusQuery request, CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public class GetApprenticeshipUpdateStatusQueryHandler(Lazy<ProviderCommitmentsD
 
         var providerId = apprenticeship.Cohort.ProviderId;  
 
-        if(cocApprovals?.UKPRNS != null && cocApprovals.UKPRNS.Contains(providerId))
+        if(cocApprovals?.UkPrns != null && cocApprovals.UkPrns.Contains(providerId))
         {
             retVal.LockedManualFields = cocApprovals.LockedManualFields;
         }
