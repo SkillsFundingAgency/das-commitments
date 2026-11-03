@@ -1,6 +1,7 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Mapping;
 
@@ -46,12 +47,7 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
             result.StandardUId = trainingProgramme?.StandardUId;
         }
 
-        if (!int.TryParse(source.CourseCode, out _) && trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard)
-        {
-            result.TrainingCourseVersion = source.TrainingCourseVersion;
-            result.StandardUId = source.StandardUId;
-            result.TrainingCourseVersionConfirmed = !string.IsNullOrEmpty(source.TrainingCourseVersion);
-        }
+        result.ApplyApprenticeshipUnitVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId);
 
         return result;
     }
