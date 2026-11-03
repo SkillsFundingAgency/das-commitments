@@ -77,6 +77,7 @@ public class Startup
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssembly(typeof(AddCohortValidator).Assembly);
         services.AddTransient<IFluentValidationAutoValidationResultFactory, FluentValidationToApiErrorResultFactory>();
+        services.AddTransient<ICocManualApprovalsService, CocManualApprovalsService>();
 
         services.AddSwaggerGen(c =>
         {
