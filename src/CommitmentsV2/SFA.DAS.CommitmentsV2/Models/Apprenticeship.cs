@@ -420,6 +420,29 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             FlexibleEmployment.EmploymentPrice = update.EmploymentPrice;
         }
 
+        UpdateTrainingCourse(update);
+
+        if (update.DateOfBirth.HasValue)
+        {
+            DateOfBirth = update.DateOfBirth;
+        }
+
+        if (update.StartDate.HasValue)
+        {
+            StartDate = update.StartDate;
+            ActualStartDate = null;
+        }
+
+        if (update.EndDate.HasValue)
+        {
+            EndDate = update.EndDate;
+        }
+
+        UpdatePrice(update);
+    }
+
+    private void UpdateTrainingCourse(ApprenticeshipUpdate update)
+    {
         if (update.TrainingType.HasValue)
         {
             ProgrammeType = update.TrainingType;
@@ -466,24 +489,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             StandardUId = update.StandardUId;
         }
-
-        if (update.DateOfBirth.HasValue)
-        {
-            DateOfBirth = update.DateOfBirth;
-        }
-
-        if (update.StartDate.HasValue)
-        {
-            StartDate = update.StartDate;
-            ActualStartDate = null;
-        }
-
-        if (update.EndDate.HasValue)
-        {
-            EndDate = update.EndDate;
-        }
-
-        UpdatePrice(update);
     }
 
     private void UpdatePrice(ApprenticeshipUpdate update)
