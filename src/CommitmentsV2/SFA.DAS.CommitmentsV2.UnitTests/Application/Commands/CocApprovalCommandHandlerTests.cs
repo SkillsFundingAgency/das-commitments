@@ -898,6 +898,59 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenEndDateIsReversal_DoesNotStoreANewApprovalItem()
+    {
+        var learningKey = Guid.NewGuid();
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange
+            {
+                ChangeType = nameof(CocChangeField.PlannedEndDate),
+                Data = new CocData { Old = "2027-09-01", New = "2027-09-30" }
+            }
+        ];
+        SetupRules(
+            details,
+            new CocApprovalResult
+            {
+                Status = CocApprovalResultStatus.Complete,
+                Items =
+                [
+                    new CocUpdateResult
+                    {
+                        Field = CocChangeField.PlannedEndDate,
+                        Status = CocApprovalItemStatus.Reversal
+                    }
+                ]
+            },
+            [
+                new ApprovalFieldRequest
+                {
+                    Field = nameof(CocChangeField.PlannedEndDate),
+                    Old = "2027-09-01",
+                    New = "2027-09-30",
+                    Status = CocApprovalItemStatus.Reversal
+                }
+            ]);
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        _dbContext.CocApprovalItems.Should().BeEmpty();
+        result.Items.Should().ContainSingle(item =>
+            item.Field == CocChangeField.PlannedEndDate &&
+            item.Status == CocApprovalItemStatus.Reversal);
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
+    }
+
+    [Test]
     public async Task Handle_WhenPricesListIsEmpty_LeavesPendingPriceRow()
     {
         var learningKey = Guid.NewGuid();
@@ -1027,7 +1080,7 @@ public class CocApprovalCommandHandlerTests
         };
     }
 
-    private void SetupRules(CocApprovalDetails details, CocApprovalResult result)
+    private void SetupRules(CocApprovalDetails details, CocApprovalResult result, List<ApprovalFieldRequest> approvalItems = null)
     {
         _cocApprovalRules.Setup(rules => rules.DetermineApprovalState(details)).ReturnsAsync(new CocApprovalState
         {
@@ -1037,7 +1090,7 @@ public class CocApprovalCommandHandlerTests
                 LearningType = details.LearningType,
                 UKPRN = details.ProviderId.ToString(),
                 ULN = details.ULN,
-                Items = []
+                Items = approvalItems ?? []
             },
             ApprovalResult = result
         });

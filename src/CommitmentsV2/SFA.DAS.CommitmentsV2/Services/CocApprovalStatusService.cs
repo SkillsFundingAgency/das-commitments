@@ -55,9 +55,9 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
 
             var newPlannedEndDate = CreateDateAsFirstOfMonth(updates.PlannedEndDate.New.Value);
 
-            if (apprenticeship.PaymentStatus == Types.PaymentStatus.Completed && apprenticeship.CompletionDate.HasValue && newPlannedEndDate > apprenticeship.CompletionDate)
+            if (apprenticeship.EndDate.HasValue && newPlannedEndDate == CreateDateAsFirstOfMonth(apprenticeship.EndDate.Value))
             {
-                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a completed record" };
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Reversal };
             }
             else if (newPlannedEndDate < Constants.DasStartDate)
             {

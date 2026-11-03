@@ -70,6 +70,11 @@ public class CocApprovalCommandHandler(
         {
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items)
             {
+                if (approvalFieldRequest.Status == CocApprovalItemStatus.Reversal)
+                {
+                    continue;
+                }
+
                 db.CocApprovalItems.Add(new CocApprovalItem
                 {
                     LearningKey = command.LearningKey,
