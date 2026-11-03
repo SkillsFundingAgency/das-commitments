@@ -130,7 +130,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         ChangeTrackingSession.TrackUpdate(update);
         ChangeTrackingSession.TrackUpdate(this);
 
-        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow, learningType);
+        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow);
         PendingUpdateOriginator = null;
         update.Status = ApprenticeshipUpdateStatus.Approved;
 
@@ -426,7 +426,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         return newPriceHistory.ToList();
     }
 
-    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn, LearningType? learningType)
+    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn)
     {
         if (!string.IsNullOrEmpty(update.FirstName))
         {
