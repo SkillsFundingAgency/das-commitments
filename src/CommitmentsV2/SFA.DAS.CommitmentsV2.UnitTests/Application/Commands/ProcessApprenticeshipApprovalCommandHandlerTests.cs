@@ -68,6 +68,20 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
     }
 
     [Test]
+    public async Task When_HandlingCommand_With_PlannedEndDate_Should_Send_Command_ToChangeHistory()
+    {
+        _fixture.PendingItems.Add(_fixture.CreatePlannedEndDateItem());
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        _fixture.MessageSession.Verify(y => y.Send(It.Is<StoreLearningHistoryCommand>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+            x.ChangeType == LearningChangeType.EmployerApproved &&
+            x.Description == "Planned end date change from 2026-06-01 to 2026-12-01"
+        ), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
     public async Task When_HandlingCommand_Should_SaveRequestAsApproved()
     {
         _fixture.Command.ApplyChanges = true;
@@ -228,6 +242,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             Db.CocApprovalItems.AddRange(PendingItems);
             await Db.SaveChangesAsync();
             return this;
+        }
+
+        public CocApprovalItem CreatePlannedEndDateItem()
+        {
+            return CreateItem(nameof(CocChangeField.PlannedEndDate), "2026-06-01", "2026-12-01");
         }
 
         public static string Schedule(decimal cost, decimal trainingPrice = 0m, decimal assessmentPrice = 0m)
