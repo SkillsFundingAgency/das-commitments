@@ -71,9 +71,9 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                     New = AssignRealStringsOnly(change.Data?.New),
                 };
             }
-            else if (changeType == CocChangeField.PlannedStartDate)
+            else if (changeType == CocChangeField.StartDate)
             {
-                result.Updates.PlannedStartDate = new CocUpdate<DateTime?>
+                result.Updates.StartDate = new CocUpdate<DateTime?>
                 {
                     Old = ToDate(change.Data.Old),
                     New = ToDate(change.Data.New),

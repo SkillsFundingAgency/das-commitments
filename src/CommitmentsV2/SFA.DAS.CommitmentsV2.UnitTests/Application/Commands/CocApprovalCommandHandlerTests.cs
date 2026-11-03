@@ -676,7 +676,7 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenActionIsCreateNew_AndPlannedStartDateIsAutoApproved_SendsAutoRejectedLearningHistory()
+    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsAutoApproved_SendsAutoRejectedLearningHistory()
     {
         var details = new CocApprovalDetails
         {
@@ -699,7 +699,7 @@ public class CocApprovalCommandHandlerTests
                 [
                     new ApprovalFieldRequest
                     {
-                        Field = nameof(CocChangeField.PlannedStartDate),
+                        Field = nameof(CocChangeField.StartDate),
                         Old = "2026-08-02",
                         New = "2026-09-02",
                         Status = CocApprovalItemStatus.AutoApproved
@@ -720,13 +720,13 @@ public class CocApprovalCommandHandlerTests
                     c.Source == LearningSourceType.ApprovalAPI &&
                     c.ChangeType == LearningChangeType.AutoApproved &&
                     c.AppliedDate == _utcNow &&
-                    c.Description == "Planned start date change from 2026-08-02 to 2026-09-02"),
+                    c.Description == "Start date change from 2026-08-02 to 2026-09-02"),
                 It.IsAny<SendOptions>()),
             Times.Once);
     }
 
     [Test]
-    public async Task Handle_WhenActionIsCreateNew_AndPlannedStartDateIsAutoRejected_SendsAutoRejectedLearningHistory()
+    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsAutoRejected_SendsAutoRejectedLearningHistory()
     {
         var details = new CocApprovalDetails
         {
@@ -749,7 +749,7 @@ public class CocApprovalCommandHandlerTests
                 [
                     new ApprovalFieldRequest
                     {
-                        Field = nameof(CocChangeField.PlannedStartDate),
+                        Field = nameof(CocChangeField.StartDate),
                         Old = "2026-08-02",
                         New = "1000-01-01",
                         Status = CocApprovalItemStatus.AutoRejected
@@ -770,7 +770,7 @@ public class CocApprovalCommandHandlerTests
                     c.Source == LearningSourceType.ApprovalAPI &&
                     c.ChangeType == LearningChangeType.AutoRejected &&
                     c.AppliedDate == _utcNow &&
-                    c.Description == "Planned start date change from 2026-08-02 to 1000-01-01"),
+                    c.Description == "Start date change from 2026-08-02 to 1000-01-01"),
                 It.IsAny<SendOptions>()),
             Times.Once);
     }

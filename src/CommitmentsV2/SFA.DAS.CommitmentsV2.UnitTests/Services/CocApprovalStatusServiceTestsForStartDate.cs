@@ -30,23 +30,23 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoApprovePlannedStartDate_WhenAllValidationRulesPass()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoApproveStartDate_WhenAllValidationRulesPass()
     {
         var plannedStartDate = new DateTime(2027, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync((ReservationValidationResult)null);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
-        result.Should().ContainSingle(x => x.Field == CocChangeField.PlannedStartDate && x.Status == CocApprovalItemStatus.AutoApproved);
+        result.Should().ContainSingle(x => x.Field == CocChangeField.StartDate && x.Status == CocApprovalItemStatus.AutoApproved);
     }
 
     [Test]
     public void DetermineCocUpdateStatuses_ShouldThrowAndNotInvokeStartDateRules_WhenCourseIsNull()
     {
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(new DateTime(2027, 1, 1));
+        var approvalDetails = CreateStartDateApprovalDetails(new DateTime(2027, 1, 1));
 
         var act = async () => await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, null);
 
@@ -55,30 +55,30 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateBeforeAbsoluteMinimum()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateBeforeAbsoluteMinimum()
     {
         var plannedStartDate = new DateTime(2016, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateBeforeAbsoluteMinimum(plannedStartDate)).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
         result.Should().HaveCount(1);
-        result[0].Field.Should().Be(CocChangeField.PlannedStartDate);
+        result[0].Field.Should().Be(CocChangeField.StartDate);
         result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
         result[0].Reason.Should().Be("The start date must not be earlier than May 2017");
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateAfterMaximum()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateAfterMaximum()
     {
         var plannedStartDate = new DateTime(2030, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateAfterMaximum(plannedStartDate)).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -88,7 +88,7 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateBeforeFundingWindowHasClosed()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateBeforeFundingWindowHasClosed()
     {
         var plannedStartDate = new DateTime(2024, 1, 1);
         var academicYearStart = new DateTime(2025, 8, 1);
@@ -97,7 +97,7 @@ public class CocApprovalStatusServiceTestsForStartDate
 
         _academicYearDateProviderMock.Setup(x => x.CurrentAcademicYearStartDate).Returns(academicYearStart);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -107,14 +107,14 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateBeforeLarsEffectiveFrom()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateBeforeLarsEffectiveFrom()
     {
         var plannedStartDate = new DateTime(2025, 1, 1);
         var effectiveFrom = new DateTime(2025, 5, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsActualStartDateBeforeLarsEffectiveFrom(plannedStartDate, It.IsAny<Course>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
         approvalDetails.Course.EffectiveFrom = effectiveFrom;
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
@@ -125,14 +125,14 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateAfterLarsEffectiveTo()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateAfterLarsEffectiveTo()
     {
         var plannedStartDate = new DateTime(2025, 1, 1);
         var effectiveTo = new DateTime(2025, 5, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsActualStartDateAfterLarsEffectiveTo(plannedStartDate, It.IsAny<Course>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
         approvalDetails.Course.EffectiveTo = effectiveTo;
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
@@ -143,13 +143,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateBeforeTransferFundedDate()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateBeforeTransferFundedDate()
     {
         var plannedStartDate = new DateTime(2017, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateBeforeTransferFundedDate(plannedStartDate, It.IsAny<Cohort>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -159,13 +159,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesAync_ShouldAutoReject_WhenPlannedStartDateUlnDateRangeOverlaps()
+    public async Task DetermineCocUpdateStatusesAync_ShouldAutoReject_WhenStartDateUlnDateRangeOverlaps()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateOverlappingWithUlnDateRangeAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -175,7 +175,7 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenPlannedStartDateReservationValidationFails()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoReject_WhenStartDateReservationValidationFails()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
@@ -186,7 +186,7 @@ public class CocApprovalStatusServiceTestsForStartDate
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateValidForReservationAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(new ReservationValidationResult(reservationValidationErrors));
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -196,13 +196,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectPlannedStartDate_WhenLearnerIsTooYoung()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenLearnerIsTooYoung()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateLessThanMinAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -212,13 +212,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectPlannedStartDate_WhenLearnerExceedsMaximumAge()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenLearnerExceedsMaximumAge()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -228,13 +228,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectPlannedStartDate_WhenLearnerExceedsMaximumAgeForLevel7()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenLearnerExceedsMaximumAgeForLevel7()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAgeForLevel7Course(plannedStartDate, It.IsAny<Apprenticeship>(), It.IsAny<Course>())).Returns(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -244,13 +244,13 @@ public class CocApprovalStatusServiceTestsForStartDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectPlannedStartDate_WhenEmailOverlapExists()
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenEmailOverlapExists()
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
         _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsThereEmailOverlapForStartDateAsync(plannedStartDate, It.IsAny<Apprenticeship>())).ReturnsAsync(true);
 
-        var approvalDetails = CreatePlannedStartDateApprovalDetails(plannedStartDate);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
         var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
 
@@ -259,13 +259,13 @@ public class CocApprovalStatusServiceTestsForStartDate
         result[0].Reason.Should().Be("This email address is already used for another apprenticeship in the same training period - use a different email address");
     }
 
-    private CocApprovalDetails CreatePlannedStartDateApprovalDetails(DateTime plannedStartDate)
+    private CocApprovalDetails CreateStartDateApprovalDetails(DateTime plannedStartDate)
     {
         return new CocApprovalDetails
         {
             Updates = new CocUpdates
             {
-                PlannedStartDate = new CocUpdate<DateTime?>
+                StartDate = new CocUpdate<DateTime?>
                 {
                     Old = plannedStartDate.AddDays(-1),
                     New = plannedStartDate

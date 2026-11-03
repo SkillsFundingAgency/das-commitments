@@ -6,6 +6,6 @@ public enum CocChangeField
     TNP2,
     Firstname,
     Lastname,
-    PlannedStartDate,
+    StartDate,
     PlannedEndDate
 }

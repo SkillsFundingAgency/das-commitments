@@ -20,7 +20,7 @@ public class CocUpdates
 {
     public CocUpdate<int?> TNP1 { get; set; }
     public CocUpdate<int?> TNP2 { get; set; }
-    public CocUpdate<DateTime?> PlannedStartDate { get; set; }
+    public CocUpdate<DateTime?> StartDate { get; set; }
     public CocUpdate<DateTime?> PlannedEndDate { get; set; }
     public CocUpdate<string> Firstname { get; set; }
     public CocUpdate<string> Lastname { get; set; }
