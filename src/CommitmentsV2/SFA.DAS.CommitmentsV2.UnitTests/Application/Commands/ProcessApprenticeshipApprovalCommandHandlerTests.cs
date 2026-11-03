@@ -113,8 +113,10 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
-            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count(change =>
+                change.ChangeType == nameof(CocChangeField.Prices) &&
+                change.Old == _fixture.OldPricesJson &&
+                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]
@@ -127,8 +129,10 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
-            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count(change =>
+                change.ChangeType == nameof(CocChangeField.Prices) &&
+                change.Old == _fixture.OldPricesJson &&
+                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture

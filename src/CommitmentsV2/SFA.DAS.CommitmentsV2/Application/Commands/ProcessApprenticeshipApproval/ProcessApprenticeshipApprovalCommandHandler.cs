@@ -39,7 +39,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             item.Updated = DateTime.UtcNow;
         }
 
-        var changes = ConvertItemsToChangeDictionary(pendingItems);
+        var changes = ConvertItemsToChangeList(pendingItems);
         if (command.ApplyChanges)
         {
             await messageSession.Publish(new LearningChangeApprovedEvent
@@ -126,17 +126,18 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         return null;
     }
 
-    private static Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<CocApprovalItem> items)
+    private static List<LearningChangeEvent.Change> ConvertItemsToChangeList(ICollection<CocApprovalItem> items)
     {
-        var changes = new Dictionary<string, LearningChangeEvent.Change>();
+        var changes = new List<LearningChangeEvent.Change>();
         foreach (var item in items)
         {
-            changes[item.Field] = new LearningChangeEvent.Change
+            changes.Add(new LearningChangeEvent.Change
             {
+                ChangeType = item.Field,
                 Old = item.Old,
                 New = item.New,
                 EffectiveFromDate = null
-            };
+            });
         }
         return changes;
     }
