@@ -22,18 +22,11 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
-        if (apprenticeship.StopDate != null)
+        if (updates.PlannedEndDate != null)
         {
-            updateResults.AddRange(AutoRejectFieldsAffectedByStoppedApprenticeship(updates));
-        }
-        else
-        {
-            if (updates.PlannedEndDate != null) 
-            {
-                logger.LogInformation("Change of PlannedEndDate detected");
-                var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
-                updateResults.AddRange(list);
-            }
+            logger.LogInformation("Change of PlannedEndDate detected");
+            var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
+            updateResults.AddRange(list);
         }
 
         if (updates.Firstname != null)
@@ -55,14 +48,6 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         }
 
         return updateResults;
-    }
-
-    private IEnumerable<CocUpdateResult> AutoRejectFieldsAffectedByStoppedApprenticeship(CocUpdates updates)
-    {
-        if (updates.PlannedEndDate != null)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a stopped record" };
-        }
     }
 
     private async IAsyncEnumerable<CocUpdateResult> DetermineStatusOfCourseDates(CocUpdates updates, Apprenticeship apprenticeship)
