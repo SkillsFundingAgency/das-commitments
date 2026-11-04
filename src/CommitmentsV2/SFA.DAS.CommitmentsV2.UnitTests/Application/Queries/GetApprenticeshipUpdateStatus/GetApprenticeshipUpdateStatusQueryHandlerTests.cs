@@ -22,8 +22,7 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
     {
         var result = await _fixture.Handle();
 
-        result.Should().NotBeNull();
-        result.LockedManualFields.Should().BeEmpty();
+        result.Should().BeNull();
     }
 
     [Test]

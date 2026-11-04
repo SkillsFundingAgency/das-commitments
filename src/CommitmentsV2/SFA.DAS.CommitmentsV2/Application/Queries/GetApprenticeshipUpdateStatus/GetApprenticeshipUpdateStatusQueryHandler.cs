@@ -9,19 +9,18 @@ public class GetApprenticeshipUpdateStatusQueryHandler(Lazy<ProviderCommitmentsD
     public async Task<GetApprenticeshipUpdateStatusQueryResult> Handle(GetApprenticeshipUpdateStatusQuery request, CancellationToken cancellationToken)
     {
         var apprenticeship = await dbContext.Value.Apprenticeships.Include(x => x.Cohort).FirstOrDefaultAsync(x => x.Id == request.ApprenticeshipId, cancellationToken);
+        if (apprenticeship == null)
+        {
+            return null;
+        }
+
+        var providerId = apprenticeship.Cohort.ProviderId;
         var retVal = new GetApprenticeshipUpdateStatusQueryResult
         {
             LockedManualFields = new List<string>()
         };
 
-        if (apprenticeship == null)
-        {
-            return retVal;
-        }
-
-        var providerId = apprenticeship.Cohort.ProviderId;  
-
-        if(cocApprovals?.UkPrns != null && cocApprovals.UkPrns.Contains(providerId))
+        if (cocApprovals?.UkPrns != null && cocApprovals.UkPrns.Contains(providerId))
         {
             retVal.LockedManualFields = cocApprovals.LockedManualFields;
         }

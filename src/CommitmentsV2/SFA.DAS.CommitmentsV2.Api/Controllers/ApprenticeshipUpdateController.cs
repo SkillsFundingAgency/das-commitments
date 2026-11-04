@@ -24,10 +24,14 @@ public class ApprenticeshipUpdateController(IMediator mediator, IModelMapper mod
     }
 
     [HttpGet]
-    [Route("status")]
-    public async Task<IActionResult> GetApprenticeshipUpdateStatus(long apprenticeshipId, [FromQuery] GetApprenticeshipUpdatesRequest request)
+    [Route("field-locks")]
+    public async Task<IActionResult> GetLockedFields(long apprenticeshipId)
     {
         var result = await mediator.Send(new GetApprenticeshipUpdateStatusQuery(apprenticeshipId));
+        if(result == null)
+        {
+            return NotFound();
+        };
         return Ok(result);
     }
 
