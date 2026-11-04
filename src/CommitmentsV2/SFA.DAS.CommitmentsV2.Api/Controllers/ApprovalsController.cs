@@ -44,7 +44,7 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         return new PutApprovalsResponse
         {
             Changes = MapToApprovalFieldChangeList(items, request.Changes).ToList(),
-            Prices = request.Prices
+            NewPrices = request.NewPrices
         };
     }
 
