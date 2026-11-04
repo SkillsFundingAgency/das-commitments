@@ -120,6 +120,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<ICocApprovalRulesEngine, CocApprovalRulesEngine>();
         services.AddTransient<INotifyProviderService, NotifyProviderService>();
         services.AddTransient<IValidationService, ValidationService>();
+        services.AddTransient<ICocManualApprovalsService, CocManualApprovalsService>();
 
         return services;
     }

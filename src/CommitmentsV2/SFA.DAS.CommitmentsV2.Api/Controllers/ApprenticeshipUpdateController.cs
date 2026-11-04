@@ -31,7 +31,6 @@ public class ApprenticeshipUpdateController(IMediator mediator, IModelMapper mod
         return Ok(result);
     }
 
-
     [HttpPost]
     [Route("accept-apprenticeship-update")]
     public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromBody] AcceptApprenticeshipUpdatesRequest request)
