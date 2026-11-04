@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Services;
 public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
 {
     public const string FuturePriceReason = "The price change includes a date in the future.";
-    public const string NonPositivePriceReason = "The price change includes a trainingPrice or assessmentPrice of zero or less.";
+    public const string NonPositivePriceReason = "The price change has a trainingPrice of zero or less.";
 
     public PriceChangeDecision Decide(IReadOnlyList<PriceRecord> prices, IEnumerable<PriceHistory> priceHistory, DateTime utcToday)
     {
@@ -20,7 +20,7 @@ public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
         var oldJson = priceScheduleMapper.Map(history);
         var newJson = priceScheduleMapper.Map(prices);
 
-        if (prices.Any(price => price.TrainingPrice <= 0 || price.AssessmentPrice <= 0))
+        if (prices.Any(price => price.TrainingPrice <= 0))
         {
             return new PriceChangeDecision
             {
