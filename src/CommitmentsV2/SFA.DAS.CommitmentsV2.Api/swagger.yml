@@ -23,22 +23,6 @@ paths:
   /approvals/{learningKey}:
     put:
       summary: Request to update a pending approval for the record on learning. This allows metrics on whether we are synchronised between systems
-      description: >
-        Price validation happens in two stages.
-
-        1. Request validation (400). If any entry in prices has a missing or
-        null trainingPrice, assessmentPrice or effectiveFrom, or a price that is
-        not a valid amount, the whole request is rejected with a 400 and nothing
-        is evaluated or stored, including any non-price changes in the same request.
-
-        2. Price rules (autoRejected). Each entry in prices is checked against
-        the rules below. If any entry breaks a rule, the Prices change is returned
-        with approvalStatus autoRejected and no pending price change is created.
-        The offending entries are flagged in the top-level prices array.
-          - ZeroPrice: trainingPrice or assessmentPrice is 0.
-          - TotalPriceExceedsLimit: trainingPrice + assessmentPrice is greater
-            than 100000. A total of exactly 100000 is allowed.
-        Where an entry breaks both rules, ZeroPrice is reported.
       parameters:
       - in: path
         name: learningKey
@@ -51,8 +35,6 @@ paths:
       responses:
         "201":
           $ref: "#/components/responses/approvalResponse"
-        "400":
-          $ref: "#/components/responses/priceValidationErrorResponse"
         "404":
           $ref: "#/components/responses/notFound"
 
@@ -195,22 +177,6 @@ components:
             items:
               $ref: "#/components/schemas/error"
 
-    priceValidationErrorResponse:
-      description: >
-        The request failed validation and nothing was evaluated. One error is
-        returned per invalid field. Codes: PriceFieldRequired (trainingPrice,
-        assessmentPrice or effectiveFrom is missing or null), PriceInvalidFormat
-        (a price is not a valid amount).
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/error"
-          example:
-            - code: PriceFieldRequired
-              message: "prices[1].assessmentPrice is required"
-
     notFound:
       description: Not found response
       content:
@@ -264,7 +230,7 @@ components:
         The result of evaluating this approval request, split to mirror
         the shape of the request: field-level results for anything
         submitted via changes, and price-level results for anything
-        submitted via prices.
+        submitted via priceHistory.
       properties:
         changes:
           type: array
@@ -275,12 +241,11 @@ components:
         prices:
           description: >
             One entry per price point evaluated from the submitted
-            prices — whether it came from trainingPrice,
+            priceHistory — whether it came from trainingPrice,
             assessmentPrice, or both on a given date. Only the field(s)
             that actually differed from their baseline appear here, so a
             date where only one of the two changed produces one entry,
-            not two. Entries that broke a price rule carry
-            approvalStatus autoRejected and a reason.
+            not two.
           type: array
           items:
             $ref: "#/components/schemas/priceApprovalResult"
@@ -306,11 +271,7 @@ components:
 
     pricesApprovalResult:
       type: object
-      description: >
-        Approval result for price changes. The evaluated price records are
-        returned in the top-level prices array. If any submitted price point
-        breaks a price rule, approvalStatus is autoRejected and reason holds
-        the code of the first rule broken.
+      description: Approval result for price changes. The evaluated price records are returned in the top-level prices array.
       required:
         - changeType
         - approvalStatus
@@ -322,24 +283,11 @@ components:
           type: string
           enum: [autoApproved, autoRejected, pending]
         reason:
-          description: >
-            Set when approvalStatus is autoRejected. For price rules this is
-            ZeroPrice or TotalPriceExceedsLimit.
           type: string
 
     priceApprovalResult:
-      allOf:
+      allOf: 
         - $ref: '#/components/schemas/priceChange'
-        - type: object
-          properties:
-            approvalStatus:
-              description: Present only when this price point broke a price rule.
-              type: string
-              enum: [autoRejected]
-            reason:
-              description: The rule this price point broke.
-              type: string
-              enum: [ZeroPrice, TotalPriceExceedsLimit]
 
     changeResult:
       type: object
@@ -379,7 +327,7 @@ components:
           format: uri
         changes:
           $ref: "#/components/schemas/learningChangeArray"
-        prices:
+        newPrices:
           $ref: '#/components/schemas/priceRecordArray'
 
     approvalStatusRequest:
@@ -514,10 +462,7 @@ components:
 
     priceRecordArray:
       type: array
-      description: >
-        This will be sent if there is a detected change in the price information
-        from the ILR. Every entry must have trainingPrice, assessmentPrice and
-        effectiveFrom populated (non-null), or the request is rejected with a 400.
+      description: This will be sent if there is a detected change in the price information from the ILR          
       items:
         $ref: "#/components/schemas/priceChange"
 
@@ -536,29 +481,12 @@ components:
       required: [trainingPrice, assessmentPrice, effectiveFrom]
       properties:
         trainingPrice:
-          description: >
-            Training price as a decimal amount with up to 2 decimal places.
-            Must not be null. A value of 0 causes the Prices change to be
-            autoRejected (ZeroPrice).
           type: string
-          nullable: false
-          pattern: '^\d+(\.\d{1,2})?$'
-          example: "12000.00"
         assessmentPrice:
-          description: >
-            Assessment price as a decimal amount with up to 2 decimal places.
-            Must not be null. A value of 0 causes the Prices change to be
-            autoRejected (ZeroPrice). trainingPrice + assessmentPrice above
-            100000 causes the Prices change to be autoRejected
-            (TotalPriceExceedsLimit).
           type: string
-          nullable: false
-          pattern: '^\d+(\.\d{1,2})?$'
-          example: "1500.00"
         effectiveFrom:
           type: string
           format: date
-          nullable: false
 
     pendingApprovalEmployerSummary:
       type: object
