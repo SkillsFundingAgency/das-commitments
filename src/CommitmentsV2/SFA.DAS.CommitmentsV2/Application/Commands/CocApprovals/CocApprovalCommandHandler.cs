@@ -109,7 +109,7 @@ public class CocApprovalCommandHandler(
     private async Task ApplyPriceDecision(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalState approvalState)
     {
         var decision = _priceChangeDecider.Decide(
-            command.Prices,
+            command.NewPrices,
             command.CocApprovalDetails?.Apprenticeship?.PriceHistory,
             currentDateTime.UtcNow);
 

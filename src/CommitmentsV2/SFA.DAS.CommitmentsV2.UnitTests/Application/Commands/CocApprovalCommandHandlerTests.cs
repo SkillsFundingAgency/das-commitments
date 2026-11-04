@@ -793,7 +793,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Reversal);
@@ -819,7 +819,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -852,7 +852,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices =
+            NewPrices =
             [
                 new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 },
                 new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }
@@ -892,7 +892,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -1000,7 +1000,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = []
+            NewPrices = []
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -1028,7 +1028,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Reversal);
@@ -1055,7 +1055,7 @@ public class CocApprovalCommandHandlerTests
             LearningKey = learningKey,
             CocApprovalDetails = details,
             ReversedFields = [nameof(CocChangeField.PlannedEndDate)],
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -1083,7 +1083,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();

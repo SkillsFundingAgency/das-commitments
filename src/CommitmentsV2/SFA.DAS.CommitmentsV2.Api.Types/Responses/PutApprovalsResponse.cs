@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses;
 public class PutApprovalsResponse
 {
     public List<ApprovalFieldChange> Changes { get; set; }
-    public List<PriceRecord> Prices { get; set; }
+    public List<PriceRecord> NewPrices { get; set; }
 }
 
 public class ApprovalFieldChange

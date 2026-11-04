@@ -46,7 +46,7 @@ public class ApprovalsControllerTests
         var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
         jsonResult.StatusCode.Should().Be(201);
         var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeNull();
+        response.NewPrices.Should().BeNull();
         response.Changes.Should().BeEquivalentTo(commandResult.Items.Select(x => new
         {
             ChangeType = x.Field.GetEnumDescription(),
@@ -89,7 +89,7 @@ public class ApprovalsControllerTests
         var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
         jsonResult.StatusCode.Should().Be(201);
         var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeNull();
+        response.NewPrices.Should().BeNull();
         response.Changes.Should().BeEquivalentTo(commandResult.Items.Select(x => new
         {
             ChangeType = x.Field.GetEnumDescription(),
@@ -103,7 +103,7 @@ public class ApprovalsControllerTests
     public async Task CocApprovals_ReturnsAutoApproved_WhenTheStoredPriceStatusIsReversal()
     {
         var request = CreateCocApprovalRequest(true);
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { TrainingPrice = 1200m, AssessmentPrice = 900m, EffectiveFrom = new DateTime(2026, 7, 8) }
         ];
@@ -132,7 +132,7 @@ public class ApprovalsControllerTests
 
         var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
         var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeSameAs(request.Prices);
+        response.NewPrices.Should().BeSameAs(request.NewPrices);
         response.Changes.Should().BeEquivalentTo(new[]
         {
             new { ChangeType = "Prices", ApprovalStatus = "AutoApproved", Reason = (string)null, Data = (CocData)null },
@@ -157,7 +157,7 @@ public class ApprovalsControllerTests
     public async Task CocApprovals_EchoesSubmittedPrices_AndOmitsDataOnPricesChange()
     {
         var request = CreateCocApprovalRequest(true);
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { TrainingPrice = 1000m, AssessmentPrice = 500m, EffectiveFrom = new DateTime(2026, 7, 8) },
             new PriceRecord { TrainingPrice = 2000m, AssessmentPrice = 1000m, EffectiveFrom = new DateTime(2026, 9, 1) }
@@ -186,7 +186,7 @@ public class ApprovalsControllerTests
         var result = await _controller.PutApprovals(request.LearningKey, request);
 
         var response = result.Should().BeOfType<CreatedResult>().Subject.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeSameAs(request.Prices);
+        response.NewPrices.Should().BeSameAs(request.NewPrices);
         response.Changes.Should().ContainSingle(x => x.ChangeType == "Prices")
             .Which.Data.Should().BeNull();
         response.Changes.Single(x => x.ChangeType == "Prices").ApprovalStatus.Should().Be("EmployerApprovalRequested");
@@ -213,7 +213,7 @@ public class ApprovalsControllerTests
         var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
         jsonResult.StatusCode.Should().Be(201);
         var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeNull();
+        response.NewPrices.Should().BeNull();
         response.Changes.Should().HaveCount(3);
         response.Changes.Should().ContainSingle(x =>
             x.ChangeType == "Firstname" && x.ApprovalStatus == "EmployerApprovalRequested" && x.Reason == null
@@ -230,7 +230,7 @@ public class ApprovalsControllerTests
     public async Task CocApprovals_Processes_A_Request_Which_Cancels_Pending_Request_Then_ReturnsResponse()
     {
         var request = CreateCocApprovalRequest(true);
-        request.Prices = null;
+        request.NewPrices = null;
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .Without(x => x.CocApprovalDetails)
             .With(x => x.Action, AggregationAction.CancelPrevious).Create();
@@ -245,7 +245,7 @@ public class ApprovalsControllerTests
         var jsonResult = result.Should().BeOfType<OkObjectResult>().Subject;
         jsonResult.StatusCode.Should().Be(200);
         var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
-        response.Prices.Should().BeNull();
+        response.NewPrices.Should().BeNull();
         response.Changes.Should().BeEquivalentTo(request.Changes.Select(x => new
         {
             x.ChangeType,

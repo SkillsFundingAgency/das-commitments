@@ -27,7 +27,7 @@ public class AggregationOfApprovalRequestMapper(
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.CreateNew,
-                Prices = request.Prices
+                NewPrices = request.NewPrices
             };
         }
 
@@ -41,7 +41,7 @@ public class AggregationOfApprovalRequestMapper(
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.SupersedePrevious,
-                Prices = request.Prices,
+                NewPrices = request.NewPrices,
                 ReversedFields = aggregated.ReversedFields
             };
         }
@@ -52,7 +52,7 @@ public class AggregationOfApprovalRequestMapper(
             CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
             LearningKey = request.LearningKey,
             Action = AggregationAction.CreateNew,
-            Prices = request.Prices,
+            NewPrices = request.NewPrices,
             ReversedFields = aggregated.ReversedFields
         };
     }
