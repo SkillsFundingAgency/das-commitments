@@ -397,6 +397,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "apprenticeshipId" });
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingCommand_WhenProviderHasLockedWithdrawals_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            apprenticeship.Cohort.ProviderId = 10001;
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo { UserId = "user", UserDisplayName = "User", UserEmail = "a@b.com" }, Party.Employer);
+
+            var configuration = new CommitmentsV2Configuration
+            {
+                ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl,
+                CoCApprovalsConfiguration = new CocApprovalsConfiguration { UkPrns = new List<long> { 10001, 10002 } }
+            };
+
+            var handler = new StopApprenticeshipCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
+                _currentDateTime.Object,
+                _nserviceBusContext.Object,
+                _encodingService.Object,
+                _logger.Object,
+                configuration,
+                _resolveOverlappingTrainingDateRequestService.Object);
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "apprenticeshipId", ErrorMessage = "The Training Provider has locked withdrawals and you cannot stop apprenticeships, this can only be done by the provider" });
+            _nserviceBusContext.Verify(s => s.Send(It.IsAny<SendEmailToProviderCommand>(), It.IsAny<SendOptions>()), Times.Never);
+        }
+
         [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_WithApprenticeshipUnit_AndSystemUser_ThenShouldStop()
         {
