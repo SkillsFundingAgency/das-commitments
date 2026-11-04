@@ -872,6 +872,40 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
     }
 
+    [TestCase(0, 0)]
+    [TestCase(0, 900)]
+    [TestCase(1200, 0)]
+    [TestCase(-1, 900)]
+    [TestCase(1200, -1)]
+    public async Task Handle_WhenPriceAmountIsZeroOrLess_SupersedesPendingPriceAndStoresAutoRejected(decimal trainingPrice, decimal assessmentPrice)
+    {
+        var learningKey = Guid.NewGuid();
+        var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
+        await _dbContext.CocApprovalItems.AddAsync(price);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        price.Status.Should().Be(CocApprovalItemStatus.Superseded);
+        var rejected = _dbContext.CocApprovalItems.Single(item => item.Status == CocApprovalItemStatus.AutoRejected);
+        rejected.Field.Should().Be(nameof(CocChangeField.Prices));
+        rejected.Reason.Should().Be(PriceChangeDecider.NonPositivePriceReason);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.AutoRejected && item.Reason == PriceChangeDecider.NonPositivePriceReason);
+        _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(command => command.Description == PriceChangeDecider.NonPositivePriceReason), It.IsAny<SendOptions>()), Times.Once);
+        _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
+    }
+
     [Test]
     public async Task Handle_WhenEndDateReverses_MarksOnlyThatRowAsReversal()
     {
