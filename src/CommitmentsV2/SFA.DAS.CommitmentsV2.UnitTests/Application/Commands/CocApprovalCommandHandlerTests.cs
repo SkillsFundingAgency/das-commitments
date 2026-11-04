@@ -803,8 +803,10 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
-    [Test]
-    public async Task Handle_WhenPriceDoesNotMatchHistory_SupersedesPendingPriceAndStoresPendingRow()
+    [TestCase(1200, 900)]
+    [TestCase(1200, 0)]
+    [TestCase(1200, -1)]
+    public async Task Handle_WhenTrainingPriceIsPositive_SupersedesPendingPriceAndStoresPendingRow(decimal trainingPrice, decimal assessmentPrice)
     {
         var learningKey = Guid.NewGuid();
         var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
@@ -819,7 +821,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -827,7 +829,8 @@ public class CocApprovalCommandHandlerTests
         price.Status.Should().Be(CocApprovalItemStatus.Superseded);
         var pending = _dbContext.CocApprovalItems.Single(item => item.Field == nameof(CocChangeField.Prices) && item.Status == CocApprovalItemStatus.Pending);
         pending.Old.Should().Contain("1500");
-        pending.New.Should().Contain("2100");
+        pending.New.Should().Contain(trainingPrice.ToString());
+        pending.New.Should().Contain(assessmentPrice.ToString());
         result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.Pending);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
@@ -874,10 +877,9 @@ public class CocApprovalCommandHandlerTests
 
     [TestCase(0, 0)]
     [TestCase(0, 900)]
-    [TestCase(1200, 0)]
     [TestCase(-1, 900)]
-    [TestCase(1200, -1)]
-    public async Task Handle_WhenPriceAmountIsZeroOrLess_SupersedesPendingPriceAndStoresAutoRejected(decimal trainingPrice, decimal assessmentPrice)
+    [TestCase(0, -1)]
+    public async Task Handle_WhenTrainingPriceIsZeroOrLess_SupersedesPendingPriceAndStoresAutoRejected(decimal trainingPrice, decimal assessmentPrice)
     {
         var learningKey = Guid.NewGuid();
         var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
