@@ -69,13 +69,13 @@ public class CocApprovalRulesEngine(
                 Field = change.ChangeType,
                 Old = change.Data.Old,
                 New = change.Data.New,
-                EffectiveFromDate = change.Data.EffectiveFromDate,
                 Status = status.Status,
                 Reason = status.Reason
             }
             );
     }
 
+    // TODO: Remove this overall status once testing shows each field can stand on its own. It is not stored, and the PUT response uses the field statuses.
     private static CocApprovalResultStatus DetermineApprovalRequestStatus(List<CocUpdateResult> updateResults)
     {
         if (updateResults.Any(x => x.Status == CocApprovalItemStatus.Pending))

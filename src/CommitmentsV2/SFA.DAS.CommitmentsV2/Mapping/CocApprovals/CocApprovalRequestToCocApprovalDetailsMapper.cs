@@ -27,35 +27,16 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ProviderId = ToLong(request.UKPRN),
             ULN = request.ULN,
             Updates = new CocUpdates(),
-            ApprovalFieldChanges = request.Changes,
+            ApprovalFieldChanges = request.Changes ?? [],
             Apprenticeship = apprenticeship,
             Course = await GetCourseAsync(apprenticeship?.CourseCode)
         };
 
-        foreach (var change in request.Changes)
+        foreach (var change in request.Changes ?? [])
         {
             var changeType = EnumExtensions.FromDescription<CocChangeField>(change.ChangeType);
 
-            if(changeType == CocChangeField.TNP1 || changeType == CocChangeField.TNP2)
-            {
-                var update = new CocUpdate<int?>
-                {
-                    Old = ToInt(change.Data.Old),
-                    New = ToInt(change.Data.New),
-                    EffectiveFromDate = change.Data.EffectiveFromDate
-                };
-
-                switch (changeType) 
-                { 
-                    case CocChangeField.TNP1: 
-                        result.Updates.TNP1 = update; 
-                        break; 
-                    case CocChangeField.TNP2: 
-                        result.Updates.TNP2 = update; 
-                        break; 
-                }
-            }
-            else if (changeType == CocChangeField.Firstname)
+            if (changeType == CocChangeField.Firstname)
             {
                 result.Updates.Firstname = new CocUpdate<string>
                 {
@@ -94,6 +75,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
         return await dbContext.Value.Apprenticeships
+            .Include(a => a.PriceHistory)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .Include(a => a.Cohort).ThenInclude(c => c.Provider)
             .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);

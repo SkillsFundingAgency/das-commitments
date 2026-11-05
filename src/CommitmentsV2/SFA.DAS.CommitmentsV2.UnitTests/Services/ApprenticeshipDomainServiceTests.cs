@@ -472,6 +472,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public List<Apprenticeship> SeedApprenticeships { get; }
             public List<DataLockStatus> SeedDataLocks { get; }
             public List<ApprovalRequest> SeedApprovalRequests { get; }
+            public List<CocApprovalItem> SeedFieldRows { get; }
 
             private Mock<IEncodingService> _encodingService;
 
@@ -480,6 +481,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 SeedApprenticeships = new List<Apprenticeship>();
                 SeedDataLocks = new List<DataLockStatus>();
                 SeedApprovalRequests = new List<ApprovalRequest>();
+                SeedFieldRows = new List<CocApprovalItem>();
 
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(s => s.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns<long, EncodingType>((value, encodingType) => $"HSH{value}");
@@ -515,6 +517,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 dbContext.Apprenticeships.AddRange(SeedApprenticeships);
                 dbContext.DataLocks.AddRange(SeedDataLocks);
                 dbContext.ApprovalRequests.AddRange(SeedApprovalRequests);
+                dbContext.CocApprovalItems.AddRange(SeedFieldRows);
                 dbContext.SaveChanges(true);
             }
 
@@ -578,6 +581,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         .Set(c => c.Status, status);
 
                     SeedApprovalRequests.Add(approval);
+                    if (status == CocApprovalResultStatus.Pending)
+                    {
+                        SeedFieldRows.Add(new CocApprovalItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ApprenticeshipId = apprenticeshipId,
+                            Status = CocApprovalItemStatus.Pending,
+                            Field = "PlannedEndDate",
+                            Old = "2026-01-01",
+                            New = "2026-06-01",
+                            LearningKey = Guid.NewGuid(),
+                            LearningType = CocLearningType.Apprenticeship,
+                            UKPRN = "10000000",
+                            ULN = "1234567890"
+                        });
+                    }
                 }
                 return this;
             }
