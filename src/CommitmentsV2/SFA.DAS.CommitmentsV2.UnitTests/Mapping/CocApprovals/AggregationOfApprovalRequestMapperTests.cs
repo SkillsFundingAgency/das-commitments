@@ -330,6 +330,21 @@ public class AggregationOfApprovalRequestMapperTests
     }
 
     [Test]
+    public void CreateAggregratedItems_WhenPlannedEndDateIsInTheSameMonthAsPreviousOldValue_IsSkipped()
+    {
+        var newChange = CreateChangeItem("PlannedEndDate", "2027-10-01", "2027-09-30");
+        var request = CreateChangeRequest(Guid.NewGuid(), newChange);
+        var previousItems = new List<CocApprovalItem>
+        {
+            new() { Field = "PlannedEndDate", Old = "2027-09-01", New = "2027-10-01" }
+        };
+
+        var result = _sut.CreateAggregratedItems(request, previousItems);
+
+        result.Should().BeEmpty();
+    }
+
+    [Test]
     public void CreateAggregratedItems_WhenFieldOnlyExistsInPreviousRequest_IsNotCarriedOver()
     {
         // Arrange

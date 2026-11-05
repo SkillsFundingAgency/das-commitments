@@ -162,14 +162,14 @@ public class CocApprovalRequestValidatorTests
         var result = Validate(CreateValidRequest());
 
         result.IsValid.Should().BeTrue();
-        result.Errors.Should().NotContain(error => error.PropertyName == "prices");
+        result.Errors.Should().NotContain(error => error.PropertyName == "newPrices");
     }
 
     [Test]
     public void Validate_Prices_ShouldAllowOneHundredEpisodes()
     {
         var request = CreateValidRequest();
-        request.Prices = CreatePriceRecords(Constants.MaximumPriceEpisodes);
+        request.NewPrices = CreatePriceRecords(Constants.MaximumPriceEpisodes);
 
         var result = Validate(request);
 
@@ -180,12 +180,12 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldRejectMoreThanOneHundredEpisodes()
     {
         var request = CreateValidRequest();
-        request.Prices = CreatePriceRecords(Constants.MaximumPriceEpisodes + 1);
+        request.NewPrices = CreatePriceRecords(Constants.MaximumPriceEpisodes + 1);
 
         var result = Validate(request);
 
         result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
         error.ErrorMessage.Should().Be($"A schedule can have at most {Constants.MaximumPriceEpisodes} episodes.");
     }
 
@@ -194,7 +194,7 @@ public class CocApprovalRequestValidatorTests
     {
         var request = CreateValidRequest();
         request.Changes = [];
-        request.Prices = CreatePriceRecords(1);
+        request.NewPrices = CreatePriceRecords(1);
 
         var result = Validate(request);
 
@@ -206,7 +206,7 @@ public class CocApprovalRequestValidatorTests
     {
         var request = CreateValidRequest();
         request.Changes = [];
-        request.Prices = [];
+        request.NewPrices = [];
 
         var result = Validate(request);
 
@@ -218,7 +218,7 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldAllowAnEmptyPricesListWhenAnotherChangeIsPresent()
     {
         var request = CreateValidRequest();
-        request.Prices = [];
+        request.NewPrices = [];
 
         var result = Validate(request);
 
@@ -229,7 +229,7 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldRejectAnEpisodeMissingAnAmount()
     {
         var request = CreateValidRequest();
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 1000, AssessmentPrice = null }
         ];
@@ -237,7 +237,7 @@ public class CocApprovalRequestValidatorTests
         var result = Validate(request);
 
         result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
         error.ErrorMessage.Should().Be("A price episode must include both trainingPrice and assessmentPrice.");
     }
 
@@ -245,7 +245,7 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldRejectAnEpisodeMissingEffectiveFrom()
     {
         var request = CreateValidRequest();
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { EffectiveFrom = null, TrainingPrice = 1000, AssessmentPrice = 500 }
         ];
@@ -253,7 +253,7 @@ public class CocApprovalRequestValidatorTests
         var result = Validate(request);
 
         result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
         error.ErrorMessage.Should().Be("A price episode must include an effectiveFrom date.");
     }
 
@@ -261,7 +261,7 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldRejectWhenLatestEpisodeTotalExceedsMaximum()
     {
         var request = CreateValidRequest();
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 1000, AssessmentPrice = 500 },
             new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 90000, AssessmentPrice = 10001 }
@@ -270,7 +270,7 @@ public class CocApprovalRequestValidatorTests
         var result = Validate(request);
 
         result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "prices").Subject;
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
         error.ErrorMessage.Should().Be("The total cost must be £100,000 or less");
     }
 
@@ -278,7 +278,7 @@ public class CocApprovalRequestValidatorTests
     public void Validate_Prices_ShouldAllowWhenLatestEpisodeTotalEqualsMaximum()
     {
         var request = CreateValidRequest();
-        request.Prices =
+        request.NewPrices =
         [
             new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 200000, AssessmentPrice = 1 },
             new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 60000, AssessmentPrice = 40000 }

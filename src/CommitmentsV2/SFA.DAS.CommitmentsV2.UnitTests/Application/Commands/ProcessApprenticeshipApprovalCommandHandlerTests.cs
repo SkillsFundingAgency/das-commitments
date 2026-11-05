@@ -68,6 +68,20 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
     }
 
     [Test]
+    public async Task When_HandlingCommand_With_PlannedEndDate_Should_Send_Command_ToChangeHistory()
+    {
+        _fixture.PendingItems.Add(_fixture.CreatePlannedEndDateItem());
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        _fixture.MessageSession.Verify(y => y.Send(It.Is<StoreLearningHistoryCommand>(x =>
+            x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
+            x.ChangeType == LearningChangeType.EmployerApproved &&
+            x.Description == "Planned end date change from 2026-06-01 to 2026-12-01"
+        ), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
     public async Task When_HandlingCommand_Should_SaveRequestAsApproved()
     {
         _fixture.Command.ApplyChanges = true;
@@ -113,8 +127,10 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
-            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count(change =>
+                change.ChangeType == nameof(CocChangeField.Prices) &&
+                change.Old == _fixture.OldPricesJson &&
+                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]
@@ -127,8 +143,10 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes[nameof(CocChangeField.Prices)].Old == _fixture.OldPricesJson &&
-            x.Changes[nameof(CocChangeField.Prices)].New == _fixture.NewPricesJson), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count(change =>
+                change.ChangeType == nameof(CocChangeField.Prices) &&
+                change.Old == _fixture.OldPricesJson &&
+                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture
@@ -224,6 +242,11 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
             Db.CocApprovalItems.AddRange(PendingItems);
             await Db.SaveChangesAsync();
             return this;
+        }
+
+        public CocApprovalItem CreatePlannedEndDateItem()
+        {
+            return CreateItem(nameof(CocChangeField.PlannedEndDate), "2026-06-01", "2026-12-01");
         }
 
         public static string Schedule(decimal cost, decimal trainingPrice = 0m, decimal assessmentPrice = 0m)

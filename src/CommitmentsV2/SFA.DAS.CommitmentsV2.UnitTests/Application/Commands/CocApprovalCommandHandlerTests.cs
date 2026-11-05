@@ -793,7 +793,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Reversal);
@@ -803,8 +803,10 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
-    [Test]
-    public async Task Handle_WhenPriceDoesNotMatchHistory_SupersedesPendingPriceAndStoresPendingRow()
+    [TestCase(1200, 900)]
+    [TestCase(1200, 0)]
+    [TestCase(1200, -1)]
+    public async Task Handle_WhenTrainingPriceIsPositive_SupersedesPendingPriceAndStoresPendingRow(decimal trainingPrice, decimal assessmentPrice)
     {
         var learningKey = Guid.NewGuid();
         var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
@@ -819,7 +821,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -827,7 +829,8 @@ public class CocApprovalCommandHandlerTests
         price.Status.Should().Be(CocApprovalItemStatus.Superseded);
         var pending = _dbContext.CocApprovalItems.Single(item => item.Field == nameof(CocChangeField.Prices) && item.Status == CocApprovalItemStatus.Pending);
         pending.Old.Should().Contain("1500");
-        pending.New.Should().Contain("2100");
+        pending.New.Should().Contain(trainingPrice.ToString());
+        pending.New.Should().Contain(assessmentPrice.ToString());
         result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.Pending);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
@@ -852,7 +855,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices =
+            NewPrices =
             [
                 new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 },
                 new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }
@@ -869,6 +872,39 @@ public class CocApprovalCommandHandlerTests
         result.Items.Should().Contain(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.AutoRejected && item.Reason == PriceChangeDecider.FuturePriceReason);
         result.Items.Should().Contain(item => item.Field == CocChangeField.PlannedEndDate && item.Status == CocApprovalItemStatus.Pending);
         _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(command => command.Description == PriceChangeDecider.FuturePriceReason), It.IsAny<SendOptions>()), Times.Once);
+        _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
+    }
+
+    [TestCase(0, 0)]
+    [TestCase(0, 900)]
+    [TestCase(-1, 900)]
+    [TestCase(0, -1)]
+    public async Task Handle_WhenTrainingPriceIsZeroOrLess_SupersedesPendingPriceAndStoresAutoRejected(decimal trainingPrice, decimal assessmentPrice)
+    {
+        var learningKey = Guid.NewGuid();
+        var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
+        await _dbContext.CocApprovalItems.AddAsync(price);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Pending, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = trainingPrice, AssessmentPrice = assessmentPrice }]
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        price.Status.Should().Be(CocApprovalItemStatus.Superseded);
+        var rejected = _dbContext.CocApprovalItems.Single(item => item.Status == CocApprovalItemStatus.AutoRejected);
+        rejected.Field.Should().Be(nameof(CocChangeField.Prices));
+        rejected.Reason.Should().Be(PriceChangeDecider.NonPositivePriceReason);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.AutoRejected && item.Reason == PriceChangeDecider.NonPositivePriceReason);
+        _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(command => command.Description == PriceChangeDecider.NonPositivePriceReason), It.IsAny<SendOptions>()), Times.Once);
         _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
     }
 
@@ -898,6 +934,59 @@ public class CocApprovalCommandHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenEndDateIsReversal_DoesNotStoreANewApprovalItem()
+    {
+        var learningKey = Guid.NewGuid();
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange
+            {
+                ChangeType = nameof(CocChangeField.PlannedEndDate),
+                Data = new CocData { Old = "2027-09-01", New = "2027-09-30" }
+            }
+        ];
+        SetupRules(
+            details,
+            new CocApprovalResult
+            {
+                Status = CocApprovalResultStatus.Complete,
+                Items =
+                [
+                    new CocUpdateResult
+                    {
+                        Field = CocChangeField.PlannedEndDate,
+                        Status = CocApprovalItemStatus.Reversal
+                    }
+                ]
+            },
+            [
+                new ApprovalFieldRequest
+                {
+                    Field = nameof(CocChangeField.PlannedEndDate),
+                    Old = "2027-09-01",
+                    New = "2027-09-30",
+                    Status = CocApprovalItemStatus.Reversal
+                }
+            ]);
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        _dbContext.CocApprovalItems.Should().BeEmpty();
+        result.Items.Should().ContainSingle(item =>
+            item.Field == CocChangeField.PlannedEndDate &&
+            item.Status == CocApprovalItemStatus.Reversal);
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
+    }
+
+    [Test]
     public async Task Handle_WhenPricesListIsEmpty_LeavesPendingPriceRow()
     {
         var learningKey = Guid.NewGuid();
@@ -913,7 +1002,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = []
+            NewPrices = []
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -941,7 +1030,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2024, 8, 1), TrainingPrice = 1000, AssessmentPrice = 500 }]
         }, CancellationToken.None);
 
         price.Status.Should().Be(CocApprovalItemStatus.Reversal);
@@ -968,7 +1057,7 @@ public class CocApprovalCommandHandlerTests
             LearningKey = learningKey,
             CocApprovalDetails = details,
             ReversedFields = [nameof(CocChangeField.PlannedEndDate)],
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 1200, AssessmentPrice = 900 }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -996,7 +1085,7 @@ public class CocApprovalCommandHandlerTests
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
             CocApprovalDetails = details,
-            Prices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }]
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 11, 1), TrainingPrice = 1300, AssessmentPrice = 900 }]
         }, CancellationToken.None);
 
         await _dbContext.SaveChangesAsync();
@@ -1027,7 +1116,7 @@ public class CocApprovalCommandHandlerTests
         };
     }
 
-    private void SetupRules(CocApprovalDetails details, CocApprovalResult result)
+    private void SetupRules(CocApprovalDetails details, CocApprovalResult result, List<ApprovalFieldRequest> approvalItems = null)
     {
         _cocApprovalRules.Setup(rules => rules.DetermineApprovalState(details)).ReturnsAsync(new CocApprovalState
         {
@@ -1037,7 +1126,7 @@ public class CocApprovalCommandHandlerTests
                 LearningType = details.LearningType,
                 UKPRN = details.ProviderId.ToString(),
                 ULN = details.ULN,
-                Items = []
+                Items = approvalItems ?? []
             },
             ApprovalResult = result
         });

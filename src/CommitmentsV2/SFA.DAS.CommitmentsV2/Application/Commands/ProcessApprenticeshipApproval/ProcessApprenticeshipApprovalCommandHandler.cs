@@ -39,7 +39,7 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             item.Updated = DateTime.UtcNow;
         }
 
-        var changes = ConvertItemsToChangeDictionary(pendingItems);
+        var changes = ConvertItemsToChangeList(pendingItems);
         if (command.ApplyChanges)
         {
             await messageSession.Publish(new LearningChangeApprovedEvent
@@ -90,24 +90,38 @@ public class ProcessApprenticeshipApprovalCommandHandler(
 
     private async Task RecordCocUpdatesInLearnerHistory(long apprenticeshipId, ICollection<CocApprovalItem> items, UserInfo userInfo, bool applyChanges)
     {
-        var pricesItem = items.FirstOrDefault(item => item.Field == nameof(CocChangeField.Prices));
-        if (pricesItem == null)
+        foreach (var item in items)
         {
-            return;
+            var description = item.Field == nameof(CocChangeField.Prices)
+                ? CreatePriceHistoryDescription(item)
+                : $"{GetFieldDescription(item.Field)} change from {item.Old} to {item.New}";
+
+            await messageSession.Send(new StoreLearningHistoryCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                Source = LearningSourceType.ApprovalAPI,
+                ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
+                AppliedDate = DateTime.UtcNow,
+                Description = description,
+                UserId = GetUserId(userInfo)
+            });
         }
+    }
 
-        var totalOldValue = PriceScheduleMapper.GetLatestCost(pricesItem.Old) ?? 0;
-        var totalNewValue = PriceScheduleMapper.GetLatestCost(pricesItem.New) ?? 0;
+    private static string CreatePriceHistoryDescription(CocApprovalItem item)
+    {
+        var totalOldValue = PriceScheduleMapper.GetLatestCost(item.Old) ?? 0;
+        var totalNewValue = PriceScheduleMapper.GetLatestCost(item.New) ?? 0;
+        return $"Total price change from {ToCurrency(totalOldValue)} to {ToCurrency(totalNewValue)}";
+    }
 
-        await messageSession.Send(new StoreLearningHistoryCommand
+    private static string GetFieldDescription(string field)
+    {
+        return field switch
         {
-            ApprenticeshipId = apprenticeshipId,
-            Source = LearningSourceType.ApprovalAPI,
-            ChangeType = applyChanges ? LearningChangeType.EmployerApproved : LearningChangeType.EmployerRejected,
-            AppliedDate = DateTime.UtcNow,
-            Description = $"Total price change from {ToCurrency(totalOldValue)} to {ToCurrency(totalNewValue)}",
-            UserId = GetUserId(userInfo)
-        });
+            nameof(CocChangeField.PlannedEndDate) => "Planned end date",
+            _ => field
+        };
     }
 
     public static string ToCurrency(decimal input)
@@ -126,17 +140,18 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         return null;
     }
 
-    private static Dictionary<string, LearningChangeEvent.Change> ConvertItemsToChangeDictionary(ICollection<CocApprovalItem> items)
+    private static List<LearningChangeEvent.Change> ConvertItemsToChangeList(ICollection<CocApprovalItem> items)
     {
-        var changes = new Dictionary<string, LearningChangeEvent.Change>();
+        var changes = new List<LearningChangeEvent.Change>();
         foreach (var item in items)
         {
-            changes[item.Field] = new LearningChangeEvent.Change
+            changes.Add(new LearningChangeEvent.Change
             {
+                ChangeType = item.Field,
                 Old = item.Old,
                 New = item.New,
                 EffectiveFromDate = null
-            };
+            });
         }
         return changes;
     }

@@ -70,6 +70,11 @@ public class CocApprovalCommandHandler(
         {
             foreach (var approvalFieldRequest in approvalState.ApprovalRequest.Items)
             {
+                if (approvalFieldRequest.Status == CocApprovalItemStatus.Reversal)
+                {
+                    continue;
+                }
+
                 db.CocApprovalItems.Add(new CocApprovalItem
                 {
                     LearningKey = command.LearningKey,
@@ -104,7 +109,7 @@ public class CocApprovalCommandHandler(
     private async Task ApplyPriceDecision(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalState approvalState)
     {
         var decision = _priceChangeDecider.Decide(
-            command.Prices,
+            command.NewPrices,
             command.CocApprovalDetails?.Apprenticeship?.PriceHistory,
             currentDateTime.UtcNow);
 

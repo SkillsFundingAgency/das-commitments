@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using System.Globalization;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Data;
@@ -26,7 +27,7 @@ public class AggregationOfApprovalRequestMapper(
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.CreateNew,
-                Prices = request.Prices
+                NewPrices = request.NewPrices
             };
         }
 
@@ -40,7 +41,7 @@ public class AggregationOfApprovalRequestMapper(
                 CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
                 LearningKey = request.LearningKey,
                 Action = AggregationAction.SupersedePrevious,
-                Prices = request.Prices,
+                NewPrices = request.NewPrices,
                 ReversedFields = aggregated.ReversedFields
             };
         }
@@ -51,7 +52,7 @@ public class AggregationOfApprovalRequestMapper(
             CocApprovalDetails = await modelMapper.Map<CocApprovalDetails>(request),
             LearningKey = request.LearningKey,
             Action = AggregationAction.CreateNew,
-            Prices = request.Prices,
+            NewPrices = request.NewPrices,
             ReversedFields = aggregated.ReversedFields
         };
     }
@@ -93,7 +94,7 @@ public class AggregationOfApprovalRequestMapper(
                     }
                 };
 
-                if (newChange.Data.Old == newChange.Data.New)
+                if (HasSameEffectiveValue(newChange))
                 {
                     logger.LogInformation("Change for field {Field} has no effective change, skipping", newChange.ChangeType);
                     reversedFields.Add(newChange.ChangeType);
@@ -122,5 +123,19 @@ public class AggregationOfApprovalRequestMapper(
         //}
 
         return (list, reversedFields);
+    }
+
+    private static bool HasSameEffectiveValue(CocApprovalFieldChange change)
+    {
+        if (change.Data.Old == change.Data.New)
+        {
+            return true;
+        }
+
+        return change.ChangeType == nameof(CocChangeField.PlannedEndDate)
+            && DateTime.TryParseExact(change.Data.Old, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var oldDate)
+            && DateTime.TryParseExact(change.Data.New, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var newDate)
+            && oldDate.Year == newDate.Year
+            && oldDate.Month == newDate.Month;
     }
 }

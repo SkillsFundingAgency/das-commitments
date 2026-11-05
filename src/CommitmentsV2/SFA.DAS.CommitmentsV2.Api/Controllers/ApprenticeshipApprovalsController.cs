@@ -7,15 +7,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/apprenticeships/{ApprenticeshipId:long}/approvals/{ApprovalRequestId:Guid}")]
+[Route("api/apprenticeships/{ApprenticeshipId:long}/approvals")]
 public class ApprenticeshipApprovalsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetApprenticeshipApproval(long apprenticeshipId, Guid approvalRequestId)
+    public async Task<IActionResult> GetApprenticeshipApproval(long apprenticeshipId)
     {
-        var result = await mediator.Send(new GetApprenticeshipApprovalQuery(apprenticeshipId, approvalRequestId));
+        var result = await mediator.Send(new GetApprenticeshipApprovalQuery(apprenticeshipId));
 
-        if(result == null)
+        if (result == null)
         {
             return NotFound();
         }
@@ -24,12 +24,11 @@ public class ApprenticeshipApprovalsController(IMediator mediator) : ControllerB
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostApprenticeshipApproval(long apprenticeshipId, Guid approvalRequestId, [FromBody] ProcessApprenticeshipApprovalRequest request)
+    public async Task<IActionResult> PostApprenticeshipApproval(long apprenticeshipId, [FromBody] ProcessApprenticeshipApprovalRequest request)
     {
         await mediator.Send(new ProcessApprenticeshipApprovalCommand
         {
             ApprenticeshipId = apprenticeshipId,
-            ApprovalRequestId = approvalRequestId,
             ApplyChanges = request.ApplyChanges,
             UserInfo = request.UserInfo
         });
