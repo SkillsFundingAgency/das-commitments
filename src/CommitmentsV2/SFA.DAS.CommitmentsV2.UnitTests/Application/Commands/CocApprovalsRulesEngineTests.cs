@@ -128,12 +128,12 @@ public class CocApprovalRulesEngineTestsFixture
         {
             new CocUpdateResult
             {
-                Field = CocChangeField.TNP1,
+                Field = CocChangeField.PlannedEndDate,
                 Status = CocApprovalItemStatus.Pending
             },
             new CocUpdateResult
             {
-                Field = CocChangeField.TNP2,
+                Field = CocChangeField.Lastname,
                 Status = CocApprovalItemStatus.Pending
             }
         };
@@ -142,20 +142,20 @@ public class CocApprovalRulesEngineTestsFixture
         {
             new CocApprovalFieldChange
             {
-                ChangeType = "TNP1",
+                ChangeType = "PlannedEndDate",
                 Data = new CocData
                 {
-                    Old = "1000",
-                    New = "1500"
+                    Old = "2026-08-10",
+                    New = "2026-10-15"
                 }
             },
             new CocApprovalFieldChange
             {
-                ChangeType = "TNP2",
+                ChangeType = "Lastname",
                 Data = new CocData
                 {
-                    Old = "2000",
-                    New = "1500"
+                    Old = "Jones",
+                    New = "Smith"
                 }
             }
         };
@@ -171,7 +171,7 @@ public class CocApprovalRulesEngineTestsFixture
         NotifyProviderService = new Mock<INotifyProviderService>();
         CommitmentsV2Configuration = AutoFixture.Create<CommitmentsV2Configuration>();
         MessageSession = new Mock<IMessageSession>();
-        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(), 
+        Sut = new CocApprovalRulesEngine(CocApprovalStatusService.Object, Mock.Of<ILogger<CocApprovalRulesEngine>>(),
             NotifyProviderService.Object, MessageSession.Object, CommitmentsV2Configuration,
             new Mock<IEncodingService>().Object);
     }
@@ -196,7 +196,6 @@ public class CocApprovalRulesEngineTestsFixture
                 Field = change.ChangeType,
                 Old = change.Data.Old,
                 New = change.Data.New,
-                EffectiveFromDate = change.Data.EffectiveFromDate,
                 Status = status.Status,
                 Reason = status.Reason
             }

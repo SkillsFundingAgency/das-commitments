@@ -33,12 +33,12 @@ public class ApprovalsControllerTests
         // Arrange
         var request = CreateCocApprovalRequest(true);
         var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
-        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>().With(x => x.CocApprovalDetails, cocApprovalDetails).With(x=>x.Action, AggregrationAction.CreateNew).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>().With(x => x.CocApprovalDetails, cocApprovalDetails).With(x => x.Action, AggregationAction.CreateNew).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
         _mediator.Setup(m => m.Send(cocApprovalCommand, It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
-        commandResult.Items.Where(x=>x.Status == CocApprovalItemStatus.Pending).ToList().ForEach(i => i.Status = CocApprovalItemStatus.AutoApproved);
+        commandResult.Items.Where(x => x.Status == CocApprovalItemStatus.Pending).ToList().ForEach(i => i.Status = CocApprovalItemStatus.AutoApproved);
 
         // Act
         var result = await _controller.PutApprovals(request.LearningKey, request);
@@ -74,8 +74,8 @@ public class ApprovalsControllerTests
         var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .With(x => x.CocApprovalDetails, cocApprovalDetails)
-            .With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.SupersedePrevious).Create();
+            //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
+            .With(x => x.Action, AggregationAction.SupersedePrevious).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -100,8 +100,8 @@ public class ApprovalsControllerTests
         var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .With(x => x.CocApprovalDetails, cocApprovalDetails)
-            .With(x=>x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.SupersedePrevious).Create();
+            //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
+            .With(x => x.Action, AggregationAction.SupersedePrevious).Create();
         var commandResult = CreateCocResult();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -116,11 +116,11 @@ public class ApprovalsControllerTests
         result.Should().BeOfType<CreatedResult>();
         var jsonResult = result as CreatedResult;
         jsonResult.StatusCode.Should().Be(201);
-        var response = jsonResult.Value as List<ApprovalFieldChange>;  
+        var response = jsonResult.Value as List<ApprovalFieldChange>;
         response.Should().NotBeNull();
         response.Count.Should().Be(3);
-        response.Should().ContainSingle(x => x.ChangeType == "TNP1" && x.ApprovalStatus == "EmployerApprovalRequested" && x.Reason == null);
-        response.Should().ContainSingle(x => x.ChangeType == "TNP2" && x.ApprovalStatus == "EmployerApprovalRequested" && x.Reason == null);
+        response.Should().ContainSingle(x => x.ChangeType == "Firstname" && x.ApprovalStatus == "EmployerApprovalRequested" && x.Reason == null);
+        response.Should().ContainSingle(x => x.ChangeType == "Lastname" && x.ApprovalStatus == "EmployerApprovalRequested" && x.Reason == null);
         response.Should().ContainSingle(x => x.ChangeType == "DoB" && x.ApprovalStatus == "AutoApproved" && x.Reason == null);
     }
 
@@ -130,8 +130,8 @@ public class ApprovalsControllerTests
         var request = _fixture.Create<CocApprovalRequest>();
         var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
             .Without(x => x.CocApprovalDetails)
-            .With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
-            .With(x => x.Action, AggregrationAction.CancelPrevious).Create();
+            //.With(x => x.PreviousApprovalRequestId, Guid.NewGuid())
+            .With(x => x.Action, AggregationAction.CancelPrevious).Create();
         var commandResult = _fixture.Create<CocApprovalResult>();
 
         _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
@@ -148,7 +148,7 @@ public class ApprovalsControllerTests
         jsonResult.Value.Should().BeEquivalentTo(request.Changes.Select(x => new { x.ChangeType, ApprovalStatus = "AutoApproved", Reason = (string)null }).ToList());
     }
 
-    private CocApprovalRequest CreateCocApprovalRequest(bool withOnlyTNPValues)
+    private CocApprovalRequest CreateCocApprovalRequest(bool withOnlyNameValues)
     {
         var request = new CocApprovalRequest
         {
@@ -162,22 +162,20 @@ public class ApprovalsControllerTests
             {
                 new CocApprovalFieldChange
                 {
-                    ChangeType = "TNP1",
+                    ChangeType = "Firstname",
                     Data = new CocData
                     {
-                        Old = "1000",
-                        New = "2000",
-                        EffectiveFromDate = DateTime.UtcNow.AddDays(1)
+                        Old = "John",
+                        New = "Joe"
                     }
                 },
                 new CocApprovalFieldChange
                 {
-                    ChangeType = "TNP2",
+                    ChangeType = "Lastname",
                     Data = new CocData
                     {
-                        Old = "3000",
-                        New = "4000",
-                        EffectiveFromDate = DateTime.UtcNow.AddDays(2)
+                        Old = "Smith",
+                        New = "Jones"
                     }
                 },
                 new CocApprovalFieldChange
@@ -186,16 +184,15 @@ public class ApprovalsControllerTests
                     Data = new CocData
                     {
                         Old = "1999-01-01",
-                        New = "1998-02-01",
-                        EffectiveFromDate = DateTime.UtcNow.AddDays(2)
+                        New = "1998-02-01"
                     }
                 }
             }
         };
 
-        if(withOnlyTNPValues)
+        if (withOnlyNameValues)
         {
-            request.Changes = request.Changes.Where(x => x.ChangeType == "TNP1" || x.ChangeType == "TNP2").ToList();
+            request.Changes = request.Changes.Where(x => x.ChangeType == "Firstname" || x.ChangeType == "Lastname").ToList();
         }
 
         return request;
@@ -210,13 +207,13 @@ public class ApprovalsControllerTests
             {
                 new CocUpdateResult
                 {
-                    Field = CocChangeField.TNP1,
+                    Field = CocChangeField.Firstname,
                     Status = CocApprovalItemStatus.Pending,
                     Reason = null
                 },
                 new CocUpdateResult
                 {
-                    Field = CocChangeField.TNP2,
+                    Field = CocChangeField.Lastname,
                     Status = CocApprovalItemStatus.Pending,
                     Reason = null
                 }

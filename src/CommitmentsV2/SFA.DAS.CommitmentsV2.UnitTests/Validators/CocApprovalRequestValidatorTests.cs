@@ -76,8 +76,8 @@ public class CocApprovalRequestValidatorTests
         AssertValidationResult(r => r.LearningType, request, expected);
     }
 
-    [TestCase("TNP1", true)]
-    [TestCase("TNP2", true)]
+    [TestCase("Firstname", true)]
+    [TestCase("Lastname", true)]
     [TestCase("XXXXXX", false)]
     public void Validate_ChangeType_ShouldBeInEnumList(string changeType, bool expected)
     {
@@ -95,8 +95,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "NewValue", Old = "OldValue" } },
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "NewValue", Old = "OldValue" } },
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -233,7 +233,7 @@ public class CocApprovalRequestValidatorTests
             LearningType = "Apprenticeship",
             Changes =
             [
-                new CocApprovalFieldChange { ChangeType = "TNP1", Data = new CocData { New = "1", Old = "2" } }
+                new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "1", Old = "2" } }
             ]
         };
     }

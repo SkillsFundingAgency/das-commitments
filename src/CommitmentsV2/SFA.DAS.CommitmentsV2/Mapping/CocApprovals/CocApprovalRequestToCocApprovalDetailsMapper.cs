@@ -36,26 +36,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
         {
             var changeType = EnumExtensions.FromDescription<CocChangeField>(change.ChangeType);
 
-            if(changeType == CocChangeField.TNP1 || changeType == CocChangeField.TNP2)
-            {
-                var update = new CocUpdate<int?>
-                {
-                    Old = ToInt(change.Data.Old),
-                    New = ToInt(change.Data.New),
-                    EffectiveFromDate = change.Data.EffectiveFromDate
-                };
-
-                switch (changeType) 
-                { 
-                    case CocChangeField.TNP1: 
-                        result.Updates.TNP1 = update; 
-                        break; 
-                    case CocChangeField.TNP2: 
-                        result.Updates.TNP2 = update; 
-                        break; 
-                }
-            }
-            else if (changeType == CocChangeField.Firstname)
+            if (changeType == CocChangeField.Firstname)
             {
                 result.Updates.Firstname = new CocUpdate<string>
                 {
