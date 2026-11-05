@@ -29,26 +29,22 @@ public class PriceScheduleMapper
 
     public string Map(IEnumerable<PriceRecord> priceRecords)
     {
+        return Serialize(ToSubmittedEpisodes(priceRecords));
+    }
+
+    public bool LatestEpisodesMatch(IEnumerable<PriceHistory> priceHistory, IEnumerable<PriceRecord> priceRecords)
+    {
+        ArgumentNullException.ThrowIfNull(priceHistory);
         ArgumentNullException.ThrowIfNull(priceRecords);
 
-        var episodes = new List<PriceScheduleEpisode>();
-        foreach (var priceRecord in priceRecords)
+        var current = Latest(priceHistory.Select(ToEpisode));
+        var submitted = Latest(ToSubmittedEpisodes(priceRecords));
+        if (current == null || submitted == null)
         {
-            if (priceRecord?.TrainingPrice == null || priceRecord?.AssessmentPrice == null)
-            {
-                throw new ArgumentException("A price episode must include both trainingPrice and assessmentPrice.");
-            }
-
-            episodes.Add(new PriceScheduleEpisode
-            {
-                EffectiveFrom = FormatDate(priceRecord.EffectiveFrom),
-                Cost = priceRecord.TrainingPrice.Value + priceRecord.AssessmentPrice.Value,
-                TrainingPrice = priceRecord.TrainingPrice,
-                AssessmentPrice = priceRecord.AssessmentPrice
-            });
+            return false;
         }
 
-        return Serialize(episodes);
+        return PriceScheduleEpisodeComparer.Instance.Equals(current, submitted);
     }
 
     public bool AreEqual(string left, string right)
@@ -73,6 +69,42 @@ public class PriceScheduleMapper
             TrainingPrice = hasSplit ? history.TrainingPrice : null,
             AssessmentPrice = hasSplit ? history.AssessmentPrice : null
         };
+    }
+
+    private static List<PriceScheduleEpisode> ToSubmittedEpisodes(IEnumerable<PriceRecord> priceRecords)
+    {
+        ArgumentNullException.ThrowIfNull(priceRecords);
+
+        var episodes = new List<PriceScheduleEpisode>();
+        foreach (var priceRecord in priceRecords)
+        {
+            if (priceRecord?.TrainingPrice == null || priceRecord?.AssessmentPrice == null)
+            {
+                throw new ArgumentException("A price episode must include both trainingPrice and assessmentPrice.");
+            }
+
+            if (priceRecord.EffectiveFrom == null)
+            {
+                throw new ArgumentException("A price episode must include an effectiveFrom date.");
+            }
+
+            episodes.Add(new PriceScheduleEpisode
+            {
+                EffectiveFrom = FormatDate(priceRecord.EffectiveFrom.Value),
+                Cost = priceRecord.TrainingPrice.Value + priceRecord.AssessmentPrice.Value,
+                TrainingPrice = priceRecord.TrainingPrice,
+                AssessmentPrice = priceRecord.AssessmentPrice
+            });
+        }
+
+        return episodes;
+    }
+
+    private static PriceScheduleEpisode Latest(IEnumerable<PriceScheduleEpisode> episodes)
+    {
+        return episodes
+            .OrderBy(episode => episode.EffectiveFrom, StringComparer.Ordinal)
+            .LastOrDefault();
     }
 
     private static string FormatDate(DateTime value)

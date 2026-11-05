@@ -83,7 +83,7 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "NewValue", Old = "OldValue" } }
+            new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "Anne", Old = "Ann" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -108,8 +108,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
-            new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = null },
+            new CocApprovalFieldChange { ChangeType = "Lastname", Data = new CocData { New = "Jones", Old = "Smith" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -121,8 +121,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "TNP1", Data = null },
-            new CocApprovalFieldChange { ChangeType = "TNP2", Data = new CocData { New = "Value2", Old = "Value2" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = null },
+            new CocApprovalFieldChange { ChangeType = "Lastname", Data = new CocData { New = "Smith", Old = "Smith" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -158,19 +158,19 @@ public class CocApprovalRequestValidatorTests
     }
 
     [Test]
-    public void Validate_PriceRecords_ShouldAllowRequestWithoutPriceRecords()
+    public void Validate_Prices_ShouldAllowRequestWithoutPrices()
     {
         var result = Validate(CreateValidRequest());
 
         result.IsValid.Should().BeTrue();
-        result.Errors.Should().NotContain(error => error.PropertyName == "priceRecords");
+        result.Errors.Should().NotContain(error => error.PropertyName == "newPrices");
     }
 
     [Test]
-    public void Validate_PriceRecords_ShouldAllowOneHundredEpisodes()
+    public void Validate_Prices_ShouldAllowOneHundredEpisodes()
     {
         var request = CreateValidRequest();
-        request.PriceRecords = CreatePriceRecords(Constants.MaximumPriceEpisodes);
+        request.NewPrices = CreatePriceRecords(Constants.MaximumPriceEpisodes);
 
         var result = Validate(request);
 
@@ -178,17 +178,116 @@ public class CocApprovalRequestValidatorTests
     }
 
     [Test]
-    public void Validate_PriceRecords_ShouldRejectMoreThanOneHundredEpisodes()
+    public void Validate_Prices_ShouldRejectMoreThanOneHundredEpisodes()
     {
         var request = CreateValidRequest();
-        request.PriceRecords = CreatePriceRecords(Constants.MaximumPriceEpisodes + 1);
+        request.NewPrices = CreatePriceRecords(Constants.MaximumPriceEpisodes + 1);
 
         var result = Validate(request);
 
         result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle().Subject;
-        error.PropertyName.Should().Be("priceRecords");
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
         error.ErrorMessage.Should().Be($"A schedule can have at most {Constants.MaximumPriceEpisodes} episodes.");
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldAllowAPriceOnlyBody()
+    {
+        var request = CreateValidRequest();
+        request.Changes = [];
+        request.NewPrices = CreatePriceRecords(1);
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldRejectWhenChangesAndPricesAreBothEmpty()
+    {
+        var request = CreateValidRequest();
+        request.Changes = [];
+        request.NewPrices = [];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(model => model.Changes);
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldAllowAnEmptyPricesListWhenAnotherChangeIsPresent()
+    {
+        var request = CreateValidRequest();
+        request.NewPrices = [];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldRejectAnEpisodeMissingAnAmount()
+    {
+        var request = CreateValidRequest();
+        request.NewPrices =
+        [
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 1000, AssessmentPrice = null }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
+        error.ErrorMessage.Should().Be("A price episode must include both trainingPrice and assessmentPrice.");
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldRejectAnEpisodeMissingEffectiveFrom()
+    {
+        var request = CreateValidRequest();
+        request.NewPrices =
+        [
+            new PriceRecord { EffectiveFrom = null, TrainingPrice = 1000, AssessmentPrice = 500 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
+        error.ErrorMessage.Should().Be("A price episode must include an effectiveFrom date.");
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldRejectWhenLatestEpisodeTotalExceedsMaximum()
+    {
+        var request = CreateValidRequest();
+        request.NewPrices =
+        [
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 1000, AssessmentPrice = 500 },
+            new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 90000, AssessmentPrice = 10001 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
+        error.ErrorMessage.Should().Be("The total cost must be £100,000 or less");
+    }
+
+    [Test]
+    public void Validate_Prices_ShouldAllowWhenLatestEpisodeTotalEqualsMaximum()
+    {
+        var request = CreateValidRequest();
+        request.NewPrices =
+        [
+            new PriceRecord { EffectiveFrom = new DateTime(2024, 1, 1), TrainingPrice = 200000, AssessmentPrice = 1 },
+            new PriceRecord { EffectiveFrom = new DateTime(2025, 1, 1), TrainingPrice = 60000, AssessmentPrice = 40000 }
+        ];
+
+        var result = Validate(request);
+
+        result.IsValid.Should().BeTrue();
     }
 
     [Test]

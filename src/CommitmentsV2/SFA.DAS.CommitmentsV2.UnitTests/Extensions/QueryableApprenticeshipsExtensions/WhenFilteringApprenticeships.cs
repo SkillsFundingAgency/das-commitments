@@ -913,7 +913,7 @@ public class WhenFilteringApprenticeships
                         {
                             new()
                             {
-                                Field = "TNP1",
+                                Field = nameof(CocChangeField.Prices),
                                 Status = CocApprovalItemStatus.AutoRejected
                             }
                         }
@@ -933,7 +933,7 @@ public class WhenFilteringApprenticeships
                         {
                             new()
                             {
-                                Field = "TNP1",
+                                Field = nameof(CocChangeField.Prices),
                                 Status = CocApprovalItemStatus.EmployerRejected
                             }
                         }

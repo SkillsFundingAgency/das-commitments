@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -32,53 +33,77 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         logger.LogInformation("PostApprovals completed Returning status of {Status}", result.Status);
         if (command.Action == AggregationAction.CancelPrevious)
         {
-            return Ok(MapToApprovalFieldChangeList(new List<CocUpdateResult>(), incomingChanges).ToList());
+            return Ok(MapToApprovalsResult(new List<CocUpdateResult>(), request));
         }
 
-        return Created("", MapToApprovalFieldChangeList(result.Items, incomingChanges).ToList());
+        return Created("", MapToApprovalsResult(result.Items, request));
     }
 
-    private IEnumerable<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items, List<CocApprovalFieldChange> changes)
+    private static PutApprovalsResponse MapToApprovalsResult(List<CocUpdateResult> items, CocApprovalRequest request)
     {
-        foreach(var item in items)
+        return new PutApprovalsResponse
         {
+            Changes = MapToApprovalFieldChangeList(items, request.Changes).ToList(),
+            NewPrices = request.NewPrices
+        };
+    }
+
+    private static IEnumerable<ApprovalFieldChange> MapToApprovalFieldChangeList(List<CocUpdateResult> items, List<CocApprovalFieldChange> changes)
+    {
+        foreach (var item in items)
+        {
+            var changeType = item.Field.GetEnumDescription();
             yield return new ApprovalFieldChange
             {
-                ChangeType = item.Field.GetEnumDescription(),
+                ChangeType = changeType,
                 ApprovalStatus = GetApprovalStatus(item.Status),
-                Reason = item.Reason
+                Reason = item.Reason,
+                Data = ResolveData(item.Field, changeType, changes)
             };
         }
 
-        foreach (var change in changes)
+        foreach (var change in changes ?? [])
         {
             if (items.Any(x => x.Field.GetEnumDescription() == change.ChangeType))
             {
                 continue;
             }
+
             yield return new ApprovalFieldChange
             {
                 ChangeType = change.ChangeType,
                 ApprovalStatus = CocApprovalItemStatus.AutoApproved.GetEnumDescription(),
-                Reason = null
+                Reason = null,
+                Data = IsPricesChange(change.ChangeType) ? null : change.Data
             };
         }
     }
 
-    private string GetApprovalStatus(CocApprovalItemStatus status)
+    private static CocData ResolveData(CocChangeField field, string changeType, List<CocApprovalFieldChange> changes)
     {
-        if(status == CocApprovalItemStatus.Pending)
+        if (field == CocChangeField.Prices)
+        {
+            return null;
+        }
+
+        return changes?.FirstOrDefault(x => x.ChangeType == changeType)?.Data;
+    }
+
+    private static bool IsPricesChange(string changeType) =>
+        string.Equals(changeType, nameof(CocChangeField.Prices), StringComparison.OrdinalIgnoreCase);
+
+    private static string GetApprovalStatus(CocApprovalItemStatus status)
+    {
+        if (status == CocApprovalItemStatus.Pending)
         {
             return "EmployerApprovalRequested";
         }
+
+        if (status == CocApprovalItemStatus.Reversal)
+        {
+            return CocApprovalItemStatus.AutoApproved.GetEnumDescription();
+        }
+
         return status.GetEnumDescription();
     }
 }
-
-public class ApprovalFieldChange
-{
-    public string ChangeType { get; set; }
-    public string ApprovalStatus { get; set; }
-    public string Reason { get; set; }
-}
-

@@ -169,7 +169,7 @@ public class AcknowledgeInvalidIlrChangesCommandHandlerTests
                         new()
                         {
                             Id = Guid.NewGuid(),
-                            Field = "TNP1",
+                            Field = nameof(CocChangeField.Prices),
                             Status = CocApprovalItemStatus.AutoRejected
                         }
                     }

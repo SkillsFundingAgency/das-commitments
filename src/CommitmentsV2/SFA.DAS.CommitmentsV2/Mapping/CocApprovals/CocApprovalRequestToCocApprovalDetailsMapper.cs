@@ -27,12 +27,12 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ProviderId = ToLong(request.UKPRN),
             ULN = request.ULN,
             Updates = new CocUpdates(),
-            ApprovalFieldChanges = request.Changes,
+            ApprovalFieldChanges = request.Changes ?? [],
             Apprenticeship = apprenticeship,
             Course = await GetCourseAsync(apprenticeship?.CourseCode)
         };
 
-        foreach (var change in request.Changes)
+        foreach (var change in request.Changes ?? [])
         {
             var changeType = EnumExtensions.FromDescription<CocChangeField>(change.ChangeType);
 
@@ -67,6 +67,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
         return await dbContext.Value.Apprenticeships
+            .Include(a => a.PriceHistory)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .Include(a => a.Cohort).ThenInclude(c => c.Provider)
             .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);

@@ -142,7 +142,25 @@ public class PriceScheduleMapperTests
             }
         });
 
-        act.Should().Throw<ArgumentException>();
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("A price episode must include both trainingPrice and assessmentPrice.");
+    }
+
+    [Test]
+    public void Map_SubmittedEpisodeMissingEffectiveFrom_Throws()
+    {
+        var act = () => _mapper.Map(new[]
+        {
+            new PriceRecord
+            {
+                TrainingPrice = 1000,
+                AssessmentPrice = 500,
+                EffectiveFrom = null
+            }
+        });
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("A price episode must include an effectiveFrom date.");
     }
 
     [Test]
@@ -169,6 +187,41 @@ public class PriceScheduleMapperTests
         var episodes = JArray.Parse(_mapper.Map(history));
 
         episodes.Should().HaveCount(Constants.MaximumPriceEpisodes + 1);
+    }
+
+    [Test]
+    public void LatestEpisodesMatch_CostOnlyHistoryMatchesASplitWithTheSameTotalAndDate()
+    {
+        var history = new[] { History(new DateTime(2024, 8, 1), 1500m, null, null) };
+        var prices = new[] { Record(new DateTime(2024, 8, 1), 1000m, 500m) };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeTrue();
+    }
+
+    [Test]
+    public void LatestEpisodesMatch_TwoSplitsMustHaveTheSameTrainingAndAssessmentAmounts()
+    {
+        var history = new[] { History(new DateTime(2024, 8, 1), 1500m, 1000m, 500m) };
+        var prices = new[] { Record(new DateTime(2024, 8, 1), 1200m, 300m) };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeFalse();
+    }
+
+    [Test]
+    public void LatestEpisodesMatch_IgnoresEarlierEpisodes()
+    {
+        var history = new[]
+        {
+            History(new DateTime(2024, 8, 1), 900m, null, null),
+            History(new DateTime(2025, 8, 1), 1500m, null, null)
+        };
+        var prices = new[]
+        {
+            Record(new DateTime(2024, 8, 1), 100m, 100m),
+            Record(new DateTime(2025, 8, 1), 1000m, 500m)
+        };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeTrue();
     }
 
     private static void Episode(JToken episode, string effectiveFrom, decimal cost, decimal? trainingPrice, decimal? assessmentPrice)
