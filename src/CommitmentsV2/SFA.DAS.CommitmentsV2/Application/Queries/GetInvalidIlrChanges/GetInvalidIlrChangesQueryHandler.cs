@@ -1,6 +1,5 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetInvalidIlrChanges;
@@ -13,8 +12,6 @@ public class GetInvalidIlrChangesQueryHandler(Lazy<ProviderCommitmentsDbContext>
         var apprenticeship = await dbContext.Value.Apprenticeships
             .AsNoTracking()
             .Include(a => a.Cohort)
-            .Include(a => a.ApprovalRequests)
-            .ThenInclude(request => request.Items)
             .SingleOrDefaultAsync(a => a.Id == query.ApprenticeshipId, cancellationToken);
 
         if (apprenticeship == null)
@@ -27,24 +24,29 @@ public class GetInvalidIlrChangesQueryHandler(Lazy<ProviderCommitmentsDbContext>
             throw new UnauthorizedAccessException($"Provider {query.ProviderId} cannot access apprenticeship {query.ApprenticeshipId}");
         }
 
-        var requestSets = (apprenticeship.ApprovalRequests ?? [])
-            .Where(request => request.IsUnacknowledged(query.ItemStatus))
-            .OrderByDescending(request => request.Created)
-            .Select(request => new InvalidIlrChangeSet
+        var fieldRows = await dbContext.Value.CocApprovalItems
+            .AsNoTracking()
+            .Where(item => item.ApprenticeshipId == query.ApprenticeshipId
+                && item.Status == query.ItemStatus
+                && item.ProviderAcknowledgedAt == null)
+            .OrderByDescending(item => item.Created)
+            .ToListAsync(cancellationToken);
+
+        var requestSets = fieldRows
+            .Select(item => new InvalidIlrChangeSet
             {
-                ApprovalRequestId = request.Id,
+                ApprovalRequestId = item.Id,
                 Decision = query.Decision,
-                Fields = request.Items
-                    .Where(item => item.Status == query.ItemStatus)
-                    .Select(item => new InvalidIlrChangeField
+                Fields =
+                [
+                    new InvalidIlrChangeField
                     {
                         Field = item.Field,
                         Old = item.Old,
                         New = item.New,
-                        EffectiveFrom = item.EffectiveFromDate,
-                        Reason = string.IsNullOrWhiteSpace(item.Reason) ? request.Reason : item.Reason
-                    })
-                    .ToList()
+                        Reason = item.Reason
+                    }
+                ]
             })
             .ToList();
 

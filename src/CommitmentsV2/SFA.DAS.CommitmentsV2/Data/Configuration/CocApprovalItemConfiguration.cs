@@ -12,5 +12,10 @@ public class CocApprovalItemConfiguration : IEntityTypeConfiguration<CocApproval
         builder.Property(e => e.Created).HasDefaultValueSql("(getdate())").ValueGeneratedOnAddOrUpdate();
         builder.Property(e => e.ProviderAcknowledgedBy).HasMaxLength(255);
         builder.Property(e => e.EmployerAcknowledgedBy).HasMaxLength(255);
+
+        builder.HasOne<Apprenticeship>()
+            .WithMany(apprenticeship => apprenticeship.CocApprovalItems)
+            .HasForeignKey(item => item.ApprenticeshipId)
+            .HasPrincipalKey(apprenticeship => apprenticeship.Id);
     }
 }

@@ -58,6 +58,23 @@ public class PriceScheduleMapper
         return leftEpisodes.SequenceEqual(rightEpisodes, PriceScheduleEpisodeComparer.Instance);
     }
 
+    public static decimal? GetLatestCost(string scheduleJson)
+    {
+        if (string.IsNullOrWhiteSpace(scheduleJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Latest(Deserialize(scheduleJson))?.Cost;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private static PriceScheduleEpisode ToEpisode(PriceHistory history)
     {
         var hasSplit = history.TrainingPrice.HasValue && history.AssessmentPrice.HasValue;

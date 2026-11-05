@@ -903,40 +903,24 @@ public class WhenFilteringApprenticeships
             new()
             {
                 Uln = "6",
-                ApprovalRequests = new List<ApprovalRequest>
+                CocApprovalItems = new List<CocApprovalItem>
                 {
                     new()
                     {
-                        Status = CocApprovalResultStatus.Complete,
-                        ProviderAcknowledgedAt = null,
-                        Items = new List<ApprovalFieldRequest>
-                        {
-                            new()
-                            {
-                                Field = nameof(CocChangeField.Prices),
-                                Status = CocApprovalItemStatus.AutoRejected
-                            }
-                        }
+                        Field = nameof(CocChangeField.Prices),
+                        Status = CocApprovalItemStatus.AutoRejected
                     }
                 }
             },
             new()
             {
                 Uln = "7",
-                ApprovalRequests = new List<ApprovalRequest>
+                CocApprovalItems = new List<CocApprovalItem>
                 {
                     new()
                     {
-                        Status = CocApprovalResultStatus.Complete,
-                        ProviderAcknowledgedAt = null,
-                        Items = new List<ApprovalFieldRequest>
-                        {
-                            new()
-                            {
-                                Field = nameof(CocChangeField.Prices),
-                                Status = CocApprovalItemStatus.EmployerRejected
-                            }
-                        }
+                        Field = nameof(CocChangeField.Prices),
+                        Status = CocApprovalItemStatus.EmployerRejected
                     }
                 }
             },

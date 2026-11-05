@@ -11,24 +11,7 @@ public class GetApprenticeshipApprovalValidationTests
     public void Validate_WithSpecifiedAppprenticeshipId(int apprenticeshipId, bool expectedIsValid)
     {
         var validator = new GetApprenticeshipApprovalQueryValidator();
-        var validationResults = validator.Validate(new GetApprenticeshipApprovalQuery(apprenticeshipId, Guid.NewGuid()));
+        var validationResults = validator.Validate(new GetApprenticeshipApprovalQuery(apprenticeshipId));
         validationResults.IsValid.Should().Be(expectedIsValid);
     }
-
-    [Test]
-    public void Validate_WithNonEmptyApprovalRequestId_Then_Should_Pass()
-    {
-        var validator = new GetApprenticeshipApprovalQueryValidator();
-        var validationResults = validator.Validate(new GetApprenticeshipApprovalQuery(111, Guid.NewGuid()));
-        validationResults.IsValid.Should().Be(true);
-    }
-
-    [Test]
-    public void Validate_WithEmptyApprovalRequestId_Then_Should_Fail()
-    {
-        var validator = new GetApprenticeshipApprovalQueryValidator();
-        var validationResults = validator.Validate(new GetApprenticeshipApprovalQuery(111, Guid.Empty));
-        validationResults.IsValid.Should().Be(false);
-    }
-
 }

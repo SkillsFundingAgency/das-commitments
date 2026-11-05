@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -41,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -63,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -87,6 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -109,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -132,6 +137,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -154,6 +160,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -175,6 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = true;
             source.OverlappingTrainingDateRequests = null;
 
@@ -199,6 +207,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             });
             source.DataLockStatus = new List<DataLockStatus>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = true;
             source.OverlappingTrainingDateRequests = null;
 
@@ -221,6 +230,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = false;
             source.OverlappingTrainingDateRequests = null;
 
@@ -245,6 +255,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             });
             source.DataLockStatus = new List<DataLockStatus>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = false;
             source.OverlappingTrainingDateRequests = null;
 
@@ -265,6 +276,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -286,6 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -310,6 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -342,6 +356,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -369,6 +384,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             //Act
@@ -396,6 +412,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
@@ -420,6 +437,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
 
             var result = await mapper.Map(source);
 
@@ -436,6 +454,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = false;
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
@@ -460,6 +479,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
             source.IsProviderSearch = false;
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Resolved;
@@ -484,6 +504,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.DataLockStatus = new List<DataLockStatus>();
             source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
 
             overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
             source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
@@ -509,9 +530,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = true;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreateUnacknowledgedAutoRejectedRequest()
+                CreateFieldRow(CocApprovalItemStatus.AutoRejected)
             };
 
             var result = await mapper.Map(source);
@@ -530,9 +551,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = false;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreateUnacknowledgedAutoRejectedRequest()
+                CreateFieldRow(CocApprovalItemStatus.AutoRejected)
             };
 
             var result = await mapper.Map(source);
@@ -551,9 +572,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = true;
-            var request = CreateUnacknowledgedAutoRejectedRequest();
-            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
-            source.ApprovalRequests = new List<ApprovalRequest> { request };
+            var fieldRow = CreateFieldRow(CocApprovalItemStatus.AutoRejected);
+            fieldRow.ProviderAcknowledgedAt = DateTime.UtcNow;
+            source.CocApprovalItems = new List<CocApprovalItem> { fieldRow };
 
             var result = await mapper.Map(source);
 
@@ -571,9 +592,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = true;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreateUnacknowledgedEmployerRejectedRequest()
+                CreateFieldRow(CocApprovalItemStatus.EmployerRejected)
             };
 
             var result = await mapper.Map(source);
@@ -592,9 +613,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = false;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreateUnacknowledgedEmployerRejectedRequest()
+                CreateFieldRow(CocApprovalItemStatus.EmployerRejected)
             };
 
             var result = await mapper.Map(source);
@@ -613,9 +634,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = true;
-            var request = CreateUnacknowledgedEmployerRejectedRequest();
-            request.AcknowledgeByProvider("user-1", DateTime.UtcNow);
-            source.ApprovalRequests = new List<ApprovalRequest> { request };
+            var fieldRow = CreateFieldRow(CocApprovalItemStatus.EmployerRejected);
+            fieldRow.ProviderAcknowledgedAt = DateTime.UtcNow;
+            source.CocApprovalItems = new List<CocApprovalItem> { fieldRow };
 
             var result = await mapper.Map(source);
 
@@ -633,10 +654,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = true;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreateUnacknowledgedAutoRejectedRequest(),
-                CreateUnacknowledgedEmployerRejectedRequest()
+                CreateFieldRow(CocApprovalItemStatus.AutoRejected),
+                CreateFieldRow(CocApprovalItemStatus.EmployerRejected)
             };
 
             var result = await mapper.Map(source);
@@ -655,9 +676,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = false;
-            source.ApprovalRequests = new List<ApprovalRequest>
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                CreatePendingApprovalRequest()
+                CreateFieldRow(CocApprovalItemStatus.Pending)
             };
 
             var result = await mapper.Map(source);
@@ -676,9 +697,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.OverlappingTrainingDateRequests = null;
             source.IsProviderSearch = false;
-            source.ApprovalRequests = new List<ApprovalRequest>
-            {
-            };
+            source.ApprovalRequests = new List<ApprovalRequest>();
+            source.CocApprovalItems = new List<CocApprovalItem>();
 
             var result = await mapper.Map(source);
 
@@ -695,54 +715,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = null;
             source.IsProviderSearch = false;
             source.OverlappingTrainingDateRequests = null;
-            foreach (var item in source.ApprovalRequests)
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                item.EmployerAcknowledgedAt = null;
-                item.EmployerAcknowledgedBy = null;
-                item.Status = CocApprovalResultStatus.Complete;
-            }
+                CreateFieldRow(CocApprovalItemStatus.AutoApproved)
+            };
 
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ViewChanges });
         }
 
-
-        private static ApprovalRequest CreateUnacknowledgedAutoRejectedRequest()
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_AutoApproved_And_Pending_Fields_Then_Both_Alerts(
+           Apprenticeship source,
+           PriceHistory priceHistory,
+           ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
-            return CreateUnacknowledgedRequest(CocApprovalItemStatus.AutoRejected);
-        }
-
-        private static ApprovalRequest CreateUnacknowledgedEmployerRejectedRequest()
-        {
-            return CreateUnacknowledgedRequest(CocApprovalItemStatus.EmployerRejected);
-        }
-
-        private static ApprovalRequest CreateUnacknowledgedRequest(CocApprovalItemStatus itemStatus)
-        {
-            return new ApprovalRequest
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
+            source.IsProviderSearch = false;
+            source.CocApprovalItems = new List<CocApprovalItem>
             {
-                Status = CocApprovalResultStatus.Complete,
-                ProviderAcknowledgedAt = null,
-                ProviderAcknowledgedBy = null,
-                Items = new List<ApprovalFieldRequest>
-                {
-                    new()
-                    {
-                        Field = nameof(CocChangeField.Prices),
-                        Status = itemStatus
-                    }
-                }
+                CreateFieldRow(CocApprovalItemStatus.AutoApproved),
+                CreateFieldRow(CocApprovalItemStatus.Pending)
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrChangesPending, Alerts.ViewChanges });
+        }
+
+        private static CocApprovalItem CreateFieldRow(CocApprovalItemStatus status)
+        {
+            return new CocApprovalItem
+            {
+                Field = "Firstname",
+                Status = status
             };
         }
-
-        private static ApprovalRequest CreatePendingApprovalRequest()
-        {
-            return new ApprovalRequest
-            {
-                Status = CocApprovalResultStatus.Pending,
-                Items = new List<ApprovalFieldRequest>()
-            };
-        }        
     }
 }
