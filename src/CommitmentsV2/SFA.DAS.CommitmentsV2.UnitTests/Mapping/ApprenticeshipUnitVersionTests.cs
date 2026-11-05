@@ -8,6 +8,7 @@ using SFA.DAS.UnitOfWork.Context;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -179,7 +180,31 @@ public class ApprenticeshipUnitVersionTests
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
     }
 
-    private static TrainingProgramme Programme() => new("ZSC00001", "Unit", ProgrammeType.Standard, null, null);
+    [TestCase(LearningType.ApprenticeshipUnit, "1.1")]
+    [TestCase(LearningType.FoundationApprenticeship, null)]
+    [TestCase(LearningType.Apprenticeship, null)]
+    [TestCase(null, null)]
+    public void AppliesUnitVersionBasedOnLearningTypeRatherThanCourseCode(LearningType? learningType, string expectedVersion)
+    {
+        var details = new DraftApprenticeshipDetails
+        {
+            TrainingProgramme = new TrainingProgramme("ZSC00001", "Course", ProgrammeType.Standard, null, null)
+            {
+                LearningType = learningType
+            }
+        };
+
+        details.ApplyTrainingCourseVersion("1.1", "AU0001_1.1", populateStandardVersion: true);
+
+        details.LearningType.Should().Be(learningType);
+        details.TrainingCourseVersion.Should().Be(expectedVersion);
+        details.StandardUId.Should().Be(expectedVersion == null ? null : "AU0001_1.1");
+    }
+
+    private static TrainingProgramme Programme() => new("ZSC00001", "Unit", ProgrammeType.Standard, null, null)
+    {
+        LearningType = LearningType.ApprenticeshipUnit
+    };
 
     private static Mock<ITrainingProgrammeLookup> Lookup()
     {
