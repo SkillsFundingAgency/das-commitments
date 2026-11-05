@@ -76,15 +76,16 @@ public class CocApprovalRequestValidatorTests
         AssertValidationResult(r => r.LearningType, request, expected);
     }
 
-        [TestCase("Firstname", true)]
-        [TestCase("XXXXXX", false)]
-        public void Validate_ChangeType_ShouldBeInEnumList(string changeType, bool expected)
+    [TestCase("Firstname", true)]
+    [TestCase("Lastname", true)]
+    [TestCase("XXXXXX", false)]
+    public void Validate_ChangeType_ShouldBeInEnumList(string changeType, bool expected)
+    {
+        var changes = new List<CocApprovalFieldChange>
         {
-            var changes = new List<CocApprovalFieldChange>
-            {
-                new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "Anne", Old = "Ann" } }
-            };
-            var request = new CocApprovalRequest { Changes = changes };
+            new CocApprovalFieldChange { ChangeType = changeType, Data = new CocData { New = "Anne", Old = "Ann" } }
+        };
+        var request = new CocApprovalRequest { Changes = changes };
 
         AssertValidationResult(r => r.Changes, request, expected);
     }
@@ -94,8 +95,8 @@ public class CocApprovalRequestValidatorTests
     {
         var changes = new List<CocApprovalFieldChange>
         {
-            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Anne", Old = "Ann" } },
-            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Annie", Old = "Anne" } }
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "NewValue", Old = "OldValue" } },
+            new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "NewValue2", Old = "OldValue2" } }
         };
         var request = new CocApprovalRequest { Changes = changes };
 
@@ -331,7 +332,7 @@ public class CocApprovalRequestValidatorTests
             LearningType = "Apprenticeship",
             Changes =
             [
-                new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "Anne", Old = "Ann" } }
+                new CocApprovalFieldChange { ChangeType = "Firstname", Data = new CocData { New = "1", Old = "2" } }
             ]
         };
     }
