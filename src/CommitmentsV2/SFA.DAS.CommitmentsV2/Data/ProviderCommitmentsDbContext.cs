@@ -47,6 +47,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
     public virtual DbSet<EmployerVerificationRequest> EmployerVerificationRequests { get; set; }
     public virtual DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public virtual DbSet<ApprovalFieldRequest> ApprovalFieldRequests { get; set; }
+    public virtual DbSet<CocApprovalItem> CocApprovalItems { get; set; }
     public virtual DbSet<LearningChangeHistory> LearningChangeHistory { get; set; }
 
     public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
@@ -121,6 +122,7 @@ public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbCon
         modelBuilder.ApplyConfiguration(new ApprovalRequestConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalFieldRequestConfiguration());
         modelBuilder.ApplyConfiguration(new LearningChangeHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new CocApprovalItemConfiguration());
     }
 
     public override void Dispose()

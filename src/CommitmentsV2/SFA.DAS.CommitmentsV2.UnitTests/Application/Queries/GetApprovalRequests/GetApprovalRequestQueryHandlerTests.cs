@@ -28,7 +28,10 @@ public class GetApprovalRequestQueryHandlerTests
         var actual = response.ApprovalRequests.SelectMany(x => x.Items)
             .Select(x => new { x.Field, x.Old, x.New, x.Created });
 
-        var expected = _fixture.ApprovalRequest.Items.Select(x => new { x.Field, x.Old, x.New, x.Created });
+        var expected = new[]
+        {
+            new { _fixture.FieldRow.Field, _fixture.FieldRow.Old, _fixture.FieldRow.New, _fixture.FieldRow.Created }
+        };
         actual.Should().BeEquivalentTo(expected);
     }
 
@@ -52,8 +55,7 @@ public class GetApprovalRequestQueryHandlerTests
         public Guid ApprovalRequestId { get; private set; } = Guid.NewGuid();
         public long AccountLegalEntityId { get; private set; }
         public long AccountId { get; private set; }
-        public ApprovalRequest ApprovalRequest { get; private set; }
-        public List<ApprovalFieldRequest> ApprovalFieldRequests { get; private set; }
+        public CocApprovalItem FieldRow { get; private set; }
         public Apprenticeship Apprenticeship { get; private set; }
         public Cohort Cohort { get; private set; }
         public Provider Provider { get; private set; }
@@ -153,21 +155,35 @@ public class GetApprovalRequestQueryHandlerTests
             Course = _autoFixture.Build<Course>().With(c => c.LarsCode, courseCode).Create();
             _db.Courses.Add(Course);
 
-            ApprovalFieldRequests = _autoFixture.Build<ApprovalFieldRequest>()
-                .With(afr => afr.ApprovalRequestId, ApprovalRequestId)
-                .With(afr => afr.Status, CocApprovalItemStatus.AutoApproved)
-                .CreateMany(3).ToList();
-
-            ApprovalRequest = _autoFixture.Build<ApprovalRequest>()
-                .With(ar => ar.Id, ApprovalRequestId)
-                .With(ar => ar.ApprenticeshipId, ApprenticeshipId)
-                .With(ar => ar.Status, CocApprovalResultStatus.Pending)
-                .With(ar => ar.Items, ApprovalFieldRequests)
-                .Without(ar => ar.Apprenticeship)
-                 .Without(x => x.EmployerAcknowledgedAt)
-                .Without(x => x.EmployerAcknowledgedBy)
-                .Create();
-            _db.ApprovalRequests.Add(ApprovalRequest);
+            FieldRow = new CocApprovalItem
+            {
+                Id = ApprovalRequestId,
+                ApprenticeshipId = ApprenticeshipId,
+                Status = CocApprovalItemStatus.AutoApproved,
+                Field = "Firstname",
+                Old = "Ann",
+                New = "Anne",
+                Created = new DateTime(2026, 8, 1),
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            };
+            _db.CocApprovalItems.Add(FieldRow);
+            _db.CocApprovalItems.Add(new CocApprovalItem
+            {
+                Id = Guid.NewGuid(),
+                ApprenticeshipId = ApprenticeshipId,
+                Status = CocApprovalItemStatus.Pending,
+                Field = "Prices",
+                Old = "{}",
+                New = "{}",
+                Created = new DateTime(2026, 8, 2),
+                LearningKey = Guid.NewGuid(),
+                LearningType = CocLearningType.Apprenticeship,
+                UKPRN = "10000000",
+                ULN = "1234567890"
+            });
 
             _db.SaveChanges();
 

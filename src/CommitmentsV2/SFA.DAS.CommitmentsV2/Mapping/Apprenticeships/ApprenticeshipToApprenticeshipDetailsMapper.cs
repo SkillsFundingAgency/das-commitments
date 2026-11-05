@@ -39,7 +39,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             TotalAgreedPrice = source.PriceHistory.GetPrice(currentDateTime.UtcNow),
             Uln = source.Uln,
             Alerts = source.MapAlerts(),
-            PendingApprovalRequestId = source.ApprovalRequests?.FirstOrDefault(p => p.Status == CocApprovalResultStatus.Pending)?.Id,
+            PendingApprovalRequestId = source.CocApprovalItems?.FirstOrDefault(item => item.Status == CocApprovalItemStatus.Pending)?.Id,
             AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
             ProviderId = source.Cohort.ProviderId,
             ConfirmationStatus = Apprenticeship.DisplayConfirmationStatus(
