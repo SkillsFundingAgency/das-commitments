@@ -52,7 +52,7 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
         var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
         var trainingProgramme = await trainingProgrammeTask;
         result.TrainingProgramme = trainingProgramme;
-        result.ApplyTrainingCourseVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId,
+        result.ApplyTrainingCourseVersion(source.TrainingCourseVersion, source.StandardUId,
             populateStandardVersion: true);
     }
 

@@ -35,7 +35,7 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgram
             LearnerDataId = source.LearnerDataId
         };
 
-        return result.ApplyTrainingCourseVersion(source.CourseCode, source.TrainingCourseVersion, source.StandardUId,
+        return result.ApplyTrainingCourseVersion(source.TrainingCourseVersion, source.StandardUId,
             populateStandardVersion: startDate.HasValue);
     }
 

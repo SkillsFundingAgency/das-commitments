@@ -4,9 +4,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions;
 
 public static class DraftApprenticeshipDetailsExtensions
 {
-    public static DraftApprenticeshipDetails ApplyTrainingCourseVersion(this DraftApprenticeshipDetails details, string courseCode, string version, string standardUId, bool populateStandardVersion)
+    public static DraftApprenticeshipDetails ApplyTrainingCourseVersion(this DraftApprenticeshipDetails details, string version, string standardUId, bool populateStandardVersion)
     {
-        if (!int.TryParse(courseCode, out _) && details.TrainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard)
+        details.LearningType ??= details.TrainingProgramme?.LearningType;
+
+        if (details.LearningType == Types.LearningType.ApprenticeshipUnit)
         {
             details.TrainingCourseVersion = version;
             details.StandardUId = standardUId;
