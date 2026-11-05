@@ -168,7 +168,7 @@ public class CocApprovalCommandHandlerTests
                 ApprovalResult = expectedResult
             });
 
-        await _sut.Handle(new CocApprovalCommand
+        var result = await _sut.Handle(new CocApprovalCommand
         {
             Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
@@ -178,6 +178,7 @@ public class CocApprovalCommandHandlerTests
 
         firstName.Status.Should().Be(CocApprovalItemStatus.Reversal);
         lastName.Status.Should().Be(CocApprovalItemStatus.Superseded);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Firstname && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
@@ -1003,6 +1004,31 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
     }
 
+    [TestCase(nameof(CocChangeField.StartDate))]
+    [TestCase(nameof(CocChangeField.PlannedEndDate))]
+    public async Task Handle_WhenFieldReverses_ReturnsThatFieldAsReversal(string field)
+    {
+        var learningKey = Guid.NewGuid();
+        var pending = CreateCocApprovalItem(learningKey, field: field);
+        await _dbContext.CocApprovalItems.AddAsync(pending);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            ReversedFields = [field]
+        }, CancellationToken.None);
+
+        pending.Status.Should().Be(CocApprovalItemStatus.Reversal);
+        result.Items.Should().ContainSingle(item => item.Field.ToString() == field && item.Status == CocApprovalItemStatus.Reversal);
+        _dbContext.CocApprovalItems.Should().ContainSingle();
+    }
+
     [Test]
     public async Task Handle_WhenEndDateReverses_MarksOnlyThatRowAsReversal()
     {
@@ -1015,7 +1041,7 @@ public class CocApprovalCommandHandlerTests
         var details = DetailsWithHistory(learningKey);
         SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
 
-        await _sut.Handle(new CocApprovalCommand
+        var result = await _sut.Handle(new CocApprovalCommand
         {
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
@@ -1025,6 +1051,7 @@ public class CocApprovalCommandHandlerTests
 
         endDate.Status.Should().Be(CocApprovalItemStatus.Reversal);
         price.Status.Should().Be(CocApprovalItemStatus.Pending);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.PlannedEndDate && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
@@ -1161,6 +1188,7 @@ public class CocApprovalCommandHandlerTests
         price.Status.Should().Be(CocApprovalItemStatus.Superseded);
         _dbContext.CocApprovalItems.Should().Contain(item => item.Field == nameof(CocChangeField.Prices) && item.Status == CocApprovalItemStatus.Pending);
         result.Items.Should().Contain(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.Pending);
+        result.Items.Should().Contain(item => item.Field == CocChangeField.PlannedEndDate && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
