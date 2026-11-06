@@ -18,7 +18,7 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenApprenticeshipNotFound_ThenReturnsEmptyLockedManualFields()
+    public async Task Handle_WhenApprenticeshipNotFound_ThenReturnsNull()
     {
         var result = await _fixture.Handle();
 
