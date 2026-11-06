@@ -18,6 +18,7 @@ public class CocApprovalDetails
 
 public class CocUpdates
 {
+    public CocUpdate<DateTime?> StartDate { get; set; }
     public CocUpdate<DateTime?> PlannedEndDate { get; set; }
     public CocUpdate<string> Firstname { get; set; }
     public CocUpdate<string> Lastname { get; set; }

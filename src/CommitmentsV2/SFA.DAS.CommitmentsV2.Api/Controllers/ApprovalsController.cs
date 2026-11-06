@@ -33,18 +33,18 @@ public class ApprovalsController(IMediator mediator, IModelMapper modelMapper, I
         logger.LogInformation("PostApprovals completed Returning status of {Status}", result.Status);
         if (command.Action == AggregationAction.CancelPrevious)
         {
-            return Ok(MapToApprovalsResult(new List<CocUpdateResult>(), request));
+            return Ok(MapToApprovalsResult(new List<CocUpdateResult>(), incomingChanges, request.NewPrices));
         }
 
-        return Created("", MapToApprovalsResult(result.Items, request));
+        return Created("", MapToApprovalsResult(result.Items, incomingChanges, request.NewPrices));
     }
 
-    private static PutApprovalsResponse MapToApprovalsResult(List<CocUpdateResult> items, CocApprovalRequest request)
+    private static PutApprovalsResponse MapToApprovalsResult(List<CocUpdateResult> items, List<CocApprovalFieldChange> changes, List<PriceRecord> newPrices)
     {
         return new PutApprovalsResponse
         {
-            Changes = MapToApprovalFieldChangeList(items, request.Changes).ToList(),
-            NewPrices = request.NewPrices
+            Changes = MapToApprovalFieldChangeList(items, changes).ToList(),
+            NewPrices = newPrices
         };
     }
 

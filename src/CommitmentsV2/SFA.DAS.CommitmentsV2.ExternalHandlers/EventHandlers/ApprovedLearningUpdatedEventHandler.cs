@@ -82,11 +82,11 @@ public class ApprovedLearningUpdatedEventHandler(
                     ApplyDOBChange(message, apprentice, change);
                     break;
 
-                case ApprovedLearnerChangeType.PlannedStartDate:
+                case ApprovedLearnerChangeType.StartDate:
                     var parsedStartDate = ParseDate(change.Data.New);
                     if (parsedStartDate == null)
                     {
-                        logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                        logger.LogWarning("Invalid date for StartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
                         return;
                     }
 
