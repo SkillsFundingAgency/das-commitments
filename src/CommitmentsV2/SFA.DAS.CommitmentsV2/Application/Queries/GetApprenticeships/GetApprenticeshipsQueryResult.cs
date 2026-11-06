@@ -27,6 +27,7 @@ public class GetApprenticeshipsQueryResult
         public DateTime EndDate { get; set; }
         public DateTime PauseDate { get; set; }
         public DateTime? StopDate { get; set; }
+        public DateTime? AgreedOn { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
         public IEnumerable<Alerts> Alerts { get; set; }
@@ -40,6 +41,7 @@ public class GetApprenticeshipsQueryResult
         public long? TransferSenderId { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public string CourseCode { get; set; }
+        public LearningType LearningType { get; set; }
         public decimal? Cost { get; set; }
         public int? PledgeApplicationId { get; set; }
         public DateTime? ActualStartDate { get; set; }
