@@ -14,14 +14,19 @@ public class GetPendingLearnerChangeCountsForEmployerQueryHandler(Lazy<ProviderC
                         && u.Originator == Originator.Provider
             );
 
-        var pendingCocRequests = db.Value.ApprovalRequests
-            .Where(r => r.Apprenticeship.Cohort.EmployerAccountId == request.EmployerAccountId)
-            .Where(r => r.Status == CocApprovalResultStatus.Pending);
+        var ilrPendingChangeCount = await db.Value.CocApprovalItems
+            .Where(item => item.Status == CocApprovalItemStatus.Pending)
+            .Where(item => db.Value.Apprenticeships.Any(apprenticeship =>
+                apprenticeship.Id == item.ApprenticeshipId
+                && apprenticeship.Cohort.EmployerAccountId == request.EmployerAccountId))
+            .Select(item => item.ApprenticeshipId)
+            .Distinct()
+            .CountAsync(cancellationToken);
 
         return new GetPendingLearnerChangeCountsForEmployerQueryResult
         {
             ManualPendingChangeCount = await apprenticeshipUpdates.CountAsync(cancellationToken),
-            IlrPendingChangeCount = await pendingCocRequests.CountAsync(cancellationToken)
+            IlrPendingChangeCount = ilrPendingChangeCount
         };
     }
 }
