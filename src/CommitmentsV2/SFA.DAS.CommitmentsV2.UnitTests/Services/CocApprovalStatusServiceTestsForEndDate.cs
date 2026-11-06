@@ -92,7 +92,39 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenPlannedEndDateIsAfterCompletionDate()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnReversal_WhenNewDateIsInTheSameMonthAsCurrentEndDate()
+    {
+        var currentEndDate = new DateTime(2027, 9, 1);
+        var updates = new CocUpdates
+        {
+            PlannedEndDate = new CocUpdate<DateTime?>
+            {
+                Old = currentEndDate,
+                New = new DateTime(2027, 9, 30)
+            }
+        };
+        var apprenticeship = new Apprenticeship
+        {
+            EndDate = currentEndDate,
+            StartDate = new DateTime(2027, 1, 1)
+        };
+
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+
+        results.Should().ContainSingle();
+        results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
+        results[0].Status.Should().Be(CocApprovalItemStatus.Reversal);
+        _overlapCheckServiceMock.Verify(
+            x => x.CheckForOverlaps(
+                It.IsAny<string>(),
+                It.IsAny<CourseDateRange>(),
+                It.IsAny<long>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsCompleted()
     {
         var updates = new CocUpdates
         {
@@ -108,14 +140,14 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date cannot be changed on a completed record");
+        results[0].Reason.Should().BeNull();
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenApprenticeshipIsStopped()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsWithdrawn()
     {
         var updates = new CocUpdates
         {
@@ -125,15 +157,16 @@ public class CocApprovalStatusServiceTestsForEndDate
         {
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3),
-            StopDate = DateTime.Today.AddMonths(-1)
+            StopDate = DateTime.Today.AddMonths(-1),
+            PaymentStatus = Types.PaymentStatus.Withdrawn
         };
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date cannot be changed on a stopped record");
+        results[0].Reason.Should().BeNull();
     }
 
     [Test]

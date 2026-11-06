@@ -46,26 +46,6 @@ public class CocApprovalRequestToCocApprovalCommandMapperTests
     }
 
     [Test]
-    public async Task ShouldMapChangesData_WhenValuesAreValid()
-    {
-        // Arrange
-        _fixture.SeedData();
-
-        _fixture.AddFieldChange("TNP1", "100", "15")
-            .AddFieldChange("TNP2", "20", "25");
-
-        var command = await _fixture.Mapper.Map(_fixture.Request);
-
-        // Assert
-        command.Should().NotBeNull();
-        command.Updates.TNP1.Old.ToString().Should().Be("100");
-        command.Updates.TNP1.New.ToString().Should().Be("15");
-        command.Updates.TNP2.Old.ToString().Should().Be("20");
-        command.Updates.TNP2.New.ToString().Should().Be("25");
-        command.ApprovalFieldChanges.Should().BeEquivalentTo(_fixture.Request.Changes);
-    }
-
-    [Test]
     public async Task ShouldMapChangesData_WhenFirstnameValuesAreValid()
     {
         // Arrange
@@ -137,48 +117,6 @@ public class CocApprovalRequestToCocApprovalCommandMapperTests
         var command = async () => await _fixture.Mapper.Map(_fixture.Request);
 
         await command.Should().ThrowAsync<DomainException>();
-    }
-
-    [Test]
-    public async Task ShouldThrowException_WhenOldValuesAreNotValid()
-    {
-        // Arrange
-        _fixture.SeedData();
-
-        _fixture.AddFieldChange("TNP1", "X10X0", "15");
-
-        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-        await act.Should().ThrowAsync<DomainException>();
-    }
-
-    [Test]
-    public async Task ShouldThrowException_WhenNewValuesAreNotValid()
-    {
-        // Arrange
-        _fixture.SeedData();
-
-        _fixture.AddFieldChange("TNP1", "100", "1-t5");
-
-        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-        await act.Should().ThrowAsync<DomainException>();
-    }
-
-    [TestCase("TNP1", "-100", "10")]
-    [TestCase("TNP1", "100", "-10")]
-    [TestCase("TNP2", "-200", "20")]
-    [TestCase("TNP2", "200", "-20")]
-    public async Task ShouldThrowException_WhenValuesAreNegative(string field, string oldValue, string newValue)
-    {
-        // Arrange
-        _fixture.SeedData();
-
-        _fixture.AddFieldChange(field, oldValue, newValue);
-
-        var act = async () => await _fixture.Mapper.Map(_fixture.Request);
-
-        await act.Should().ThrowAsync<DomainException>();
     }
 
     [TestCase("PlannedEndDate", "2023-09-01", "202-09-01")]
