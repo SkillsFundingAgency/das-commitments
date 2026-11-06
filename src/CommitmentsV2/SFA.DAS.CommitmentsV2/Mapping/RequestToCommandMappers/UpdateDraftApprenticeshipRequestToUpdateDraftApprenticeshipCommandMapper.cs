@@ -16,6 +16,8 @@ public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandM
             DateOfBirth = source.DateOfBirth,
             Uln = source.Uln,
             CourseCode = source.CourseCode,
+            TrainingCourseVersion = source.TrainingCourseVersion,
+            StandardUId = source.StandardUId,
             CourseOption = source.CourseOption,
             DeliveryModel = source.DeliveryModel,
             EmploymentPrice = source.EmploymentPrice,
