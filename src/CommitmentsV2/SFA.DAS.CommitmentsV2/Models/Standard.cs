@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Types;
+
 namespace SFA.DAS.CommitmentsV2.Models;
 
 public class Standard
@@ -22,6 +25,8 @@ public class Standard
     public DateTime? VersionLatestStartDate { get; set; }
     public string Route { get; set; }
     public string ApprenticeshipType { get; set; }
+    [NotMapped]
+    public LearningType? LearningType { get; set; } = null;
 }
 
 public class StandardFundingPeriod : IFundingPeriod

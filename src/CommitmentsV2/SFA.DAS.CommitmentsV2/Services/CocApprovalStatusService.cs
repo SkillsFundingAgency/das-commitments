@@ -22,18 +22,11 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
             throw new ArgumentNullException(nameof(apprenticeship));
         }
 
-        if (apprenticeship.StopDate != null)
+        if (updates.PlannedEndDate != null)
         {
-            updateResults.AddRange(AutoRejectFieldsAffectedByStoppedApprenticeship(updates));
-        }
-        else
-        {
-            if (updates.PlannedEndDate != null) 
-            {
-                logger.LogInformation("Change of PlannedEndDate detected");
-                var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
-                updateResults.AddRange(list);
-            }
+            logger.LogInformation("Change of PlannedEndDate detected");
+            var list = await DetermineStatusOfCourseDates(updates, apprenticeship).ToListAsync();
+            updateResults.AddRange(list);
         }
 
         if (updates.Firstname != null)
@@ -42,21 +35,13 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
             updateResults.Add(DetermineApprovalStatusesForFirstnameField(updates, apprenticeship));
         }
 
-        if (updates.TNP1 != null || updates.TNP2 != null)
+        if (updates.Lastname != null)
         {
-            logger.LogInformation("Change of TNP1 or TNP2 detected");
-            updateResults.AddRange(DetermineApprovalStatusesForCostFields(updates, apprenticeship));
+            logger.LogInformation("Change of Lastname detected");
+            updateResults.Add(DetermineApprovalStatusesForLastnameField(updates, apprenticeship));
         }
 
         return updateResults;
-    }
-
-    private IEnumerable<CocUpdateResult> AutoRejectFieldsAffectedByStoppedApprenticeship(CocUpdates updates)
-    {
-        if (updates.PlannedEndDate != null)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a stopped record" };
-        }
     }
 
     private async IAsyncEnumerable<CocUpdateResult> DetermineStatusOfCourseDates(CocUpdates updates, Apprenticeship apprenticeship)
@@ -70,9 +55,9 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
 
             var newPlannedEndDate = CreateDateAsFirstOfMonth(updates.PlannedEndDate.New.Value);
 
-            if (apprenticeship.PaymentStatus == Types.PaymentStatus.Completed && apprenticeship.CompletionDate.HasValue && newPlannedEndDate > apprenticeship.CompletionDate)
+            if (apprenticeship.EndDate.HasValue && newPlannedEndDate == CreateDateAsFirstOfMonth(apprenticeship.EndDate.Value))
             {
-                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "The end date cannot be changed on a completed record" };
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Reversal };
             }
             else if (newPlannedEndDate < Constants.DasStartDate)
             {
@@ -109,40 +94,6 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         return overlap.HasOverlaps;
     }
 
-    private IEnumerable<CocUpdateResult> DetermineApprovalStatusesForCostFields(CocUpdates updates, Apprenticeship apprenticeship)
-    {
-        var oldTotalCost = (updates.TNP1?.Old ?? 0) + (updates.TNP2?.Old ?? 0);
-        var newTotalCost = (updates.TNP1?.New ?? 0) + (updates.TNP2?.New ?? 0);
-
-        if (oldTotalCost != apprenticeship.Cost)
-        {
-            // TODO raise concerns, that we are ignoring this mismatch
-            logger.LogWarning("Old total cost from changes does not match apprenticeship cost");
-        }
-
-        if (updates.TNP1?.New == 0)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
-            yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
-        }
-        else if (newTotalCost > Constants.MaximumTotalTrainingCost)
-        {
-            yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.AutoRejected };
-            yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.AutoRejected };
-        }
-        else
-        {
-            if (updates.TNP1 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP1, Status = CocApprovalItemStatus.Pending };
-            }
-            if (updates.TNP2 != null)
-            {
-                yield return new CocUpdateResult { Field = CocChangeField.TNP2, Status = CocApprovalItemStatus.Pending };
-            }
-        }
-    }
-
     private CocUpdateResult DetermineApprovalStatusesForFirstnameField(CocUpdates updates, Apprenticeship apprenticeship)
     {
         if (updates.Firstname.Old != apprenticeship.FirstName)
@@ -151,5 +102,15 @@ public class CocApprovalStatusService(IOverlapCheckService overlapCheckService, 
         }
 
         return new CocUpdateResult { Field = CocChangeField.Firstname, Status = CocApprovalItemStatus.AutoApproved };
+    }
+
+    private CocUpdateResult DetermineApprovalStatusesForLastnameField(CocUpdates updates, Apprenticeship apprenticeship)
+    {
+        if (updates.Lastname.Old != apprenticeship.LastName)
+        {
+            logger.LogWarning("Old last name value from changes, does not match apprenticeship last name value");
+        }
+
+        return new CocUpdateResult { Field = CocChangeField.Lastname, Status = CocApprovalItemStatus.AutoApproved };
     }
 }

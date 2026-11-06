@@ -63,8 +63,16 @@ public static class AlertsExtensions
         {
             result.Add(Alerts.IlrChangesPending);
         }
-
+        if (HasAutoApprovedApprovalRequests(source))
+        {
+            result.Add(Alerts.ViewChanges);
+        }
         return result;
+    }
+    private static bool HasAutoApprovedApprovalRequests(Apprenticeship source)
+    {
+        return !source.IsProviderSearch && source.CocApprovalItems != null && source.CocApprovalItems.Any(item =>
+            item.Status == CocApprovalItemStatus.AutoApproved && item.EmployerAcknowledgedAt == null);
     }
 
     public static bool HasUnacknowledgedInvalidIlrChanges(this Apprenticeship source)
@@ -79,8 +87,8 @@ public static class AlertsExtensions
 
     public static bool HasPendingIlrChanges(this Apprenticeship source)
     {
-        return source.ApprovalRequests != null &&
-               source.ApprovalRequests.Any(request => request.Status == CocApprovalResultStatus.Pending);
+        return source.CocApprovalItems != null &&
+               source.CocApprovalItems.Any(item => item.Status == CocApprovalItemStatus.Pending);
     }
 
     public static bool IsUnacknowledgedAutoRejected(this ApprovalRequest request)
@@ -104,8 +112,8 @@ public static class AlertsExtensions
     private static bool HasUnacknowledgedApprovalChanges(Apprenticeship source, CocApprovalItemStatus itemStatus)
     {
         return source.IsProviderSearch &&
-               source.ApprovalRequests != null &&
-               source.ApprovalRequests.Any(request => request.IsUnacknowledged(itemStatus));
+               source.CocApprovalItems != null &&
+               source.CocApprovalItems.Any(item => item.Status == itemStatus && item.ProviderAcknowledgedAt == null);
     }
 
     private static bool HasCourseDataLock(Apprenticeship source)

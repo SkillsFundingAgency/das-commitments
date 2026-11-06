@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -27,7 +26,7 @@ public class CocApprovalStatusServiceTestsForFirstName
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldLogInformation_WhenFirstNameFieldPresent()
+    public async Task DetermineCocUpdateStatusesForFirstname_ShouldLogInformation_WhenFirstNameFieldPresent()
     {
         var updates = new CocUpdates
         {

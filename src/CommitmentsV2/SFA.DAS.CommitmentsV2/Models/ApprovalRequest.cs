@@ -8,7 +8,7 @@ public class ApprovalRequest
     }
 
     public Guid Id { get; set; }
-    public DateTime Created { get; }
+    public DateTime Created { get; private set; }
     public DateTime? Updated { get; set; }
     public Guid LearningKey { get; set; }
     public long ApprenticeshipId { get; set; }

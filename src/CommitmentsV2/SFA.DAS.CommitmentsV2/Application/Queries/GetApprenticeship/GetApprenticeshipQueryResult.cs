@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using SFA.DAS.CommitmentsV2.Models;
+﻿using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
@@ -64,4 +62,5 @@ public class GetApprenticeshipQueryResult
     public bool HasUnacknowledgedInvalidIlrChanges { get; set; }
     public bool HasUnacknowledgedDeclinedChanges { get; set; }
     public Guid? PendingApprovalRequestId { get; set; }
+    public bool HasAutoApprovedRequests { get; set; }
 }
