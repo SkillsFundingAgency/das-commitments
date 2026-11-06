@@ -118,7 +118,7 @@ public class StopApprenticeshipCommandHandler(
 
     private void EnsureProviderHasNotLockedWithdrawals(Apprenticeship apprenticeship)
     {
-        if(commitmentsV2Configuration.CoCApprovalsConfiguration?.UkPrns != null && commitmentsV2Configuration.CoCApprovalsConfiguration.UkPrns.Contains(apprenticeship.Cohort.ProviderId))
+        if(commitmentsV2Configuration.CoCApprovalsConfiguration != null && commitmentsV2Configuration.CoCApprovalsConfiguration.UkPrns.Contains(apprenticeship.Cohort.ProviderId))
         {
             throw new DomainException(nameof(apprenticeship), $"The Training Provider has locked withdrawals and you cannot stop apprenticeships, this can only be done by the provider");
         }

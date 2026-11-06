@@ -1,24 +1,24 @@
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdateStatus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipLockedFields;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipUpdateStatus;
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipLockedFields;
 
 [TestFixture]
-public class GetApprenticeshipUpdateStatusQueryHandlerTests
+public class GetApprenticeshipLockedFieldsQueryHandlerTests  
 {
-    private GetApprenticeshipUpdateStatusQueryHandlerTestsFixture _fixture;
+    private GetApprenticeshipLockedFieldsQueryHandlerTestsFixture _fixture;
 
     [SetUp]
     public void Arrange()
     {
-        _fixture = new GetApprenticeshipUpdateStatusQueryHandlerTestsFixture();
+        _fixture = new GetApprenticeshipLockedFieldsQueryHandlerTestsFixture();
     }
 
     [Test]
-    public async Task Handle_WhenApprenticeshipNotFound_ThenReturnsNull()
+    public async Task Handle_WhenApprenticeshipNotFound_ThenReturnsEmptyLockedManualFields()
     {
         var result = await _fixture.Handle();
 
@@ -59,34 +59,22 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
         result.LockedManualFields.Should().BeEmpty();
     }
 
-    [Test]
-    public async Task Handle_WhenConfigurationIsNull_ThenReturnsEmptyLockedManualFields()
-    {
-        _fixture
-            .SeedApprenticeship(providerId: 12345)
-            .WithConfiguration(null);
-
-        var result = await _fixture.Handle();
-
-        result.LockedManualFields.Should().BeEmpty();
-    }
-
-    public class GetApprenticeshipUpdateStatusQueryHandlerTestsFixture
+    public class GetApprenticeshipLockedFieldsQueryHandlerTestsFixture
     {
         private readonly Mock<ProviderCommitmentsDbContext> _db;
         private CocApprovalsConfiguration _configuration;
-        private GetApprenticeshipUpdateStatusQuery _request;
+        private GetApprenticeshipLockedFieldsQuery _request;
 
-        public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture()
+        public GetApprenticeshipLockedFieldsQueryHandlerTestsFixture()
         {
             _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
                 { CallBase = true };
 
-            _request = new GetApprenticeshipUpdateStatusQuery(1);
+            _request = new GetApprenticeshipLockedFieldsQuery(1);
         }
 
-        public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture SeedApprenticeship(long apprenticeshipId = 1, long providerId = 12345)
+        public GetApprenticeshipLockedFieldsQueryHandlerTestsFixture SeedApprenticeship(long apprenticeshipId = 1, long providerId = 12345)
         {
             var apprenticeship = new Apprenticeship
             {
@@ -100,20 +88,20 @@ public class GetApprenticeshipUpdateStatusQueryHandlerTests
             _db.Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(new List<Apprenticeship> { apprenticeship });
 
-            _request = new GetApprenticeshipUpdateStatusQuery(apprenticeshipId);
+            _request = new GetApprenticeshipLockedFieldsQuery(apprenticeshipId);
 
             return this;
         }
 
-        public GetApprenticeshipUpdateStatusQueryHandlerTestsFixture WithConfiguration(CocApprovalsConfiguration configuration)
+        public GetApprenticeshipLockedFieldsQueryHandlerTestsFixture WithConfiguration(CocApprovalsConfiguration configuration)
         {
             _configuration = configuration;
             return this;
         }
 
-        public async Task<GetApprenticeshipUpdateStatusQueryResult> Handle()
+        public async Task<GetApprenticeshipLockedFieldsQueryResult> Handle()
         {
-            var handler = new GetApprenticeshipUpdateStatusQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db.Object), _configuration);
+            var handler = new GetApprenticeshipLockedFieldsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db.Object), _configuration);
             return await handler.Handle(_request, CancellationToken.None);
         }
     }
