@@ -1,10 +1,13 @@
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
 
-public class RemoveAccountLegalEntityCommandHandler(Lazy<ProviderCommitmentsDbContext> db) : IRequestHandler<RemoveAccountLegalEntityCommand>
+public class RemoveAccountLegalEntityCommandHandler(
+    Lazy<ProviderCommitmentsDbContext> db,
+    ILogger<RemoveAccountLegalEntityCommandHandler> logger) : IRequestHandler<RemoveAccountLegalEntityCommand>
 {
     public async Task Handle(RemoveAccountLegalEntityCommand request, CancellationToken cancellationToken)
     {
@@ -14,7 +17,14 @@ public class RemoveAccountLegalEntityCommandHandler(Lazy<ProviderCommitmentsDbCo
             .IgnoreQueryFilters()
             .SingleAsync(ale => ale.Id == request.AccountLegalEntityId, cancellationToken);
 
-        account.RemoveAccountLegalEntity(accountLegalEntity, request.Removed);
+        if (accountLegalEntity.Deleted == null)
+        {
+            account.RemoveAccountLegalEntity(accountLegalEntity, request.Removed);
+        }
+        else
+        {
+            logger.LogInformation("{TypeName} skipped delete. Account legal entity {AccountLegalEntityId} is already deleted.", nameof(RemoveAccountLegalEntityCommandHandler), request.AccountLegalEntityId);
+        }
 
         if (accountLegalEntity.Deleted != null)
         {
