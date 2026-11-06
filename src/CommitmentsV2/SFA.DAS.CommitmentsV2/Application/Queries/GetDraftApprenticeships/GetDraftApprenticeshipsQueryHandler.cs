@@ -62,7 +62,8 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
                 HasLearnerDataChanges = a.HasLearnerDataChanges,
                 LastLearnerDataSync = a.LastLearnerDataSync,
                 LearnerDataId = a.LearnerDataId,
-                ApprenticeshipType = GetApprenticeshipType(a.StandardUId),
+                ApprenticeshipType = GetLearningType(a.CourseCode)?.ToString()
+                    ?? GetApprenticeshipType(a.StandardUId),
                 LearningType = GetLearningType(a.CourseCode)
             }).ToList()
         };
