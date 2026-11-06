@@ -13,8 +13,8 @@ public interface ICocApprovalStartDateValidationRules
     bool IsStartDateBeforeTransferFundedDate(DateTime startDate, Cohort cohort);
     Task<bool> IsStartDateOverlappingWithUlnDateRangeAsync(DateTime startDate, Apprenticeship apprenticeship);
     Task<ReservationValidationResult> IsStartDateValidForReservationAsync(DateTime startDate, Apprenticeship apprenticeship);
-    bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth);
-    bool IsStartDateMoreThanMaxAge(DateTime startDate, DateTime? dateOfBirth);
+    bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth, int minimumAge);
+    bool IsStartDateMoreThanMaxAge(DateTime startDate, DateTime? dateOfBirth, int maximumAge);
     bool IsStartDateMoreThanMaxAgeForLevel7Course(DateTime startDate, Apprenticeship apprenticeship, Course course);
     Task<bool> IsThereEmailOverlapForStartDateAsync(DateTime startDate, Apprenticeship apprenticeship);
 }

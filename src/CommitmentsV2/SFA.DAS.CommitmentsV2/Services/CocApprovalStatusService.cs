@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Services;
@@ -128,6 +129,7 @@ public class CocApprovalStatusService(
         // The only exception is when we are comparing for the Course - LARS EffectiveFrom and EffectiveTo dates, which are based on the ActualStartDate (DD-MM-YYYY) coming from ILR. 
         var startDateNew = updates.StartDate.New.HasValue ? new DateTime(updates.StartDate.New.Value.Year, updates.StartDate.New.Value.Month, 1) : DateTime.MinValue;
         var actualStartDateNew = updates.StartDate.New ?? DateTime.MinValue;
+        var ageLimits = GetAgeLimits(course);
         var reservationValidationResult = await cocApprovalStartDateValidationRules.IsStartDateValidForReservationAsync(startDateNew, apprenticeship);
 
         if (cocApprovalStartDateValidationRules.IsStartDateBeforeAbsoluteMinimum(startDateNew))
@@ -164,13 +166,13 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"{reservationValidationResult.ValidationErrors?.FirstOrDefault()?.Reason}" };
         }
-        else if (cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDateNew, apprenticeship.DateOfBirth))
+        else if (cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDateNew, apprenticeship.DateOfBirth, ageLimits.MinimumAge))
         {
-            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training" };
+            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be at least {ageLimits.MinimumAge} years old at the start of their training" };
         }
-        else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDateNew, apprenticeship.DateOfBirth))
+        else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDateNew, apprenticeship.DateOfBirth, ageLimits.MaximumAge))
         {
-            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training" };
+            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {ageLimits.MaximumAge} years old at the start of their training" };
         }
         else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAgeForLevel7Course(startDateNew, apprenticeship, course))
         {
@@ -182,6 +184,16 @@ public class CocApprovalStatusService(
         }
 
         return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.Pending };
+    }
+
+    private static (int MinimumAge, int MaximumAge) GetAgeLimits(Course course)
+    {
+        return course.LearningType switch
+        {
+            LearningType.FoundationApprenticeship => (Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStartForLevel7),
+            LearningType.ApprenticeshipUnit => (Constants.MinimumAgeAtShortCourseStart, Constants.MaximumAgeAtApprenticeshipStart),
+            _ => (Constants.MinimumAgeAtApprenticeshipStart, Constants.MaximumAgeAtApprenticeshipStart)
+        };
     }
 
     private CocUpdateResult DetermineApprovalStatusesForLastnameField(CocUpdates updates, Apprenticeship apprenticeship)

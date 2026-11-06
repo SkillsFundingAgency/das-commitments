@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validation.CocApprovals;
@@ -265,7 +266,7 @@ public class CocApprovalStartDateValidationRulesTests
         _ageCalculationService.Setup(x => x.WillLearnerBeAtLeastMinAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MinimumAgeAtApprenticeshipStart))
             .Returns(false);
 
-        var result = _cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDate, startDate);
+        var result = _cocApprovalStartDateValidationRules.IsStartDateLessThanMinAge(startDate, startDate, Constants.MinimumAgeAtApprenticeshipStart);
 
         result.Should().BeTrue();
     }
@@ -277,9 +278,49 @@ public class CocApprovalStartDateValidationRulesTests
         _ageCalculationService.Setup(x => x.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(It.IsAny<DateTime>(), It.IsAny<DateTime?>(), Constants.MaximumAgeAtApprenticeshipStart))
             .Returns(false);
 
-        var result = _cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDate, startDate.AddYears(-100));
+        var result = _cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAge(startDate, startDate.AddYears(-100), Constants.MaximumAgeAtApprenticeshipStart);
 
         result.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsStartDateMoreThanMaxAge_WhenFoundationLearnerIs25OnTheNewStartDate_ReturnsTrue()
+    {
+        var rules = CreateRulesWithRealAgeCalculation();
+
+        var result = rules.IsStartDateMoreThanMaxAge(new DateTime(2026, 12, 1), new DateTime(2001, 11, 4), Constants.MaximumAgeAtApprenticeshipStartForLevel7);
+
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsStartDateMoreThanMaxAge_WhenStandardLearnerIs25_ReturnsFalse()
+    {
+        var rules = CreateRulesWithRealAgeCalculation();
+
+        var result = rules.IsStartDateMoreThanMaxAge(new DateTime(2026, 12, 1), new DateTime(2001, 11, 4), Constants.MaximumAgeAtApprenticeshipStart);
+
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void IsStartDateLessThanMinAge_WhenApprenticeshipUnitLearnerIs18OnTheNewStartDate_ReturnsTrue()
+    {
+        var rules = CreateRulesWithRealAgeCalculation();
+
+        var result = rules.IsStartDateLessThanMinAge(new DateTime(2026, 8, 1), new DateTime(2007, 11, 1), Constants.MinimumAgeAtShortCourseStart);
+
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsStartDateLessThanMinAge_WhenStandardLearnerIs18_ReturnsFalse()
+    {
+        var rules = CreateRulesWithRealAgeCalculation();
+
+        var result = rules.IsStartDateLessThanMinAge(new DateTime(2026, 8, 1), new DateTime(2007, 11, 1), Constants.MinimumAgeAtApprenticeshipStart);
+
+        result.Should().BeFalse();
     }
 
     [Test]
@@ -431,5 +472,15 @@ public class CocApprovalStartDateValidationRulesTests
         var result = await _cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDate, apprenticeship);
 
         result.Should().BeFalse();
+    }
+
+    private CocApprovalStartDateValidationRules CreateRulesWithRealAgeCalculation()
+    {
+        return new CocApprovalStartDateValidationRules(
+            _academicYearDateProvider.Object,
+            _currentDateTime.Object,
+            new AgeCalculationService(),
+            _overlapCheckService.Object,
+            _reservationValidationService.Object);
     }
 }

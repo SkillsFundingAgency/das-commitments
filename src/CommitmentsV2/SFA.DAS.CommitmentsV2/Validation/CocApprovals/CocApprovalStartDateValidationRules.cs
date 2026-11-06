@@ -84,14 +84,14 @@ public class CocApprovalStartDateValidationRules(
         return validationResult;
     }
 
-    public bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth)
+    public bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth, int minimumAge)
     {
-        return !ageCalculationService.WillLearnerBeAtLeastMinAgeAtStartOfTraining(startDate, dateOfBirth, Constants.MinimumAgeAtApprenticeshipStart);
+        return !ageCalculationService.WillLearnerBeAtLeastMinAgeAtStartOfTraining(startDate, dateOfBirth, minimumAge);
     }
 
-    public bool IsStartDateMoreThanMaxAge(DateTime startDate, DateTime? dateOfBirth)
+    public bool IsStartDateMoreThanMaxAge(DateTime startDate, DateTime? dateOfBirth, int maximumAge)
     {
-        return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(startDate, dateOfBirth, Constants.MaximumAgeAtApprenticeshipStart);
+        return !ageCalculationService.LearnerAgeMustBeLessThenMaxAgeAtStartOfTraining(startDate, dateOfBirth, maximumAge);
     }
 
     public bool IsStartDateMoreThanMaxAgeForLevel7Course(DateTime startDate, Apprenticeship apprenticeship, Course course)

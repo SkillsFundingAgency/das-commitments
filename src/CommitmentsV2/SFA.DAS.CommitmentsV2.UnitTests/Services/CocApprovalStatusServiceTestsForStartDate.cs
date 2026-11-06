@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
 
@@ -200,7 +201,7 @@ public class CocApprovalStatusServiceTestsForStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateLessThanMinAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateLessThanMinAge(plannedStartDate, It.IsAny<DateTime?>(), Constants.MinimumAgeAtApprenticeshipStart)).Returns(true);
 
         var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
@@ -216,7 +217,7 @@ public class CocApprovalStatusServiceTestsForStartDate
     {
         var plannedStartDate = new DateTime(2026, 1, 1);
 
-        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAge(plannedStartDate, It.IsAny<DateTime?>())).Returns(true);
+        _cocApprovalStartDateValidationRulesMock.Setup(x => x.IsStartDateMoreThanMaxAge(plannedStartDate, It.IsAny<DateTime?>(), Constants.MaximumAgeAtApprenticeshipStart)).Returns(true);
 
         var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
 
@@ -241,6 +242,49 @@ public class CocApprovalStatusServiceTestsForStartDate
         result.Should().HaveCount(1);
         result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
         result[0].Reason.Should().Be($"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training");
+    }
+
+    [Test]
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenFoundationLearnerIs25OnTheNewStartDate()
+    {
+        var plannedStartDate = new DateTime(2026, 12, 1);
+        var dateOfBirth = new DateTime(2001, 11, 4);
+
+        _cocApprovalStartDateValidationRulesMock
+            .Setup(x => x.IsStartDateMoreThanMaxAge(plannedStartDate, dateOfBirth, Constants.MaximumAgeAtApprenticeshipStartForLevel7))
+            .Returns(true);
+
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
+        approvalDetails.Apprenticeship.DateOfBirth = dateOfBirth;
+        approvalDetails.Course.LearningType = LearningType.FoundationApprenticeship;
+        approvalDetails.Course.Level = "2";
+
+        var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
+
+        result.Should().ContainSingle();
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[0].Reason.Should().Be($"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training");
+    }
+
+    [Test]
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenApprenticeshipUnitLearnerIs18OnTheNewStartDate()
+    {
+        var plannedStartDate = new DateTime(2026, 8, 1);
+        var dateOfBirth = new DateTime(2007, 11, 1);
+
+        _cocApprovalStartDateValidationRulesMock
+            .Setup(x => x.IsStartDateLessThanMinAge(plannedStartDate, dateOfBirth, Constants.MinimumAgeAtShortCourseStart))
+            .Returns(true);
+
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
+        approvalDetails.Apprenticeship.DateOfBirth = dateOfBirth;
+        approvalDetails.Course.LearningType = LearningType.ApprenticeshipUnit;
+
+        var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
+
+        result.Should().ContainSingle();
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[0].Reason.Should().Be($"The learner must be at least {Constants.MinimumAgeAtShortCourseStart} years old at the start of their training");
     }
 
     [Test]
