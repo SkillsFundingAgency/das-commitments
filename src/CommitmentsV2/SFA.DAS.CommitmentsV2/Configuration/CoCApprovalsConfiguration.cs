@@ -2,6 +2,6 @@
 
 public class CocApprovalsConfiguration
 {
-    public List<long> UkPrns { get; set; }
-    public List<string> LockedManualFields { get; set; }
+    public List<long> UkPrns { get; set; } = [];
+    public List<string> LockedManualFields { get; set; } = [];
 }
