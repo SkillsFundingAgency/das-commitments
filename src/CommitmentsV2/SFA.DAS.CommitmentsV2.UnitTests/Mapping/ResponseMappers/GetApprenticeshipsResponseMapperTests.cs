@@ -13,10 +13,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             var result = await mapper.Map(source);
 
-            result.Apprenticeships.First().Should().BeEquivalentTo(source.Apprenticeships.First(), 
-                o=>o.Excluding(e=>e.DeliveryModel).Excluding(e=>e.EmployerVerificationStatus));
+            result.Apprenticeships.First().Should().BeEquivalentTo(source.Apprenticeships.First(),
+                o => o.
+                    Excluding(e => e.DeliveryModel)
+                    .Excluding(e => e.EmployerVerificationStatus)
+                    .Excluding(e => e.AgreedOn));
             result.Apprenticeships.First().DeliveryModel.Should().Be(source.Apprenticeships.First().DeliveryModel);
             result.Apprenticeships.First().EmployerVerificationStatus.Should().Be((int?)source.Apprenticeships.First().EmployerVerificationStatus);
+            result.Apprenticeships.First().ApprovedOn.Should().Be(source.Apprenticeships.First().AgreedOn);
             result.TotalApprenticeshipsFound.Should().Be(source.TotalApprenticeshipsFound);
             result.TotalApprenticeshipsWithAlertsFound.Should().Be(source.TotalApprenticeshipsWithAlertsFound);
             result.TotalApprenticeships.Should().Be(source.TotalApprenticeships);

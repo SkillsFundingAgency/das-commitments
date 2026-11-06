@@ -38,6 +38,7 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             EndDate = source.EndDate,
             PauseDate = source.PauseDate,
             StopDate = source.StopDate,
+            ApprovedOn = source.AgreedOn,
             DateOfBirth = source.DateOfBirth,
             EmployerRef = source.EmployerRef,
             ProviderRef = source.ProviderRef,
@@ -51,6 +52,7 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             TransferSenderId = source.TransferSenderId,
             HasHadDataLockSuccess = source.HasHadDataLockSuccess,
             CourseCode = source.CourseCode,
+            LearningType = source.LearningType,
             Cost = source.Cost,
             PledgeApplicationId = source.PledgeApplicationId,
             ActualStartDate = source.ActualStartDate,
@@ -58,7 +60,8 @@ public class GetApprenticeshipsResponseMapper : IMapper<GetApprenticeshipsQueryR
             TrainingCourseVersion = source.TrainingCourseVersion,
             EmployerVerificationStatus = (int?)source.EmployerVerificationStatus,
             EmployerVerificationNotes = source.EmployerVerificationNotes,
-            PendingApprovalRequestId = source.PendingApprovalRequestId
+            PendingApprovalRequestId = source.PendingApprovalRequestId,
+            FreezedDate = source.FreezedDate
         };
     }
 }
