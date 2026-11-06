@@ -134,19 +134,19 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
         DomainError CreateDomainErrorFor(string propertyName)
         {
-            return new DomainError(propertyName, $"{GetDescriptiveNameFor(propertyName)} cannot only be updated via the ILR");
+            return new DomainError(propertyName, $"{GetDescriptiveNameFor(propertyName)} can only be updated via the ILR");
         }
 
         string GetDescriptiveNameFor(string propertyName)
         {
             return propertyName switch
             {
-                nameof(request.FirstName) => "First Name",
-                nameof(request.LastName) => "Last Name",
-                nameof(request.DateOfBirth) => "Date of Birth",
-                nameof(request.StartDate) => "Start Date",
-                nameof(request.EndDate) => "End Date",
-                nameof(request.Cost) => "Total Price",
+                nameof(request.FirstName) => "First name",
+                nameof(request.LastName) => "Last name",
+                nameof(request.DateOfBirth) => "Date of birth",
+                nameof(request.StartDate) => "Start date",
+                nameof(request.EndDate) => "End date",
+                nameof(request.Cost) => "Total price",
                 _ => propertyName
             };
         }

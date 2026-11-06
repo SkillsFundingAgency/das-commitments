@@ -424,7 +424,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "apprenticeshipId", ErrorMessage = "The Training Provider has locked withdrawals and you cannot stop apprenticeships, this can only be done by the provider" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "apprenticeship", ErrorMessage = "The Training Provider has locked withdrawals and you cannot stop apprenticeships, this can only be done by the provider" });
             _nserviceBusContext.Verify(s => s.Send(It.IsAny<SendEmailToProviderCommand>(), It.IsAny<SendOptions>()), Times.Never);
         }
 

@@ -11,7 +11,7 @@
             var request = fixture.CreateValidationRequest(firstName: "Test");
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "FirstName" && x.ErrorMessage == "First Name cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "FirstName" && x.ErrorMessage == "First name can only be updated via the ILR");
         }
 
         [Test]
@@ -23,7 +23,7 @@
             var request = fixture.CreateValidationRequest(lastName: "Test");
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "LastName" && x.ErrorMessage == "Last Name cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "LastName" && x.ErrorMessage == "Last name can only be updated via the ILR");
         }
 
         [Test]
@@ -35,7 +35,7 @@
             var request = fixture.CreateValidationRequest(dobYear: 2000, dobMonth: 2,  dobDay: 1);
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "DateOfBirth" && x.ErrorMessage == "Date of Birth cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "DateOfBirth" && x.ErrorMessage == "Date of birth can only be updated via the ILR");
         }
 
         [Test]
@@ -47,7 +47,7 @@
             var request = fixture.CreateValidationRequest(startYear: 2021, startMonth: 2, endYear: 2022, endMonth: 3);
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "StartDate" && x.ErrorMessage == "Start Date cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "StartDate" && x.ErrorMessage == "Start date can only be updated via the ILR");
         }
 
         [Test]
@@ -59,7 +59,7 @@
             var request = fixture.CreateValidationRequest(endYear: 2026, endMonth: 2);
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "EndDate" && x.ErrorMessage == "End Date cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "EndDate" && x.ErrorMessage == "End date can only be updated via the ILR");
         }
         [Test]
         public async Task When_Cost_Updated_Should_Error_Depending_On_ProviderId()
@@ -70,7 +70,7 @@
             var request = fixture.CreateValidationRequest(cost: 1000);
 
             var result = await fixture.Validate(request);
-            result.Errors.Should().ContainSingle(x => x.PropertyName == "Cost" && x.ErrorMessage == "Total Price cannot only be updated via the ILR");
+            result.Errors.Should().ContainSingle(x => x.PropertyName == "Cost" && x.ErrorMessage == "Total price can only be updated via the ILR");
         }
     }
 }

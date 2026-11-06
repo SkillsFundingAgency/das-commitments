@@ -31,7 +31,7 @@ public class ApprenticeshipUpdateController(IMediator mediator, IModelMapper mod
         if(result == null)
         {
             return NotFound();
-        };
+        }
         return Ok(result);
     }
 
