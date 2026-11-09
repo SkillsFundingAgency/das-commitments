@@ -1,14 +1,15 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Exceptions;
-using System.Globalization;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
@@ -29,7 +30,7 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             Updates = new CocUpdates(),
             ApprovalFieldChanges = request.Changes ?? [],
             Apprenticeship = apprenticeship,
-            Course = await GetCourseAsync(apprenticeship?.CourseCode)
+            Course = ApplyRequestLearningTypeWhenCourseHasNone(await GetCourseAsync(apprenticeship?.CourseCode), request.LearningType)
         };
 
         foreach (var change in request.Changes ?? [])
@@ -52,6 +53,14 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                     New = AssignRealStringsOnly(change.Data?.New),
                 };
             }
+            else if (changeType == CocChangeField.StartDate)
+            {
+                result.Updates.StartDate = new CocUpdate<DateTime?>
+                {
+                    Old = ToDate(change.Data.Old),
+                    New = ToDate(change.Data.New),
+                };
+            }
             else if (changeType == CocChangeField.PlannedEndDate)
             {
                 result.Updates.PlannedEndDate = new CocUpdate<DateTime?>
@@ -71,6 +80,25 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .Include(a => a.Cohort).ThenInclude(c => c.Provider)
             .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
+    }
+
+    private static Course ApplyRequestLearningTypeWhenCourseHasNone(Course course, string requestLearningType)
+    {
+        if (course == null || course.LearningType != null || string.IsNullOrWhiteSpace(requestLearningType))
+        {
+            return course;
+        }
+
+        return new Course
+        {
+            LarsCode = course.LarsCode,
+            Title = course.Title,
+            Level = course.Level,
+            LearningType = EnumExtensions.FromDescription<LearningType>(requestLearningType),
+            MaxFunding = course.MaxFunding,
+            EffectiveFrom = course.EffectiveFrom,
+            EffectiveTo = course.EffectiveTo
+        };
     }
 
     public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)
