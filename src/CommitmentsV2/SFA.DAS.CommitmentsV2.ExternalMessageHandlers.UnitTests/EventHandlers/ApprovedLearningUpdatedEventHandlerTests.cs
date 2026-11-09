@@ -81,6 +81,15 @@ public class ApprovedLearningUpdatedEventHandlerTests
         await _fixture.SetEventWithInvalidStartDate().Handle();
         _fixture.VerifyLoggerWarning("Invalid date for StartDate change");
     }
+
+    [Test]
+    public async Task Handle_WhenApprovedLearningUpdatedEventReceived_ForWithdrawnApprenticeship_ChangeReceivedAndStopDetailsUnchanged()
+    {
+        _fixture.SetWithdrawnApprenticeship();
+        await _fixture.SetEvent().Handle();
+        _fixture.VerifyLearnerUpdated();
+        _fixture.VerifyWithdrawnStopDetailsUnchanged();
+    }
 }
 
 public class ApprovedLearningUpdatedEventHandlerTestsFixture
@@ -95,6 +104,9 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     public long apprenticeshipId { get; set; }
 
     public string format { get; set; } = "yyyy-MM-dd";
+
+    private readonly DateTime _stopDate = DateTime.UtcNow.AddMonths(-1).Date;
+    private const int _withdrawnReasonCode = 1;
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture()
     {
@@ -142,6 +154,16 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         _dbContext.SaveChanges();
         _handler = new ApprovedLearningUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
             _mockLogger.Object);
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetWithdrawnApprenticeship()
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+        apprenticeship.StopDate = _stopDate;
+        apprenticeship.WithdrawnReasonCode = _withdrawnReasonCode;
+        _dbContext.SaveChanges();
+        return this;
     }
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventApprenticeshipId(long id)
@@ -270,6 +292,14 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate))));
         updatedApprenticeship.EndDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate))));
         updatedApprenticeship.ActualStartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate)));
+    }
+
+    public void VerifyWithdrawnStopDetailsUnchanged()
+    {
+        var updatedApprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        updatedApprenticeship.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+        updatedApprenticeship.StopDate.Should().Be(_stopDate);
+        updatedApprenticeship.WithdrawnReasonCode.Should().Be(_withdrawnReasonCode);
     }
 
     private string GetValue(ApprovedLearnerChangeType changeType)

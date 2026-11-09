@@ -149,6 +149,30 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
                 change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
     }
 
+    [TestCase(PaymentStatus.Withdrawn, true)]
+    [TestCase(PaymentStatus.Withdrawn, false)]
+    [TestCase(PaymentStatus.Completed, true)]
+    [TestCase(PaymentStatus.Completed, false)]
+    public async Task When_HandlingCommand_For_Withdrawn_Or_Completed_Apprenticeship_Should_Process_Decision_And_Keep_Status(PaymentStatus paymentStatus, bool applyChanges)
+    {
+        var stopDate = DateTime.UtcNow.AddMonths(-1).Date;
+        _fixture.Apprenticeship.PaymentStatus = paymentStatus;
+        _fixture.Apprenticeship.StopDate = stopDate;
+        _fixture.Apprenticeship.WithdrawnReasonCode = paymentStatus == PaymentStatus.Withdrawn ? 1 : null;
+        _fixture.Command.ApplyChanges = applyChanges;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        var expectedStatus = applyChanges ? CocApprovalItemStatus.EmployerApproved : CocApprovalItemStatus.EmployerRejected;
+        var items = await _fixture.Db.CocApprovalItems.Where(x => x.ApprenticeshipId == _fixture.Command.ApprenticeshipId).ToListAsync();
+        items.Should().OnlyContain(item => item.Status == expectedStatus);
+
+        var apprenticeship = await _fixture.Db.Apprenticeships.FindAsync(_fixture.Command.ApprenticeshipId);
+        apprenticeship.PaymentStatus.Should().Be(paymentStatus);
+        apprenticeship.StopDate.Should().Be(stopDate);
+        apprenticeship.WithdrawnReasonCode.Should().Be(_fixture.Apprenticeship.WithdrawnReasonCode);
+    }
+
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture
     {
         public ProcessApprenticeshipApprovalCommandHandler Handler;
