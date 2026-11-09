@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -266,6 +268,52 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         ChangeTrackingSession.CompleteTrackingSession();
 
         PriceHistory = updatedPriceHistory;
+    }
+
+    public void ApplyLatestApprovedPrice(decimal trainingPrice, decimal assessmentPrice, DateTime effectiveFrom)
+    {
+        PriceHistory ??= new List<PriceHistory>();
+
+        var submitted = new[]
+        {
+            new PriceRecord
+            {
+                TrainingPrice = trainingPrice,
+                AssessmentPrice = assessmentPrice,
+                EffectiveFrom = effectiveFrom.Date
+            }
+        };
+
+        if (new PriceScheduleMapper().LatestEpisodesMatch(PriceHistory, submitted))
+        {
+            return;
+        }
+
+        var cost = trainingPrice + assessmentPrice;
+        var openEpisode = PriceHistory.FirstOrDefault(history => history.ToDate == null);
+
+        if (openEpisode != null && openEpisode.FromDate.Date == effectiveFrom.Date)
+        {
+            openEpisode.TrainingPrice = trainingPrice;
+            openEpisode.AssessmentPrice = assessmentPrice;
+            openEpisode.Cost = cost;
+            return;
+        }
+
+        if (openEpisode != null)
+        {
+            openEpisode.ToDate = effectiveFrom.Date.AddDays(-1);
+        }
+
+        PriceHistory.Add(new PriceHistory
+        {
+            ApprenticeshipId = Id,
+            TrainingPrice = trainingPrice,
+            AssessmentPrice = assessmentPrice,
+            Cost = cost,
+            FromDate = effectiveFrom.Date,
+            ToDate = null
+        });
     }
 
     public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId, string version, DateTime approvedOn, string learningType)
