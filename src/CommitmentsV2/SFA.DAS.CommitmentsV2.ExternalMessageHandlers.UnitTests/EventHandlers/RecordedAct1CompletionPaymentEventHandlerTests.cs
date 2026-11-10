@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Payments.ProviderPayments.Messages;
@@ -26,14 +27,15 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
         }
 
-        [TestCase(ApprenticeshipStatus.Live)]
-        [TestCase(ApprenticeshipStatus.Paused)]
-        [TestCase(ApprenticeshipStatus.Stopped)]
-        public async Task When_HandlingCompletionEvent_CompletionIsCalled(ApprenticeshipStatus status)
+        [TestCase(ApprenticeshipStatus.Live, "live")]
+        [TestCase(ApprenticeshipStatus.Paused, "paused")]
+        [TestCase(ApprenticeshipStatus.Stopped, "stopped")]
+        public async Task When_HandlingCompletionEvent_CompletionAndHistoryAreRecorded(ApprenticeshipStatus status, string previousStatus)
         {
             _fixture.WithApprenticeshipStatus(status);
             await _fixture.Handle();
             _fixture.VerifyApprenticeCompleteWasCalled();
+            _fixture.VerifyStatusHistoryWasSent(previousStatus);
             _fixture.VerifyHasInfo();
         }
 
@@ -43,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Completed);
             await _fixture.Handle();
             _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
+            _fixture.VerifyNoStatusHistoryWasSent();
             _fixture.VerifyHasInfo();
         }
         
@@ -60,6 +63,17 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.SetApprenticeshipIdToNull();
             await _fixture.Handle();
             _fixture.VerifyHasWarning();
+            _fixture.VerifyNoStatusHistoryWasSent();
+        }
+
+        [Test]
+        public async Task When_LearnerIsWaitingToStart_NoStatusHistoryIsRecorded()
+        {
+            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.WaitingToStart);
+
+            await _fixture.Handle();
+
+            _fixture.VerifyNoStatusHistoryWasSent();
         }
 
         public class RecordedAct1CompletionPaymentEventHandlerTestsFixture
@@ -143,6 +157,23 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 Assert.That(_event.EventTime.UtcDateTime, Is.EqualTo(_apprenticeship.ValuePassedToComplete));
             }
 
+            public void VerifyStatusHistoryWasSent(string previousStatus)
+            {
+                _messageHandlerContext.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(history =>
+                    history.ApprenticeshipId == _event.ApprenticeshipId.Value
+                    && history.Source == LearningSourceType.ILRStatusChange
+                    && history.ChangeType == LearningChangeType.AutoApproved
+                    && history.AppliedDate == _event.EventTime.UtcDateTime
+                    && history.Description == $"Status change from {previousStatus} to completed"),
+                    It.IsAny<SendOptions>()), Times.Once);
+            }
+
+            public void VerifyNoStatusHistoryWasSent()
+            {
+                _messageHandlerContext.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(),
+                    It.IsAny<SendOptions>()), Times.Never);
+            }
+
             public void VerifyApprenticeUpdateCompletionDateWasCalled()
             {
                 Assert.That(_event.EventTime.UtcDateTime, Is.EqualTo(_apprenticeship.ValuePassedToUpdateCompletionDate));
@@ -173,6 +204,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             public override void Complete(DateTime completionDate)
             {
                 ValuePassedToComplete = completionDate;
+                PaymentStatus = PaymentStatus.Completed;
             }
 
             public override void UpdateCompletionDate(DateTime completionDate)

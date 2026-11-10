@@ -242,6 +242,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
+        [TestCase(false, LearningSourceType.ManualChange, LearningChangeType.ManualUpdate)]
+        [TestCase(true, LearningSourceType.ApprovalAPI, LearningChangeType.AutoApproved)]
+        public async Task Handle_WhenStoppingLiveLearner_RecordsChangeHistory(bool isSystem, LearningSourceType source, LearningChangeType changeType)
+        {
+            var apprenticeship = await SetupApprenticeship();
+            var appliedDate = _currentDateTime.Object.UtcNow;
+            var stopDate = new DateTime(appliedDate.Year, appliedDate.Month, 1);
+            Guid? userId = isSystem ? null : Guid.NewGuid();
+            var userInfo = isSystem ? UserInfo.System : new UserInfo { UserId = userId.ToString() };
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, userInfo, Party.Employer);
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            _nserviceBusContext.Verify(session => session.Send(It.Is<StoreLearningHistoryCommand>(history =>
+                history.ApprenticeshipId == apprenticeship.Id &&
+                history.AppliedDate == appliedDate &&
+                history.Source == source &&
+                history.ChangeType == changeType &&
+                history.UserId == userId &&
+                history.Description == "Status change from live to stopped"), It.IsAny<SendOptions>()), Times.Once);
+        }
+
         [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenShouldPublishApprenticeshipStoppedEvent()
         {

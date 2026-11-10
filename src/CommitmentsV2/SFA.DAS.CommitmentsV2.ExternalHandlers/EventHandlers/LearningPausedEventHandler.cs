@@ -9,9 +9,9 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -52,20 +52,13 @@ public class LearningPausedEventHandler(
 
             ValidatePauseDate(message.PauseDate, apprentice);
 
+            var previousStatus = apprentice.GetApprenticeshipStatus(message.Created);
             apprentice.SetIlrPaused(message.PauseDate);
 
             await SendEmailNotification(context, apprentice.Cohort.EmployerAccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
 
-            var historyCommand = new StoreLearningHistoryCommand
-            {
-                ApprenticeshipId = message.ApprenticeshipId,
-                Source = LearningSourceType.ILRStatusChange,
-                ChangeType = LearningChangeType.AutoApproved,
-                LearningKey = message.LearningKey,
-                AppliedDate = message.Created,
-                Description = $"Learning has been paused on {message.PauseDate.ToGdsFormat()}"
-            };
-            await context.Send(historyCommand);
+            await apprentice.SendStatusChangeHistory(previousStatus, message.Created, LearningSourceType.ILRStatusChange,
+                history => context.Send(history), learningKey: message.LearningKey);
 
             logger.LogInformation(" Executing {Event} completed", nameof(LearningPausedEvent));
         }

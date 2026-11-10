@@ -15,7 +15,6 @@ using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -44,6 +43,15 @@ public class LearningPausedEventHandlerTests
         _fixture.VerifyStoreLearnerHistoryCommandIsSent();
         _fixture.VerifyLearningPausedEventIsPublished();
         _fixture.VerifySendEmailToEmployerCommandIsSent();
+    }
+
+    [Test]
+    public async Task Handle_WhenLearningIsAlreadyPaused_DoesNotRecordAnotherStatusChange()
+    {
+        await _fixture.SetPaymentStatus(PaymentStatus.Paused).Handle();
+
+        _fixture.VerifyLearnerPaused();
+        _fixture.VerifyStoreLearnerHistoryCommandIsNotSent();
     }
 
     [Test]
@@ -126,6 +134,7 @@ public class LearningPausedEventHandlerTestsFixture
         apprenticeshipId = fixture.Create<long>();
         _event.ApprenticeshipId = apprenticeshipId;
         _event.PauseDate = DateTime.UtcNow.AddMonths(3);
+        _event.Created = _event.PauseDate;
 
         var provider = new Provider()
         {
@@ -151,6 +160,7 @@ public class LearningPausedEventHandlerTestsFixture
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Uln = fixture.Create<long>().ToString(),
             Cohort = cohort,
+            PaymentStatus = PaymentStatus.Active,
             StartDate = DateTime.UtcNow.AddMonths(1),
             EndDate = DateTime.UtcNow.AddMonths(13)
         };
@@ -208,8 +218,13 @@ public class LearningPausedEventHandlerTestsFixture
             c.ChangeType == Types.LearningChangeType.AutoApproved &&
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
-            c.Description == $"Learning has been paused on {_event.PauseDate.ToGdsFormat()}"
+            c.Description == "Status change from live to paused"
         ), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    public void VerifyStoreLearnerHistoryCommandIsNotSent()
+    {
+        _mockContext.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
     public void VerifySendEmailToEmployerCommandIsSent()

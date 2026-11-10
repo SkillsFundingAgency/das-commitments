@@ -1,10 +1,12 @@
 using AutoFixture.NUnit3;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -22,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<ICurrentDateTime> _currentDateTime;
         public IRequestHandler<ResumeApprenticeshipCommand> _handler;
         public UserInfo UserInfo { get; }
+        private Mock<IMessageSession> _messageSession;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
 
         [SetUp]
@@ -34,11 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             _currentDateTime = new Mock<ICurrentDateTime>();
             _unitOfWorkContext = new UnitOfWorkContext();
+            _messageSession = new Mock<IMessageSession>();
             _handler = new ResumeApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
                 _authenticationService.Object,
-                Mock.Of<ILogger<ResumeApprenticeshipCommandHandler>>());
+                Mock.Of<ILogger<ResumeApprenticeshipCommandHandler>>(),
+                _messageSession.Object);
         }
         
         [TearDown]
@@ -76,6 +81,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task Handle_WhenResumingPausedLearner_RecordsChangeHistory()
+        {
+            var apprenticeship = await SetupApprenticeship();
+            var userId = Guid.NewGuid();
+            var command = new ResumeApprenticeshipCommand
+            {
+                ApprenticeshipId = apprenticeship.Id,
+                UserInfo = new UserInfo { UserId = userId.ToString() }
+            };
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            _messageSession.Verify(session => session.Send(It.Is<StoreLearningHistoryCommand>(history =>
+                history.ApprenticeshipId == apprenticeship.Id &&
+                history.AppliedDate == _currentDateTime.Object.UtcNow &&
+                history.Source == LearningSourceType.ManualChange &&
+                history.ChangeType == LearningChangeType.ManualUpdate &&
+                history.UserId == userId &&
+                history.Description == "Status change from paused to live"), It.IsAny<SendOptions>()), Times.Once);
+        }
+
+        [Test]
         [InlineAutoData(PaymentStatus.Completed)]
         [InlineAutoData(PaymentStatus.Withdrawn)]
         [InlineAutoData(PaymentStatus.Active)]
@@ -95,6 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = "Only paused record can be activated" });
+            _messageSession.Verify(session => session.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
         }
 
         [Test]
