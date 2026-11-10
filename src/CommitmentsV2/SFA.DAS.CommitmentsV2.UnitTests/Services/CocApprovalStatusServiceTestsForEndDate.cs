@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services;
@@ -14,6 +15,8 @@ public class CocApprovalStatusServiceTestsForEndDate
 {
     private Mock<ILogger<CocApprovalStatusService>> _loggerMock;
     private Mock<IOverlapCheckService> _overlapCheckServiceMock;
+    private Mock<IAcademicYearDateProvider> _academicYearDateProviderMock;
+    private Mock<ICocApprovalStartDateValidationRules> _cocApprovalStartDateValidationRulesMock;
     private CocApprovalStatusService _service;
 
     [SetUp]
@@ -21,10 +24,12 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         _loggerMock = new Mock<ILogger<CocApprovalStatusService>>();
         _overlapCheckServiceMock = new Mock<IOverlapCheckService>();
+        _academicYearDateProviderMock = new Mock<IAcademicYearDateProvider>();
+        _cocApprovalStartDateValidationRulesMock = new Mock<ICocApprovalStartDateValidationRules>();
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CourseDateRange>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OverlapCheckResult(false, false));
 
-        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _loggerMock.Object);
+        _service = new CocApprovalStatusService(_overlapCheckServiceMock.Object, _cocApprovalStartDateValidationRulesMock.Object, _academicYearDateProviderMock.Object, _loggerMock.Object);
     }
 
     [Test]
@@ -32,8 +37,9 @@ public class CocApprovalStatusServiceTestsForEndDate
     {
         var updates = new CocUpdates();
         var apprenticeship = new Apprenticeship { EndDate = DateTime.Today };
+        var course = new Course();
 
-        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var result = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         result.Should().BeEmpty();
     }
@@ -52,8 +58,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             PaymentStatus = Types.PaymentStatus.Completed,
             CompletionDate = DateTime.Today.AddDays(-1)
         };
+        var course = new Course();
 
-        await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -79,8 +86,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             PaymentStatus = Types.PaymentStatus.Completed,
             CompletionDate = DateTime.Today.AddDays(-1)
         };
+        var course = new Course();
 
-        await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         _loggerMock.Verify(
             x => x.Log(
@@ -93,7 +101,39 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenPlannedEndDateIsAfterCompletionDate()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnReversal_WhenNewDateIsInTheSameMonthAsCurrentEndDate()
+    {
+        var currentEndDate = new DateTime(2027, 9, 1);
+        var updates = new CocUpdates
+        {
+            PlannedEndDate = new CocUpdate<DateTime?>
+            {
+                Old = currentEndDate,
+                New = new DateTime(2027, 9, 30)
+            }
+        };
+        var apprenticeship = new Apprenticeship
+        {
+            EndDate = currentEndDate,
+            StartDate = new DateTime(2027, 1, 1)
+        };
+
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, new Course());
+
+        results.Should().ContainSingle();
+        results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
+        results[0].Status.Should().Be(CocApprovalItemStatus.Reversal);
+        _overlapCheckServiceMock.Verify(
+            x => x.CheckForOverlaps(
+                It.IsAny<string>(),
+                It.IsAny<CourseDateRange>(),
+                It.IsAny<long>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsCompleted()
     {
         var updates = new CocUpdates
         {
@@ -106,14 +146,15 @@ public class CocApprovalStatusServiceTestsForEndDate
             PaymentStatus = Types.PaymentStatus.Completed,
             CompletionDate = DateTime.Today.AddMonths(1)
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date cannot be changed on a completed record");
-    }        
+        results[0].Reason.Should().BeNull();
+    }
 
     [Test]
     public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsWithdrawn()
@@ -129,8 +170,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             StopDate = DateTime.Today.AddMonths(-1),
             PaymentStatus = Types.PaymentStatus.Withdrawn
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().ContainSingle();
         results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
@@ -150,8 +192,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3)
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -171,8 +214,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3)
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -193,8 +237,9 @@ public class CocApprovalStatusServiceTestsForEndDate
             StartDate = DateTime.Today.AddMonths(-3),
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today.AddMonths(6) }
         };
+        var course = new Course();
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -216,11 +261,12 @@ public class CocApprovalStatusServiceTestsForEndDate
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3)
         };
+        var course = new Course();
 
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OverlapCheckResult(true, true));
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
@@ -242,11 +288,12 @@ public class CocApprovalStatusServiceTestsForEndDate
             EndDate = DateTime.Today,
             StartDate = DateTime.Today.AddMonths(-3),
         };
+        var course = new Course();
 
         _overlapCheckServiceMock.Setup(x => x.CheckForOverlaps(apprenticeship.Uln, It.IsAny<CourseDateRange>(), apprenticeship.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OverlapCheckResult(false, false));
 
-        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
         results[0].Status.Should().Be(CocApprovalItemStatus.Pending);

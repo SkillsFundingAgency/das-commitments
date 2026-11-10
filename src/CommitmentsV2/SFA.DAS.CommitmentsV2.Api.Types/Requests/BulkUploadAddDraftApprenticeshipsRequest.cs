@@ -148,4 +148,8 @@ public class BulkUploadAddDraftApprenticeshipRequest
     }
     public int? MinimumAgeAtApprenticeshipStart { get; set; }
     public int? MaximumAgeAtApprenticeshipStart { get; set; }
+    public int? TrainingPrice { get; set; }
+    public int? EndPointAssessmentPrice { get; set; }
+    public DateTime? ActualStartDate { get; set; }
+    public long? LearnerDataId { get; set; }
 }

@@ -12,19 +12,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipApproval
         [Test, MoqAutoData]
         public async Task Then_The_Request_Is_Passed_To_Mediator_And_Ok_Returned(
             long apprenticeshipId,
-            Guid ApprovalRequestId,
             ProcessApprenticeshipApprovalRequest request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeshipApprovalsController controller)
         {
             mediator.Setup(x => x.Send(It.IsAny<ProcessApprenticeshipApprovalCommand>(), CancellationToken.None));
 
-            var actual = await controller.PostApprenticeshipApproval(apprenticeshipId, ApprovalRequestId, request) as OkResult;
+            var actual = await controller.PostApprenticeshipApproval(apprenticeshipId, request) as OkResult;
 
             actual.Should().NotBeNull();
             mediator.Verify(x => x.Send(It.Is<ProcessApprenticeshipApprovalCommand>(c =>
                 c.ApprenticeshipId == apprenticeshipId &&
-                c.ApprovalRequestId == ApprovalRequestId &&
                 c.ApplyChanges == request.ApplyChanges &&
                 c.UserInfo == request.UserInfo), CancellationToken.None), Times.Once);
         }

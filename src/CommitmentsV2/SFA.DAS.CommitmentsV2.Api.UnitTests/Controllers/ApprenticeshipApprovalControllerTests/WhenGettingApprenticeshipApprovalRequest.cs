@@ -12,14 +12,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipApproval
         public async Task Then_The_Request_Is_Passed_To_Mediator_And_Data_Returned(
             GetApprenticeshipApprovalQueryResult result,
             long apprenticeshipId,
-            Guid ApprovalRequestId,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeshipApprovalsController controller)
         {
-            mediator.Setup(x => x.Send(It.Is<GetApprenticeshipApprovalQuery>(q => q.ApprenticeshipId == apprenticeshipId && q.ApprovalRequestId == ApprovalRequestId), 
+            mediator.Setup(x => x.Send(It.Is<GetApprenticeshipApprovalQuery>(q => q.ApprenticeshipId == apprenticeshipId),
                 CancellationToken.None)).ReturnsAsync(result);
 
-            var actual = await controller.GetApprenticeshipApproval(apprenticeshipId, ApprovalRequestId) as OkObjectResult;
+            var actual = await controller.GetApprenticeshipApproval(apprenticeshipId) as OkObjectResult;
 
             actual.Should().NotBeNull();
             var model = actual.Value as GetApprenticeshipApprovalQueryResult;
@@ -29,14 +28,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipApproval
         [Test, MoqAutoData]
         public async Task Then_The_Request_Is_Passed_To_Mediator_And_NoData_Returned(
             long apprenticeshipId,
-            Guid ApprovalRequestId,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeshipApprovalsController controller)
         {
-            mediator.Setup(x => x.Send(It.Is<GetApprenticeshipApprovalQuery>(q => q.ApprenticeshipId == apprenticeshipId && q.ApprovalRequestId == ApprovalRequestId),
+            mediator.Setup(x => x.Send(It.Is<GetApprenticeshipApprovalQuery>(q => q.ApprenticeshipId == apprenticeshipId),
                 CancellationToken.None)).ReturnsAsync((GetApprenticeshipApprovalQueryResult)null);
 
-            var actual = await controller.GetApprenticeshipApproval(apprenticeshipId, ApprovalRequestId) as NotFoundResult;
+            var actual = await controller.GetApprenticeshipApproval(apprenticeshipId) as NotFoundResult;
 
             actual.Should().NotBeNull();
         }
