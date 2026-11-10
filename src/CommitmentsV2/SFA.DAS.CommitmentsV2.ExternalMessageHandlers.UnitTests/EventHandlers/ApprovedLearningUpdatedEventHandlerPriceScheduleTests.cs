@@ -191,7 +191,8 @@ public class ApprovedLearningUpdatedEventHandlerPriceScheduleTestsFixture
             EndDate = DateTime.UtcNow.AddMonths(13),
             Cost = 1500m,
             TrainingPrice = 1000,
-            EndPointAssessmentPrice = 500
+            EndPointAssessmentPrice = 500,
+            ProgrammeType = ProgrammeType.Standard,
         };
 
         _originalCost = apprenticeship.Cost;

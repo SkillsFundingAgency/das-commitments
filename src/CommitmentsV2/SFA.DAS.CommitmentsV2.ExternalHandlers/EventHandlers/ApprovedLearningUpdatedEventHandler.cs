@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
+using PriceEpisode = SFA.DAS.CommitmentsV2.Messages.Events.PriceEpisode;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -48,9 +49,8 @@ public class ApprovedLearningUpdatedEventHandler(
             {
                 ApplyChange(message, apprentice, change);
             }
-            await db.SaveChangesAsync();
-
             ApplyLatestApprovedPrice(message, apprentice);
+            await db.SaveChangesAsync();
 
             var @event = await CreateApprenticeshipUpdatedApprovedEvent(message.ApprenticeshipId);
             logger.LogInformation("Publishing ApprenticeshipUpdatedApprovedEvent");
