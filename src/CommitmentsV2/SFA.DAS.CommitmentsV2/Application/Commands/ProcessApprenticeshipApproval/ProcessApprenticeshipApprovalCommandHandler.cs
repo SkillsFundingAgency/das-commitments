@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using NServiceBus;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
@@ -39,14 +40,17 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             item.Updated = DateTime.UtcNow;
         }
 
-        var changes = ConvertItemsToChangeList(pendingItems);
+        var priceItem = pendingItems.FirstOrDefault(item => item.Field == nameof(CocChangeField.Prices));
+        var changes = ConvertItemsToChangeList(pendingItems, decision);
+        var prices = ConvertPrices(priceItem?.New);
         if (command.ApplyChanges)
         {
             await messageSession.Publish(new LearningChangeApprovedEvent
             {
                 LearningKey = pendingItems[0].LearningKey,
                 ApprenticeshipId = command.ApprenticeshipId,
-                Changes = changes
+                Changes = changes,
+                Prices = prices
             });
 
             await NotifyProvider(db, command.ApprenticeshipId, "ProviderLearningChangeApprovedNotification", cancellationToken);
@@ -57,7 +61,9 @@ public class ProcessApprenticeshipApprovalCommandHandler(
             {
                 LearningKey = pendingItems[0].LearningKey,
                 ApprenticeshipId = command.ApprenticeshipId,
-                Changes = changes
+                Changes = changes,
+                Prices = prices,
+                Reason = string.Empty
             });
 
             await NotifyProvider(db, command.ApprenticeshipId, "ProviderLearningChangeRejectedNotification", cancellationToken);
@@ -140,19 +146,36 @@ public class ProcessApprenticeshipApprovalCommandHandler(
         return null;
     }
 
-    private static List<LearningChangeEvent.Change> ConvertItemsToChangeList(ICollection<CocApprovalItem> items)
+    private static List<LearningChangeEvent.Change> ConvertItemsToChangeList(
+        ICollection<CocApprovalItem> items,
+        CocApprovalItemStatus decision)
     {
         var changes = new List<LearningChangeEvent.Change>();
-        foreach (var item in items)
+        foreach (var item in items.Where(item => item.Field != nameof(CocChangeField.Prices)))
         {
             changes.Add(new LearningChangeEvent.Change
             {
                 ChangeType = item.Field,
-                Old = item.Old,
-                New = item.New,
-                EffectiveFromDate = null
+                ApprovalStatus = decision == CocApprovalItemStatus.EmployerApproved
+                    ? nameof(CocApprovalItemStatus.EmployerApproved)
+                    : nameof(CocApprovalItemStatus.EmployerRejected),
+                Data = new LearningChangeEvent.ChangeData
+                {
+                    Old = item.Old,
+                    New = item.New
+                }
             });
         }
         return changes;
+    }
+
+    private static List<LearningChangeEvent.Price> ConvertPrices(string scheduleJson)
+    {
+        if (string.IsNullOrWhiteSpace(scheduleJson))
+        {
+            return null;
+        }
+
+        return JsonConvert.DeserializeObject<List<LearningChangeEvent.Price>>(scheduleJson);
     }
 }
