@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,6 +36,7 @@ public class ApprovedLearningUpdatedEventHandler(
                 message.ApprenticeshipId, message.LearningKey);
             var db = dbContext.Value;
             var apprentice = await db.Apprenticeships
+                .Include(a => a.PriceHistory)
                 .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
@@ -48,6 +50,8 @@ public class ApprovedLearningUpdatedEventHandler(
             }
             await db.SaveChangesAsync();
 
+            ApplyLatestApprovedPrice(message, apprentice);
+
             var @event = await CreateApprenticeshipUpdatedApprovedEvent(message.ApprenticeshipId);
             logger.LogInformation("Publishing ApprenticeshipUpdatedApprovedEvent");
             await context.Publish(@event);
@@ -59,6 +63,22 @@ public class ApprovedLearningUpdatedEventHandler(
             logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
+    }
+
+    private void ApplyLatestApprovedPrice(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice)
+    {
+        if (message.Prices == null || message.Prices.Count == 0)
+        {
+            return;
+        }
+
+        var latest = message.Prices.OrderBy(episode => episode.EffectiveFrom).Last();
+        logger.LogInformation(
+            "Applying latest PriceEpisode for ApprenticeshipId {ApprenticeshipId} effectiveFrom {EffectiveFrom}",
+            message.ApprenticeshipId,
+            latest.EffectiveFrom);
+
+        apprentice.ApplyLatestApprovedPrice(latest.TrainingPrice, latest.AssessmentPrice, latest.EffectiveFrom);
     }
 
     private async Task<ApprenticeshipUpdatedApprovedEvent> CreateApprenticeshipUpdatedApprovedEvent(long apprenticeshipId)
@@ -118,11 +138,11 @@ public class ApprovedLearningUpdatedEventHandler(
                     ApplyDOBChange(message, apprentice, change);
                     break;
 
-                case ApprovedLearnerChangeType.PlannedStartDate:
+                case ApprovedLearnerChangeType.StartDate:
                     var parsedStartDate = ParseDate(change.Data.New);
                     if (parsedStartDate == null)
                     {
-                        logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                        logger.LogWarning("Invalid date for StartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
                         return;
                     }
 

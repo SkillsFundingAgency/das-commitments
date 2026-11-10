@@ -1,14 +1,15 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.CocApprovals;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Exceptions;
-using System.Globalization;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 
@@ -27,35 +28,16 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
             ProviderId = ToLong(request.UKPRN),
             ULN = request.ULN,
             Updates = new CocUpdates(),
-            ApprovalFieldChanges = request.Changes,
+            ApprovalFieldChanges = request.Changes ?? [],
             Apprenticeship = apprenticeship,
-            Course = await GetCourseAsync(apprenticeship?.CourseCode)
+            Course = ApplyRequestLearningTypeWhenCourseHasNone(await GetCourseAsync(apprenticeship?.CourseCode), request.LearningType)
         };
 
-        foreach (var change in request.Changes)
+        foreach (var change in request.Changes ?? [])
         {
             var changeType = EnumExtensions.FromDescription<CocChangeField>(change.ChangeType);
 
-            if(changeType == CocChangeField.TNP1 || changeType == CocChangeField.TNP2)
-            {
-                var update = new CocUpdate<int?>
-                {
-                    Old = ToInt(change.Data.Old),
-                    New = ToInt(change.Data.New),
-                    EffectiveFromDate = change.Data.EffectiveFromDate
-                };
-
-                switch (changeType) 
-                { 
-                    case CocChangeField.TNP1: 
-                        result.Updates.TNP1 = update; 
-                        break; 
-                    case CocChangeField.TNP2: 
-                        result.Updates.TNP2 = update; 
-                        break; 
-                }
-            }
-            else if (changeType == CocChangeField.Firstname)
+            if (changeType == CocChangeField.Firstname)
             {
                 result.Updates.Firstname = new CocUpdate<string>
                 {
@@ -69,6 +51,14 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
                 {
                     Old = AssignRealStringsOnly(change.Data?.Old),
                     New = AssignRealStringsOnly(change.Data?.New),
+                };
+            }
+            else if (changeType == CocChangeField.StartDate)
+            {
+                result.Updates.StartDate = new CocUpdate<DateTime?>
+                {
+                    Old = ToDate(change.Data.Old),
+                    New = ToDate(change.Data.New),
                 };
             }
             else if (changeType == CocChangeField.PlannedEndDate)
@@ -86,9 +76,29 @@ public class CocApprovalRequestToCocApprovalDetailsMapper(
     public async Task<Apprenticeship> GetApprenticeship(long id)
     {
         return await dbContext.Value.Apprenticeships
+            .Include(a => a.PriceHistory)
             .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
             .Include(a => a.Cohort).ThenInclude(c => c.Provider)
             .SingleOrDefaultAsync(a => a.Id == id, CancellationToken.None);
+    }
+
+    private static Course ApplyRequestLearningTypeWhenCourseHasNone(Course course, string requestLearningType)
+    {
+        if (course == null || course.LearningType != null || string.IsNullOrWhiteSpace(requestLearningType))
+        {
+            return course;
+        }
+
+        return new Course
+        {
+            LarsCode = course.LarsCode,
+            Title = course.Title,
+            Level = course.Level,
+            LearningType = EnumExtensions.FromDescription<LearningType>(requestLearningType),
+            MaxFunding = course.MaxFunding,
+            EffectiveFrom = course.EffectiveFrom,
+            EffectiveTo = course.EffectiveTo
+        };
     }
 
     public async Task<Course> GetCourseAsync(string apprenticeshipCourseCode)

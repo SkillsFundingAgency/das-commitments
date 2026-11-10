@@ -89,7 +89,7 @@ public class ApprovedLearningUpdatedEventHandlerTests
     public async Task ThenLogsWarning_WhenInvalidStartDateReceived()
     {
         await _fixture.SetEventWithInvalidStartDate().Handle();
-        _fixture.VerifyLoggerWarning("Invalid date for PlannedStartDate change");
+        _fixture.VerifyLoggerWarning("Invalid date for StartDate change");
     }
 }
 
@@ -224,7 +224,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
                    },
 
                    new() { ChangeType = "DOB", Data = new ApprenticeshipData { Old = DateTime.Now.AddYears(-20).ToString(format), New = DateTime.Now.AddYears(-1).ToString(format)} },
-                   new() { ChangeType = "PlannedStartDate", Data = new ApprenticeshipData { Old = DateTime.Now.AddMonths(2).ToString(format), New = DateTime.Now.AddMonths(4).ToString(format)} },
+                   new() { ChangeType = "StartDate", Data = new ApprenticeshipData { Old = DateTime.Now.AddMonths(2).ToString(format), New = DateTime.Now.AddMonths(4).ToString(format)} },
                    new() { ChangeType = "PlannedEndDate", Data = new ApprenticeshipData { Old = DateTime.Now.AddMonths(8).ToString(format), New = DateTime.Now.AddMonths(11).ToString(format)} }
             ]
         };
@@ -282,7 +282,7 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
             Changes =
             [
                 new() {
-                     ChangeType = "PlannedStartDate",
+                     ChangeType = "StartDate",
                      Data = new ApprenticeshipData
                      {
                          Old = DateTime.UtcNow.ToString(format),
@@ -307,9 +307,9 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         updatedApprenticeship.LastName.Should().Be(GetValue(ApprovedLearnerChangeType.Surname));
         updatedApprenticeship.Email.Should().Be(GetValue(ApprovedLearnerChangeType.Email));
         updatedApprenticeship.DateOfBirth.Value.Date.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.DOB)));
-        updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate))));
+        updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate))));
         updatedApprenticeship.EndDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate))));
-        updatedApprenticeship.ActualStartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedStartDate)));
+        updatedApprenticeship.ActualStartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate)));
     }
 
     public void VerifyEventPublished()
