@@ -97,7 +97,7 @@ public class CocApprovalStatusService(
             }
             else
             {
-                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Pending };
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoApproved };
             }
         }
     }
