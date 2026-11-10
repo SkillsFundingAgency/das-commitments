@@ -37,14 +37,15 @@ public class PriceScheduleMapper
         ArgumentNullException.ThrowIfNull(priceHistory);
         ArgumentNullException.ThrowIfNull(priceRecords);
 
-        var current = Latest(priceHistory.Select(ToEpisode));
+        var history = priceHistory.ToList();
+        var current = Latest(history.Select(ToEpisode));
         var submitted = Latest(ToSubmittedEpisodes(priceRecords));
         if (current == null || submitted == null)
         {
             return false;
         }
 
-        return PriceScheduleEpisodeComparer.Instance.Equals(current, submitted);
+        return PriceScheduleEpisodeComparer.Instance.Matches(current, submitted, history.Count == 1);
     }
 
     public bool AreEqual(string left, string right)
@@ -81,7 +82,7 @@ public class PriceScheduleMapper
 
         return new PriceScheduleEpisode
         {
-            EffectiveFrom = FormatDate(history.FromDate),
+            EffectiveFrom = DateOnly.FromDateTime(history.FromDate),
             Cost = history.Cost,
             TrainingPrice = hasSplit ? history.TrainingPrice : null,
             AssessmentPrice = hasSplit ? history.AssessmentPrice : null
@@ -107,7 +108,7 @@ public class PriceScheduleMapper
 
             episodes.Add(new PriceScheduleEpisode
             {
-                EffectiveFrom = FormatDate(priceRecord.EffectiveFrom.Value),
+                EffectiveFrom = DateOnly.FromDateTime(priceRecord.EffectiveFrom.Value),
                 Cost = priceRecord.TrainingPrice.Value + priceRecord.AssessmentPrice.Value,
                 TrainingPrice = priceRecord.TrainingPrice,
                 AssessmentPrice = priceRecord.AssessmentPrice
@@ -120,29 +121,26 @@ public class PriceScheduleMapper
     private static PriceScheduleEpisode Latest(IEnumerable<PriceScheduleEpisode> episodes)
     {
         return episodes
-            .OrderBy(episode => episode.EffectiveFrom, StringComparer.Ordinal)
+            .OrderBy(episode => episode.EffectiveFrom)
             .LastOrDefault();
-    }
-
-    private static string FormatDate(DateTime value)
-    {
-        return value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     }
 
     private static string Serialize(IEnumerable<PriceScheduleEpisode> episodes)
     {
-        return JsonConvert.SerializeObject(episodes, Settings);
+        return JsonConvert.SerializeObject(episodes.Select(ToJsonEpisode), Settings);
     }
 
     private static List<PriceScheduleEpisode> Deserialize(string json)
     {
-        return JsonConvert.DeserializeObject<List<PriceScheduleEpisode>>(json, Settings) ?? [];
+        return (JsonConvert.DeserializeObject<List<JsonPriceScheduleEpisode>>(json, Settings) ?? [])
+            .Select(ToEpisode)
+            .ToList();
     }
 
     private static List<PriceScheduleEpisode> Ordered(IEnumerable<PriceScheduleEpisode> episodes)
     {
         return episodes
-            .OrderBy(episode => episode.EffectiveFrom, StringComparer.Ordinal)
+            .OrderBy(episode => episode.EffectiveFrom)
             .ThenBy(episode => episode.Cost)
             .ThenBy(episode => episode.TrainingPrice.HasValue)
             .ThenBy(episode => episode.TrainingPrice ?? 0)
@@ -153,7 +151,7 @@ public class PriceScheduleMapper
 
     private sealed class PriceScheduleEpisode
     {
-        public string EffectiveFrom { get; set; }
+        public DateOnly EffectiveFrom { get; set; }
         public decimal Cost { get; set; }
         public decimal? TrainingPrice { get; set; }
         public decimal? AssessmentPrice { get; set; }
@@ -164,11 +162,24 @@ public class PriceScheduleMapper
         }
     }
 
+    private sealed class JsonPriceScheduleEpisode
+    {
+        public string EffectiveFrom { get; set; }
+        public decimal Cost { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? AssessmentPrice { get; set; }
+    }
+
     private sealed class PriceScheduleEpisodeComparer : IEqualityComparer<PriceScheduleEpisode>
     {
         public static readonly PriceScheduleEpisodeComparer Instance = new();
 
         public bool Equals(PriceScheduleEpisode x, PriceScheduleEpisode y)
+        {
+            return Matches(x, y, false);
+        }
+
+        public bool Matches(PriceScheduleEpisode x, PriceScheduleEpisode y, bool matchMonthOnly)
         {
             if (ReferenceEquals(x, y))
             {
@@ -180,7 +191,7 @@ public class PriceScheduleMapper
                 return false;
             }
 
-            if (x.EffectiveFrom != y.EffectiveFrom || x.Cost != y.Cost)
+            if (x.Cost != y.Cost || !EffectiveDatesMatch(x.EffectiveFrom, y.EffectiveFrom, matchMonthOnly))
             {
                 return false;
             }
@@ -194,9 +205,43 @@ public class PriceScheduleMapper
                 && x.AssessmentPrice == y.AssessmentPrice;
         }
 
+        private static bool EffectiveDatesMatch(DateOnly left, DateOnly right, bool matchMonthOnly)
+        {
+            return matchMonthOnly
+                ? left.Year == right.Year && left.Month == right.Month
+                : left == right;
+        }
+
         public int GetHashCode(PriceScheduleEpisode obj)
         {
             return HashCode.Combine(obj.EffectiveFrom, obj.Cost);
         }
+    }
+
+    private static JsonPriceScheduleEpisode ToJsonEpisode(PriceScheduleEpisode episode)
+    {
+        return new JsonPriceScheduleEpisode
+        {
+            EffectiveFrom = episode.EffectiveFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            Cost = episode.Cost,
+            TrainingPrice = episode.TrainingPrice,
+            AssessmentPrice = episode.AssessmentPrice
+        };
+    }
+
+    private static PriceScheduleEpisode ToEpisode(JsonPriceScheduleEpisode episode)
+    {
+        if (!DateOnly.TryParseExact(episode.EffectiveFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var effectiveFrom))
+        {
+            throw new JsonException($"Invalid effectiveFrom date '{episode.EffectiveFrom}'.");
+        }
+
+        return new PriceScheduleEpisode
+        {
+            EffectiveFrom = effectiveFrom,
+            Cost = episode.Cost,
+            TrainingPrice = episode.TrainingPrice,
+            AssessmentPrice = episode.AssessmentPrice
+        };
     }
 }
