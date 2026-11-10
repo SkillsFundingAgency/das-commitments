@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,7 +33,6 @@ public class ApprovedLearningUpdatedEventHandler(
                 message.ApprenticeshipId, message.LearningKey);
             var db = dbContext.Value;
             var apprentice = await db.Apprenticeships
-                .Include(a => a.PriceHistory)
                 .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
@@ -48,8 +45,6 @@ public class ApprovedLearningUpdatedEventHandler(
                 ApplyChange(message, apprentice, change);
             }
 
-            ApplyLatestApprovedPrice(message, apprentice);
-
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
         }
         catch (Exception e)
@@ -57,22 +52,6 @@ public class ApprovedLearningUpdatedEventHandler(
             logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
-    }
-
-    private void ApplyLatestApprovedPrice(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice)
-    {
-        if (message.Prices == null || message.Prices.Count == 0)
-        {
-            return;
-        }
-
-        var latest = message.Prices.OrderBy(episode => episode.EffectiveFrom).Last();
-        logger.LogInformation(
-            "Applying latest PriceEpisode for ApprenticeshipId {ApprenticeshipId} effectiveFrom {EffectiveFrom}",
-            message.ApprenticeshipId,
-            latest.EffectiveFrom);
-
-        apprentice.ApplyLatestApprovedPrice(latest.TrainingPrice, latest.AssessmentPrice, latest.EffectiveFrom);
     }
 
     private void ApplyChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
