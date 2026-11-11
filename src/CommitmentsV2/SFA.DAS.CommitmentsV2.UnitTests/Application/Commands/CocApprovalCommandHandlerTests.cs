@@ -899,6 +899,36 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
+    [Test]
+    public async Task Handle_WhenSingleInitialPriceMatchesHistoryMonth_MarksPendingPriceAsReversal()
+    {
+        var learningKey = Guid.NewGuid();
+        var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
+        await _dbContext.CocApprovalItems.AddAsync(price);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.Apprenticeship.PriceHistory =
+        [
+            new PriceHistory { FromDate = new DateTime(2026, 8, 1), Cost = 5500, TrainingPrice = 5000, AssessmentPrice = 500 }
+        ];
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 8, 15), TrainingPrice = 5000, AssessmentPrice = 500 }]
+        }, CancellationToken.None);
+
+        price.Status.Should().Be(CocApprovalItemStatus.Reversal);
+        _dbContext.CocApprovalItems.Count(item => item.Field == nameof(CocChangeField.Prices)).Should().Be(1);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.Reversal);
+        _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
+        _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
     [TestCase(1200, 900)]
     [TestCase(1200, 0)]
     [TestCase(1200, -1)]

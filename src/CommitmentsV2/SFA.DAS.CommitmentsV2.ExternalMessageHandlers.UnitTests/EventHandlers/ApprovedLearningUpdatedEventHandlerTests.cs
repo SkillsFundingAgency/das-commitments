@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,6 +81,30 @@ public class ApprovedLearningUpdatedEventHandlerTests
     {
         await _fixture.SetEventWithInvalidStartDate().Handle();
         _fixture.VerifyLoggerWarning("Invalid date for StartDate change");
+    }
+
+    [Test]
+    public async Task Handle_WhenStartDateChangesWithSinglePriceHistory_MovesPriceHistoryFromDateToNewStartDate()
+    {
+        await _fixture
+            .SetEventWithStartDate("2026-09-15", "2026-10-15")
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Should().ContainSingle()
+            .Which.FromDate.Should().Be(new DateTime(2026, 10, 1));
+    }
+
+    [Test]
+    public async Task Handle_WhenStartDateChangesWithMultiplePriceHistory_LeavesPriceHistoryFromDatesUnchanged()
+    {
+        await _fixture
+            .SetEventWithStartDate("2026-09-15", "2026-10-15")
+            .SetPriceHistory(new DateTime(2026, 9, 1), new DateTime(2026, 10, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Select(price => price.FromDate)
+            .Should().BeEquivalentTo([new DateTime(2026, 9, 1), new DateTime(2026, 10, 1)]);
     }
 }
 
@@ -191,6 +216,49 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         return this;
     }
 
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithStartDate(string oldDate, string newDate)
+    {
+        _event = new ApprovedLearningUpdatedEvent
+        {
+            ApprenticeshipId = apprenticeshipId,
+            LearningKey = Guid.NewGuid(),
+            Changes =
+            [
+                new()
+                {
+                    ChangeType = nameof(ApprovedLearnerChangeType.StartDate),
+                    Data = new ApprenticeshipData
+                    {
+                        Old = oldDate,
+                        New = newDate
+                    }
+                }
+            ]
+        };
+
+        return this;
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetPriceHistory(params DateTime[] fromDates)
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        foreach (var fromDate in fromDates)
+        {
+            apprenticeship.PriceHistory.Add(new PriceHistory
+            {
+                ApprenticeshipId = apprenticeshipId,
+                FromDate = fromDate,
+                ToDate = null,
+                Cost = 5500,
+                TrainingPrice = 5000,
+                AssessmentPrice = 500
+            });
+        }
+
+        _dbContext.SaveChanges();
+        return this;
+    }
+
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithUnKnownChangeType()
     {
         _event = new ApprovedLearningUpdatedEvent()
@@ -270,6 +338,15 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         updatedApprenticeship.StartDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate))));
         updatedApprenticeship.EndDate.Should().Be(ParseFirstDayOfMonth(ParseDate(GetValue(ApprovedLearnerChangeType.PlannedEndDate))));
         updatedApprenticeship.ActualStartDate.Should().Be(ParseDate(GetValue(ApprovedLearnerChangeType.StartDate)));
+    }
+
+    public List<PriceHistory> GetPriceHistory()
+    {
+        return _dbContext.Apprenticeships
+            .Include(apprenticeship => apprenticeship.PriceHistory)
+            .Single(apprenticeship => apprenticeship.Id == apprenticeshipId)
+            .PriceHistory
+            .ToList();
     }
 
     private string GetValue(ApprovedLearnerChangeType changeType)

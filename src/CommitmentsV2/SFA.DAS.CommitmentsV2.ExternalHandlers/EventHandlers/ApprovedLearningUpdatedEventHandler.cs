@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -33,6 +34,7 @@ public class ApprovedLearningUpdatedEventHandler(
                 message.ApprenticeshipId, message.LearningKey);
             var db = dbContext.Value;
             var apprentice = await db.Apprenticeships
+                .Include(t => t.PriceHistory)
                 .SingleOrDefaultAsync(t => t.Id == message.ApprenticeshipId);
 
             if (apprentice == null)
@@ -84,6 +86,10 @@ public class ApprovedLearningUpdatedEventHandler(
 
                     apprentice.StartDate = ParseFirstDayOfMonth(parsedStartDate);
                     apprentice.ActualStartDate = parsedStartDate;
+                    if (apprentice.PriceHistory.Count == 1)
+                    {
+                        apprentice.PriceHistory.Single().FromDate = apprentice.StartDate.Value;
+                    }
                     break;
 
                 case ApprovedLearnerChangeType.PlannedEndDate:
