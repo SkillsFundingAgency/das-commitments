@@ -1,4 +1,3 @@
-using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -127,14 +126,12 @@ public class PriceScheduleMapper
 
     private static string Serialize(IEnumerable<PriceScheduleEpisode> episodes)
     {
-        return JsonConvert.SerializeObject(episodes.Select(ToJsonEpisode), Settings);
+        return JsonConvert.SerializeObject(episodes, Settings);
     }
 
     private static List<PriceScheduleEpisode> Deserialize(string json)
     {
-        return (JsonConvert.DeserializeObject<List<JsonPriceScheduleEpisode>>(json, Settings) ?? [])
-            .Select(ToEpisode)
-            .ToList();
+        return JsonConvert.DeserializeObject<List<PriceScheduleEpisode>>(json, Settings) ?? [];
     }
 
     private static List<PriceScheduleEpisode> Ordered(IEnumerable<PriceScheduleEpisode> episodes)
@@ -160,14 +157,6 @@ public class PriceScheduleMapper
         {
             return TrainingPrice == null && AssessmentPrice == null;
         }
-    }
-
-    private sealed class JsonPriceScheduleEpisode
-    {
-        public string EffectiveFrom { get; set; }
-        public decimal Cost { get; set; }
-        public decimal? TrainingPrice { get; set; }
-        public decimal? AssessmentPrice { get; set; }
     }
 
     private sealed class PriceScheduleEpisodeComparer : IEqualityComparer<PriceScheduleEpisode>
@@ -216,32 +205,5 @@ public class PriceScheduleMapper
         {
             return HashCode.Combine(obj.EffectiveFrom, obj.Cost);
         }
-    }
-
-    private static JsonPriceScheduleEpisode ToJsonEpisode(PriceScheduleEpisode episode)
-    {
-        return new JsonPriceScheduleEpisode
-        {
-            EffectiveFrom = episode.EffectiveFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            Cost = episode.Cost,
-            TrainingPrice = episode.TrainingPrice,
-            AssessmentPrice = episode.AssessmentPrice
-        };
-    }
-
-    private static PriceScheduleEpisode ToEpisode(JsonPriceScheduleEpisode episode)
-    {
-        if (!DateOnly.TryParseExact(episode.EffectiveFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var effectiveFrom))
-        {
-            throw new JsonException($"Invalid effectiveFrom date '{episode.EffectiveFrom}'.");
-        }
-
-        return new PriceScheduleEpisode
-        {
-            EffectiveFrom = effectiveFrom,
-            Cost = episode.Cost,
-            TrainingPrice = episode.TrainingPrice,
-            AssessmentPrice = episode.AssessmentPrice
-        };
     }
 }
