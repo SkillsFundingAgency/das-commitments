@@ -168,7 +168,7 @@ public class CocApprovalCommandHandlerTests
                 ApprovalResult = expectedResult
             });
 
-        await _sut.Handle(new CocApprovalCommand
+        var result = await _sut.Handle(new CocApprovalCommand
         {
             Action = AggregationAction.SupersedePrevious,
             LearningKey = learningKey,
@@ -178,6 +178,7 @@ public class CocApprovalCommandHandlerTests
 
         firstName.Status.Should().Be(CocApprovalItemStatus.Reversal);
         lastName.Status.Should().Be(CocApprovalItemStatus.Superseded);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.Firstname && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
@@ -406,12 +407,12 @@ public class CocApprovalCommandHandlerTests
                 Items =
                 [
                     new ApprovalFieldRequest
-                    {
-                        Field = nameof(CocChangeField.Firstname),
-                        Old = "Bob",
-                        New = "Bobby",
-                        Status = CocApprovalItemStatus.AutoApproved
-                    }
+                {
+                    Field = nameof(CocChangeField.Firstname),
+                    Old = "Bob",
+                    New = "Bobby",
+                    Status = CocApprovalItemStatus.AutoApproved
+                }
                 ]
             },
             ApprovalResult = new CocApprovalResult()
@@ -656,12 +657,12 @@ public class CocApprovalCommandHandlerTests
                 Items =
                 [
                     new ApprovalFieldRequest
-                    {
-                        Field = "Random",
-                        Old = "Value1",
-                        New = "Value2",
-                        Status = CocApprovalItemStatus.AutoApproved
-                    }
+                {
+                    Field = "Random",
+                    Old = "Value1",
+                    New = "Value2",
+                    Status = CocApprovalItemStatus.AutoApproved
+                }
                 ]
             },
             ApprovalResult = new CocApprovalResult()
@@ -682,6 +683,101 @@ public class CocApprovalCommandHandlerTests
                 It.IsAny<SendOptions>()),
             Times.Once);
     }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsPending_DoesNotSendLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.StartDate),
+                        Old = "2026-08-02",
+                        New = "2026-09-02",
+                        Status = CocApprovalItemStatus.Pending
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.IsAny<StoreLearningHistoryCommand>(),
+                It.IsAny<SendOptions>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenActionIsCreateNew_AndStartDateIsAutoRejected_SendsAutoRejectedLearningHistory()
+    {
+        var details = new CocApprovalDetails
+        {
+            LearningKey = Guid.NewGuid(),
+            ApprenticeshipId = 12345
+        };
+
+        var command = new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            CocApprovalDetails = details
+        };
+
+        var state = new CocApprovalState
+        {
+            ApprovalRequest = new ApprovalRequest
+            {
+                Id = Guid.NewGuid(),
+                Items =
+                [
+                    new ApprovalFieldRequest
+                    {
+                        Field = nameof(CocChangeField.StartDate),
+                        Old = "2026-08-02",
+                        New = "1000-01-01",
+                        Status = CocApprovalItemStatus.AutoRejected
+                    }
+                ]
+            },
+            ApprovalResult = new CocApprovalResult()
+        };
+
+        _cocApprovalRules.Setup(x => x.DetermineApprovalState(details)).ReturnsAsync(state);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _messageSession.Verify(x => x.Send(
+                It.Is<StoreLearningHistoryCommand>(c =>
+                    c.ApprenticeshipId == 12345 &&
+                    c.LearningKey == details.LearningKey &&
+                    c.Source == LearningSourceType.ApprovalAPI &&
+                    c.ChangeType == LearningChangeType.AutoRejected &&
+                    c.AppliedDate == _utcNow &&
+                    c.Description == "Start date change from 2026-08-02 to 1000-01-01"),
+                It.IsAny<SendOptions>()),
+            Times.Once);
+    }
+
 
     [Test]
     public async Task Handle_WhenActionIsCreateNew_AndItemsAreAutoApproved_SendsStoreLearningHistoryCommand()
@@ -908,6 +1004,31 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
     }
 
+    [TestCase(nameof(CocChangeField.StartDate))]
+    [TestCase(nameof(CocChangeField.PlannedEndDate))]
+    public async Task Handle_WhenFieldReverses_ReturnsThatFieldAsReversal(string field)
+    {
+        var learningKey = Guid.NewGuid();
+        var pending = CreateCocApprovalItem(learningKey, field: field);
+        await _dbContext.CocApprovalItems.AddAsync(pending);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            ReversedFields = [field]
+        }, CancellationToken.None);
+
+        pending.Status.Should().Be(CocApprovalItemStatus.Reversal);
+        result.Items.Should().ContainSingle(item => item.Field.ToString() == field && item.Status == CocApprovalItemStatus.Reversal);
+        _dbContext.CocApprovalItems.Should().ContainSingle();
+    }
+
     [Test]
     public async Task Handle_WhenEndDateReverses_MarksOnlyThatRowAsReversal()
     {
@@ -920,7 +1041,7 @@ public class CocApprovalCommandHandlerTests
         var details = DetailsWithHistory(learningKey);
         SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
 
-        await _sut.Handle(new CocApprovalCommand
+        var result = await _sut.Handle(new CocApprovalCommand
         {
             Action = AggregationAction.CreateNew,
             LearningKey = learningKey,
@@ -930,6 +1051,7 @@ public class CocApprovalCommandHandlerTests
 
         endDate.Status.Should().Be(CocApprovalItemStatus.Reversal);
         price.Status.Should().Be(CocApprovalItemStatus.Pending);
+        result.Items.Should().ContainSingle(item => item.Field == CocChangeField.PlannedEndDate && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 
@@ -1066,6 +1188,7 @@ public class CocApprovalCommandHandlerTests
         price.Status.Should().Be(CocApprovalItemStatus.Superseded);
         _dbContext.CocApprovalItems.Should().Contain(item => item.Field == nameof(CocChangeField.Prices) && item.Status == CocApprovalItemStatus.Pending);
         result.Items.Should().Contain(item => item.Field == CocChangeField.Prices && item.Status == CocApprovalItemStatus.Pending);
+        result.Items.Should().Contain(item => item.Field == CocChangeField.PlannedEndDate && item.Status == CocApprovalItemStatus.Reversal);
         _messageSession.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
     }
 

@@ -102,8 +102,39 @@ public class CocApprovalCommandHandler(
         }
 
         await ApplyPriceDecision(db, command, approvalState);
+        AddReversedFieldResults(approvalState, command.ReversedFields);
 
         return approvalState.ApprovalResult;
+    }
+
+    private static void AddReversedFieldResults(CocApprovalState approvalState, IReadOnlyCollection<string> reversedFields)
+    {
+        if (reversedFields == null || reversedFields.Count == 0)
+        {
+            return;
+        }
+
+        approvalState.ApprovalResult ??= new CocApprovalResult { Items = [] };
+        approvalState.ApprovalResult.Items ??= [];
+
+        foreach (var fieldName in reversedFields)
+        {
+            if (!Enum.TryParse<CocChangeField>(fieldName, out var field))
+            {
+                continue;
+            }
+
+            if (approvalState.ApprovalResult.Items.Any(item => item.Field == field))
+            {
+                continue;
+            }
+
+            approvalState.ApprovalResult.Items.Add(new CocUpdateResult
+            {
+                Field = field,
+                Status = CocApprovalItemStatus.Reversal
+            });
+        }
     }
 
     private async Task ApplyPriceDecision(ProviderCommitmentsDbContext db, CocApprovalCommand command, CocApprovalState approvalState)
@@ -185,6 +216,7 @@ public class CocApprovalCommandHandler(
     {
         nameof(CocChangeField.Firstname) => "First name",
         nameof(CocChangeField.Lastname) => "Last name",
+        nameof(CocChangeField.StartDate) => "Start date",
         nameof(CocChangeField.PlannedEndDate) => "Planned end date",
         _ => null
     };

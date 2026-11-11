@@ -226,6 +226,52 @@ public class ApprovalsControllerTests
             && x.Data.Old == "1999-01-01" && x.Data.New == "1998-02-01");
     }
 
+    [TestCase("StartDate", "2026-11-01", "2026-10-01")]
+    [TestCase("PlannedEndDate", "2027-11-01", "2027-10-01")]
+    public async Task CocApprovals_ReturnsAutoApproved_WhenAggregationRemovesAReversedField(string changeType, string oldValue, string newValue)
+    {
+        var request = CreateCocApprovalRequest(true);
+        request.Changes =
+        [
+            new CocApprovalFieldChange
+            {
+                ChangeType = changeType,
+                Data = new CocData { Old = oldValue, New = newValue }
+            }
+        ];
+        var submittedChanges = request.Changes;
+        var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
+            .With(x => x.CocApprovalDetails, cocApprovalDetails)
+            .With(x => x.Action, AggregationAction.CreateNew)
+            .Create();
+        var commandResult = new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items =
+            [
+                new CocUpdateResult
+                {
+                    Field = Enum.Parse<CocChangeField>(changeType),
+                    Status = CocApprovalItemStatus.Reversal
+                }
+            ]
+        };
+
+        _mapper.Setup(m => m.Map<CocApprovalCommand>(request))
+            .Callback<object>(source => ((CocApprovalRequest)source).Changes = [])
+            .ReturnsAsync(cocApprovalCommand);
+        _mediator.Setup(m => m.Send(cocApprovalCommand, It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
+
+        var result = await _controller.PutApprovals(request.LearningKey, request);
+
+        var response = result.Should().BeOfType<CreatedResult>().Subject.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
+        response.Changes.Should().ContainSingle();
+        response.Changes.Single().ChangeType.Should().Be(changeType);
+        response.Changes.Single().ApprovalStatus.Should().Be("AutoApproved");
+        response.Changes.Single().Data.Should().BeSameAs(submittedChanges.Single().Data);
+    }
+
     [Test]
     public async Task CocApprovals_Processes_A_Request_Which_Cancels_Pending_Request_Then_ReturnsResponse()
     {

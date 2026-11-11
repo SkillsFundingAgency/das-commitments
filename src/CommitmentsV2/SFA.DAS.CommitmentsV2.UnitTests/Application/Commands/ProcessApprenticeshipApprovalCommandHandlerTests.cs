@@ -127,10 +127,12 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes.Count(change =>
-                change.ChangeType == nameof(CocChangeField.Prices) &&
-                change.Old == _fixture.OldPricesJson &&
-                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count == 0 &&
+            x.Prices.Count == 1 &&
+            x.Prices.Any(price =>
+                price.TrainingPrice == 2000m &&
+                price.AssessmentPrice == 200m &&
+                price.EffectiveFrom == "2024-08-01")), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]
@@ -143,10 +145,47 @@ public class ProcessApprenticeshipApprovalCommandHandlerTests
         _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
             x.ApprenticeshipId == _fixture.Command.ApprenticeshipId &&
             x.LearningKey == _fixture.LearningKey &&
-            x.Changes.Count(change =>
-                change.ChangeType == nameof(CocChangeField.Prices) &&
-                change.Old == _fixture.OldPricesJson &&
-                change.New == _fixture.NewPricesJson) == 1), It.IsAny<PublishOptions>()), Times.Once);
+            x.Changes.Count == 0 &&
+            x.Prices.Count == 1 &&
+            x.Reason == string.Empty), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task When_HandlingCommand_WithNonPriceChange_ShouldPublishNestedData()
+    {
+        _fixture.PendingItems.Clear();
+        _fixture.PendingItems.Add(_fixture.CreatePlannedEndDateItem());
+        _fixture.Command.ApplyChanges = true;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeApprovedEvent>(x =>
+            x.Changes.Count == 1 &&
+            x.Changes.Any(change =>
+                change.ChangeType == nameof(CocChangeField.PlannedEndDate) &&
+                change.ApprovalStatus == nameof(CocApprovalItemStatus.EmployerApproved) &&
+                change.Data.Old == "2026-06-01" &&
+                change.Data.New == "2026-12-01") &&
+            x.Prices == null), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task When_HandlingCommand_WithPriceAndNonPriceChanges_ShouldPublishBothTopLevelCollections()
+    {
+        _fixture.PendingItems.Add(_fixture.CreatePlannedEndDateItem());
+        _fixture.Command.ApplyChanges = false;
+        await _fixture.SeedData();
+        await _fixture.Handle();
+
+        _fixture.MessageSession.Verify(y => y.Publish(It.Is<LearningChangeRejectedEvent>(x =>
+            x.Changes.Count == 1 &&
+            x.Changes.Any(change =>
+                change.ChangeType == nameof(CocChangeField.PlannedEndDate) &&
+                change.ApprovalStatus == nameof(CocApprovalItemStatus.EmployerRejected) &&
+                change.Data.Old == "2026-06-01" &&
+                change.Data.New == "2026-12-01") &&
+            x.Prices.Count == 1 &&
+            x.Reason == string.Empty), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     public class ProcessApprenticeshipApprovalCommandHandlerTestsFixture

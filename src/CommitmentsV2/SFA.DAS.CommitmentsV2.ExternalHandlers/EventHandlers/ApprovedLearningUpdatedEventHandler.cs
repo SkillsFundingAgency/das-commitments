@@ -8,9 +8,11 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
+using PriceEpisode = SFA.DAS.CommitmentsV2.Messages.Events.PriceEpisode;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
@@ -47,11 +49,12 @@ public class ApprovedLearningUpdatedEventHandler(
             {
                 ApplyChange(message, apprentice, change);
             }
+            ApplyLatestApprovedPrice(message, apprentice);
+            await db.SaveChangesAsync();
 
-            if(message.Prices != null && message.Prices.Any())
-            {
-                ApplyPriceChanges(message, apprentice);
-            }
+            var @event = await CreateApprenticeshipUpdatedApprovedEvent(message.ApprenticeshipId);
+            logger.LogInformation("Publishing ApprenticeshipUpdatedApprovedEvent");
+            await context.Publish(@event);
 
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
         }
@@ -60,6 +63,59 @@ public class ApprovedLearningUpdatedEventHandler(
             logger.LogError(e, "Error processing ApprovedLearningUpdatedEventHandler for ApprenticeshipId {0}", message?.ApprenticeshipId);
             throw;
         }
+    }
+
+    private void ApplyLatestApprovedPrice(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice)
+    {
+        if (message.Prices == null || message.Prices.Count == 0)
+        {
+            return;
+        }
+
+        var latest = message.Prices.OrderBy(episode => episode.EffectiveFrom).Last();
+        logger.LogInformation(
+            "Applying latest PriceEpisode for ApprenticeshipId {ApprenticeshipId} effectiveFrom {EffectiveFrom}",
+            message.ApprenticeshipId,
+            latest.EffectiveFrom);
+
+        apprentice.ApplyLatestApprovedPrice(latest.TrainingPrice, latest.AssessmentPrice, latest.EffectiveFrom);
+    }
+
+    private async Task<ApprenticeshipUpdatedApprovedEvent> CreateApprenticeshipUpdatedApprovedEvent(long apprenticeshipId)
+    {
+        logger.LogInformation("Refetching Apprenticeship {id} so we can send ApprenticeshipUpdatedApprovedEvent", apprenticeshipId);
+
+        var apprenticeship = await dbContext.Value.Apprenticeships
+                .Include(a => a.PriceHistory)
+                .Include(b => b.FlexibleEmployment)
+            .SingleOrDefaultAsync(a => a.Id == apprenticeshipId);
+        var course = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == apprenticeship.CourseCode);
+
+        return new ApprenticeshipUpdatedApprovedEvent
+        {
+            ApprenticeshipId = apprenticeship.Id,
+            StandardUId = apprenticeship.StandardUId,
+            TrainingCourseVersion = apprenticeship.TrainingCourseVersion,
+            TrainingCourseOption = apprenticeship.TrainingCourseOption,
+            ApprovedOn = DateTime.UtcNow,
+            Uln = apprenticeship.Uln,
+            StartDate = apprenticeship.StartDate.Value,
+            EndDate = apprenticeship.EndDate.Value,
+            PriceEpisodes = apprenticeship.PriceHistory.Select(ph => new PriceEpisode
+            {
+                FromDate = ph.FromDate,
+                ToDate = ph.ToDate,
+                Cost = ph.Cost,
+                TrainingPrice = ph.TrainingPrice,
+                EndPointAssessmentPrice = ph.AssessmentPrice
+            }).ToArray(),
+            TrainingType = (ProgrammeType)apprenticeship.ProgrammeType,
+            TrainingCode = apprenticeship.CourseCode,
+            DeliveryModel = apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
+            LearningType = (Common.Domain.Types.LearningType)(course?.LearningType ?? LearningType.Apprenticeship),
+            EmploymentEndDate = apprenticeship.FlexibleEmployment?.EmploymentEndDate,
+            EmploymentPrice = apprenticeship.FlexibleEmployment?.EmploymentPrice
+        };
     }
 
     private void ApplyChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
@@ -82,11 +138,11 @@ public class ApprovedLearningUpdatedEventHandler(
                     ApplyDOBChange(message, apprentice, change);
                     break;
 
-                case ApprovedLearnerChangeType.PlannedStartDate:
+                case ApprovedLearnerChangeType.StartDate:
                     var parsedStartDate = ParseDate(change.Data.New);
                     if (parsedStartDate == null)
                     {
-                        logger.LogWarning("Invalid date for PlannedStartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
+                        logger.LogWarning("Invalid date for StartDate change for ApprenticeshipId {ApprenticeshipId}: {NewValue}", message.ApprenticeshipId, change.Data.New);
                         return;
                     }
 
@@ -115,58 +171,6 @@ public class ApprovedLearningUpdatedEventHandler(
         }
 
         return;
-    }
-
-    private void ApplyPriceChanges(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice)
-    {
-        try
-        {
-            logger.LogInformation("Processing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-
-            var currentCost = apprentice.Cost;
-            var currentTrainingPrice = apprentice.TrainingPrice;
-            var currentAssessmentPrice = apprentice.EndPointAssessmentPrice;
-
-            var priceEpisodes = message.Prices.OrderBy(pe => pe.EffectiveFrom).ToList();
-            logger.LogInformation("Clearing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-
-            var db = dbContext.Value;
-            foreach (var item in apprentice.PriceHistory)
-            {
-                db.PriceHistory.Remove(item);
-            }
-
-            for (var i = 0; i < priceEpisodes.Count; i++)
-            {
-                var newPrice = new PriceHistory
-                {
-                    ApprenticeshipId = apprentice.Id,
-                    Cost = priceEpisodes[i].TrainingPrice + priceEpisodes[i].AssessmentPrice,
-                    TrainingPrice = priceEpisodes[i].TrainingPrice,
-                    AssessmentPrice = priceEpisodes[i].AssessmentPrice,
-                    FromDate = priceEpisodes[i].EffectiveFrom,
-                    ToDate = i < priceEpisodes.Count - 1 ? priceEpisodes[i + 1].EffectiveFrom.AddDays(-1) : null
-                };
-
-                if (newPrice.FromDate <= DateTime.Today && (newPrice.ToDate == null || newPrice.ToDate >= DateTime.Today))
-                {
-                    currentCost = newPrice.Cost;
-                    currentTrainingPrice = (int)newPrice.TrainingPrice;
-                    currentAssessmentPrice = (int)newPrice.AssessmentPrice;
-                }
-                logger.LogInformation("Adding new PriceEpisode for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-                apprentice.PriceHistory.Add(newPrice);
-            }
-
-            apprentice.Cost = currentCost;
-            apprentice.TrainingPrice = currentTrainingPrice;
-            apprentice.EndPointAssessmentPrice = currentAssessmentPrice;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error processing PriceEpisodes for ApprenticeshipId {ApprenticeshipId}", message.ApprenticeshipId);
-            throw;
-        }
     }
 
     private void ApplyDOBChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
