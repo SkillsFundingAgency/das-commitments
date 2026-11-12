@@ -102,6 +102,19 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task WhenLearningIsAlreadyStopped_WithdrawalDoesNotRecordAnotherStatusChange()
+        {
+            var apprentice = await _fixture.SetupApprenticeship(PaymentStatus.Withdrawn);
+            var stopDate = DateTime.Today.AddMonths(-1);
+            _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), 12);
+
+            await _fixture.Handle();
+
+            _fixture.VerifyStopDateIsAssignedCorrectly();
+            _fixture.VerifyStoreLearnerHistoryCommandIsNotSent();
+        }
+
+        [Test]
         public async Task When_LearnerWithDrawnEvent_AppliedOnNonApprenticeship_Exception_IsThrown()
         {
             var func = () => _fixture.Handle();
@@ -277,7 +290,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _handler = new LearningWithdrawnEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext), _currentDateTime.Object,
                     _overlapCheckService.Object, _resolveOLTDRequestService.Object, _commitmentsV2Configuration, _logger, _mockWithDrawalNotificationService.Object);
 
-                _event = autoFixture.Create<LearningWithdrawnEvent>();
+                _event = autoFixture.Build<LearningWithdrawnEvent>().With(x => x.Created, DateTime.UtcNow).Create();
             }
 
             public LearningWithdrawnEventHandlerTestsFixture SetEventValues(long apprenticeshipId, DateTime withdrawnDate, short withdrawnReasoncode)
@@ -394,6 +407,11 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                     c.AppliedDate == _event.Created &&
                     c.Description == description
                 ), It.IsAny<SendOptions>()), Times.Once);
+            }
+
+            public void VerifyStoreLearnerHistoryCommandIsNotSent()
+            {
+                _messageHandlerContext.Verify(x => x.Send(It.IsAny<StoreLearningHistoryCommand>(), It.IsAny<SendOptions>()), Times.Never);
             }
 
             public void VerifyDataLocksAreResolvedCorrectly()

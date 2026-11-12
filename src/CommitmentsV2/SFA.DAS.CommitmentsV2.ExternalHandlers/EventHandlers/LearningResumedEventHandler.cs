@@ -8,9 +8,9 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -57,21 +57,14 @@ public class LearningResumedEventHandler(
             {
                 ValidateResumeDate(message.ResumeDate, apprentice);
 
+                var previousStatus = apprentice.GetApprenticeshipStatus(message.Created);
                 apprentice.SetIlrResumed(message.ResumeDate);
 
                 logger.LogInformation("{Event} : Notification Email Sending to Employer for apprenticeship: {apprenticeshipId}", nameof(LearningResumedEvent), message.ApprenticeshipId);
                 await SendEmailNotificationToEmployer(context, apprentice.Cohort.EmployerAccountId, apprentice.Cohort.Provider.Name, apprentice.Id);
 
-                var historyCommand = new StoreLearningHistoryCommand
-                {
-                    ApprenticeshipId = message.ApprenticeshipId,
-                    Source = LearningSourceType.ILRStatusChange,
-                    ChangeType = LearningChangeType.AutoApproved,
-                    LearningKey = message.LearningKey,
-                    AppliedDate = message.Created,
-                    Description = $"Learning has been resumed on {message.ResumeDate.ToGdsFormat()}"
-                };
-                await context.Send(historyCommand);
+                await apprentice.SendStatusChangeHistory(previousStatus, message.Created, LearningSourceType.ILRStatusChange,
+                    history => context.Send(history), learningKey: message.LearningKey);
 
                 logger.LogInformation(" Executing {Event} completed", nameof(LearningResumedEvent));
             }

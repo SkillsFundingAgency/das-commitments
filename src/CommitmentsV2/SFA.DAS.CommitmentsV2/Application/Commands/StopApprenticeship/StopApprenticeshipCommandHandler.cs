@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -37,8 +38,14 @@ public class StopApprenticeshipCommandHandler(
 
             await EnsureApprenticeshipUnitCanBeStopped(apprenticeship.CourseCode, request.ApprenticeshipId, request.UserInfo, cancellationToken);
 
+            var appliedDate = currentDate.UtcNow;
+            var previousStatus = apprenticeship.GetApprenticeshipStatus(appliedDate);
             apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, currentDate, request.Party);
             await dbContext.Value.SaveChangesAsync(cancellationToken);
+
+            var source = request.UserInfo.IsSystem() ? LearningSourceType.ApprovalAPI : LearningSourceType.ManualChange;
+            await apprenticeship.SendStatusChangeHistory(previousStatus, appliedDate, source,
+                history => nserviceBusContext.Send(history), userInfo: request.UserInfo);
 
             logger.LogInformation("Stopped apprenticeship. Apprenticeship-Id:{ApprenticeshipId}",
                 request.ApprenticeshipId);
