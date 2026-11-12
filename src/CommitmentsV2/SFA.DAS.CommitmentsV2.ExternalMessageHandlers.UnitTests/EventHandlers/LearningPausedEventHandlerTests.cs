@@ -218,7 +218,7 @@ public class LearningPausedEventHandlerTestsFixture
             c.ChangeType == Types.LearningChangeType.AutoApproved &&
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
-            c.Description == "Status change from live to paused"
+            c.Description == "Status change from Live to Paused"
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 

@@ -242,13 +242,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
-        [TestCase(false, LearningSourceType.ManualChange, LearningChangeType.ManualUpdate)]
-        [TestCase(true, LearningSourceType.ApprovalAPI, LearningChangeType.AutoApproved)]
-        public async Task Handle_WhenStoppingLiveLearner_RecordsChangeHistory(bool isSystem, LearningSourceType source, LearningChangeType changeType)
+        [TestCase(-2, false, LearningSourceType.ManualChange, LearningChangeType.ManualUpdate, "Live")]
+        [TestCase(-2, true, LearningSourceType.ApprovalAPI, LearningChangeType.AutoApproved, "Live")]
+        [TestCase(2, false, LearningSourceType.ManualChange, LearningChangeType.ManualUpdate, "Waiting to start")]
+        public async Task Handle_WhenStoppingLearner_RecordsChangeHistory(int startOffsetMonths, bool isSystem, LearningSourceType source,
+            LearningChangeType changeType, string previousStatus)
         {
-            var apprenticeship = await SetupApprenticeship();
+            var startMonth = DateTime.UtcNow.AddMonths(startOffsetMonths);
+            var startDate = new DateTime(startMonth.Year, startMonth.Month, 1);
+            var apprenticeship = await SetupApprenticeship(startDate: startDate);
             var appliedDate = _currentDateTime.Object.UtcNow;
-            var stopDate = new DateTime(appliedDate.Year, appliedDate.Month, 1);
+            var stopDate = startDate > appliedDate ? startDate : new DateTime(appliedDate.Year, appliedDate.Month, 1);
             Guid? userId = isSystem ? null : Guid.NewGuid();
             var userInfo = isSystem ? UserInfo.System : new UserInfo { UserId = userId.ToString() };
             var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, userInfo, Party.Employer);
@@ -261,7 +265,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 history.Source == source &&
                 history.ChangeType == changeType &&
                 history.UserId == userId &&
-                history.Description == "Status change from live to stopped"), It.IsAny<SendOptions>()), Times.Once);
+                history.Description == $"Status change from {previousStatus} to Stopped"), It.IsAny<SendOptions>()), Times.Once);
         }
 
         [Test, MoqAutoData]

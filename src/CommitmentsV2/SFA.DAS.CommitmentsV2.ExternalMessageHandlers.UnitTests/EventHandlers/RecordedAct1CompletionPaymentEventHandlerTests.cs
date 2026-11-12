@@ -27,9 +27,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
         }
 
-        [TestCase(ApprenticeshipStatus.Live, "live")]
-        [TestCase(ApprenticeshipStatus.Paused, "paused")]
-        [TestCase(ApprenticeshipStatus.Stopped, "stopped")]
+        [TestCase(ApprenticeshipStatus.Live, "Live")]
+        [TestCase(ApprenticeshipStatus.Paused, "Paused")]
+        [TestCase(ApprenticeshipStatus.Stopped, "Stopped")]
         public async Task When_HandlingCompletionEvent_CompletionAndHistoryAreRecorded(ApprenticeshipStatus status, string previousStatus)
         {
             _fixture.WithApprenticeshipStatus(status);
@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                     && history.Source == LearningSourceType.ILRStatusChange
                     && history.ChangeType == LearningChangeType.AutoApproved
                     && history.AppliedDate == _event.EventTime.UtcDateTime
-                    && history.Description == $"Status change from {previousStatus} to completed"),
+                    && history.Description == $"Status change from {previousStatus} to Completed"),
                     It.IsAny<SendOptions>()), Times.Once);
             }
 

@@ -13,8 +13,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 [TestFixture]
 public class PauseApprenticeshipCommandHandlerTests
 {
-    [Test]
-    public async Task Handle_WhenPausingLiveLearner_RecordsChangeHistory()
+    [TestCase(-2, "Live")]
+    [TestCase(2, "Waiting to start")]
+    public async Task Handle_WhenPausingLearner_RecordsChangeHistory(int startOffsetMonths, string previousStatus)
     {
         var appliedDate = new DateTime(2026, 11, 10, 9, 0, 0, DateTimeKind.Utc);
         var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -25,7 +26,7 @@ public class PauseApprenticeshipCommandHandlerTests
         {
             Cohort = new Cohort { AccountLegalEntity = new AccountLegalEntity() },
             PaymentStatus = PaymentStatus.Active,
-            StartDate = appliedDate.AddMonths(-2)
+            StartDate = appliedDate.AddMonths(startOffsetMonths)
         };
         dbContext.Apprenticeships.Add(apprenticeship);
         await dbContext.SaveChangesAsync();
@@ -51,6 +52,6 @@ public class PauseApprenticeshipCommandHandlerTests
             history.Source == LearningSourceType.ManualChange &&
             history.ChangeType == LearningChangeType.ManualUpdate &&
             history.UserId == userId &&
-            history.Description == "Status change from live to paused"), It.IsAny<SendOptions>()), Times.Once);
+            history.Description == $"Status change from {previousStatus} to Paused"), It.IsAny<SendOptions>()), Times.Once);
     }
 }

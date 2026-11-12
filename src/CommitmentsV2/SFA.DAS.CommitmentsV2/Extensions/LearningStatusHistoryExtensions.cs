@@ -21,8 +21,8 @@ public static class LearningStatusHistoryExtensions
             return Task.CompletedTask;
         }
 
-        var previousDescription = previousStatus.GetEnumDescription().ToLowerInvariant();
-        var currentDescription = currentStatus.GetEnumDescription().ToLowerInvariant();
+        var previousDescription = previousStatus.GetEnumDescription();
+        var currentDescription = currentStatus.GetEnumDescription();
 
         return send(new StoreLearningHistoryCommand
         {

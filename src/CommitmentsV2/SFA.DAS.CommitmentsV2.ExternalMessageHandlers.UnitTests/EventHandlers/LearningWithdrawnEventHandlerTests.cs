@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.SetEventValues(apprentice.Id, new DateTime(stopDate.Year, stopDate.Month, 1), Apprenticeship.WithdrawalReasonCode_MadeRedundant);
 
             await _fixture.Handle();
-            _fixture.VerifyStoreLearnerHistoryCommandIsSent("Status change from live to stopped");
+            _fixture.VerifyStoreLearnerHistoryCommandIsSent("Status change from Live to Stopped");
         }
 
         [Test]

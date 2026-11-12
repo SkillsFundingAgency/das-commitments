@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 history.Source == LearningSourceType.ManualChange &&
                 history.ChangeType == LearningChangeType.ManualUpdate &&
                 history.UserId == userId &&
-                history.Description == "Status change from paused to live"), It.IsAny<SendOptions>()), Times.Once);
+                history.Description == "Status change from Paused to Live"), It.IsAny<SendOptions>()), Times.Once);
         }
 
         [Test]
