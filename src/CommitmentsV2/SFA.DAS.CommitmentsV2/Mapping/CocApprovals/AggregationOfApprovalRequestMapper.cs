@@ -21,6 +21,7 @@ public class AggregationOfApprovalRequestMapper(
             .ToList();
         if (!nonPricePendingItems.Any())
         {
+            await ReplaceRejectedOldValues(request);
             logger.LogInformation("Creating a brand new request for LearningKey {0}", request.LearningKey);
             return new CocApprovalCommand
             {
@@ -63,6 +64,62 @@ public class AggregationOfApprovalRequestMapper(
         logger.LogInformation("Looking for previous pending requests for LearningKey {0}", learningKey);
         var pendingItems = await db.CocApprovalItems.Where(r => r.LearningKey == learningKey && r.Status == CocApprovalItemStatus.Pending).ToListAsync();
         return pendingItems;
+    }
+
+    private async Task ReplaceRejectedOldValues(CocApprovalRequest request)
+    {
+        var rejectedItems = await dbContext.Value.CocApprovalItems
+            .Where(item => item.LearningKey == request.LearningKey && item.Status == CocApprovalItemStatus.EmployerRejected)
+            .ToListAsync();
+
+        if (!rejectedItems.Any())
+        {
+            return;
+        }
+
+        var apprenticeship = await dbContext.Value.Apprenticeships
+            .SingleOrDefaultAsync(item => item.Id == request.ApprenticeshipId);
+
+        if (apprenticeship == null)
+        {
+            return;
+        }
+
+        request.Changes = (request.Changes ?? [])
+            .Where(change =>
+            {
+                var rejectedItem = rejectedItems.FirstOrDefault(item => item.Field == change.ChangeType);
+                if (rejectedItem == null || !TryGetCurrentValue(apprenticeship, change.ChangeType, out var currentValue))
+                {
+                    return true;
+                }
+
+                change.Data.Old = currentValue;
+                return change.Data.New != currentValue;
+            })
+            .ToList();
+    }
+
+    private static bool TryGetCurrentValue(Apprenticeship apprenticeship, string field, out string currentValue)
+    {
+        currentValue = field switch
+        {
+            nameof(CocChangeField.Firstname) => apprenticeship.FirstName,
+            nameof(CocChangeField.Lastname) => apprenticeship.LastName,
+            nameof(CocChangeField.StartDate) => FormatDate(apprenticeship.ActualStartDate ?? apprenticeship.StartDate),
+            nameof(CocChangeField.PlannedEndDate) => FormatDate(apprenticeship.EndDate),
+            _ => null
+        };
+
+        return field is nameof(CocChangeField.Firstname)
+            or nameof(CocChangeField.Lastname)
+            or nameof(CocChangeField.StartDate)
+            or nameof(CocChangeField.PlannedEndDate);
+    }
+
+    private static string FormatDate(DateTime? value)
+    {
+        return value?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     }
 
     public List<CocApprovalFieldChange> CreateAggregratedItems(CocApprovalRequest request, List<CocApprovalItem> previousItems)
