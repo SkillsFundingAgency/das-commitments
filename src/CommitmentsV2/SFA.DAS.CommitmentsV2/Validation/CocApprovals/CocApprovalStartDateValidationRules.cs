@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Validation.CocApprovals.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 
@@ -46,6 +47,21 @@ public class CocApprovalStartDateValidationRules(
         if (cohort != null)
         {
             return cohort.TransferSenderId.HasValue && startDate < Constants.TransferFeatureStartDate;
+        }
+
+        return false;
+    }
+
+    public bool IsActualStartDateAfterStopOrCompletionDate(DateTime actualStartDate, Apprenticeship apprenticeship)
+    {
+        if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn)
+        {
+            return apprenticeship.StopDate.HasValue && actualStartDate > apprenticeship.StopDate.Value;
+        }
+
+        if (apprenticeship.PaymentStatus == PaymentStatus.Completed)
+        {
+            return apprenticeship.CompletionDate.HasValue && actualStartDate > apprenticeship.CompletionDate.Value;
         }
 
         return false;

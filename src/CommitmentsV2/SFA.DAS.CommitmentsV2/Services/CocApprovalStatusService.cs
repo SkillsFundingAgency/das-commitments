@@ -178,6 +178,13 @@ public class CocApprovalStatusService(
         {
             return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training" };
         }
+        else if (cocApprovalStartDateValidationRules.IsActualStartDateAfterStopOrCompletionDate(actualStartDateNew, apprenticeship))
+        {
+            var reason = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn
+                ? "The start date must not be after the stop date"
+                : "The start date must not be after the completion date";
+            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = reason };
+        }
         else if (await cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDateNew, apprenticeship))
         {
             return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = "This email address is already used for another apprenticeship in the same training period - use a different email address" };

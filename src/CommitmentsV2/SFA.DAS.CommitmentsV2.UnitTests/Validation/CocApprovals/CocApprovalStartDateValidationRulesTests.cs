@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validation.CocApprovals;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validation.CocApprovals;
@@ -168,6 +169,32 @@ public class CocApprovalStartDateValidationRulesTests
         var result = _cocApprovalStartDateValidationRules.IsStartDateBeforeTransferFundedDate(DateTime.Today, null);
 
         result.Should().BeFalse();
+    }
+
+    [TestCase(PaymentStatus.Withdrawn, "2026-11-10", "2026-11-11", true)]
+    [TestCase(PaymentStatus.Withdrawn, "2026-11-11", "2026-11-11", false)]
+    [TestCase(PaymentStatus.Withdrawn, "2026-11-12", "2026-11-11", false)]
+    [TestCase(PaymentStatus.Completed, "2026-11-10", "2026-11-11", true)]
+    [TestCase(PaymentStatus.Completed, "2026-11-11", "2026-11-11", false)]
+    [TestCase(PaymentStatus.Completed, "2026-11-12", "2026-11-11", false)]
+    [TestCase(PaymentStatus.Active, "2026-11-10", "2026-11-11", false)]
+    [TestCase(PaymentStatus.Paused, "2026-11-10", "2026-11-11", false)]
+    public void IsActualStartDateAfterStopOrCompletionDate_ReturnsExpectedResult(
+        PaymentStatus paymentStatus,
+        string boundaryDate,
+        string actualStartDate,
+        bool expectedResult)
+    {
+        var apprenticeship = new Apprenticeship
+        {
+            PaymentStatus = paymentStatus,
+            StopDate = DateTime.Parse(boundaryDate),
+            CompletionDate = DateTime.Parse(boundaryDate)
+        };
+
+        var result = _cocApprovalStartDateValidationRules.IsActualStartDateAfterStopOrCompletionDate(DateTime.Parse(actualStartDate), apprenticeship);
+
+        result.Should().Be(expectedResult);
     }
 
     [Test]
