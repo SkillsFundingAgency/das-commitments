@@ -14,7 +14,8 @@ public class TrainingProgramme
     public string Name { get; }
     public string StandardUId { get; }
     public string Version { get; }
-    public ProgrammeType ProgrammeType { get; } 
+    public ProgrammeType ProgrammeType { get; }
+    internal Types.LearningType? LearningType { get; set; }
     public string StandardPageUrl { get; }
     public DateTime? EffectiveFrom { get; }
     public DateTime? EffectiveTo { get; }

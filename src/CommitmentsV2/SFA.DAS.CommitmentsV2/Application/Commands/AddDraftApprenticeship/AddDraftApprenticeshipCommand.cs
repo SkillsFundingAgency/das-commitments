@@ -9,6 +9,8 @@ public class AddDraftApprenticeshipCommand : IRequest<AddDraftApprenticeshipResu
     public string UserId { get; set; }
     public long ProviderId { get; set; }
     public string CourseCode { get; set; }
+    public string TrainingCourseVersion { get; set; }
+    public string StandardUId { get; set; }
     public DeliveryModel? DeliveryModel { get; set; }
     public int? EmploymentPrice { get; set; }
     public DateTime? EmploymentEndDate { get; set; }

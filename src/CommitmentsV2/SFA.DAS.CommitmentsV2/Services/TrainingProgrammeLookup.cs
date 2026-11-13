@@ -32,7 +32,10 @@ public class TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext) : 
         if (course != null)
         {
             return new TrainingProgramme(course.LarsCode.ToString(), GetTitle(course.Title, course.Level), null, null, ProgrammeType.Standard,
-                course.EffectiveFrom, course.EffectiveTo, new List<IFundingPeriod> { new CourseFundingPeriod { EffectiveFrom = course.EffectiveFrom, EffectiveTo = course.EffectiveTo, FundingCap = course.MaxFunding } }, 0);
+                course.EffectiveFrom, course.EffectiveTo, new List<IFundingPeriod> { new CourseFundingPeriod { EffectiveFrom = course.EffectiveFrom, EffectiveTo = course.EffectiveTo, FundingCap = course.MaxFunding } }, 0)
+            {
+                LearningType = course.LearningType
+            };
         }
 
         var framework = await dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));

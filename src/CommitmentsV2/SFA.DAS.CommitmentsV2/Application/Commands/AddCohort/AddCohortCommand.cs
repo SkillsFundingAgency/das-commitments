@@ -9,6 +9,8 @@ public class AddCohortCommand : IRequest<AddCohortResult>
     public long AccountLegalEntityId { get; }
     public long ProviderId { get; }
     public string CourseCode { get; }
+    public string TrainingCourseVersion { get; set; }
+    public string StandardUId { get; set; }
     public DeliveryModel? DeliveryModel { get; }
     public int? Cost { get; }
     public int? TrainingPrice { get; }
