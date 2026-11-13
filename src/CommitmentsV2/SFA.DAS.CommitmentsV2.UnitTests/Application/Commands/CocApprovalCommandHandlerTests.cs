@@ -929,6 +929,42 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
+    [Test]
+    public async Task Handle_WhenStartDateIsAutoRejected_AutoRejectsPendingPriceChange()
+    {
+        var learningKey = Guid.NewGuid();
+        var details = DetailsWithHistory(learningKey);
+        details.Apprenticeship.PriceHistory =
+        [
+            new PriceHistory { FromDate = new DateTime(2026, 8, 1), Cost = 5500, TrainingPrice = 5000, AssessmentPrice = 500 }
+        ];
+        SetupRules(details, new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items = [new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected }]
+        });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2026, 7, 15), TrainingPrice = 5000, AssessmentPrice = 500 }]
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        var rejectedPrice = _dbContext.CocApprovalItems.Single(item => item.Field == nameof(CocChangeField.Prices));
+        rejectedPrice.Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        rejectedPrice.Reason.Should().Be(PriceChangeDecider.StartDateRejectedReason);
+        result.Items.Should().ContainSingle(item =>
+            item.Field == CocChangeField.Prices
+            && item.Status == CocApprovalItemStatus.AutoRejected
+            && item.Reason == PriceChangeDecider.StartDateRejectedReason);
+        _dbContext.CocApprovalItems.Should().NotContain(item => item.Field == nameof(CocChangeField.Prices) && item.Status == CocApprovalItemStatus.Pending);
+        _notifyProviderService.Verify(x => x.NotifyProvider(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
     [TestCase(1200, 900)]
     [TestCase(1200, 0)]
     [TestCase(1200, -1)]
