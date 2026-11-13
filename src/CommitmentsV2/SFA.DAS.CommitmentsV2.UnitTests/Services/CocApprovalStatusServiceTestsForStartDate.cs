@@ -303,6 +303,44 @@ public class CocApprovalStatusServiceTestsForStartDate
         result[0].Reason.Should().Be("This email address is already used for another apprenticeship in the same training period - use a different email address");
     }
 
+    [Test]
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenAfterStopDate()
+    {
+        var plannedStartDate = new DateTime(2026, 11, 1);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
+        approvalDetails.Apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+        approvalDetails.Apprenticeship.StopDate = new DateTime(2026, 11, 10);
+
+        _cocApprovalStartDateValidationRulesMock
+            .Setup(x => x.IsActualStartDateAfterStopOrCompletionDate(It.IsAny<DateTime>(), approvalDetails.Apprenticeship))
+            .Returns(true);
+
+        var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
+
+        result.Should().ContainSingle();
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[0].Reason.Should().Be("The start date must not be after the stop date");
+    }
+
+    [Test]
+    public async Task DetermineCocUpdateStatuses_ShouldAutoRejectStartDate_WhenAfterCompletionDate()
+    {
+        var plannedStartDate = new DateTime(2026, 11, 1);
+        var approvalDetails = CreateStartDateApprovalDetails(plannedStartDate);
+        approvalDetails.Apprenticeship.PaymentStatus = PaymentStatus.Completed;
+        approvalDetails.Apprenticeship.CompletionDate = new DateTime(2026, 11, 10);
+
+        _cocApprovalStartDateValidationRulesMock
+            .Setup(x => x.IsActualStartDateAfterStopOrCompletionDate(It.IsAny<DateTime>(), approvalDetails.Apprenticeship))
+            .Returns(true);
+
+        var result = await _service.DetermineCocUpdateStatuses(approvalDetails.Updates, approvalDetails.Apprenticeship, approvalDetails.Course);
+
+        result.Should().ContainSingle();
+        result[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        result[0].Reason.Should().Be("The start date must not be after the completion date");
+    }
+
     private CocApprovalDetails CreateStartDateApprovalDetails(DateTime plannedStartDate)
     {
         return new CocApprovalDetails
