@@ -18,6 +18,7 @@ public class ApprenticeshipBaseConfiguration : IEntityTypeConfiguration<Apprenti
         builder.Property(e => e.DateOfBirth).HasColumnType("datetime");
         builder.Property(e => e.EmployerRef).HasMaxLength(50);
         builder.Property(e => e.EndDate).HasColumnType("datetime");
+        builder.Property(e => e.LastUpdated).HasColumnType("datetime").HasComputedColumnSql();
 
         builder.Property(e => e.EpaOrgId)
             .HasColumnName("EPAOrgId")
