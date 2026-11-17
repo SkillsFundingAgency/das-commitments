@@ -30,6 +30,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EndDate = source.EndDate.GetValueOrDefault(),
             PauseDate = source.PauseDate.GetValueOrDefault(),
             StopDate = source.StopDate,
+            AgreedOn = source.AgreedOn ?? source.Cohort.EmployerAndProviderApprovedOn,
             EmployerRef = source.EmployerRef,
             ProviderRef = source.ProviderRef,
             CohortReference = source.Cohort.Reference,
@@ -39,7 +40,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             TotalAgreedPrice = source.PriceHistory.GetPrice(currentDateTime.UtcNow),
             Uln = source.Uln,
             Alerts = source.MapAlerts(),
-            PendingApprovalRequestId = source.ApprovalRequests?.FirstOrDefault(p => p.Status == CocApprovalResultStatus.Pending)?.Id,
+            PendingApprovalRequestId = source.CocApprovalItems?.FirstOrDefault(item => item.Status == CocApprovalItemStatus.Pending)?.Id,
             AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
             ProviderId = source.Cohort.ProviderId,
             ConfirmationStatus = Apprenticeship.DisplayConfirmationStatus(
@@ -55,7 +56,8 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             TrainingCourseVersion = source.TrainingCourseVersion,
             EmployerVerificationStatus = source.EmployerVerificationRequest?.Status,
-            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes
+            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes,
+            FreezedDate = source.PaymentFreezeDate
         });
     }
 }

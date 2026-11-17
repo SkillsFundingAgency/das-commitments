@@ -8,9 +8,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.Services;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Services;
-using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
 using SFA.DAS.CommitmentsV2.MessageHandlers.Extensions;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
@@ -42,6 +40,7 @@ public static class ServiceRegistrationExtensions
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddNServiceBusUnitOfWork();
+            services.AddValidationRuleServices();
             services.AddDomainServices();
             services.AddEmployerAccountServices(context.Configuration);
             services.AddSingleton<IEncodingService, EncodingService>();
@@ -73,7 +72,6 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
 
         services.AddSingleton<IAuthenticationService, MessageHandlerAuthenticationService>();
-        services.AddTransient<IWithDrawalNotificationToEmployerService, WithDrawalNotificationToEmployerService>();
 
 		return services;
     }

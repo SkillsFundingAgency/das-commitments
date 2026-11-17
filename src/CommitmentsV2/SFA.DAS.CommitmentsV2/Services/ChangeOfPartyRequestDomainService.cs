@@ -79,7 +79,7 @@ public class ChangeOfPartyRequestDomainService(
 
         if (!overlapResult.HasOverlaps) return;
 
-        var errorMessage = "The date overlaps with existing dates for the same apprentice."
+        var errorMessage = "The date overlaps with existing dates for the same learner."
                            + Environment.NewLine +
                            "Please check the date - contact the employer for help";
 

@@ -6,6 +6,6 @@ public enum ApprovedLearnerChangeType : byte
     Surname = 1,
     Email = 2,
     DOB = 3,
-    PlannedStartDate = 4,
+    StartDate = 4,
     PlannedEndDate = 5
 }

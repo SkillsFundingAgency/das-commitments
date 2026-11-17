@@ -1,6 +1,6 @@
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcknowledgeInvalidIlrChanges;
@@ -16,8 +16,6 @@ public class AcknowledgeInvalidIlrChangesCommandHandler(
     {
         var apprenticeship = await dbContext.Value.Apprenticeships
             .Include(a => a.Cohort)
-            .Include(a => a.ApprovalRequests)
-            .ThenInclude(request => request.Items)
             .SingleOrDefaultAsync(a => a.Id == command.ApprenticeshipId, cancellationToken);
 
         if (apprenticeship == null)
@@ -30,17 +28,19 @@ public class AcknowledgeInvalidIlrChangesCommandHandler(
             throw new UnauthorizedAccessException($"Provider {command.ProviderId} cannot access apprenticeship {command.ApprenticeshipId}");
         }
 
-        var unacknowledgedRequests = (apprenticeship.ApprovalRequests ?? [])
-            .Where(request => request.IsUnacknowledged(command.ItemStatus))
-            .ToList();
+        var unacknowledgedRows = await dbContext.Value.CocApprovalItems
+            .Where(item => item.ApprenticeshipId == command.ApprenticeshipId
+                && item.Status == command.ItemStatus
+                && item.ProviderAcknowledgedAt == null)
+            .ToListAsync(cancellationToken);
 
         var acknowledgements = command.Acknowledgements ?? [];
         var errors = new List<DomainError>();
 
-        for (var index = 0; index < unacknowledgedRequests.Count; index++)
+        for (var index = 0; index < unacknowledgedRows.Count; index++)
         {
-            var request = unacknowledgedRequests[index];
-            var acknowledgement = acknowledgements.SingleOrDefault(item => item.ApprovalRequestId == request.Id);
+            var fieldRow = unacknowledgedRows[index];
+            var acknowledgement = acknowledgements.SingleOrDefault(item => item.ApprovalRequestId == fieldRow.Id);
 
             if (acknowledgement == null || !acknowledgement.DeleteAlert.HasValue)
             {
@@ -56,12 +56,13 @@ public class AcknowledgeInvalidIlrChangesCommandHandler(
         var userId = command.UserInfo?.UserId;
         var acknowledgedAt = currentDateTime.UtcNow;
 
-        foreach (var request in unacknowledgedRequests)
+        foreach (var fieldRow in unacknowledgedRows)
         {
-            var acknowledgement = acknowledgements.Single(item => item.ApprovalRequestId == request.Id);
+            var acknowledgement = acknowledgements.Single(item => item.ApprovalRequestId == fieldRow.Id);
             if (acknowledgement.DeleteAlert == true)
             {
-                request.AcknowledgeByProvider(userId, acknowledgedAt);
+                fieldRow.ProviderAcknowledgedBy = userId;
+                fieldRow.ProviderAcknowledgedAt = acknowledgedAt;
             }
         }
 

@@ -4,11 +4,8 @@ public class GetApprenticeshipApprovalQuery : IRequest<GetApprenticeshipApproval
 {
     public long ApprenticeshipId { get; }
 
-    public Guid ApprovalRequestId { get; }
-
-    public GetApprenticeshipApprovalQuery(long apprenticeshipId, Guid approvalRequestId)
+    public GetApprenticeshipApprovalQuery(long apprenticeshipId)
     {
         ApprenticeshipId = apprenticeshipId;
-        ApprovalRequestId = approvalRequestId;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
+using ApprovalFieldRequest = SFA.DAS.CommitmentsV2.Api.Types.Responses.ApprovalFieldRequest;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovalRequest;
 
@@ -10,8 +12,6 @@ public class GetApprovalRequestQueryHandler(Lazy<ProviderCommitmentsDbContext> d
         var apprenticeship = await dbContext.Value.Apprenticeships
            .AsNoTracking()
            .Include(a => a.Cohort)
-           .Include(a => a.ApprovalRequests)
-           .ThenInclude(request => request.Items)
            .SingleOrDefaultAsync(a => a.Id == query.ApprenticeshipId, cancellationToken);
 
         if (apprenticeship == null)
@@ -24,29 +24,35 @@ public class GetApprovalRequestQueryHandler(Lazy<ProviderCommitmentsDbContext> d
             throw new UnauthorizedAccessException($"Employer {query.AccountId} cannot access apprenticeship {query.ApprenticeshipId}");
         }
 
-        var approvalRequests = (apprenticeship.ApprovalRequests ?? [])
-            .Where(x => x.ApprenticeshipId == query.ApprenticeshipId
-            && x.EmployerAcknowledgedBy == null
-            && x.EmployerAcknowledgedAt == null
-            && x.Items.Any(i => i.Status == (Models.CocApprovalItemStatus)query.CocApprovalItemStatus))
-            .Select(x => new ApprovalRequestItem
+        var fieldStatus = (CocApprovalItemStatus)query.CocApprovalItemStatus;
+        var fieldRows = await dbContext.Value.CocApprovalItems
+            .AsNoTracking()
+            .Where(item => item.ApprenticeshipId == query.ApprenticeshipId
+                && item.EmployerAcknowledgedAt == null
+                && item.Status == fieldStatus)
+            .OrderByDescending(item => item.Created)
+            .ToListAsync(cancellationToken);
+
+        var approvalRequests = fieldRows
+            .Select(item => new ApprovalRequestItem
             {
-                Id = x.Id,
-                ApprenticeshipId = x.ApprenticeshipId,
-                Status = (byte?)x.Status,
-                Items = x.Items.Where(i => i.Status == (Models.CocApprovalItemStatus)query.CocApprovalItemStatus)
-                .Select(i => new ApprovalFieldRequest
+                Id = item.Id,
+                ApprenticeshipId = item.ApprenticeshipId,
+                Status = (byte?)item.Status,
+                Items = new List<ApprovalFieldRequest>
                 {
-                    Field = i.Field,
-                    Old = i.Old,
-                    New = i.New,
-                    Status = (byte?)i.Status,
-                    Created = i.Created
-                }).ToList(),
-                Created = x.Created
+                    new()
+                    {
+                        Field = item.Field,
+                        Old = item.Old,
+                        New = item.New,
+                        Status = (byte?)item.Status,
+                        Created = item.Created
+                    }
+                },
+                Created = item.Created
             })
-            .OrderByDescending(x => x.Created).
-            ToList();
+            .ToList();
 
         return new GetApprovalRequestQueryResult
         {

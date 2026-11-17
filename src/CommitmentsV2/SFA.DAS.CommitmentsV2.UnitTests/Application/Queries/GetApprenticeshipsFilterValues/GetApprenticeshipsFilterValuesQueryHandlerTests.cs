@@ -509,7 +509,7 @@ public class GetApprenticeshipsFilterValuesQueryHandlerTests
     }
 
     [Test, RecursiveMoqAutoData]
-    public async Task Then_Returns_Ordered_PlannedStartDates(
+    public async Task Then_Returns_Ordered_StartDates(
         GetApprenticeshipsFilterValuesQuery query,
         List<Apprenticeship> apprenticeships,
         List<Standard> standard,

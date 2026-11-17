@@ -13,6 +13,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
     ILogger<ValidateSelectMultipleLearnersQueryHandler> logger,
     Lazy<ProviderCommitmentsDbContext> dbContext,
     IEmployerAgreementService employerAgreementService,
+    ITrainingProgrammeLookup trainingProgrammeLookup,
     RplSettingsConfiguration rplConfig,
     IValidationService validationService)
     : IRequestHandler<ValidateSelectMultipleLearnersQuery, ValidateSelectMultipleLearnersApiResponse>
@@ -121,7 +122,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-        var standardDetails = GetStandardDetails(csvRecord.CourseCode);
+        var standardDetails = await GetStandardDetails(csvRecord.CourseCode, csvRecord.StartDate);
 
         var domainErrors = await validationService.ValidateAgreementIdValidFormat(csvRecord.AgreementId, employerDetails.Name);
 
@@ -206,7 +207,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         return employerSummary;
     }
 
-    private Standard GetStandardDetails(string stdCode)
+    private async Task<Standard> GetStandardDetails(string stdCode, DateTime? startDate)
     {
         if (string.IsNullOrWhiteSpace(stdCode))
         {
@@ -215,7 +216,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
 
         var course = dbContext.Value.Courses.FirstOrDefault(x => x.LarsCode == stdCode);
 
-        return new Standard
+        var standardDetails = new Standard
         {
             Title = course.Title,
             Level = int.TryParse(course.Level, out var level) ? level : 0,
@@ -223,5 +224,20 @@ public class ValidateSelectMultipleLearnersQueryHandler(
             EffectiveTo = course.EffectiveTo,
             LearningType = course.LearningType
         };
+
+        if (!startDate.HasValue)
+        {
+            return standardDetails;
+        }
+
+        var calculatedProgramme = await trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(stdCode, startDate.Value);
+        if (calculatedProgramme == null)
+        {
+            return standardDetails;
+        }
+
+        standardDetails.EffectiveFrom = calculatedProgramme.EffectiveFrom;
+        standardDetails.EffectiveTo = calculatedProgramme.EffectiveTo;
+        return standardDetails;
     }
 }
