@@ -11,6 +11,7 @@ public interface ICocApprovalStartDateValidationRules
     bool IsActualStartDateBeforeLarsEffectiveFrom(DateTime actualStartDate, Course course);
     bool IsActualStartDateAfterLarsEffectiveTo(DateTime actualStartDate, Course course);
     bool IsStartDateBeforeTransferFundedDate(DateTime startDate, Cohort cohort);
+    bool IsActualStartDateAfterStopOrCompletionDate(DateTime actualStartDate, Apprenticeship apprenticeship);
     Task<bool> IsStartDateOverlappingWithUlnDateRangeAsync(DateTime startDate, Apprenticeship apprenticeship);
     Task<ReservationValidationResult> IsStartDateValidForReservationAsync(DateTime startDate, Apprenticeship apprenticeship);
     bool IsStartDateLessThanMinAge(DateTime startDate, DateTime? dateOfBirth, int minimumAge);
