@@ -61,4 +61,5 @@ public class DraftApprenticeshipDetails
     public LearningType? LearningType { get; set; }
     public bool HasLearnerDataChanges { get; set; }
     public DateTime? LastLearnerDataSync { get; set; }
+    public bool? OnServicePayments { get; set; }
 }
