@@ -1,6 +1,6 @@
 namespace SFA.DAS.CommitmentsV2.Types;
 
-public enum HiringPaymentStatus
+public enum HiringPaymentStatus :short
 {
     QualifiesForHiringPayment = 1,
     PassedPreEmploymentCheck = 2,

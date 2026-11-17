@@ -23,7 +23,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public virtual ICollection<CocApprovalItem> CocApprovalItems { get; set; }
     public virtual ApprenticeshipBase Continuation { get; set; }
     public virtual EmployerVerificationRequest EmployerVerificationRequest { get; set; }
-    public virtual HiringPayment HiringPayment { get; set; }
 
     public DateTime? StopDate { get; set; }
     public DateTime? PauseDate { get; set; }

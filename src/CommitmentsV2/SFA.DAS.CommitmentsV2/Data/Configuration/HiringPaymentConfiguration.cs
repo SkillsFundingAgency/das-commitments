@@ -16,7 +16,7 @@ public class HiringPaymentConfiguration : IEntityTypeConfiguration<HiringPayment
 
         builder
             .HasOne(e => e.Apprenticeship)
-            .WithOne(a => a.HiringPayment)
+            .WithOne()
             .HasForeignKey<HiringPayment>(e => e.ApprenticeshipId);
     }
 }
