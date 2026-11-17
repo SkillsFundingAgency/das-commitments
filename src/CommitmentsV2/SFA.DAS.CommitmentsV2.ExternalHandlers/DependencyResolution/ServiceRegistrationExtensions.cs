@@ -41,6 +41,7 @@ public static class ServiceRegistrationExtensions
             services
                 .AddUnitOfWork()
                 .AddEntityFramework(commitmentV2Config)
+                .AddDatabaseRegistration()
                 .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
 
             services.AddNServiceBusUnitOfWork();
@@ -56,6 +57,8 @@ public static class ServiceRegistrationExtensions
     private static IServiceCollection AddDefaultExternalHandlerServices(this IServiceCollection services)
     {
         services.AddTransient<IDbContextFactory, SynchronizedDbContextFactory>();
+        services.AddApprovalsOuterApiServiceServices();
+        services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
 
         services.AddTransient<IResolveOverlappingTrainingDateRequestService, ResolveOverlappingTrainingDateRequestService>();
         services.AddTransient<IUlnUtilisationService, UlnUtilisationService>();
