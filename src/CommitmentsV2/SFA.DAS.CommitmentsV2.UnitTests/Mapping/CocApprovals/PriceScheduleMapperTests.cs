@@ -217,6 +217,37 @@ public class PriceScheduleMapperTests
     }
 
     [Test]
+    public void LatestEpisodesMatch_SingleHistoryEpisodeMatchesAnotherDateInTheSameMonth()
+    {
+        var history = new[] { History(new DateTime(2026, 9, 1), 5500m, 5000m, 500m) };
+        var prices = new[] { Record(new DateTime(2026, 9, 15), 5000m, 500m) };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeTrue();
+    }
+
+    [Test]
+    public void LatestEpisodesMatch_SingleHistoryEpisodeDoesNotMatchADateInAnotherMonth()
+    {
+        var history = new[] { History(new DateTime(2026, 9, 1), 5500m, 5000m, 500m) };
+        var prices = new[] { Record(new DateTime(2026, 10, 15), 5000m, 500m) };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeFalse();
+    }
+
+    [Test]
+    public void LatestEpisodesMatch_MultipleHistoryEpisodesRequireTheExactDate()
+    {
+        var history = new[]
+        {
+            History(new DateTime(2026, 8, 1), 5500m, 5000m, 500m),
+            History(new DateTime(2026, 9, 1), 5500m, 5000m, 500m)
+        };
+        var prices = new[] { Record(new DateTime(2026, 9, 15), 5000m, 500m) };
+
+        _mapper.LatestEpisodesMatch(history, prices).Should().BeFalse();
+    }
+
+    [Test]
     public void LatestEpisodesMatch_TwoSplitsMustHaveTheSameTrainingAndAssessmentAmounts()
     {
         var history = new[] { History(new DateTime(2024, 8, 1), 1500m, 1000m, 500m) };
