@@ -200,6 +200,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         var referenceNotUpdated = party == Party.Employer
             ? request.EmployerReference == apprenticeship.EmployerRef
             : request.ProviderReference == apprenticeship.ProviderRef;
+        var currentTrainingPrice = apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow);
+        var currentAssessmentPrice = apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow);
 
         if (request.FirstName == apprenticeship.FirstName
             && request.LastName == apprenticeship.LastName
@@ -207,8 +209,8 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
             && request.Email == apprenticeship.Email
             && request.EndDate == apprenticeship.EndDate
             && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
-            && request.TrainingPrice == apprenticeship.PriceHistory.GetTrainingPrice(_currentDateTime.UtcNow)
-            && request.EndPointAssessmentPrice == apprenticeship.PriceHistory.GetAssessmentPrice(_currentDateTime.UtcNow)
+            && (request.TrainingPrice ?? currentTrainingPrice) == currentTrainingPrice
+            && (request.EndPointAssessmentPrice ?? currentAssessmentPrice) == currentAssessmentPrice
             && request.StartDate == apprenticeship.StartDate
             && request.DeliveryModel == apprenticeship.DeliveryModel
             && request.CourseCode == apprenticeship.CourseCode
