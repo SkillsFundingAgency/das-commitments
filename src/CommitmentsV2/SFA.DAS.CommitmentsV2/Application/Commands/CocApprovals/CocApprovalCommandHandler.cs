@@ -153,6 +153,14 @@ public class CocApprovalCommandHandler(
         approvalState.ApprovalResult.Items ??= [];
 
         var anotherFieldWasAutoRejected = approvalState.ApprovalResult.Items.Any(item => item.Status == CocApprovalItemStatus.AutoRejected);
+        var priceStatus = decision.Status;
+        var priceReason = decision.Reason;
+        if (decision.Status == CocApprovalItemStatus.Pending
+            && approvalState.ApprovalResult.Items.Any(item => item.Field == CocChangeField.StartDate && item.Status == CocApprovalItemStatus.AutoRejected))
+        {
+            priceStatus = CocApprovalItemStatus.AutoRejected;
+            priceReason = PriceChangeDecider.StartDateRejectedReason;
+        }
 
         if (decision.PendingPriceAction == PendingPriceAction.MarkReversal)
         {
@@ -176,14 +184,14 @@ public class CocApprovalCommandHandler(
                 Field = nameof(CocChangeField.Prices),
                 Old = decision.Old,
                 New = decision.New,
-                Status = decision.Status,
-                Reason = decision.Reason
+                Status = priceStatus,
+                Reason = priceReason
             });
         }
 
-        if (decision.Status == CocApprovalItemStatus.AutoRejected)
+        if (priceStatus == CocApprovalItemStatus.AutoRejected)
         {
-            await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, decision.Reason);
+            await CreateLearningHistoryAsync(command.CocApprovalDetails, LearningSourceType.ApprovalAPI, LearningChangeType.AutoRejected, priceReason);
             if (!anotherFieldWasAutoRejected)
             {
                 var apprenticeship = encodingService.Encode(command.CocApprovalDetails.ApprenticeshipId, EncodingType.ApprenticeshipId);
@@ -194,8 +202,8 @@ public class CocApprovalCommandHandler(
         approvalState.ApprovalResult.Items.Add(new CocUpdateResult
         {
             Field = CocChangeField.Prices,
-            Status = decision.Status,
-            Reason = decision.Reason
+            Status = priceStatus,
+            Reason = priceReason
         });
     }
 
