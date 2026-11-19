@@ -93,9 +93,6 @@
         "logAnalyticsWorkspaceName": {
             "type": "string"
         },
-        "serviceBusTopicsArray": {
-            "type": "array"
-        },
         "sharedEnvVirtualNetworkName": {
             "type": "string"
         },
@@ -169,7 +166,6 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
         "configNames": "SFA.DAS.CommitmentsV2,SFA.DAS.Encoding",
-        "serviceBusName": "[concat(variables('resourceNamePrefix'), '-ns')]",
         "routeTableId": {
             "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
         },
@@ -619,64 +615,6 @@
                     }
                 }
             }
-        },
-        {
-            "name": "[concat(variables('serviceBusName'), '-', parameters('utcValue'))]",
-            "resourceGroup": "[variables('resourceGroupName')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "serviceBusNamespaceName": {
-                        "value": "[variables('serviceBusName')]"
-                    },
-                    "logAnalyticsWorkspaceName": {
-                        "value": "[parameters('logAnalyticsWorkspaceName')]"
-                    },
-                    "logAnalyticsWorkspaceResourceGroupName": {
-                        "value": "[parameters('sharedManagementResourceGroup')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[variables('resourceGroupName')]"
-            ]
-        },
-        {
-            "name": "[concat(variables('serviceBusName'), '-topic-', copyIndex(), '-', parameters('utcValue'))]",
-            "resourceGroup": "[variables('resourceGroupName')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus-topic.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "serviceBusNamespaceName": {
-                        "value": "[variables('serviceBusName')]"
-                    },
-                    "serviceBusTopicName": {
-                        "value": "[parameters('serviceBusTopicsArray')[copyIndex()].topicName]"
-                    },
-                    "serviceBusSubscriptions": {
-                        "value": "[parameters('serviceBusTopicsArray')[copyIndex()].subscriptions]"
-                    }
-                }
-            },
-            "copy": {
-                "name": "service-bus-topics-subscriptions",
-                "count": "[length(parameters('serviceBusTopicsArray'))]"
-            },
-            "dependsOn": [
-                "[concat(variables('serviceBusName'), '-', parameters('utcValue'))]"
-            ]
         }
     ],
     "outputs": {
@@ -695,10 +633,6 @@
         "DatabaseName": {
             "type": "string",
             "value": "[variables('databaseName')]"
-        },
-        "ServiceBusName": {
-            "type": "string",
-            "value": "[variables('serviceBusName')]"
         }
     }
 }
