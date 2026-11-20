@@ -32,38 +32,43 @@ public class GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbConte
 
         return new GetDraftApprenticeshipsQueryResult
         {
-            DraftApprenticeships = cohort.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
+            DraftApprenticeships = cohort.DraftApprenticeships.Select(a =>
             {
-                Id = a.Id,
-                FirstName = a.FirstName,
-                LastName = a.LastName,
-                Email = a.Email,
-                Cost = (int?)a.Cost,
-                TrainingPrice = a.TrainingPrice,
-                EndPointAssessmentPrice = a.EndPointAssessmentPrice,
-                CourseCode = a.CourseCode,
-                CourseName = a.CourseName,
-                DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
-                DateOfBirth = a.DateOfBirth,
-                StartDate = a.StartDate,
-                ActualStartDate = a.ActualStartDate,
-                EndDate = a.EndDate,
-                Uln = a.Uln,
-                OriginalStartDate = a.OriginalStartDate,
-                EmploymentEndDate = a.FlexibleEmployment?.EmploymentEndDate,
-                EmploymentPrice = a.FlexibleEmployment?.EmploymentPrice,
-                RecognisePriorLearning = a.RecognisePriorLearning,
-                DurationReducedBy = a.PriorLearning?.DurationReducedBy,
-                PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
-                EmployerHasEditedCost = a.EmployerHasEditedCost,
-                EmailAddressConfirmed = a.EmailAddressConfirmed,
-                DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
-                HasLearnerDataChanges = a.HasLearnerDataChanges,
-                LastLearnerDataSync = a.LastLearnerDataSync,
-                LearnerDataId = a.LearnerDataId,
-                ApprenticeshipType = GetApprenticeshipType(a.StandardUId),
-                LearningType = GetLearningType(a.CourseCode)
+                LearningType? learningType = GetLearningType(a.CourseCode);
+                return new DraftApprenticeshipDto
+                {
+                    Id = a.Id,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
+                    Email = a.Email,
+                    Cost = (int?)a.Cost,
+                    TrainingPrice = a.TrainingPrice,
+                    EndPointAssessmentPrice = a.EndPointAssessmentPrice,
+                    CourseCode = a.CourseCode,
+                    CourseName = a.CourseName,
+                    DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
+                    DateOfBirth = a.DateOfBirth,
+                    StartDate = a.StartDate,
+                    ActualStartDate = a.ActualStartDate,
+                    EndDate = a.EndDate,
+                    Uln = a.Uln,
+                    OriginalStartDate = a.OriginalStartDate,
+                    EmploymentEndDate = a.FlexibleEmployment?.EmploymentEndDate,
+                    EmploymentPrice = a.FlexibleEmployment?.EmploymentPrice,
+                    RecognisePriorLearning = a.RecognisePriorLearning,
+                    DurationReducedBy = a.PriorLearning?.DurationReducedBy,
+                    PriceReducedBy = a.PriorLearning?.PriceReducedBy,
+                    RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
+                    EmployerHasEditedCost = a.EmployerHasEditedCost,
+                    EmailAddressConfirmed = a.EmailAddressConfirmed,
+                    DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
+                    HasLearnerDataChanges = a.HasLearnerDataChanges,
+                    LastLearnerDataSync = a.LastLearnerDataSync,
+                    LearnerDataId = a.LearnerDataId,
+                    ApprenticeshipType = learningType?.ToString()
+                        ?? GetApprenticeshipType(a.StandardUId),
+                    LearningType = learningType
+                };
             }).ToList()
         };
 

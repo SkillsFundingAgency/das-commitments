@@ -39,6 +39,9 @@ public class GetDraftApprenticeshipsHandlerTests
         var result = await _fixture.Handle();
         _fixture.VerifyApprenticeshipTypeMapping(result.DraftApprenticeships.First(), "Apprenticeship");
         _fixture.VerifyApprenticeshipTypeMapping(result.DraftApprenticeships.Last(), "FoundationApprenticeship");
+
+        result.DraftApprenticeships.First().LearningType.Should().BeNull();
+        result.DraftApprenticeships.Last().LearningType.Should().BeNull();
     }
 
     [Test]
@@ -55,6 +58,19 @@ public class GetDraftApprenticeshipsHandlerTests
         _fixture.WithNonExistentCohort();
         await _fixture.Handle();
         _fixture.VerifyNoResult();
+    }
+
+    [Test]
+    public async Task Handle_WhenCohortExists_AndCourseLearningTypeExists_ThenCourseLearningTypeShouldTakePriority()
+    {
+        var learningType = _fixture.SeedDataWithCourseLearningTypeData();
+
+        var result = await _fixture.Handle();
+
+        var apprenticeship = result.DraftApprenticeships.First();
+
+        apprenticeship.ApprenticeshipType.Should().Be(learningType.ToString());
+        apprenticeship.LearningType.Should().Be(learningType);
     }
 
     public class GetDraftApprenticeshipsHandlerTestsFixture : IDisposable
@@ -252,6 +268,26 @@ public class GetDraftApprenticeshipsHandlerTests
         public void VerifyNoResult()
         {
             _queryResult.DraftApprenticeships.Should().BeNull();
+        }
+
+        public LearningType SeedDataWithCourseLearningTypeData()
+        {
+            SeedDataWithApprenticeshipTypeData();
+
+            var learningType = _autoFixture.Create<LearningType>();
+            var courseCode = "12345";
+
+            _cohort.DraftApprenticeships.First().CourseCode = courseCode;
+
+            _db.Courses.Add(new Course
+            {
+                LarsCode = courseCode,
+                LearningType = learningType
+            });
+
+            _db.SaveChanges();
+
+            return learningType;
         }
 
         public void Dispose()
