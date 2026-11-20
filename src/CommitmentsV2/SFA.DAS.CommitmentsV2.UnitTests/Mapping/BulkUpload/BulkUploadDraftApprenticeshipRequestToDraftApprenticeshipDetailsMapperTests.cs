@@ -180,6 +180,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         }
 
         [Test]
+        public async Task DeliveryModelIsMappedCorrectly()
+        {
+            _source.BulkUploadDraftApprenticeships.First().DeliveryModel = Types.DeliveryModel.FlexiJobAgency;
+
+            var result = await _mapper.Map(TestHelper.Clone(_source));
+
+            result.First(x => x.Uln == _source.BulkUploadDraftApprenticeships.First().Uln)
+                .DeliveryModel.Should().Be(Types.DeliveryModel.FlexiJobAgency);
+        }
+
+        [Test]
+        public async Task DeliveryModelDefaultsToRegular()
+        {
+            _source.BulkUploadDraftApprenticeships.First().DeliveryModel = null;
+
+            var result = await _mapper.Map(TestHelper.Clone(_source));
+
+            result.First(x => x.Uln == _source.BulkUploadDraftApprenticeships.First().Uln)
+                .DeliveryModel.Should().Be(Types.DeliveryModel.Regular);
+        }
+
+        [Test]
         public void LearnerDataIdIsMappedCorrectly()
         {
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
