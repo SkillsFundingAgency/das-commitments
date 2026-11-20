@@ -1,6 +1,7 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Mapping;
 
@@ -36,17 +37,8 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
             LearnerDataId = source.LearnerDataId
         };
 
-        // Only populate standard version specific items if start is specified.
-        // The course is returned as latest version if no start date is specified
-        // Which is fine for setting the training programmer.
-        if (startDate.HasValue)
-        {
-            result.TrainingCourseVersion = trainingProgramme?.Version;
-            result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
-            result.StandardUId = trainingProgramme?.StandardUId;
-        }
-
-        return result;
+        return result.ApplyTrainingCourseVersion(source.TrainingCourseVersion, source.StandardUId,
+            populateStandardVersion: startDate.HasValue);
     }
 
     private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
