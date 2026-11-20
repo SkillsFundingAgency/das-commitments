@@ -37,7 +37,7 @@ public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryCo
     [Authorize]
     [HttpGet]
     [Route("{providerId:long}/Get-all-change-history")]
-    public async Task<IActionResult> GetChangeHistoryForAllLearnersOfProvider(long providerId)
+    public async Task<IActionResult> GetChangeHistoryForAllLearnersOfProvider(long providerId, int pageNumber = 1, int pageSize = 50)
     {
         logger.LogInformation("Received request to get change history for all learners of provider with id {ProviderId}", providerId);
 
@@ -48,12 +48,14 @@ public class ChangeHistoryController(IMediator mediator, ILogger<ChangeHistoryCo
 
         var result = await mediator.Send(new GetAllChangeHistoryForProviderQuery
         {
-            ProviderId = providerId
+            ProviderId = providerId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         });
 
         logger.LogInformation("Successfully retrieved change history for all learners of provider with id {ProviderId}", providerId);
 
-        return Ok(new GetAllChangeHistoryForProviderQueryResponse { ChangeHistory = result.ChangeHistory });
+        return Ok(new GetAllChangeHistoryForProviderQueryResponse { ChangeHistory = result.ChangeHistory, TotalCount = result.TotalCount, AvailableFrom = result.AvailableFrom });
     }
 
     [Authorize]

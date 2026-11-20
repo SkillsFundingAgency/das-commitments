@@ -38,6 +38,51 @@ public class GetAllChangeHistoryHandlerTests
         response.ChangeHistory.Should().BeEmpty();
     }
 
+    [Test]
+    public async Task Handle_WithPaging_ShouldReturnRequestedPageNewestFirst()
+    {
+        var fixtures = new GetAllChangeHistoryForProviderQueryHandlerTestFixture().SetSequentialCreatedDates();
+
+        var response = await fixtures.GetResponse(new GetAllChangeHistoryForProviderQuery { ProviderId = fixtures.ProviderId, PageNumber = 2, PageSize = 2 });
+
+        response.ChangeHistory.Should().HaveCount(1);
+        response.ChangeHistory.Single().Id.Should().Be(fixtures.SeedChangeHistory[0].Id);
+        response.TotalCount.Should().Be(3);
+    }
+
+    [Test]
+    public async Task Handle_WithPageBeyondLastPage_ShouldReturnEmptyPageWithTotalCount()
+    {
+        var fixtures = new GetAllChangeHistoryForProviderQueryHandlerTestFixture().SetSequentialCreatedDates();
+
+        var response = await fixtures.GetResponse(new GetAllChangeHistoryForProviderQuery { ProviderId = fixtures.ProviderId, PageNumber = 5, PageSize = 2 });
+
+        response.ChangeHistory.Should().BeEmpty();
+        response.TotalCount.Should().Be(3);
+    }
+
+    [Test]
+    public async Task Handle_WithPaging_ShouldReturnAvailableFromAsEarliestChangeAcrossAllPages()
+    {
+        var fixtures = new GetAllChangeHistoryForProviderQueryHandlerTestFixture().SetSequentialCreatedDates();
+
+        var response = await fixtures.GetResponse(new GetAllChangeHistoryForProviderQuery { ProviderId = fixtures.ProviderId, PageNumber = 1, PageSize = 1 });
+
+        response.ChangeHistory.Should().HaveCount(1);
+        response.AvailableFrom.Should().Be(fixtures.SeedChangeHistory.Min(x => x.Created));
+    }
+
+    [Test]
+    public async Task Handle_WithNoMatchingProviderId_ShouldReturnZeroTotalCountAndNullAvailableFrom()
+    {
+        var fixtures = new GetAllChangeHistoryForProviderQueryHandlerTestFixture().GenerateChangeHistoryWithProviderId(0);
+
+        var response = await fixtures.GetResponse(new GetAllChangeHistoryForProviderQuery { ProviderId = fixtures.ProviderId });
+
+        response.TotalCount.Should().Be(0);
+        response.AvailableFrom.Should().BeNull();
+    }
+
     public class GetAllChangeHistoryForProviderQueryHandlerTestFixture
     {
         private readonly Fixture _autoFixture;
@@ -80,6 +125,17 @@ public class GetAllChangeHistoryHandlerTests
         public GetAllChangeHistoryForProviderQueryHandlerTestFixture GenerateChangeHistoryWithProviderId(long providerId)
         {
             SeedChangeHistory.ForEach(x => x.UKPRN = providerId);
+            return this;
+        }
+
+        public GetAllChangeHistoryForProviderQueryHandlerTestFixture SetSequentialCreatedDates()
+        {
+            var startDate = new DateTime(2026, 1, 1);
+            for (var i = 0; i < SeedChangeHistory.Count; i++)
+            {
+                SeedChangeHistory[i].Created = startDate.AddDays(i);
+            }
+
             return this;
         }
 
