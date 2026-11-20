@@ -24,6 +24,7 @@ public static class ServiceCollectionConfigurationExtensions
         services.AddConfigurationFor<RplSettingsConfiguration>(configuration, CommitmentsConfigurationKeys.RplSettingsConfiguration);
         services.AddConfigurationFor<ProviderUrlConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderUrlConfiguration);
         services.AddConfigurationFor<CommitmentPaymentsWebJobConfiguration>(configuration, CommitmentsConfigurationKeys.CommitmentPaymentsWebJobConfiguration);
+        services.AddConfigurationFor<CocApprovalsConfiguration>(configuration, CommitmentsConfigurationKeys.CoCApprovalsConfiguration);
 
         return services;
     }
