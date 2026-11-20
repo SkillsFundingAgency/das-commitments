@@ -15,6 +15,10 @@ public partial class ValidationService
         {
             domainErrors.Add(new Error("FamilyName", "Enter a <b>last name</b> that is not longer than 100 characters"));
         }
+        else if (!NameValidator.Validate(lastName).IsValid)
+        {
+            domainErrors.Add(new Error("FamilyName", "Enter a <b>last name</b> that only contains valid characters"));
+        }
 
         return domainErrors;
     }

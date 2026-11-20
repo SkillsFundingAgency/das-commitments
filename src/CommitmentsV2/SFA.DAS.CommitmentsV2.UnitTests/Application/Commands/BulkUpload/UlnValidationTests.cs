@@ -1,11 +1,28 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
 
+using UlnValidator = SFA.DAS.CommitmentsV2.Services.UlnValidator;
+
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     [TestFixture]
     [Parallelizable]
     public class UlnValidationTests
     {
+        [Test]
+        public async Task Validate_Rejects_The_Pen_Test_Uln_Payload()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            var ulnValidator = new UlnValidator(new Learners.Validators.UlnValidator());
+            fixture.MockUlnValidator.Setup(validator => validator.Validate(It.IsAny<string>()))
+                .Returns<string>(ulnValidator.Validate);
+            fixture.SetUln("kn93q<script>alert(1)</script>erxpk");
+
+            var errors = await fixture.Handle();
+
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "Uln",
+                "Enter a 10-digit <b>unique learner number</b>");
+        }
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase(" ")]
