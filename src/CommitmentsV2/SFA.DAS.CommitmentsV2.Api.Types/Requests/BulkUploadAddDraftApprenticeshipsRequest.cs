@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
@@ -22,6 +23,7 @@ public class BulkUploadAddDraftApprenticeshipRequest
     public string CourseCode { get; set; }
     public string TrainingCourseVersion { get; set; }
     public string StandardUId { get; set; }
+    public DeliveryModel? DeliveryModel { get; set; }
     public DateTime? StartDate => GetDate(StartDateAsString, "yyyy-MM-dd", true);
     public string StartDateAsString { get; set; }
     public DateTime? EndDate => GetDate(EndDateAsString, "yyyy-MM");

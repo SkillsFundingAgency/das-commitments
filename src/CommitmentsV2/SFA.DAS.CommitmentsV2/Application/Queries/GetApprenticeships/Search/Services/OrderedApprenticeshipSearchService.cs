@@ -39,7 +39,8 @@ public class OrderedApprenticeshipSearchService : OrderedApprenticeshipSearchBas
             .ThenInclude(cohort => cohort.Provider)
             .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus)
             .Include(apprenticeship => apprenticeship.ApprovalRequests)
-            .ThenInclude(request => request.Items);
+            .ThenInclude(request => request.Items)
+            .Include(apprenticeship => apprenticeship.CocApprovalItems);
 
         var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 

@@ -27,7 +27,7 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.ProviderRef,
                 ReservationId = source.ReservationId,
-                DeliveryModel = Types.DeliveryModel.Regular,
+                DeliveryModel = source.DeliveryModel ?? Types.DeliveryModel.Regular,
                 RecognisePriorLearning = source.RecognisePriorLearning,
                 TrainingTotalHours = source.TrainingTotalHours,
                 DurationReducedByHours = source.TrainingHoursReduction,

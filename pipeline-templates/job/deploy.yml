@@ -67,11 +67,9 @@ jobs:
             TableName: Configuration
             ConfigurationSecrets:
               StorageConnectionString: $(SharedStorageAccountConnectionString)
-              CommitmentsMessageServiceBusString: $(CommitmentsMessageServiceBusString)
               CompaniesHouseKey: $(CompaniesHouseKey)
               NotificationsClientToken: $(NotificationsClientToken)
               DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
-              EASMessageServiceBusString: $(EASMessageServiceBusString)
               ApprovalsApimSubscriptionKey: $(ApprovalsApimSubscriptionKey)
               EmployerSharedServiceBusString: $(EmployerSharedServiceBusString)
               EventsApiToken: $(EventsApiToken)

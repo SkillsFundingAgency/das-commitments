@@ -50,10 +50,11 @@ public class ApprenticeshipDomainService(
             .GroupBy(app => app.Cohort.EmployerAccountId)
             .Select(m => new { EmployerAccountId = m.Key, ChangesForReviewCount = m.Count() });
 
-        var pendingIlrChangeOfCircs = dbContext.Value.ApprovalRequests
-            .Where(ar => ar.Status == CocApprovalResultStatus.Pending)
-            .Join(dbContext.Value.Apprenticeships, ar => ar.ApprenticeshipId, app => app.Id, (ar, app) => new { ar, app })
-            .GroupBy(app => app.app.Cohort.EmployerAccountId)
+        var pendingIlrChangeOfCircs = dbContext.Value.CocApprovalItems
+            .Where(item => item.Status == CocApprovalItemStatus.Pending)
+            .Join(dbContext.Value.Apprenticeships, item => item.ApprenticeshipId, app => app.Id, (item, app) => new { app.Id, app.Cohort.EmployerAccountId })
+            .Distinct()
+            .GroupBy(apprenticeship => apprenticeship.EmployerAccountId)
             .Select(m => new { EmployerAccountId = m.Key, PendingChangesForReviewCount = m.Count() });
 
         var pendingUpdateByProvider = await queryPendingUpdateByProvider.ToDictionaryAsync(p => p.EmployerAccountId, p => p.PendingUpdateByProviderCount);

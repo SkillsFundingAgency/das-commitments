@@ -7,6 +7,5 @@ public class GetApprenticeshipApprovalQueryValidator : AbstractValidator<GetAppr
     public GetApprenticeshipApprovalQueryValidator()
     {
         RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
-        RuleFor(q => q.ApprovalRequestId).NotEmpty();
     }
 }

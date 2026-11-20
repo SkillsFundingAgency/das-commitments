@@ -1,4 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
+using SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.Builders;
@@ -23,12 +25,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenAccountLegalEntityHasAlreadyBeenDeleted_ThenShouldThrowException()
+        public async Task Handle_WhenAccountLegalEntityHasAlreadyBeenDeleted_ThenShouldLeaveDeletedUnchanged()
         {
             using var fixture = new RemoveAccountLegalEntityCommandHandlerTestsFixture();
             fixture.SetAccountLegalEntityDeletedBeforeCommand();
-            Func<Task> action = () => fixture.Handle();
-            await action.Should().ThrowAsync<InvalidOperationException>();
+
+            await fixture.Handle();
+
+            fixture.AccountLegalEntity.Deleted.Should().Be(fixture.Command.Removed.AddHours(-1));
+        }
+
+        [Test]
+        public async Task Handle_WhenAccountLegalEntityHasAlreadyBeenDeletedAndCohortIsEmpty_ThenShouldMarkCohortAsDeleted()
+        {
+            using var fixture = new RemoveAccountLegalEntityCommandHandlerTestsFixture();
+            fixture.SetAccountLegalEntityDeletedBeforeCommand();
+            fixture.WithExistingCohort();
+
+            await fixture.Handle();
+
+            fixture.AccountLegalEntity.Deleted.Should().Be(fixture.Command.Removed.AddHours(-1));
+            fixture.VerifyCohortIsMarkedAsDeletedAndEventIsEmitted();
         }
 
         [Test]
@@ -102,7 +119,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.Accounts.Add(Account);
             Db.AccountLegalEntities.Add(AccountLegalEntity);
 
-            Handler = new RemoveAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new RemoveAccountLegalEntityCommandHandler(
+                new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                Mock.Of<ILogger<RemoveAccountLegalEntityCommandHandler>>());
             UnitOfWorkContext = new UnitOfWorkContext();
         }
 
