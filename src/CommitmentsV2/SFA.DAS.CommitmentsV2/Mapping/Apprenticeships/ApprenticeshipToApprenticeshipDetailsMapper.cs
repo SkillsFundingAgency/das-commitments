@@ -30,6 +30,7 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EndDate = source.EndDate.GetValueOrDefault(),
             PauseDate = source.PauseDate.GetValueOrDefault(),
             StopDate = source.StopDate,
+            AgreedOn = source.AgreedOn ?? source.Cohort.EmployerAndProviderApprovedOn,
             EmployerRef = source.EmployerRef,
             ProviderRef = source.ProviderRef,
             CohortReference = source.Cohort.Reference,
@@ -55,7 +56,8 @@ public class ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime curren
             EmployerHasEditedCost = source.EmployerHasEditedCost,
             TrainingCourseVersion = source.TrainingCourseVersion,
             EmployerVerificationStatus = source.EmployerVerificationRequest?.Status,
-            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes
+            EmployerVerificationNotes = source.EmployerVerificationRequest?.Notes,
+            FreezedDate = source.PaymentFreezeDate
         });
     }
 }

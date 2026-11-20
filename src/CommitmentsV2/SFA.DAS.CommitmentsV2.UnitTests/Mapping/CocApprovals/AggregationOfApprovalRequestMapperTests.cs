@@ -73,6 +73,42 @@ public class AggregationOfApprovalRequestMapperTests
             .ReturnsAsync(details);
     }
 
+    private async Task AddApprenticeship(
+        string firstName = null,
+        string lastName = null,
+        DateTime? startDate = null,
+        DateTime? actualStartDate = null)
+    {
+        await _dbContext.Apprenticeships.AddAsync(new Apprenticeship
+        {
+            Id = 123,
+            FirstName = firstName,
+            LastName = lastName,
+            StartDate = startDate,
+            ActualStartDate = actualStartDate
+        });
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task AddApprovalItem(
+        Guid learningKey,
+        CocApprovalItemStatus status,
+        string field,
+        string oldValue,
+        string newValue)
+    {
+        await _dbContext.CocApprovalItems.AddAsync(new CocApprovalItem
+        {
+            LearningKey = learningKey,
+            ApprenticeshipId = 123,
+            Status = status,
+            Field = field,
+            Old = oldValue,
+            New = newValue
+        });
+        await _dbContext.SaveChangesAsync();
+    }
+
     [Test]
     public async Task Map_WhenNoPreviousPendingItemsExist_ReturnsCreateNewCommand()
     {
@@ -165,6 +201,101 @@ public class AggregationOfApprovalRequestMapperTests
         result.ReversedFields.Should().ContainSingle().Which.Should().Be("Firstname");
 
         _modelMapper.Verify(m => m.Map<CocApprovalDetails>(request), Times.Once);
+    }
+
+    [Test]
+    public async Task Map_WhenPreviousEmployerRejectedItemExists_UsesCurrentApprenticeshipValueAsOldValue()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+        await AddApprenticeship(firstName: "Ann");
+        await AddApprovalItem(learningKey, CocApprovalItemStatus.EmployerRejected, "Firstname", "Ann", "Anne");
+
+        var request = CreateChangeRequest(learningKey, CreateChangeItem("Firstname", "Anne", "Annie"));
+
+        var result = await _sut.Map(request);
+
+        result.Action.Should().Be(AggregationAction.CreateNew);
+        request.Changes[0].Data.Old.Should().Be("Ann");
+        request.Changes[0].Data.New.Should().Be("Annie");
+    }
+
+    [Test]
+    public async Task Map_WhenPreviousEmployerRejectedStartDateExists_UsesActualStartDateAsOldValue()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+        await AddApprenticeship(
+            startDate: new DateTime(2026, 9, 1),
+            actualStartDate: new DateTime(2026, 9, 15));
+        await AddApprovalItem(
+            learningKey,
+            CocApprovalItemStatus.EmployerRejected,
+            nameof(CocChangeField.StartDate),
+            "2026-09-15",
+            "2026-10-15");
+
+        var request = CreateChangeRequest(
+            learningKey,
+            CreateChangeItem(nameof(CocChangeField.StartDate), "2026-10-15", "2026-11-15"));
+
+        await _sut.Map(request);
+
+        request.Changes[0].Data.Old.Should().Be("2026-09-15");
+        request.Changes[0].Data.New.Should().Be("2026-11-15");
+    }
+
+    [Test]
+    public async Task Map_WhenFieldHasNoPreviousEmployerRejectedItem_KeepsIncomingOldValue()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+        await AddApprenticeship(firstName: "Ann", lastName: "Smith");
+        await AddApprovalItem(learningKey, CocApprovalItemStatus.EmployerRejected, "Firstname", "Ann", "Anne");
+
+        var request = CreateChangeRequest(learningKey, CreateChangeItem("Lastname", "Smith", "Jones"));
+
+        await _sut.Map(request);
+
+        request.Changes[0].Data.Old.Should().Be("Smith");
+        request.Changes[0].Data.New.Should().Be("Jones");
+    }
+
+    [Test]
+    public async Task Map_WhenPendingItemExists_UsesPendingOldValueBeforeEmployerRejectedItem()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+        await AddApprenticeship(firstName: "Ann");
+        await AddApprovalItem(learningKey, CocApprovalItemStatus.EmployerRejected, "Firstname", "Ann", "Anne");
+        await AddApprovalItem(learningKey, CocApprovalItemStatus.Pending, "Firstname", "Ann", "Anne");
+
+        var request = CreateChangeRequest(learningKey, CreateChangeItem("Firstname", "Anne", "Annie"));
+
+        await _sut.Map(request);
+
+        request.Changes[0].Data.Old.Should().Be("Ann");
+        request.Changes[0].Data.New.Should().Be("Annie");
+    }
+
+    [Test]
+    public async Task Map_WhenNewValueMatchesCurrentApprenticeshipValue_DropsTheChange()
+    {
+        var learningKey = Guid.NewGuid();
+        var expectedDetails = new CocApprovalDetails { LearningKey = learningKey };
+        SetUpModelMapperReturns(expectedDetails);
+        await AddApprenticeship(firstName: "Ann");
+        await AddApprovalItem(learningKey, CocApprovalItemStatus.EmployerRejected, "Firstname", "Ann", "Anne");
+
+        var request = CreateChangeRequest(learningKey, CreateChangeItem("Firstname", "Anne", "Ann"));
+
+        await _sut.Map(request);
+
+        request.Changes.Should().BeEmpty();
     }
 
     [Test]

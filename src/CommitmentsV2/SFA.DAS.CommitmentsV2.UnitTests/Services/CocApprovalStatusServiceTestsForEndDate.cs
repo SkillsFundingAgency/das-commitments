@@ -132,7 +132,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsCompleted()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenApprenticeshipIsCompleted()
     {
         var updates = new CocUpdates
         {
@@ -150,13 +150,13 @@ public class CocApprovalStatusServiceTestsForEndDate
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().ContainSingle();
-        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
         results[0].Reason.Should().BeNull();
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenApprenticeshipIsWithdrawn()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenApprenticeshipIsWithdrawn()
     {
         var updates = new CocUpdates
         {
@@ -174,7 +174,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().ContainSingle();
-        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
         results[0].Reason.Should().BeNull();
     }
@@ -274,7 +274,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnPending_WhenNoErrors()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenNoErrors()
     {
         var updates = new CocUpdates
         {
@@ -295,6 +295,7 @@ public class CocApprovalStatusServiceTestsForEndDate
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
         results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.Pending);
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
+        results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
     }
 }

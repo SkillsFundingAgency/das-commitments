@@ -8,6 +8,7 @@ public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
 {
     public const string FuturePriceReason = "The price change includes a date in the future.";
     public const string NonPositivePriceReason = "The price change has a trainingPrice of zero or less.";
+    public const string StartDateRejectedReason = "The price change was rejected because the start date change was rejected.";
 
     public PriceChangeDecision Decide(IReadOnlyList<PriceRecord> prices, IEnumerable<PriceHistory> priceHistory, DateTime utcToday)
     {

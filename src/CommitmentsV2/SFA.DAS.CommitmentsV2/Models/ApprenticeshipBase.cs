@@ -58,6 +58,7 @@ public abstract class ApprenticeshipBase : Aggregate
     
     public bool HasLearnerDataChanges { get; set; }
     public DateTime? LastLearnerDataSync { get; set; }
+    public DateTime? LastUpdated { get; set; }
 
     public bool IsContinuation => ContinuationOfId.HasValue;
     public virtual Apprenticeship PreviousApprenticeship { get; set; }

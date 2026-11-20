@@ -97,7 +97,7 @@ public class CocApprovalStatusService(
             }
             else
             {
-                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.Pending };
+                yield return new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoApproved };
             }
         }
     }
@@ -177,6 +177,13 @@ public class CocApprovalStatusService(
         else if (cocApprovalStartDateValidationRules.IsStartDateMoreThanMaxAgeForLevel7Course(startDateNew, apprenticeship, course))
         {
             return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = $"The learner must be younger than {Constants.MaximumAgeAtApprenticeshipStartForLevel7} years old at the start of their training" };
+        }
+        else if (cocApprovalStartDateValidationRules.IsActualStartDateAfterStopOrCompletionDate(actualStartDateNew, apprenticeship))
+        {
+            var reason = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn
+                ? "The start date must not be after the stop date"
+                : "The start date must not be after the completion date";
+            return new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.AutoRejected, Reason = reason };
         }
         else if (await cocApprovalStartDateValidationRules.IsThereEmailOverlapForStartDateAsync(startDateNew, apprenticeship))
         {
