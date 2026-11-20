@@ -30,6 +30,7 @@ public class CreateCohortRequest : SaveDataRequest
     public DateTime? EmploymentEndDate { get; set; }
     public bool IgnoreStartDateOverlap { get; set; }
     public long? LearnerDataId { get; set; }
+    public bool? OnServicePayments { get; set; }
     public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

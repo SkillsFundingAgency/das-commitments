@@ -63,6 +63,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.Uln == Request.Uln &&
                     c.TransferSenderId == Request.TransferSenderId &&
                     c.PledgeApplicationId == Request.PledgeApplicationId &&
+                    c.LearnerDataId == Request.LearnerDataId &&
+                    c.OnServicePayments == Request.OnServicePayments &&
+                    c.MinimumAgeAtApprenticeshipStart == Request.MinimumAgeAtApprenticeshipStart &&
+                    c.MaximumAgeAtApprenticeshipStart == Request.MaximumAgeAtApprenticeshipStart &&
                     c.UserInfo == Request.UserInfo), CancellationToken.None))
                 .ReturnsAsync(Result);
         }

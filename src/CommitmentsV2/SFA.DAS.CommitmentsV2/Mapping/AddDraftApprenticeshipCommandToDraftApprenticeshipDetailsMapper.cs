@@ -33,7 +33,8 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(ITr
             IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
-            LearnerDataId = source.LearnerDataId
+            LearnerDataId = source.LearnerDataId,
+            OnServicePayments = source.OnServicePayments
         };
 
         // Only populate standard version specific items if start is specified.

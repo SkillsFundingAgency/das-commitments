@@ -46,6 +46,7 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         ReservationId = source.ReservationId;
         LearnerDataId = source.LearnerDataId;
+        OnServicePayments = source.OnServicePayments;
         if (source.LearnerDataId != null && source.RecognisePriorLearning == null)
         {
             RecognisePriorLearning = false;
