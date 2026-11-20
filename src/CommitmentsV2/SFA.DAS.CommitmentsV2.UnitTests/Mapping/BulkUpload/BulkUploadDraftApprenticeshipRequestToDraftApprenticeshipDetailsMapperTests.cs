@@ -178,6 +178,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 });
             }
         }
+
+        [Test]
+        public void LearnerDataIdIsMappedCorrectly()
+        {
+            _source.BulkUploadDraftApprenticeships.ForEach(source =>
+            {
+                var result = _result.First(y => y.Uln == source.Uln);
+                result.LearnerDataId.Should().Be(source.LearnerDataId);
+            });
+        }
+
+        [Test]
+        public void OnServicePaymentsIsMappedCorrectly()
+        {
+            _source.BulkUploadDraftApprenticeships.ForEach(source =>
+            {
+                var result = _result.First(y => y.Uln == source.Uln);
+                result.OnServicePayments.Should().Be(source.OnServicePayments);
+            });
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder : ISpecimenBuilder

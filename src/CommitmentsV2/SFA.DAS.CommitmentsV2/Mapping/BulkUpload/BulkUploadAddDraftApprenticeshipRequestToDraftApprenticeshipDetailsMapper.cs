@@ -36,7 +36,8 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
                 TrainingPrice = source.TrainingPrice,
                 EndPointAssessmentPrice = source.EndPointAssessmentPrice,
                 ActualStartDate = source.ActualStartDate,
-                LearnerDataId = source.LearnerDataId
+                LearnerDataId = source.LearnerDataId,
+                OnServicePayments = source.OnServicePayments,
             };
             await MapTrainingProgramme(source, result);
             
