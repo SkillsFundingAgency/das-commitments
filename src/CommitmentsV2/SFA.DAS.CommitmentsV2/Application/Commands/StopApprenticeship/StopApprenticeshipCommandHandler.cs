@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
@@ -34,6 +35,8 @@ public class StopApprenticeshipCommandHandler(
             CheckPartyIsValid(request.Party);
 
             var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
+
+            EnsureProviderHasNotLockedWithdrawals(apprenticeship);
 
             await EnsureApprenticeshipUnitCanBeStopped(apprenticeship.CourseCode, request.ApprenticeshipId, request.UserInfo, cancellationToken);
 
@@ -110,6 +113,14 @@ public class StopApprenticeshipCommandHandler(
         {
             throw new DomainException(nameof(apprenticeshipId),
                 $"Apprenticeship {apprenticeshipId} is an Apprenticeship Unit and cannot be stopped via the service");
+        }
+    }
+
+    private void EnsureProviderHasNotLockedWithdrawals(Apprenticeship apprenticeship)
+    {
+        if(commitmentsV2Configuration.CoCApprovalsConfiguration != null && commitmentsV2Configuration.CoCApprovalsConfiguration.UkPrns.Contains(apprenticeship.Cohort.ProviderId))
+        {
+            throw new DomainException(nameof(apprenticeship), $"The Training Provider has locked withdrawals and you cannot stop apprenticeships, this can only be done by the provider");
         }
     }
 }
