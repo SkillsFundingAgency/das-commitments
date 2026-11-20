@@ -7,7 +7,11 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
 
@@ -15,6 +19,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 
 public class ApprovedLearningUpdatedEventHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
+    ITrainingProgrammeLookup trainingProgrammeLookup,
+    IApprovalsOuterApiClient approvalsOuterApiClient,
+    ICurrentDateTime currentDateTime,
     ILogger<ApprovedLearningUpdatedEventHandler> logger) : IHandleMessages<ApprovedLearningUpdatedEvent>
 
 {
@@ -44,7 +51,7 @@ public class ApprovedLearningUpdatedEventHandler(
 
             foreach (var change in message.Changes)
             {
-                ApplyChange(message, apprentice, change);
+                await ApplyChange(message, apprentice, change);
             }
 
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
@@ -56,7 +63,7 @@ public class ApprovedLearningUpdatedEventHandler(
         }
     }
 
-    private void ApplyChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
+    private async Task ApplyChange(ApprovedLearningUpdatedEvent message, Apprenticeship apprentice, ApprenticeshipFieldChange change)
     {
         if (change?.Data == null) return;
 
@@ -90,6 +97,8 @@ public class ApprovedLearningUpdatedEventHandler(
                     {
                         apprentice.PriceHistory.Single().FromDate = apprentice.StartDate.Value;
                     }
+
+                    await RecalculateCourseVersion(apprentice, message.LearningType, parsedStartDate.Value);
                     break;
 
                 case ApprovedLearnerChangeType.PlannedEndDate:
@@ -113,6 +122,46 @@ public class ApprovedLearningUpdatedEventHandler(
         }
 
         return;
+    }
+
+    private async Task RecalculateCourseVersion(Apprenticeship apprentice, string learningType, DateTime startDate)
+    {
+        if (apprentice.GetApprenticeshipStatus(currentDateTime.UtcNow) != ApprenticeshipStatus.WaitingToStart ||
+            string.IsNullOrWhiteSpace(apprentice.CourseCode))
+        {
+            return;
+        }
+
+        var (version, standardUId) = await ResolveCourseVersion(apprentice.CourseCode, learningType, startDate);
+        if (string.IsNullOrWhiteSpace(version) ||
+            string.IsNullOrWhiteSpace(standardUId) ||
+            version == apprentice.TrainingCourseVersion)
+        {
+            return;
+        }
+
+        apprentice.TrainingCourseVersion = version;
+        apprentice.StandardUId = standardUId;
+        apprentice.TrainingCourseOption = null;
+    }
+
+    private async Task<(string Version, string StandardUId)> ResolveCourseVersion(
+        string courseCode, string learningType, DateTime startDate)
+    {
+        if (string.Equals(learningType, nameof(LearningType.ApprenticeshipUnit), StringComparison.OrdinalIgnoreCase))
+        {
+            var unit = await approvalsOuterApiClient.Get<GetApprenticeshipUnitVersionResponse>(
+                new GetApprenticeshipUnitVersionRequest(courseCode, startDate));
+            return (unit?.Version, unit?.StandardUId);
+        }
+
+        var standard = await trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate);
+        if (standard?.VersionEarliestStartDate > startDate || standard?.VersionLatestStartDate < startDate)
+        {
+            return (null, null);
+        }
+
+        return (standard?.Version, standard?.StandardUId);
     }
 
     private void ApplyDOBChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
