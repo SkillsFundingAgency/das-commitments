@@ -12,7 +12,6 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.Services.Interface;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -30,8 +29,6 @@ public class LearningWithdrawnEventHandler(
     IWithDrawalNotificationToEmployerService service)
     : IHandleMessages<LearningWithdrawnEvent>
 {
-    private const string WithdrawalDescription = "Status change from Live to Stopped";
-
     public async Task Handle(LearningWithdrawnEvent message, IMessageHandlerContext context)
     {
         try
@@ -54,21 +51,14 @@ public class LearningWithdrawnEventHandler(
             ValidateStopDateForWithdrawal(withdrawalDate, apprentice);
             await ValidateEndDateOverlap(withdrawalDate, apprentice, default);
 
+            var previousStatus = apprentice.GetApprenticeshipStatus(message.Created);
             apprentice.SetIlrWithdrawn(withdrawalDate, message.WithdrawalReasonCode);
 
             await service.SendWithdrawalNotificationToEmployer(apprentice.Id, context);
             await resolveOverlappingTrainingDateRequestService.Resolve(apprentice.Id, null, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
-            var historyCommand = new StoreLearningHistoryCommand
-            {
-                ApprenticeshipId = message.ApprenticeshipId,
-                Source = LearningSourceType.ILRStatusChange,
-                ChangeType = LearningChangeType.AutoApproved,
-                LearningKey = message.LearningKey,
-                AppliedDate = message.Created,
-                Description = WithdrawalDescription
-            };
-            await context.Send(historyCommand);
+            await apprentice.SendStatusChangeHistory(previousStatus, message.Created, LearningSourceType.ILRStatusChange,
+                history => context.Send(history), learningKey: message.LearningKey);
         }
         catch (Exception e)
         {
