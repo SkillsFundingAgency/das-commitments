@@ -116,5 +116,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             result.LearnerDataId.Should().Be(_source.LearnerDataId);
             result.RecognisePriorLearning.Should().Be(rplNeeded);
         }
+
+        [TestCase(null)]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ThenOnServicePaymentsIsMappedCorrectly(bool? flag)
+        {
+            _source.OnServicePayments = flag;
+            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Provider);
+            result.OnServicePayments.Should().Be(_source.OnServicePayments);
+        }
     }
 }
