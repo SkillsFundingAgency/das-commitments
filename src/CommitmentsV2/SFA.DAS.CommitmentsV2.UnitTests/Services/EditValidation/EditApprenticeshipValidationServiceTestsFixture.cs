@@ -170,11 +170,12 @@ public class EditApprenticeshipValidationServiceTestsFixture
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
         FlexibleEmployment flexibleEmployment = null,
-        long providerId = 1001)
+        long providerId = 1001,
+        bool? onServicePayments = true)
             
     {
         CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
-            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, false, providerId);
+            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, false, providerId, onServicePayments);
 
         WithStartDateInFuture();
 
@@ -203,7 +204,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
 
     public EditApprenticeshipValidationServiceTestsFixture SetupCocManualService(long providerId, string fieldname, bool isLocked)
     {
-        _cocManualApprovalsService.Setup(x => x.IsFieldLockedForProvider(fieldname, providerId)).Returns(isLocked);
+        _cocManualApprovalsService.Setup(x => x.IsFieldLockedForProvider(fieldname, providerId, true)).Returns(isLocked);
         return this;
     }
 
@@ -298,7 +299,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         DeliveryModel deliveryModel = DeliveryModel.Regular,
         FlexibleEmployment flexibleEmployment = null,
         bool isOnFlexiPaymentsPilot = false,
-        long providerId = 10001
+        long providerId = 10001,
+        bool? onServicePayments = true
     )
     {
         Apprenticeship = new Apprenticeship
@@ -325,7 +327,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             Uln = uln,
             PaymentStatus = paymentStatus,
             HasHadDataLockSuccess = hasHadDataLockSuccess,
-            FlexibleEmployment = flexibleEmployment
+            FlexibleEmployment = flexibleEmployment,
+            OnServicePayments = onServicePayments
         };
 
         return this;

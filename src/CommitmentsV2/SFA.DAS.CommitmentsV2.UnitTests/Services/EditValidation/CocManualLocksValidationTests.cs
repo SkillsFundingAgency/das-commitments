@@ -61,6 +61,7 @@
             var result = await fixture.Validate(request);
             result.Errors.Should().ContainSingle(x => x.PropertyName == "EndDate" && x.ErrorMessage == "End date can only be updated via the ILR");
         }
+
         [Test]
         public async Task When_Cost_Updated_Should_Error_Depending_On_ProviderId()
         {
@@ -71,6 +72,18 @@
 
             var result = await fixture.Validate(request);
             result.Errors.Should().ContainSingle(x => x.PropertyName == "Cost" && x.ErrorMessage == "Total price can only be updated via the ILR");
+        }
+
+        [Test]
+        public async Task When_Cost_Updated_Should_Not_Error_When_OnServicePayments_Not_Enabled()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship(providerId: 200, onServicePayments: false).SetupCocManualService(200, "Cost", true);
+
+            var request = fixture.CreateValidationRequest(cost: 1000);
+
+            var result = await fixture.Validate(request);
+            result.Errors.Count().Should().Be(0);
         }
     }
 }

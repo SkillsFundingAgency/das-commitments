@@ -4,9 +4,14 @@ namespace SFA.DAS.CommitmentsV2.Services;
 
 public class CocManualApprovalsService(CocApprovalsConfiguration cocApprovalsConfiguration) : ICocManualApprovalsService
 {
-    public bool IsFieldLockedForProvider(string fieldName, long ukPrn)
+    public bool IsFieldLockedForProvider(string fieldName, long ukPrn, bool? onServicePayments)
     {
-        if(cocApprovalsConfiguration.UkPrns == null)
+        if(onServicePayments != true)
+        {
+            return false;
+        }
+
+        if (cocApprovalsConfiguration.UkPrns == null)
         {
             return false;
         }
