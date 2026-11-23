@@ -25,6 +25,7 @@ public class EditApprenticeshipValidationServiceTestsFixture
     private readonly Mock<IAcademicYearDateProvider> _academicYearDateProvider;
     private readonly Mock<ICurrentDateTime> _currentDateTime;
     private readonly Mock<IAuthenticationService> _authenticationService;
+    private readonly Mock<ICocManualApprovalsService> _cocManualApprovalsService;
 
     public DateTime? StartDate => Apprenticeship.StartDate;
 
@@ -44,13 +45,15 @@ public class EditApprenticeshipValidationServiceTestsFixture
         _academicYearDateProvider = new Mock<IAcademicYearDateProvider>();
         _currentDateTime = new Mock<ICurrentDateTime>();
         _authenticationService = new Mock<IAuthenticationService>();
+        _cocManualApprovalsService = new Mock<ICocManualApprovalsService>();
 
         _sut = new EditApprenticeshipValidationService(_dbContext.Object, _mediator.Object,
             _overlapCheckService.Object,
             _reservationValidationService.Object,
             _academicYearDateProvider.Object,
             _currentDateTime.Object,
-            _authenticationService.Object);
+            _authenticationService.Object,
+            _cocManualApprovalsService.Object);
 
         _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.CourseDateRange>(), It.IsAny<long>(), CancellationToken.None))
             .Returns(Task.FromResult(new OverlapCheckResult(false, false)));
@@ -166,11 +169,12 @@ public class EditApprenticeshipValidationServiceTestsFixture
         bool hasHadDataLockSuccess = false,
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
-        FlexibleEmployment flexibleEmployment = null)
+        FlexibleEmployment flexibleEmployment = null,
+        long providerId = 1001)
             
     {
         CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
-            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment);
+            reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment, false, providerId);
 
         WithStartDateInFuture();
 
@@ -196,6 +200,13 @@ public class EditApprenticeshipValidationServiceTestsFixture
         _dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
         return this;
     }
+
+    public EditApprenticeshipValidationServiceTestsFixture SetupCocManualService(long providerId, string fieldname, bool isLocked)
+    {
+        _cocManualApprovalsService.Setup(x => x.IsFieldLockedForProvider(fieldname, providerId)).Returns(isLocked);
+        return this;
+    }
+
 
     public EditApprenticeshipValidationServiceTestsFixture SetupOverlapCheckServiceToReturnEmailOverlap(string email)
     {
@@ -286,7 +297,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
         DateTime employerProviderApprovedOn = default,
         DeliveryModel deliveryModel = DeliveryModel.Regular,
         FlexibleEmployment flexibleEmployment = null,
-        bool isOnFlexiPaymentsPilot = false
+        bool isOnFlexiPaymentsPilot = false,
+        long providerId = 10001
     )
     {
         Apprenticeship = new Apprenticeship
@@ -307,7 +319,8 @@ public class EditApprenticeshipValidationServiceTestsFixture
             {
                 Id = commitmentId,
                 TransferSenderId = transferSenderId,
-                EmployerAndProviderApprovedOn = employerProviderApprovedOn
+                EmployerAndProviderApprovedOn = employerProviderApprovedOn,
+                ProviderId = providerId
             },
             Uln = uln,
             PaymentStatus = paymentStatus,
