@@ -16,6 +16,7 @@ public class GetApprenticeshipLockedFieldsQueryHandler(Lazy<ProviderCommitmentsD
         var providerId = apprenticeship.Cohort.ProviderId;
         var retVal = new GetApprenticeshipLockedFieldsQueryResult
         {
+            OnServicePayments = apprenticeship.OnServicePayments,
             LockedManualFields = new List<string>()
         };
 

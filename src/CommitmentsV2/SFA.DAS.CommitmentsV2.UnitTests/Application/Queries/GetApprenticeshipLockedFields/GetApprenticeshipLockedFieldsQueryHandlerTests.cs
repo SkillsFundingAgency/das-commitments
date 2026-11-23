@@ -59,6 +59,24 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
         result.LockedManualFields.Should().BeEmpty();
     }
 
+    [Test]
+    public async Task Handle_WhenProviderIsInUkprnList_ThenReturnOnServicePaymentsFromApprewnticeship()
+    {
+        var expectedLockedManualFields = new List<string> { "StartDate", "Cost" };
+
+        _fixture
+            .SeedApprenticeship(providerId: 12345)
+            .WithConfiguration(new CocApprovalsConfiguration
+            {
+                UkPrns = new List<long> { 12345, 99999 },
+                LockedManualFields = expectedLockedManualFields
+            });
+
+        var result = await _fixture.Handle();
+        result.OnServicePayments.Should().BeTrue();
+    }
+
+
     public class GetApprenticeshipLockedFieldsQueryHandlerTestsFixture
     {
         private readonly Mock<ProviderCommitmentsDbContext> _db;
@@ -82,7 +100,8 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
                 Cohort = new Cohort
                 {
                     ProviderId = providerId
-                }
+                },
+                OnServicePayments = true
             };
 
             _db.Setup(context => context.Apprenticeships)
