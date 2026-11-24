@@ -47,6 +47,18 @@ public class ApprovedLearningUpdatedEventHandler(
                 ApplyChange(message, apprentice, change);
             }
 
+            var latestPrice = message.Prices?
+                .OrderBy(price => price.EffectiveFrom)
+                .LastOrDefault();
+
+            if (latestPrice != null)
+            {
+                apprentice.ApplyLatestApprovedPrice(
+                    latestPrice.TrainingPrice,
+                    latestPrice.AssessmentPrice,
+                    latestPrice.EffectiveFrom);
+            }
+
             logger.LogInformation(" Executing {Event} completed", nameof(ApprovedLearningUpdatedEvent));
         }
         catch (Exception e)
