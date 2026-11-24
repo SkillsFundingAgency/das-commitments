@@ -18,7 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="SFA.DAS.Learning.Types" Version="8.15.88-prerelease-55" />
+    <PackageReference Include="SFA.DAS.Learning.Types" Version="8.15.87-prerelease-43" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
   </ItemGroup>
 
