@@ -2,6 +2,5 @@
 
 public class GetApprenticeshipLockedFieldsQueryResult
 {
-    public bool? OnServicePayments { get; set; }
-    public List<string> LockedManualFields { get; set; }
+    public List<string> LockedManualFieldsAndFeatures { get; set; }
 }

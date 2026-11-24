@@ -16,13 +16,13 @@ public class GetApprenticeshipLockedFieldsQueryHandler(Lazy<ProviderCommitmentsD
         var providerId = apprenticeship.Cohort.ProviderId;
         var retVal = new GetApprenticeshipLockedFieldsQueryResult
         {
-            OnServicePayments = apprenticeship.OnServicePayments,
-            LockedManualFields = new List<string>()
+            LockedManualFieldsAndFeatures = new List<string>()
         };
 
-        if (cocApprovals.UkPrns.Contains(providerId))
+        if (cocApprovals.UkPrns.Contains(providerId) && apprenticeship.OnServicePayments == true)
         {
-            retVal.LockedManualFields = cocApprovals.LockedManualFields;
+            retVal.LockedManualFieldsAndFeatures = cocApprovals.LockedManualFields;
+            retVal.LockedManualFieldsAndFeatures.Add("Withdrawal");
         }
         
         return retVal;
