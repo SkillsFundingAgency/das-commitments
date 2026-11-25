@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipLockedFields;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -20,6 +21,18 @@ public class ApprenticeshipUpdateController(IMediator mediator, IModelMapper mod
         var result = await mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
         var response = await modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
         return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("field-locks")]
+    public async Task<IActionResult> GetLockedFields(long apprenticeshipId)
+    {
+        var result = await mediator.Send(new GetApprenticeshipLockedFieldsQuery(apprenticeshipId));
+        if(result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
     }
 
     [HttpPost]
