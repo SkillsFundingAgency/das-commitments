@@ -42,7 +42,7 @@ public class ApprovedLearningUpdatedEventHandler(
                 throw new DomainException(nameof(apprentice), $"Apprenticeship with Id {message.ApprenticeshipId} not found.");
             }
 
-            foreach (var change in message.Changes)
+            foreach (var change in message.Changes ?? [])
             {
                 ApplyChange(message, apprentice, change);
             }
@@ -123,8 +123,6 @@ public class ApprovedLearningUpdatedEventHandler(
         {
             logger.LogWarning("Unknown change type '{ChangeType}' for ApprenticeshipId {ApprenticeshipId}", change.ChangeType, message?.ApprenticeshipId);
         }
-
-        return;
     }
 
     private void ApplyDOBChange(ApprovedLearningUpdatedEvent message, Models.Apprenticeship apprentice, ApprenticeshipFieldChange change)
@@ -136,7 +134,6 @@ public class ApprovedLearningUpdatedEventHandler(
             return;
         }
         apprentice.DateOfBirth = parsedDOB;
-        return;
     }
 
     private static DateTime? ParseDate(string dateString)

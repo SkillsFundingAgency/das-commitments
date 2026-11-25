@@ -205,6 +205,34 @@ public class ApprovedLearningUpdatedEventHandlerTests
             price.FromDate == new DateTime(2026, 10, 1) &&
             price.Cost == 15000);
     }
+
+    [Test]
+    public async Task Handle_WhenPricesIncludeNewStartWithoutStartDateChange_DoesNotUpdateApprenticeshipStartDate()
+    {
+        var originalStartDate = new DateTime(2026, 9, 1);
+        var originalActualStartDate = new DateTime(2026, 9, 15);
+
+        await _fixture
+            .SetApprenticeshipDates(originalStartDate, originalActualStartDate)
+            .SetEventWithPrices(new PriceEpisode
+            {
+                EffectiveFrom = new DateTime(2026, 10, 15),
+                TrainingPrice = 14000,
+                AssessmentPrice = 1000
+            })
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        var apprenticeship = _fixture.GetApprenticeship();
+        apprenticeship.StartDate.Should().Be(originalStartDate);
+        apprenticeship.ActualStartDate.Should().Be(originalActualStartDate);
+        _fixture.GetPriceHistory().Should().HaveCount(2);
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 10, 15) &&
+            price.TrainingPrice == 14000 &&
+            price.AssessmentPrice == 1000 &&
+            price.Cost == 15000);
+    }
 }
 
 public class ApprovedLearningUpdatedEventHandlerTestsFixture
@@ -387,6 +415,20 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
         _dbContext.SaveChanges();
         return this;
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetApprenticeshipDates(DateTime startDate, DateTime actualStartDate)
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        apprenticeship.StartDate = startDate;
+        apprenticeship.ActualStartDate = actualStartDate;
+        _dbContext.SaveChanges();
+        return this;
+    }
+
+    public Apprenticeship GetApprenticeship()
+    {
+        return _dbContext.Apprenticeships.Find(apprenticeshipId);
     }
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithUnKnownChangeType()
