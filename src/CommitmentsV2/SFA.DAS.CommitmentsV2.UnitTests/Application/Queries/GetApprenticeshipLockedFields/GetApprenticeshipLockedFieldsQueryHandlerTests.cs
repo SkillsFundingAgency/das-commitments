@@ -26,16 +26,17 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenProviderIsInUkprnList_ThenReturnsLockedManualFieldsFromConfiguration()
+    public async Task Handle_WhenProviderIsInUkprnList_ThenReturnsLockedManualFieldsFromConfigurationPlusWithdrawal()
     {
-        var expectedLockedManualFields = new List<string> { "StartDate", "Cost" };
+        var lockedManualFields = new List<string> { "StartDate", "Cost" };
+        var expectedLockedManualFields = new List<string> { "StartDate", "Cost", "Withdrawal" };
 
         _fixture
             .SeedApprenticeship(providerId: 12345)
             .WithConfiguration(new CocApprovalsConfiguration
             {
                 UkPrns = new List<long> { 12345, 99999 },
-                LockedManualFields = expectedLockedManualFields
+                LockedManualFields = lockedManualFields
             });
 
         var result = await _fixture.Handle();
@@ -53,14 +54,13 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
             .WithConfiguration(new CocApprovalsConfiguration
             {
                 UkPrns = new List<long> { 12345, 99999 },
-                LockedManualFields = expectedLockedManualFields
+                LockedManualFields = new List<string>()
             });
 
         var result = await _fixture.Handle();
 
         result.LockedManualFieldsAndFeatures.Should().BeEquivalentTo(expectedLockedManualFields);
     }
-
 
     [Test]
     public async Task Handle_WhenProviderIsNotInUkprnList_ThenReturnsEmptyLockedManualFields()
