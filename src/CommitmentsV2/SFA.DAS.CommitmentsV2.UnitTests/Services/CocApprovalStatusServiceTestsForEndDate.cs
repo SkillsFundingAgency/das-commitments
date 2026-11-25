@@ -72,7 +72,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldLogInformation_WhenPlannedEndDateOldValueIsNotEqualCurrentValue()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenPlannedEndDateOldValueIsNotEqualCurrentValue()
     {
         var updates = new CocUpdates
         {
@@ -87,20 +87,14 @@ public class CocApprovalStatusServiceTestsForEndDate
         };
         var course = new Course();
 
-        await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
+        var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        _loggerMock.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((o, _) => o.ToString().Contains("Old planned end date from changes does not match apprenticeship end date")),
-                null,
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnReversal_WhenNewDateIsInTheSameMonthAsCurrentEndDate()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenNewDateIsInTheSameMonthAsCurrentEndDate()
     {
         var currentEndDate = new DateTime(2027, 9, 1);
         var updates = new CocUpdates
@@ -121,7 +115,7 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         results.Should().ContainSingle();
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Status.Should().Be(CocApprovalItemStatus.Reversal);
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         _overlapCheckServiceMock.Verify(
             x => x.CheckForOverlaps(
                 It.IsAny<string>(),
@@ -180,7 +174,7 @@ public class CocApprovalStatusServiceTestsForEndDate
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenPlannedEndDateIsBeforeStartOdService()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenPlannedEndDateIsBeforeStartOfService()
     {
         var updates = new CocUpdates
         {
@@ -195,14 +189,13 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date must not be earlier than May 2017");
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenPlannedEndDateIsBeforeStartDate()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenPlannedEndDateIsBeforeStartDate()
     {
         var updates = new CocUpdates
         {
@@ -217,14 +210,13 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date must not be before the start date");
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenPlannedEndDateIsBeforeFlexiEmploymentDate()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenPlannedEndDateIsBeforeFlexiEmploymentDate()
     {
         var updates = new CocUpdates
         {
@@ -240,14 +232,13 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("The end date must not be earlier than FlexibleEmployment.EmploymentEndDate");
     }
 
     [Test]
-    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoRejected_WhenUlnOverlapOccurs()
+    public async Task DetermineCocUpdateStatusesForEndDate_ShouldReturnAutoApproved_WhenUlnOverlapOccurs()
     {
         var updates = new CocUpdates
         {
@@ -267,10 +258,16 @@ public class CocApprovalStatusServiceTestsForEndDate
 
         var results = await _service.DetermineCocUpdateStatuses(updates, apprenticeship, course);
 
-        results.Should().HaveCount(1);
-        results[0].Status.Should().Be(CocApprovalItemStatus.AutoRejected);
+        results.Should().ContainSingle();
+        results[0].Status.Should().Be(CocApprovalItemStatus.AutoApproved);
         results[0].Field.Should().Be(CocChangeField.PlannedEndDate);
-        results[0].Reason.Should().Be("Apprentices overlapping dates and therefore cant start");
+        _overlapCheckServiceMock.Verify(
+            x => x.CheckForOverlaps(
+                It.IsAny<string>(),
+                It.IsAny<CourseDateRange>(),
+                It.IsAny<long>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test]
