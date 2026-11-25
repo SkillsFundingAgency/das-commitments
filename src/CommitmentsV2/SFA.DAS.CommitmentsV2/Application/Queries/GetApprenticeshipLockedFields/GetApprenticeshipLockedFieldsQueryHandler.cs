@@ -21,7 +21,7 @@ public class GetApprenticeshipLockedFieldsQueryHandler(Lazy<ProviderCommitmentsD
 
         if (cocApprovals.UkPrns.Contains(providerId) && apprenticeship.OnServicePayments == true)
         {
-            retVal.LockedManualFieldsAndFeatures = cocApprovals.LockedManualFields;
+            retVal.LockedManualFieldsAndFeatures.AddRange(cocApprovals.LockedManualFields);
             retVal.LockedManualFieldsAndFeatures.Add("Withdrawal");
         }
         
