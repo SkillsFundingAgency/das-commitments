@@ -50,7 +50,8 @@ public class CocApprovalCommandHandler(
             return new CocApprovalResult
             {
                 Status = CocApprovalResultStatus.Cancelled,
-                Items = new List<CocUpdateResult>()
+                Items = new List<CocUpdateResult>(),
+                PendingApprovalsExist = await HasOtherPendingApprovals(db, command.LearningKey, GetCurrentRequestFields(command))
             };
         }
 
@@ -103,6 +104,11 @@ public class CocApprovalCommandHandler(
 
         await ApplyPriceDecision(db, command, approvalState);
         AddReversedFieldResults(approvalState, command.ReversedFields);
+
+        if (approvalState.ApprovalResult != null)
+        {
+            approvalState.ApprovalResult.PendingApprovalsExist = await HasOtherPendingApprovals(db, command.LearningKey, GetCurrentRequestFields(command));
+        }
 
         return approvalState.ApprovalResult;
     }
@@ -249,5 +255,53 @@ public class CocApprovalCommandHandler(
         }
 
         return MarkPendingItemsForLearningKeyAs(db, learningKey, status, fields);
+    }
+
+    private static HashSet<string> GetCurrentRequestFields(CocApprovalCommand command)
+    {
+        var fields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (command.CocApprovalDetails?.ApprovalFieldChanges != null)
+        {
+            foreach (var change in command.CocApprovalDetails.ApprovalFieldChanges)
+            {
+                if (!string.IsNullOrWhiteSpace(change.ChangeType))
+                {
+                    fields.Add(change.ChangeType);
+                }
+            }
+        }
+
+        if (command.ReversedFields != null)
+        {
+            foreach (var field in command.ReversedFields)
+            {
+                if (!string.IsNullOrWhiteSpace(field))
+                {
+                    fields.Add(field);
+                }
+            }
+        }
+
+        if (command.NewPrices is { Count: > 0 })
+        {
+            fields.Add(nameof(CocChangeField.Prices));
+        }
+
+        return fields;
+    }
+
+    private static async Task<bool> HasOtherPendingApprovals(
+        ProviderCommitmentsDbContext db,
+        Guid learningKey,
+        HashSet<string> currentRequestFields)
+    {
+        var pendingItems = await db.CocApprovalItems
+            .Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending)
+            .ToListAsync();
+
+        return pendingItems.Any(item =>
+            item.Status == CocApprovalItemStatus.Pending
+            && !currentRequestFields.Contains(item.Field));
     }
 }

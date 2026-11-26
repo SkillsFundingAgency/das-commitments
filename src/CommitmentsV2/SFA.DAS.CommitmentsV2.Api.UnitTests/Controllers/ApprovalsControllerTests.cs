@@ -373,4 +373,54 @@ public class ApprovalsControllerTests
             }
         };
     }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task PutApprovals_Maps_PendingApprovalsExist_For_Created_Response(bool pendingApprovalsExist)
+    {
+        var request = CreateCocApprovalRequest(true);
+        var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
+            .With(x => x.CocApprovalDetails, cocApprovalDetails)
+            .With(x => x.Action, AggregationAction.CreateNew)
+            .Create();
+        var commandResult = CreateCocResult();
+        commandResult.PendingApprovalsExist = pendingApprovalsExist;
+
+        _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
+        _mediator.Setup(m => m.Send(cocApprovalCommand, It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
+
+        var result = await _controller.PutApprovals(request.LearningKey, request);
+
+        var jsonResult = result.Should().BeOfType<CreatedResult>().Subject;
+        var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
+        response.PendingApprovalsExist.Should().Be(pendingApprovalsExist);
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task PutApprovals_Maps_PendingApprovalsExist_For_CancelPrevious_Response(bool pendingApprovalsExist)
+    {
+        var request = CreateCocApprovalRequest(true);
+        var cocApprovalDetails = _fixture.Build<CocApprovalDetails>().Without(x => x.Apprenticeship).Create();
+        var cocApprovalCommand = _fixture.Build<CocApprovalCommand>()
+            .With(x => x.CocApprovalDetails, cocApprovalDetails)
+            .With(x => x.Action, AggregationAction.CancelPrevious)
+            .Create();
+        var commandResult = new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Cancelled,
+            Items = [],
+            PendingApprovalsExist = pendingApprovalsExist
+        };
+
+        _mapper.Setup(m => m.Map<CocApprovalCommand>(request)).ReturnsAsync(cocApprovalCommand);
+        _mediator.Setup(m => m.Send(cocApprovalCommand, It.IsAny<CancellationToken>())).ReturnsAsync(commandResult);
+
+        var result = await _controller.PutApprovals(request.LearningKey, request);
+
+        var jsonResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        var response = jsonResult.Value.Should().BeOfType<PutApprovalsResponse>().Subject;
+        response.PendingApprovalsExist.Should().Be(pendingApprovalsExist);
+    }
 }
