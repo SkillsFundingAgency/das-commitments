@@ -292,7 +292,9 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         var cost = trainingPrice + assessmentPrice;
         var openEpisode = PriceHistory.FirstOrDefault(history => history.ToDate == null);
 
-        if (openEpisode != null && openEpisode.FromDate.Date == effectiveFrom.Date)
+        if (openEpisode != null &&
+            openEpisode.FromDate.Year == effectiveFrom.Year &&
+            openEpisode.FromDate.Month == effectiveFrom.Month)
         {
             openEpisode.TrainingPrice = trainingPrice;
             openEpisode.AssessmentPrice = assessmentPrice;

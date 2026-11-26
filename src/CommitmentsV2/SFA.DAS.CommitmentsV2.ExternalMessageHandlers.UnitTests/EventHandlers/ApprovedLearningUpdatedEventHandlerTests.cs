@@ -106,6 +106,133 @@ public class ApprovedLearningUpdatedEventHandlerTests
         _fixture.GetPriceHistory().Select(price => price.FromDate)
             .Should().BeEquivalentTo([new DateTime(2026, 9, 1), new DateTime(2026, 10, 1)]);
     }
+
+    [Test]
+    public async Task Handle_WhenStartDateAndPriceChangeAreApproved_UpdatesTheInitialPriceEpisode()
+    {
+        await _fixture
+            .SetEventWithStartDateAndPrices("2026-09-15", "2026-10-15", new DateTime(2026, 10, 2), 14000, 1000)
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Should().ContainSingle()
+            .Which.Should().Match<PriceHistory>(price =>
+                price.FromDate == new DateTime(2026, 10, 1) &&
+                price.ToDate == null &&
+                price.TrainingPrice == 14000 &&
+                price.AssessmentPrice == 1000 &&
+                price.Cost == 15000);
+    }
+
+    [Test]
+    public async Task Handle_WhenPriceChangeHasMultipleEpisodes_AppliesTheLatestEpisode()
+    {
+        await _fixture
+            .SetEventWithPrices(
+                new PriceEpisode { EffectiveFrom = new DateTime(2026, 9, 1), TrainingPrice = 12000, AssessmentPrice = 3000 },
+                new PriceEpisode { EffectiveFrom = new DateTime(2026, 10, 1), TrainingPrice = 14000, AssessmentPrice = 1000 })
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Should().HaveCount(2);
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 9, 1) &&
+            price.ToDate == new DateTime(2026, 9, 30));
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 10, 1) &&
+            price.TrainingPrice == 14000 &&
+            price.AssessmentPrice == 1000 &&
+            price.Cost == 15000);
+    }
+
+    [Test]
+    public async Task Handle_WhenPriceChangeIsForALaterMonth_ClosesTheExistingEpisodeAndAddsANewEpisode()
+    {
+        await _fixture
+            .SetEventWithPrices(new PriceEpisode
+            {
+                EffectiveFrom = new DateTime(2026, 11, 1),
+                TrainingPrice = 14000,
+                AssessmentPrice = 1000
+            })
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Should().HaveCount(2);
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 9, 1) &&
+            price.ToDate == new DateTime(2026, 10, 31));
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 11, 1) &&
+            price.ToDate == null &&
+            price.Cost == 15000);
+    }
+
+    [Test]
+    public async Task Handle_WhenPriceScheduleIsEmpty_LeavesPriceHistoryUnchanged()
+    {
+        await _fixture
+            .SetEventWithPrices()
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        _fixture.GetPriceHistory().Should().ContainSingle()
+            .Which.Should().Match<PriceHistory>(price =>
+                price.FromDate == new DateTime(2026, 9, 1) &&
+                price.Cost == 5500);
+    }
+
+    [Test]
+    public async Task Handle_WhenTheSamePriceEventIsReplayed_DoesNotCreateAnotherEpisode()
+    {
+        await _fixture
+            .SetEventWithPrices(new PriceEpisode
+            {
+                EffectiveFrom = new DateTime(2026, 10, 1),
+                TrainingPrice = 14000,
+                AssessmentPrice = 1000
+            })
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        await _fixture.Handle();
+
+        _fixture.GetPriceHistory().Should().HaveCount(2);
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 9, 1) &&
+            price.ToDate == new DateTime(2026, 9, 30));
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 10, 1) &&
+            price.Cost == 15000);
+    }
+
+    [Test]
+    public async Task Handle_WhenPricesIncludeNewStartWithoutStartDateChange_DoesNotUpdateApprenticeshipStartDate()
+    {
+        var originalStartDate = new DateTime(2026, 9, 1);
+        var originalActualStartDate = new DateTime(2026, 9, 15);
+
+        await _fixture
+            .SetApprenticeshipDates(originalStartDate, originalActualStartDate)
+            .SetEventWithPrices(new PriceEpisode
+            {
+                EffectiveFrom = new DateTime(2026, 10, 15),
+                TrainingPrice = 14000,
+                AssessmentPrice = 1000
+            })
+            .SetPriceHistory(new DateTime(2026, 9, 1))
+            .Handle();
+
+        var apprenticeship = _fixture.GetApprenticeship();
+        apprenticeship.StartDate.Should().Be(originalStartDate);
+        apprenticeship.ActualStartDate.Should().Be(originalActualStartDate);
+        _fixture.GetPriceHistory().Should().HaveCount(2);
+        _fixture.GetPriceHistory().Should().Contain(price =>
+            price.FromDate == new DateTime(2026, 10, 15) &&
+            price.TrainingPrice == 14000 &&
+            price.AssessmentPrice == 1000 &&
+            price.Cost == 15000);
+    }
 }
 
 public class ApprovedLearningUpdatedEventHandlerTestsFixture
@@ -239,6 +366,37 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         return this;
     }
 
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithStartDateAndPrices(
+        string oldDate,
+        string newDate,
+        DateTime effectiveFrom,
+        decimal trainingPrice,
+        decimal assessmentPrice)
+    {
+        SetEventWithStartDate(oldDate, newDate);
+        _event.Prices =
+        [
+            new()
+            {
+                EffectiveFrom = effectiveFrom,
+                TrainingPrice = trainingPrice,
+                AssessmentPrice = assessmentPrice
+            }
+        ];
+        return this;
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithPrices(params PriceEpisode[] prices)
+    {
+        _event = new ApprovedLearningUpdatedEvent
+        {
+            ApprenticeshipId = apprenticeshipId,
+            LearningKey = Guid.NewGuid(),
+            Prices = prices.ToList()
+        };
+        return this;
+    }
+
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetPriceHistory(params DateTime[] fromDates)
     {
         var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
@@ -257,6 +415,20 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
 
         _dbContext.SaveChanges();
         return this;
+    }
+
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetApprenticeshipDates(DateTime startDate, DateTime actualStartDate)
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        apprenticeship.StartDate = startDate;
+        apprenticeship.ActualStartDate = actualStartDate;
+        _dbContext.SaveChanges();
+        return this;
+    }
+
+    public Apprenticeship GetApprenticeship()
+    {
+        return _dbContext.Apprenticeships.Find(apprenticeshipId);
     }
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithUnKnownChangeType()
