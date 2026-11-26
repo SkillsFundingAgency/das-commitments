@@ -166,22 +166,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             e.ErrorMessage == error).Should().Be(true);
         }
 
-        [TestCase(null)]
-        [TestCase(false)]
-        public async Task Handle_WhenRecognisePriorLearningIsNotTrue_ExceptionIsThrown(bool? value)
+        [TestCase(null, true, 10)]
+        [TestCase(false, true, 10)]
+        [TestCase(true, true, 10)]
+        [TestCase(true, false, null)]
+        public async Task Handle_WhenRplDataIsValid_SavesDataAndRecognisesPriorLearning(
+            bool? recognisePriorLearning, bool isDurationReducedByRpl, int? durationReducedBy)
         {
-            fixture = await new PriorLearningDataHandlerTestsFixture().WithRecognisePriorLearningSetTo(value);
-            await fixture.Handle();
-
-            fixture.VerifyException<DomainException>();
-        }
-
-        [TestCase(true, 10)]
-        [TestCase(false, null)]
-        [Test]
-        public async Task Handle_WhenRplData_is_Valid(bool isDurationReducedByRpl, int? durationReducedBy)
-        {
-            fixture = new PriorLearningDataHandlerTestsFixture
+            fixture = await new PriorLearningDataHandlerTestsFixture
             {
                 Command =
                 {
@@ -191,10 +183,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     DurationReducedBy = durationReducedBy,
                     PriceReducedBy = 100
                 }
-            };
+            }.WithRecognisePriorLearningSetTo(recognisePriorLearning);
 
             await fixture.Handle();
 
+            fixture.Exception.Should().BeNull();
+            fixture.DraftApprenticeshipFromDb.RecognisePriorLearning.Should().BeTrue();
             fixture.VerifyRplDataMatchesCommand();
         }
     }
