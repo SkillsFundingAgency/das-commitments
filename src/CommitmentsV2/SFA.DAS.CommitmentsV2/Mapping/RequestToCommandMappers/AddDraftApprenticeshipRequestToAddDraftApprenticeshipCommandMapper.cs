@@ -32,6 +32,7 @@ public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper 
             TrainingPrice = source.TrainingPrice,
             EndPointAssessmentPrice = source.EndPointAssessmentPrice,
             LearnerDataId = source.LearnerDataId,
+            OnServicePayments = source.OnServicePayments,
             MinimumAgeAtApprenticeshipStart = source.MinimumAgeAtApprenticeshipStart,
             MaximumAgeAtApprenticeshipStart = source.MaximumAgeAtApprenticeshipStart
         });

@@ -34,6 +34,7 @@ public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTest
         result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
         result.TrainingCourseVersionConfirmed.Should().BeFalse();
         result.LearnerDataId.Should().Be(fixture.Command.LearnerDataId);
+        result.OnServicePayments.Should().Be(fixture.Command.OnServicePayments);
     }
 
     [Test]

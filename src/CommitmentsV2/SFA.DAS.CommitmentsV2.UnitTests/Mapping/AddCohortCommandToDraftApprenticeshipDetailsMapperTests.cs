@@ -59,6 +59,15 @@ public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     }
 
     [Test]
+    public async Task WhenMapping_ThenShouldSetOnServicePayments()
+    {
+        var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+        var draftApprenticeshipDetails = await fixture.Map();
+
+        draftApprenticeshipDetails.OnServicePayments.Should().Be(fixture.Command.OnServicePayments);
+    }
+
+    [Test]
     public async Task WhenMappingFramework_ThenShouldSetPropertiesAndNoStandardUIdOrVersion()
     {
         var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
