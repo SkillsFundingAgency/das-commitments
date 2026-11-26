@@ -15,6 +15,8 @@ public class CreateCohortRequest : SaveDataRequest
     public DateTime? DateOfBirth { get; set; }
     public string Uln { get; set; }
     public string CourseCode { get; set; }
+    public string TrainingCourseVersion { get; set; }
+    public string StandardUId { get; set; }
     public DeliveryModel? DeliveryModel { get; set; }
     public int? Cost { get; set; }
     public int? TrainingPrice { get; set; }
@@ -30,6 +32,7 @@ public class CreateCohortRequest : SaveDataRequest
     public DateTime? EmploymentEndDate { get; set; }
     public bool IgnoreStartDateOverlap { get; set; }
     public long? LearnerDataId { get; set; }
+    public bool? OnServicePayments { get; set; }
     public int MinimumAgeAtApprenticeshipStart { get; set; }
     public int MaximumAgeAtApprenticeshipStart { get; set; }
 }

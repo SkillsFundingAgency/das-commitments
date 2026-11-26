@@ -130,7 +130,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         ChangeTrackingSession.TrackUpdate(update);
         ChangeTrackingSession.TrackUpdate(this);
 
-        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow, learningType);
+        ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow);
         PendingUpdateOriginator = null;
         update.Status = ApprenticeshipUpdateStatus.Approved;
 
@@ -292,7 +292,9 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         var cost = trainingPrice + assessmentPrice;
         var openEpisode = PriceHistory.FirstOrDefault(history => history.ToDate == null);
 
-        if (openEpisode != null && openEpisode.FromDate.Date == effectiveFrom.Date)
+        if (openEpisode != null &&
+            openEpisode.FromDate.Year == effectiveFrom.Year &&
+            openEpisode.FromDate.Month == effectiveFrom.Month)
         {
             openEpisode.TrainingPrice = trainingPrice;
             openEpisode.AssessmentPrice = assessmentPrice;
@@ -424,7 +426,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         return newPriceHistory.ToList();
     }
 
-    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn, LearningType? learningType)
+    private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn)
     {
         if (!string.IsNullOrEmpty(update.FirstName))
         {
@@ -469,11 +471,34 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
             FlexibleEmployment.EmploymentPrice = update.EmploymentPrice;
         }
 
+        UpdateTrainingCourse(update);
+
+        if (update.DateOfBirth.HasValue)
+        {
+            DateOfBirth = update.DateOfBirth;
+        }
+
+        if (update.StartDate.HasValue)
+        {
+            StartDate = update.StartDate;
+            ActualStartDate = null;
+        }
+
+        if (update.EndDate.HasValue)
+        {
+            EndDate = update.EndDate;
+        }
+
+        UpdatePrice(update);
+    }
+
+    private void UpdateTrainingCourse(ApprenticeshipUpdate update)
+    {
         if (update.TrainingType.HasValue)
         {
             ProgrammeType = update.TrainingType;
 
-            if (update.TrainingType.Value == Types.ProgrammeType.Framework || learningType == LearningType.ApprenticeshipUnit)
+            if (update.TrainingType.Value == Types.ProgrammeType.Framework)
             {
                 TrainingCourseVersion = null;
                 TrainingCourseVersionConfirmed = false;
@@ -515,24 +540,6 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         {
             StandardUId = update.StandardUId;
         }
-
-        if (update.DateOfBirth.HasValue)
-        {
-            DateOfBirth = update.DateOfBirth;
-        }
-
-        if (update.StartDate.HasValue)
-        {
-            StartDate = update.StartDate;
-            ActualStartDate = null;
-        }
-
-        if (update.EndDate.HasValue)
-        {
-            EndDate = update.EndDate;
-        }
-
-        UpdatePrice(update);
     }
 
     private void UpdatePrice(ApprenticeshipUpdate update)
