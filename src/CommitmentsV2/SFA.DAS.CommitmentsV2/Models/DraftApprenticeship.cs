@@ -46,6 +46,7 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
 
         ReservationId = source.ReservationId;
         LearnerDataId = source.LearnerDataId;
+        OnServicePayments = source.OnServicePayments;
         if (source.LearnerDataId != null && source.RecognisePriorLearning == null)
         {
             RecognisePriorLearning = false;
@@ -70,13 +71,19 @@ public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
             
         if (!IsContinuation)
         {
+            var courseChanged = CourseCode != source.TrainingProgramme?.CourseCode;
             ProgrammeType = source.TrainingProgramme?.ProgrammeType;
             CourseCode = source.TrainingProgramme?.CourseCode;
             CourseName = source.TrainingProgramme?.Name;
-            TrainingCourseVersion = source.TrainingCourseVersion;
-            TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
+            if (source.LearningType != LearningType.ApprenticeshipUnit
+                || !string.IsNullOrEmpty(source.TrainingCourseVersion)
+                || courseChanged)
+            {
+                TrainingCourseVersion = source.TrainingCourseVersion;
+                TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
+                StandardUId = source.StandardUId;
+            }
             TrainingCourseOption = selectedOption;
-            StandardUId = source.StandardUId;
         }
             
         if (source.DeliveryModel.HasValue)

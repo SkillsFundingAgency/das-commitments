@@ -47,6 +47,7 @@ public abstract class ApprenticeshipBase : Aggregate
     public long? ContinuationOfId { get; set; }
     public DateTime? OriginalStartDate { get; set; }
     public long? LearnerDataId { get; set; }
+    public bool? OnServicePayments { get; set; }
 
     public virtual Cohort Cohort { get; set; }
     public virtual AssessmentOrganisation EpaOrg { get; set; }
