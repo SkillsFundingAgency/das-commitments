@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload;
@@ -51,9 +52,8 @@ public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetails
         var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
         var trainingProgramme = await trainingProgrammeTask;
         result.TrainingProgramme = trainingProgramme;
-        result.TrainingCourseVersion = trainingProgramme?.Version;
-        result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
-        result.StandardUId = trainingProgramme?.StandardUId;
+        result.ApplyTrainingCourseVersion(source.TrainingCourseVersion, source.StandardUId,
+            populateStandardVersion: true);
     }
 
     private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)

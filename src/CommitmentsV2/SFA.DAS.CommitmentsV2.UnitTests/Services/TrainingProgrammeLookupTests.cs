@@ -131,6 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             actual.CourseCode.Should().Be(course.LarsCode);
+            actual.LearningType.Should().Be(course.LearningType);
             actual.Name.Should().Be($"{course.Title}, Level: {course.Level}");
             actual.EffectiveFrom.Should().Be(course.EffectiveFrom);
             actual.EffectiveTo.Should().Be(course.EffectiveTo);
