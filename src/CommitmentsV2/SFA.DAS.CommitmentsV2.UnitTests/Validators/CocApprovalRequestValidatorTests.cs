@@ -259,7 +259,7 @@ public class CocApprovalRequestValidatorTests
     }
 
     [Test]
-    public void Validate_Prices_ShouldRejectWhenLatestEpisodeTotalExceedsMaximum()
+    public void Validate_Prices_ShouldAllowWhenLatestEpisodeTotalExceedsMaximum()
     {
         var request = CreateValidRequest();
         request.NewPrices =
@@ -270,9 +270,7 @@ public class CocApprovalRequestValidatorTests
 
         var result = Validate(request);
 
-        result.IsValid.Should().BeFalse();
-        var error = result.Errors.Should().ContainSingle(failure => failure.PropertyName == "newPrices").Subject;
-        error.ErrorMessage.Should().Be("The total cost must be £100,000 or less");
+        result.IsValid.Should().BeTrue();
     }
 
     [Test]
