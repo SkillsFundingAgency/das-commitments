@@ -1,4 +1,5 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Mapping.CocApprovals;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -8,6 +9,7 @@ public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
 {
     public const string FuturePriceReason = "The price change includes a date in the future.";
     public const string NonPositivePriceReason = "The price change has a trainingPrice of zero or less.";
+    public const string MaximumPriceReason = "The total cost must be £100,000 or less";
     public const string StartDateRejectedReason = "The price change was rejected because the start date change was rejected.";
 
     public PriceChangeDecision Decide(IReadOnlyList<PriceRecord> prices, IEnumerable<PriceHistory> priceHistory, DateTime utcToday)
@@ -40,6 +42,25 @@ public class PriceChangeDecider(PriceScheduleMapper priceScheduleMapper)
             {
                 Status = CocApprovalItemStatus.AutoRejected,
                 Reason = FuturePriceReason,
+                Old = oldJson,
+                New = newJson,
+                StoreNewRow = true,
+                PendingPriceAction = PendingPriceAction.MarkSuperseded
+            };
+        }
+
+        var latestPrice = prices
+            .Where(price => price?.EffectiveFrom != null && price.TrainingPrice != null && price.AssessmentPrice != null)
+            .OrderByDescending(price => price.EffectiveFrom)
+            .FirstOrDefault();
+
+        if (latestPrice != null
+            && latestPrice.TrainingPrice.Value + latestPrice.AssessmentPrice.Value > Constants.MaximumApprenticeshipCost)
+        {
+            return new PriceChangeDecision
+            {
+                Status = CocApprovalItemStatus.AutoRejected,
+                Reason = MaximumPriceReason,
                 Old = oldJson,
                 New = newJson,
                 StoreNewRow = true,
