@@ -51,5 +51,44 @@
             var errors = await fixture.Handle();
             BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");
         }
+
+        [TestCase("2026-09", false)]
+        [TestCase("2026-10", true)]
+        [TestCase("2026-11", true)]
+        [TestCase("2027-01", true)]
+        [TestCase("2025-12", false)]
+        public void Validate_AppUnit_EndDateByMonth(string endDate, bool isValid)
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2026-10-26");
+            fixture.SetEndDate(endDate);
+
+            var errors = fixture.ValidationService.ValidateEndDate(
+                fixture.CsvRecords[0],
+                SFA.DAS.CommitmentsV2.Types.LearningType.ApprenticeshipUnit);
+
+            if (isValid)
+            {
+                errors.Should().BeEmpty();
+            }
+            else
+            {
+                errors.Should().ContainSingle()
+                    .Which.ErrorText.Should().Be("Enter an <b>end date</b> that is after the start date");
+            }
+        }
+
+        [Test]
+        public void Validate_Standard_EndDateInSameMonth()
+        {
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2026-10-26");
+            fixture.SetEndDate("2026-10");
+
+            var errors = fixture.ValidationService.ValidateEndDate(fixture.CsvRecords[0]);
+
+            errors.Should().ContainSingle()
+                .Which.ErrorText.Should().Be("Enter an <b>end date</b> that is after the start date");
+        }
     }
 }

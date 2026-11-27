@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities;
+﻿using System;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.Extensions;
 
@@ -27,5 +28,11 @@ public static class DraftApprenticeshipDetailsExtensions
     public static DateTime? GetStartDate(this DraftApprenticeshipDetails details)
     {
         return details.ActualStartDate ?? details.StartDate;
+    }
+
+    public static bool IsSameMonthOrAfter(this DateTime endDate, DateTime startDate)
+    {
+        return endDate.Year > startDate.Year ||
+               endDate.Year == startDate.Year && endDate.Month >= startDate.Month;
     }
 }

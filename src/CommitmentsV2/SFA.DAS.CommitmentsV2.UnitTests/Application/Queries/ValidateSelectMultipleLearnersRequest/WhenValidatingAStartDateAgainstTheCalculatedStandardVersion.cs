@@ -107,6 +107,17 @@ public class WhenValidatingAStartDateAgainstTheCalculatedStandardVersion
         result.ValidationErrors.Should().BeEmpty();
     }
 
+    [Test]
+    public async Task Then_learning_type_is_passed_to_end_date_validation()
+    {
+        _db.Courses.Single().LearningType = LearningType.ApprenticeshipUnit;
+        await _db.SaveChangesAsync();
+
+        await _handler.Handle(CreateQuery(), CancellationToken.None);
+
+        _validationService.LearningTypePassedToEndDate.Should().Be(LearningType.ApprenticeshipUnit);
+    }
+
     private static ValidateSelectMultipleLearnersQuery CreateQuery()
     {
         return new ValidateSelectMultipleLearnersQuery
@@ -129,6 +140,7 @@ public class WhenValidatingAStartDateAgainstTheCalculatedStandardVersion
     private sealed class StartDateCapturingValidationService(IValidationService startDateValidation) : IValidationService
     {
         public Standard StandardPassedToStartDate { get; private set; }
+        public LearningType? LearningTypePassedToEndDate { get; private set; }
 
         public IEnumerable<Error> ValidateStartDate(BulkUploadAddDraftApprenticeshipRequest csvRecord, Standard standard, Cohort cohort)
         {
@@ -152,7 +164,11 @@ public class WhenValidatingAStartDateAgainstTheCalculatedStandardVersion
 
         public IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<BulkUploadAddDraftApprenticeshipRequest> csvRecords) => [];
 
-        public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord) => [];
+        public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord, LearningType? learningType = null)
+        {
+            LearningTypePassedToEndDate = learningType;
+            return [];
+        }
 
         public IEnumerable<Error> ValidateEPAOrgId(string EPAOrgId) => [];
 

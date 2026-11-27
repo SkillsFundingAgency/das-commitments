@@ -1,12 +1,14 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Services.ValidationService;
 
 public partial class ValidationService
 {
-    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord, LearningType? learningType = null)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.EndDateAsString))
@@ -27,7 +29,10 @@ public partial class ValidationService
             else
             {
                 var startDate = csvRecord.StartDate;
-                if (startDate != null && endDate.Value <= startDate.Value)
+                if (startDate != null &&
+                    (learningType == LearningType.ApprenticeshipUnit
+                        ? !endDate.Value.IsSameMonthOrAfter(startDate.Value)
+                        : endDate.Value <= startDate.Value))
                 {
                     domainErrors.Add(new Error("EndDate", "Enter an <b>end date</b> that is after the start date"));
                 }
