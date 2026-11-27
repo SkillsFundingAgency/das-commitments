@@ -156,4 +156,5 @@ public class BulkUploadAddDraftApprenticeshipRequest
     public int? EndPointAssessmentPrice { get; set; }
     public DateTime? ActualStartDate { get; set; }
     public long? LearnerDataId { get; set; }
+    public bool? OnServicePayments { get; set; }
 }
