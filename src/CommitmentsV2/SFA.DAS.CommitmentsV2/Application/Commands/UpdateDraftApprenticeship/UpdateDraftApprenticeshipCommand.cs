@@ -8,6 +8,8 @@ public class UpdateDraftApprenticeshipCommand : IRequest<UpdateDraftApprenticesh
     public long CohortId { get; set; }
     public long ApprenticeshipId { get; set; }
     public string CourseCode { get; set; }
+    public string TrainingCourseVersion { get; set; }
+    public string StandardUId { get; set; }
     public string CourseOption { get; set; }
     public DeliveryModel DeliveryModel { get; set; }
     public int? EmploymentPrice { get; set; }
