@@ -1070,6 +1070,41 @@ public class CocApprovalCommandHandlerTests
         _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
     }
 
+    [Test]
+    public async Task Handle_WhenLatestPriceTotalExceedsMaximum_SupersedesPendingPriceAndStoresAutoRejected()
+    {
+        var learningKey = Guid.NewGuid();
+        var price = CreateCocApprovalItem(learningKey, field: nameof(CocChangeField.Prices));
+        await _dbContext.CocApprovalItems.AddAsync(price);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        SetupRules(details, new CocApprovalResult { Status = CocApprovalResultStatus.Complete, Items = [] });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details,
+            NewPrices = [new PriceRecord { EffectiveFrom = new DateTime(2025, 9, 1), TrainingPrice = 100000, AssessmentPrice = 1 }]
+        }, CancellationToken.None);
+
+        await _dbContext.SaveChangesAsync();
+
+        price.Status.Should().Be(CocApprovalItemStatus.Superseded);
+        var rejected = _dbContext.CocApprovalItems.Single(item => item.Status == CocApprovalItemStatus.AutoRejected);
+        rejected.Field.Should().Be(nameof(CocChangeField.Prices));
+        rejected.Reason.Should().Be(PriceChangeDecider.MaximumPriceReason);
+        result.Items.Should().ContainSingle(item =>
+            item.Field == CocChangeField.Prices
+            && item.Status == CocApprovalItemStatus.AutoRejected
+            && item.Reason == PriceChangeDecider.MaximumPriceReason);
+        _messageSession.Verify(x => x.Send(
+            It.Is<StoreLearningHistoryCommand>(command => command.Description == PriceChangeDecider.MaximumPriceReason),
+            It.IsAny<SendOptions>()), Times.Once);
+        _notifyProviderService.Verify(x => x.NotifyProvider(details.ProviderId, "hashed-apprenticeship", "ProviderRequestRejectedNotification", null), Times.Once);
+    }
+
     [TestCase(nameof(CocChangeField.StartDate))]
     [TestCase(nameof(CocChangeField.PlannedEndDate))]
     public async Task Handle_WhenFieldReverses_ReturnsThatFieldAsReversal(string field)
