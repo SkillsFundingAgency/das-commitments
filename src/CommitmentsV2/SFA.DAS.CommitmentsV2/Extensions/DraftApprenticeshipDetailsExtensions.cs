@@ -30,9 +30,14 @@ public static class DraftApprenticeshipDetailsExtensions
         return details.ActualStartDate ?? details.StartDate;
     }
 
-    public static bool IsSameMonthOrAfter(this DateTime endDate, DateTime startDate)
+    public static bool IsEndDateAfterStart(this DateTime endDate, DateTime startDate, Types.LearningType? learningType)
     {
-        return endDate.Year > startDate.Year ||
-               endDate.Year == startDate.Year && endDate.Month >= startDate.Month;
+        if (learningType == Types.LearningType.ApprenticeshipUnit)
+        {
+            return endDate.Year > startDate.Year ||
+                   endDate.Year == startDate.Year && endDate.Month >= startDate.Month;
+        }
+
+        return endDate > startDate;
     }
 }

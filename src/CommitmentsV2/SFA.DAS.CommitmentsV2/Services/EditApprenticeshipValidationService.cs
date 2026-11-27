@@ -594,6 +594,19 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
         }
     }
 
+    private LearningType? GetCourseLearningType(string courseCode)
+    {
+        if (string.IsNullOrWhiteSpace(courseCode))
+        {
+            return null;
+        }
+
+        return _context.Courses
+            .Where(course => course.LarsCode == courseCode)
+            .Select(course => course.LearningType)
+            .FirstOrDefault();
+    }
+
     private IEnumerable<DomainError> BuildEndDateValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
     {
         if (request.EndDate.HasValue)
@@ -607,12 +620,10 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
                 }
             }
 
-            if (request.StartDate.HasValue)
+            if (request.StartDate.HasValue &&
+                !request.EndDate.Value.IsEndDateAfterStart(request.StartDate.Value, GetCourseLearningType(request.CourseCode)))
             {
-                if (request.EndDate <= request.StartDate)
-                {
-                    yield return new DomainError(nameof(request.EndDate), "The end date must not be on or before the start date");
-                }
+                yield return new DomainError(nameof(request.EndDate), "The end date must not be on or before the start date");
             }
         }
         else

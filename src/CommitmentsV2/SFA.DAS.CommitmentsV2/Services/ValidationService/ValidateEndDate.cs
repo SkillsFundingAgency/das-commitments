@@ -29,10 +29,7 @@ public partial class ValidationService
             else
             {
                 var startDate = csvRecord.StartDate;
-                if (startDate != null &&
-                    (learningType == LearningType.ApprenticeshipUnit
-                        ? !endDate.Value.IsSameMonthOrAfter(startDate.Value)
-                        : endDate.Value <= startDate.Value))
+                if (startDate != null && !endDate.Value.IsEndDateAfterStart(startDate.Value, learningType))
                 {
                     domainErrors.Add(new Error("EndDate", "Enter an <b>end date</b> that is after the start date"));
                 }
