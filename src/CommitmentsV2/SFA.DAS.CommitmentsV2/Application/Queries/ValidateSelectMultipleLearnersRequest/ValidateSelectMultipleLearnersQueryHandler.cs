@@ -20,7 +20,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
 {
     private readonly EmployerSummaries _employerSummaries = [];
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
-    //private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
+    private readonly Dictionary<string, Cohort> _cachedCohortDetails = new();
 
     public long ProviderId { get; set; }
 
@@ -91,7 +91,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         }
 
         if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
-            //&& !IsFundedByTransfer(csvRecord.CohortRef) we don't have cohort details at this point 
+            && !IsFundedByTransfer(csvRecord.CohortRef)
             && !await validationService.ValidatePermissionToCreateCohort(providerId, domainErrors, employerDetails.IsLevy, employerDetails))
         {
             // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
@@ -119,6 +119,23 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         return bulkUploadValidationErrors;
     }
 
+    /// <summary>
+    /// If it is funded by Transfer - non-levy employer doesn't need to check for the permission to create cohort.
+    /// </summary>
+    /// <param name="cohortRef"></param>
+    /// <returns></returns>
+    private bool IsFundedByTransfer(string cohortRef)
+    {
+        if (string.IsNullOrWhiteSpace(cohortRef))
+        {
+            return false;
+        }
+
+        var cohortDetails = GetCohortDetails(cohortRef);
+
+        return cohortDetails.TransferSenderId.HasValue;
+    }
+
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults, Dictionary<string, int?> otjTrainingHours)
     {
         var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
@@ -136,6 +153,12 @@ public class ValidateSelectMultipleLearnersQueryHandler(
                 return domainErrors;
             }
         }
+        Cohort cohortDetails = null;
+        if (!string.IsNullOrEmpty(csvRecord.CohortRef))
+        {
+            cohortDetails = GetCohortDetails(csvRecord.CohortRef);
+            domainErrors.AddRange(await validationService.ValidateCohortRef(csvRecord, providerId, cohortDetails, employerDetails.Name));
+        }
 
         domainErrors.AddRange(validationService.ValidateUln(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateLastName(csvRecord.LastName));
@@ -143,7 +166,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         domainErrors.AddRange(validationService.ValidateDateOfBirth(csvRecord, providerStandardResults, standardDetails));
         domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails, true));
-        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, null));
+        domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, cohortDetails));
         domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
         domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));
         domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord.ProviderRef));
@@ -205,6 +228,22 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         _employerSummaries.Add(employerSummary);
 
         return employerSummary;
+    }
+
+    private Cohort GetCohortDetails(string cohortRef)
+    {
+        if (_cachedCohortDetails.ContainsKey(cohortRef))
+        {
+            return _cachedCohortDetails.GetValueOrDefault(cohortRef);
+        }
+
+        var cohort = dbContext.Value.Cohorts
+            .Include(x => x.AccountLegalEntity)
+            .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
+
+        _cachedCohortDetails.Add(cohortRef, cohort);
+
+        return cohort;
     }
 
     private async Task<Standard> GetStandardDetails(string stdCode, DateTime? startDate)
