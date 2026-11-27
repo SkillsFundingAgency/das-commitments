@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -12,7 +14,8 @@ public class ResumeApprenticeshipCommandHandler(
     Lazy<ProviderCommitmentsDbContext> dbContext,
     ICurrentDateTime currentDate,
     IAuthenticationService authenticationService,
-    ILogger<ResumeApprenticeshipCommandHandler> logger)
+    ILogger<ResumeApprenticeshipCommandHandler> logger,
+    IMessageSession messageSession)
     : IRequestHandler<ResumeApprenticeshipCommand>
 {
     public async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
@@ -23,7 +26,12 @@ public class ResumeApprenticeshipCommandHandler(
             CheckPartyIsValid(party);
 
             var apprenticeship = await dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+            var appliedDate = currentDate.UtcNow;
+            var previousStatus = apprenticeship.GetApprenticeshipStatus(appliedDate);
             apprenticeship.ResumeApprenticeship(currentDate, party, command.UserInfo);
+
+            await apprenticeship.SendStatusChangeHistory(previousStatus, appliedDate, LearningSourceType.ManualChange,
+                history => messageSession.Send(history), userInfo: command.UserInfo);
         }
         catch (Exception e)
         {

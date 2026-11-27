@@ -15,7 +15,6 @@ using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Learning.Types;
@@ -197,6 +196,7 @@ public class LearningResumedEventHandlerTestsFixture
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Uln = fixture.Create<long>().ToString(),
             Cohort = cohort,
+            PaymentStatus = PaymentStatus.Paused,
             StartDate = DateTime.UtcNow.AddMonths(1),
             EndDate = DateTime.UtcNow.AddMonths(13)
         };
@@ -241,6 +241,7 @@ public class LearningResumedEventHandlerTestsFixture
     public LearningResumedEventHandlerTestsFixture SetResumeDate(DateTime resumeDate)
     {
         _event.ResumeDate = resumeDate;
+        _event.Created = resumeDate;
         return this;
     }
 
@@ -277,7 +278,7 @@ public class LearningResumedEventHandlerTestsFixture
             c.ChangeType == Types.LearningChangeType.AutoApproved &&
             c.LearningKey == _event.LearningKey &&
             c.AppliedDate == _event.Created &&
-            c.Description == $"Learning has been resumed on {_event.ResumeDate.ToGdsFormat()}"
+            c.Description == "Status change from Paused to Live"
         ), It.IsAny<SendOptions>()), Times.Once);
     }
 
