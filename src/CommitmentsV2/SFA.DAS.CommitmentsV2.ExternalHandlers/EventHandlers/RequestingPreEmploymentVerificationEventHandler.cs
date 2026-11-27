@@ -1,7 +1,5 @@
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
@@ -25,15 +23,13 @@ public class RequestingPreEmploymentVerificationEventHandler(
         var hiringPayment = await db.HiringPayments.FindAsync(message.ApprenticeshipId);
         if (hiringPayment != null)
         {
-            hiringPayment.Status = HiringPaymentStatus.QualifiesForHiringPayment;
+            hiringPayment.Status = HiringPaymentStatus.PreEmploymentVerificationInProgress;
             hiringPayment.Updated = currentDateTime.UtcNow;
             logger.LogInformation("Restarting pre-employment verification for apprenticeship {ApprenticeshipId}", message.ApprenticeshipId);
             return;
         }
 
-        var apprenticeship = await db.Apprenticeships
-            .Include(a => a.Cohort)
-            .SingleOrDefaultAsync(a => a.Id == message.ApprenticeshipId);
+        var apprenticeship = await db.Apprenticeships.FindAsync(message.ApprenticeshipId);
 
         if (apprenticeship == null)
         {
@@ -43,10 +39,7 @@ public class RequestingPreEmploymentVerificationEventHandler(
         db.HiringPayments.Add(new HiringPayment
         {
             ApprenticeshipId = apprenticeship.Id,
-            Ukprn = message.UKPRN ?? apprenticeship.Cohort.ProviderId,
-            Uln = message.ULN?.ToString(CultureInfo.InvariantCulture) ?? apprenticeship.Uln,
-            EmployerAccountId = message.EmployerAccountIdentifier ?? apprenticeship.Cohort.EmployerAccountId,
-            Status = HiringPaymentStatus.QualifiesForHiringPayment,
+            Status = HiringPaymentStatus.PreEmploymentVerificationInProgress,
             Created = currentDateTime.UtcNow
         });
 

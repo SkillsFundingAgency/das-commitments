@@ -50,7 +50,7 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenNoHiringPaymentExists_SavesCheckingStatusAndEventIdentifiers()
+    public async Task Handle_WhenNoHiringPaymentExists_SavesPreEmploymentVerificationStatus()
     {
         await SeedApprenticeship();
 
@@ -58,28 +58,10 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
 
         var saved = await _db.HiringPayments.SingleAsync();
         saved.ApprenticeshipId.Should().Be(_message.ApprenticeshipId);
+        saved.Status.Should().Be(HiringPaymentStatus.PreEmploymentVerificationInProgress);
         ((short)saved.Status).Should().Be(1);
         saved.Created.Should().Be(Now);
         saved.Updated.Should().BeNull();
-        saved.Ukprn.Should().Be(_message.UKPRN);
-        saved.Uln.Should().Be("3234567890");
-        saved.EmployerAccountId.Should().Be(_message.EmployerAccountIdentifier);
-    }
-
-    [Test]
-    public async Task Handle_WhenEventIdentifiersAreMissing_UsesApprenticeshipIdentifiers()
-    {
-        var apprenticeship = await SeedApprenticeship();
-        _message.UKPRN = null;
-        _message.ULN = null;
-        _message.EmployerAccountIdentifier = null;
-
-        await HandleAndSave();
-
-        var saved = await _db.HiringPayments.SingleAsync();
-        saved.Ukprn.Should().Be(apprenticeship.Cohort.ProviderId);
-        saved.Uln.Should().Be(apprenticeship.Uln);
-        saved.EmployerAccountId.Should().Be(apprenticeship.Cohort.EmployerAccountId);
     }
 
     [Test]
@@ -91,10 +73,7 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
             ApprenticeshipId = _message.ApprenticeshipId,
             Status = status,
             Created = Now.AddDays(-2),
-            Updated = Now.AddDays(-1),
-            Ukprn = 10009876,
-            Uln = "1234567890",
-            EmployerAccountId = 400001
+            Updated = Now.AddDays(-1)
         };
         _db.HiringPayments.Add(existing);
         await _db.SaveChangesAsync();
@@ -104,12 +83,9 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
 
         var saved = await _db.HiringPayments.SingleAsync();
         saved.ApprenticeshipId.Should().Be(existing.ApprenticeshipId);
-        ((short)saved.Status).Should().Be(1);
+        saved.Status.Should().Be(HiringPaymentStatus.PreEmploymentVerificationInProgress);
         saved.Updated.Should().Be(Now);
         saved.Created.Should().Be(existing.Created);
-        saved.Ukprn.Should().Be(existing.Ukprn);
-        saved.Uln.Should().Be(existing.Uln);
-        saved.EmployerAccountId.Should().Be(existing.EmployerAccountId);
     }
 
     [Test]
@@ -119,7 +95,7 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
         _db.HiringPayments.Should().BeEmpty();
     }
 
-    private async Task<Apprenticeship> SeedApprenticeship()
+    private async Task SeedApprenticeship()
     {
         var apprenticeship = new Apprenticeship
         {
@@ -135,7 +111,6 @@ public class RequestingPreEmploymentVerificationEventHandlerTests
         _db.Apprenticeships.Add(apprenticeship);
         await _db.SaveChangesAsync();
         _db.ChangeTracker.Clear();
-        return apprenticeship;
     }
 
     private async Task HandleAndSave()
