@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -15,7 +16,7 @@ public interface IValidationService
     public IEnumerable<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults,Standard standard);
     public IEnumerable<Error> ValidateDurationReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord);
     public IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<BulkUploadAddDraftApprenticeshipRequest> csvRecords);
-    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord);
+    public IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord, LearningType? learningType = null);
     public IEnumerable<Error> ValidateEPAOrgId(string EPAOrgId);
     public IEnumerable<Error> ValidateLastName(string lastName);
     public IEnumerable<Error> ValidateFirstName(string firstName);

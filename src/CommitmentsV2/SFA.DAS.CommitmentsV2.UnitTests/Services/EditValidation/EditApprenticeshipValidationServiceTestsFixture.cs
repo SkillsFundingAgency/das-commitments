@@ -273,6 +273,21 @@ public class EditApprenticeshipValidationServiceTestsFixture
         var apprenticeships = new List<Apprenticeship> { Apprenticeship };
 
         _dbContext.Setup(x => x.Apprenticeships).ReturnsDbSet(apprenticeships);
+        _dbContext.Setup(x => x.Courses).ReturnsDbSet(new List<Course>());
+
+        return this;
+    }
+
+    public EditApprenticeshipValidationServiceTestsFixture WithCourse(string larsCode, LearningType learningType)
+    {
+        _dbContext.Setup(x => x.Courses).ReturnsDbSet(new List<Course>
+        {
+            new()
+            {
+                LarsCode = larsCode,
+                LearningType = learningType
+            }
+        });
 
         return this;
     }

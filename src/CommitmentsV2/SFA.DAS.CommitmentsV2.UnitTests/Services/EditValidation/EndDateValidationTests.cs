@@ -1,4 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿using FluentAssertions;
+using SFA.DAS.CommitmentsV2.Types;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class EndDateValidationTests
     {
@@ -54,6 +57,33 @@
                 Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be on or before the start date"));
                 Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
             });
+        }
+
+        [Test]
+        public async Task EndDate_Should_Allow_Same_Month_For_ApprenticeshipUnit()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
+            fixture.WithCourse(fixture.Apprenticeship.CourseCode, LearningType.ApprenticeshipUnit);
+            var request = fixture.CreateValidationRequest(endYear: fixture.StartDate.Value.Year, endMonth: fixture.StartDate.Value.Month);
+
+            var result = await fixture.Validate(request);
+
+            result.Errors.Should().NotContain(error => error.PropertyName == "EndDate");
+        }
+
+        [Test]
+        public async Task EndDate_Should_Reject_Earlier_Month_For_ApprenticeshipUnit()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
+            fixture.WithCourse(fixture.Apprenticeship.CourseCode, LearningType.ApprenticeshipUnit);
+            var request = fixture.CreateValidationRequest(endYear: fixture.StartDate.Value.Year, endMonth: fixture.StartDate.Value.Month - 1);
+
+            var result = await fixture.Validate(request);
+
+            result.Errors.Should().ContainSingle(error => error.PropertyName == "EndDate")
+                .Which.ErrorMessage.Should().Be("The end date must not be on or before the start date");
         }
     }
 }

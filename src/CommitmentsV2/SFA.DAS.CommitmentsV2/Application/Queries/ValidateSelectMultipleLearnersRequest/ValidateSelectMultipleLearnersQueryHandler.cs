@@ -144,7 +144,7 @@ public class ValidateSelectMultipleLearnersQueryHandler(
         domainErrors.AddRange(validationService.ValidateEmailAddress(csvRecord, _csvRecords));
         domainErrors.AddRange(validationService.ValidateCourseCode(providerId, csvRecord.CourseCode, providerStandardResults, standardDetails, true));
         domainErrors.AddRange(validationService.ValidateStartDate(csvRecord, standardDetails, null));
-        domainErrors.AddRange(validationService.ValidateEndDate(csvRecord));
+        domainErrors.AddRange(validationService.ValidateEndDate(csvRecord, standardDetails?.LearningType));
         domainErrors.AddRange(validationService.ValidateCost(csvRecord.CostAsString, csvRecord.Cost));
         domainErrors.AddRange(validationService.ValidateProviderRef(csvRecord.ProviderRef));
         domainErrors.AddRange(validationService.ValidateEPAOrgId(csvRecord.EPAOrgId));
