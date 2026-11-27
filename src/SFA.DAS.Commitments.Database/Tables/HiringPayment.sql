@@ -1,5 +1,8 @@
 ﻿CREATE TABLE [dbo].[HiringPayment] (
   ApprenticeshipId bigint NOT NULL,
+  Ukprn bigint NULL,
+  Uln nvarchar(50) NULL,
+  EmployerAccountId bigint NULL,
   Created datetime2(0) NOT NULL,
   Updated datetime2(0) NULL,
   Status smallint NOT NULL,

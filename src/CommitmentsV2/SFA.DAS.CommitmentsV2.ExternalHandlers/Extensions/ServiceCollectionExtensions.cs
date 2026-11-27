@@ -13,6 +13,7 @@ using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
+using SFA.DAS.Payments.External.Messages.Events.HiringGrant;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
 
                 endpointConfiguration.Conventions().DefiningEventsAs(t =>
                     t == typeof(RecordedAct1CompletionPayment) ||
+                    t == typeof(RequestingPreEmploymentVerification) ||
                     t == typeof(EntityStateChangedEvent) ||
                     t == typeof(LearningWithdrawnEvent) ||
                     t == typeof(LearningPausedEvent) ||
