@@ -300,8 +300,6 @@ public class CocApprovalCommandHandler(
             .Where(x => x.LearningKey == learningKey && x.Status == CocApprovalItemStatus.Pending)
             .ToListAsync();
 
-        return pendingItems.Any(item =>
-            item.Status == CocApprovalItemStatus.Pending
-            && !currentRequestFields.Contains(item.Field));
+        return pendingItems.Any(item => !currentRequestFields.Contains(item.Field));
     }
 }
