@@ -7,8 +7,17 @@ public class GetAllChangeHistoryForProviderQueryHandler(Lazy<ProviderCommitments
 {
     public async Task<GetAllChangeHistoryForProviderQueryResult> Handle(GetAllChangeHistoryForProviderQuery request, CancellationToken cancellationToken)
     {
-        var changeHistories = await dbContext.Value.LearningChangeHistory.AsNoTracking()
-           .Where(x => x.UKPRN == request.ProviderId)
+        var query = dbContext.Value.LearningChangeHistory.AsNoTracking()
+           .Where(x => x.UKPRN == request.ProviderId);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var availableFrom = await query.MinAsync(x => (DateTime?)x.Created, cancellationToken);
+
+        var changeHistories = await query
+           .OrderByDescending(x => x.Created)
+           .Skip((request.PageNumber - 1) * request.PageSize)
+           .Take(request.PageSize)
            .Select(x => new ChangeHistory
            {
                ChangeType = x.ChangeType,
@@ -19,13 +28,14 @@ public class GetAllChangeHistoryForProviderQueryHandler(Lazy<ProviderCommitments
                Created = x.Created,
                Id = x.Id,
                EmployerName = x.EmployerName
-           }).
-           OrderByDescending(x => x.Created).
-           ToListAsync(cancellationToken);
+           })
+           .ToListAsync(cancellationToken);
 
         return new GetAllChangeHistoryForProviderQueryResult
         {
-            ChangeHistory = changeHistories
+            ChangeHistory = changeHistories,
+            TotalCount = totalCount,
+            AvailableFrom = availableFrom
         };
     }
 }
