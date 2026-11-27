@@ -2,5 +2,5 @@
 
 public class GetApprenticeshipLockedFieldsQueryResult
 {
-    public List<string> LockedManualFields { get; set; }
+    public List<string> LockedManualFieldsAndFeatures { get; set; }
 }

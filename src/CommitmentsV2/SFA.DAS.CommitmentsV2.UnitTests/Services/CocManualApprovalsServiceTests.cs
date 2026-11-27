@@ -26,7 +26,7 @@ public class CocManualApprovalsServiceTests
     {
         _configuration.UkPrns = null;
 
-        var result = _service.IsFieldLockedForProvider("StartDate", 10001);
+        var result = _service.IsFieldLockedForProvider("StartDate", 10001, true);
 
         result.Should().BeFalse();
     }
@@ -34,7 +34,7 @@ public class CocManualApprovalsServiceTests
     [Test]
     public void IsFieldLockedForProvider_ShouldReturnFalse_WhenProviderIsNotConfigured()
     {
-        var result = _service.IsFieldLockedForProvider("StartDate", 99999);
+        var result = _service.IsFieldLockedForProvider("StartDate", 99999, true);
 
         result.Should().BeFalse();
     }
@@ -44,7 +44,7 @@ public class CocManualApprovalsServiceTests
     {
         _configuration.LockedManualFields = null;
 
-        var result = _service.IsFieldLockedForProvider("StartDate", 10001);
+        var result = _service.IsFieldLockedForProvider("StartDate", 10001, true);
 
         result.Should().BeFalse();
     }
@@ -52,7 +52,7 @@ public class CocManualApprovalsServiceTests
     [Test]
     public void IsFieldLockedForProvider_ShouldReturnTrue_WhenProviderAndFieldAreConfigured()
     {
-        var result = _service.IsFieldLockedForProvider("StartDate", 10001);
+        var result = _service.IsFieldLockedForProvider("StartDate", 10001, true);
 
         result.Should().BeTrue();
     }
@@ -60,7 +60,7 @@ public class CocManualApprovalsServiceTests
     [Test]
     public void IsFieldLockedForProvider_ShouldReturnTrue_WhenFieldMatchDiffersByCase()
     {
-        var result = _service.IsFieldLockedForProvider("startdate", 10001);
+        var result = _service.IsFieldLockedForProvider("startdate", 10001, true);
 
         result.Should().BeTrue();
     }
@@ -68,8 +68,20 @@ public class CocManualApprovalsServiceTests
     [Test]
     public void IsFieldLockedForProvider_ShouldReturnFalse_WhenFieldIsNotConfigured()
     {
-        var result = _service.IsFieldLockedForProvider("EndDate", 10001);
+        var result = _service.IsFieldLockedForProvider("EndDate", 10001, true);
 
         result.Should().BeFalse();
     }
+    [TestCase(null, false)]
+    [TestCase(false, false)]
+    [TestCase(true, true)]
+    public void IsFieldLockedForProvider_ShouldReturnExpected_WhenProviderAndFieldAreConfigured_AndOnServicePaymentsIsSet(bool? onServicePayments, bool expected)
+    {
+        var result = _service.IsFieldLockedForProvider("StartDate", 10001, onServicePayments);
+
+        result.Should().Be(expected);
+    }
+
+
+
 }

@@ -26,21 +26,40 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenProviderIsInUkprnList_ThenReturnsLockedManualFieldsFromConfiguration()
+    public async Task Handle_WhenProviderIsInUkprnList_ThenReturnsLockedManualFieldsFromConfigurationPlusWithdrawal()
     {
-        var expectedLockedManualFields = new List<string> { "StartDate", "Cost" };
+        var lockedManualFields = new List<string> { "StartDate", "Cost" };
+        var expectedLockedManualFields = new List<string> { "StartDate", "Cost", "Withdrawal" };
 
         _fixture
             .SeedApprenticeship(providerId: 12345)
             .WithConfiguration(new CocApprovalsConfiguration
             {
                 UkPrns = new List<long> { 12345, 99999 },
-                LockedManualFields = expectedLockedManualFields
+                LockedManualFields = lockedManualFields
             });
 
         var result = await _fixture.Handle();
 
-        result.LockedManualFields.Should().BeEquivalentTo(expectedLockedManualFields, options => options.WithStrictOrdering());
+        result.LockedManualFieldsAndFeatures.Should().BeEquivalentTo(expectedLockedManualFields, options => options.WithStrictOrdering());
+    }
+
+    [Test]
+    public async Task Handle_WhenProviderIsInUkprnListAndLockedFieldsAreEmpty_ThenReturnsWithdrawalAsLockedFeature()
+    {
+        var expectedLockedManualFields = new List<string> { "Withdrawal" };
+
+        _fixture
+            .SeedApprenticeship(providerId: 12345)
+            .WithConfiguration(new CocApprovalsConfiguration
+            {
+                UkPrns = new List<long> { 12345, 99999 },
+                LockedManualFields = new List<string>()
+            });
+
+        var result = await _fixture.Handle();
+
+        result.LockedManualFieldsAndFeatures.Should().BeEquivalentTo(expectedLockedManualFields);
     }
 
     [Test]
@@ -56,7 +75,24 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
 
         var result = await _fixture.Handle();
 
-        result.LockedManualFields.Should().BeEmpty();
+        result.LockedManualFieldsAndFeatures.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Handle_WhenProviderIsInUkprnListButApprenticeship_ButOnServicePaymentsFromApprenticeshipIsFalse_ThenReturnsEmptyLockedManualFields()
+    {
+        var expectedLockedManualFields = new List<string> { "StartDate", "Cost" };
+
+        _fixture
+            .SeedApprenticeship(providerId: 12345, onServicePayments: false)
+            .WithConfiguration(new CocApprovalsConfiguration
+            {
+                UkPrns = new List<long> { 12345, 99999 },
+                LockedManualFields = expectedLockedManualFields
+            });
+
+        var result = await _fixture.Handle();
+        result.LockedManualFieldsAndFeatures.Should().BeEmpty();
     }
 
     public class GetApprenticeshipLockedFieldsQueryHandlerTestsFixture
@@ -74,7 +110,7 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
             _request = new GetApprenticeshipLockedFieldsQuery(1);
         }
 
-        public GetApprenticeshipLockedFieldsQueryHandlerTestsFixture SeedApprenticeship(long apprenticeshipId = 1, long providerId = 12345)
+        public GetApprenticeshipLockedFieldsQueryHandlerTestsFixture SeedApprenticeship(long apprenticeshipId = 1, long providerId = 12345, bool? onServicePayments = true)
         {
             var apprenticeship = new Apprenticeship
             {
@@ -82,7 +118,8 @@ public class GetApprenticeshipLockedFieldsQueryHandlerTests
                 Cohort = new Cohort
                 {
                     ProviderId = providerId
-                }
+                },
+                OnServicePayments = onServicePayments
             };
 
             _db.Setup(context => context.Apprenticeships)

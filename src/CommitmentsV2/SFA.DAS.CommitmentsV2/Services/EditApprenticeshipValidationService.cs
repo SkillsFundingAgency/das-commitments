@@ -102,32 +102,32 @@ public class EditApprenticeshipValidationService : IEditApprenticeshipValidation
 
     private IEnumerable<DomainError> CocManualLocksValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
     {
-        if (request.FirstName != apprenticeship.FirstName && _cocManualApprovalsService.IsFieldLockedForProvider("FirstName", apprenticeship.Cohort.ProviderId))
+        if (request.FirstName != apprenticeship.FirstName && _cocManualApprovalsService.IsFieldLockedForProvider("FirstName", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.FirstName));
         }
 
-        if (request.LastName != apprenticeship.LastName && _cocManualApprovalsService.IsFieldLockedForProvider("LastName", apprenticeship.Cohort.ProviderId))
+        if (request.LastName != apprenticeship.LastName && _cocManualApprovalsService.IsFieldLockedForProvider("LastName", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.LastName));
         }
 
-        if (request.DateOfBirth != apprenticeship.DateOfBirth && _cocManualApprovalsService.IsFieldLockedForProvider("DateOfBirth", apprenticeship.Cohort.ProviderId))
+        if (request.DateOfBirth != apprenticeship.DateOfBirth && _cocManualApprovalsService.IsFieldLockedForProvider("DateOfBirth", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.DateOfBirth));
         }
 
-        if (request.StartDate != apprenticeship.StartDate && _cocManualApprovalsService.IsFieldLockedForProvider("StartDate", apprenticeship.Cohort.ProviderId))
+        if (request.StartDate != apprenticeship.StartDate && _cocManualApprovalsService.IsFieldLockedForProvider("StartDate", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.StartDate));
         }
 
-        if (request.EndDate != apprenticeship.EndDate && _cocManualApprovalsService.IsFieldLockedForProvider("EndDate", apprenticeship.Cohort.ProviderId))
+        if (request.EndDate != apprenticeship.EndDate && _cocManualApprovalsService.IsFieldLockedForProvider("EndDate", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.EndDate));
         }
 
-        if (request.Cost != apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow) && _cocManualApprovalsService.IsFieldLockedForProvider("Cost", apprenticeship.Cohort.ProviderId))
+        if (request.Cost != apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow) && _cocManualApprovalsService.IsFieldLockedForProvider("Cost", apprenticeship.Cohort.ProviderId, apprenticeship.OnServicePayments))
         {
             yield return CreateDomainErrorFor(nameof(request.Cost));
         }

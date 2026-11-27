@@ -2,5 +2,5 @@
 
 public interface ICocManualApprovalsService
 {
-    bool IsFieldLockedForProvider(string fieldName, long ukPrn);
+    bool IsFieldLockedForProvider(string fieldName, long ukPrn, bool? onServicePayments);
 }
