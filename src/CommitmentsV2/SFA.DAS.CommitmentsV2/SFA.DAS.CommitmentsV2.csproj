@@ -9,7 +9,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.1" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.4" />
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.19.1" />
@@ -37,6 +37,7 @@
     <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.113" />
     <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.308" />
     <PackageReference Include="SFA.DAS.EmailValidationService" Version="1.0.17" />
+    <PackageReference Include="SFA.DAS.InputValidation" Version="17.1.100" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21">
