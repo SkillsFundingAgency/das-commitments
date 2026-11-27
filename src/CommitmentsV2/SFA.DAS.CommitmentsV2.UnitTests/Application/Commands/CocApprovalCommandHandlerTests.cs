@@ -1319,6 +1319,173 @@ public class CocApprovalCommandHandlerTests
         _messageSession.Verify(x => x.Send(It.Is<StoreLearningHistoryCommand>(command => command.Description == PriceChangeDecider.FuturePriceReason), It.IsAny<SendOptions>()), Times.Once);
     }
 
+    [Test]
+    public async Task Handle_WhenAnotherNonPriceFieldIsPending_SetsPendingApprovalsExistTrue()
+    {
+        var learningKey = Guid.NewGuid();
+        var pendingStartDate = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.StartDate));
+        await _dbContext.CocApprovalItems.AddAsync(pendingStartDate);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.PlannedEndDate), Data = new CocData { Old = "2026-08-01", New = "2026-09-01" } }
+        ];
+        SetupRules(details, new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items = [new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoApproved }]
+        });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Handle_WhenPricesIsPendingAndRequestSubmitsOnlyPlannedEndDate_SetsPendingApprovalsExistTrue()
+    {
+        var learningKey = Guid.NewGuid();
+        var pendingPrices = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.Prices));
+        await _dbContext.CocApprovalItems.AddAsync(pendingPrices);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.PlannedEndDate), Data = new CocData { Old = "2026-08-01", New = "2026-09-01" } }
+        ];
+        SetupRules(details, new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Complete,
+            Items = [new CocUpdateResult { Field = CocChangeField.PlannedEndDate, Status = CocApprovalItemStatus.AutoApproved }]
+        });
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Handle_WhenNoOtherPendingItemsExist_SetsPendingApprovalsExistFalse()
+    {
+        var learningKey = Guid.NewGuid();
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.StartDate), Data = new CocData { Old = "2026-08-01", New = "2026-09-01" } }
+        ];
+        SetupRules(details, new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Pending,
+            Items = [new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.Pending }]
+        },
+        [
+            new ApprovalFieldRequest { Field = nameof(CocChangeField.StartDate), Old = "2026-08-01", New = "2026-09-01", Status = CocApprovalItemStatus.Pending }
+        ]);
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CreateNew,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Handle_WhenOnlyPendingItemIsSupersededByCurrentRequest_SetsPendingApprovalsExistFalse()
+    {
+        var learningKey = Guid.NewGuid();
+        var pendingStartDate = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.StartDate));
+        await _dbContext.CocApprovalItems.AddAsync(pendingStartDate);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.StartDate), Data = new CocData { Old = "2026-08-01", New = "2026-10-01" } }
+        ];
+        SetupRules(details, new CocApprovalResult
+        {
+            Status = CocApprovalResultStatus.Pending,
+            Items = [new CocUpdateResult { Field = CocChangeField.StartDate, Status = CocApprovalItemStatus.Pending }]
+        },
+        [
+            new ApprovalFieldRequest { Field = nameof(CocChangeField.StartDate), Old = "2026-08-01", New = "2026-10-01", Status = CocApprovalItemStatus.Pending }
+        ]);
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.SupersedePrevious,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Handle_WhenCancelPreviousLeavesPendingPrices_SetsPendingApprovalsExistTrue()
+    {
+        var learningKey = Guid.NewGuid();
+        var pendingPrices = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.Prices));
+        var pendingStartDate = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.StartDate));
+        await _dbContext.CocApprovalItems.AddRangeAsync(pendingPrices, pendingStartDate);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.StartDate), Data = new CocData { Old = "2026-08-01", New = "2026-09-01" } }
+        ];
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CancelPrevious,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Handle_WhenCancelPreviousClearsLastPendingItem_SetsPendingApprovalsExistFalse()
+    {
+        var learningKey = Guid.NewGuid();
+        var pendingStartDate = CreateCocApprovalItem(learningKey, CocApprovalItemStatus.Pending, nameof(CocChangeField.StartDate));
+        await _dbContext.CocApprovalItems.AddAsync(pendingStartDate);
+        await _dbContext.SaveChangesAsync();
+
+        var details = DetailsWithHistory(learningKey);
+        details.ApprovalFieldChanges =
+        [
+            new CocApprovalFieldChange { ChangeType = nameof(CocChangeField.StartDate), Data = new CocData { Old = "2026-08-01", New = "2026-09-01" } }
+        ];
+
+        var result = await _sut.Handle(new CocApprovalCommand
+        {
+            Action = AggregationAction.CancelPrevious,
+            LearningKey = learningKey,
+            CocApprovalDetails = details
+        }, CancellationToken.None);
+
+        result.PendingApprovalsExist.Should().BeFalse();
+    }
+
     private CocApprovalDetails DetailsWithHistory(Guid learningKey)
     {
         return new CocApprovalDetails

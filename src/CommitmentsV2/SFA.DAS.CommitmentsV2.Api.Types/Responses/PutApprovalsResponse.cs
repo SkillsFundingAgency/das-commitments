@@ -8,6 +8,7 @@ public class PutApprovalsResponse
 {
     public List<ApprovalFieldChange> Changes { get; set; }
     public List<PriceRecord> NewPrices { get; set; }
+    public bool PendingApprovalsExist { get; set; }
 }
 
 public class ApprovalFieldChange

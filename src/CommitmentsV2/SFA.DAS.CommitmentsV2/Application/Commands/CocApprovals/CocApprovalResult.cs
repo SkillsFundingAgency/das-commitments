@@ -6,6 +6,7 @@ public class CocApprovalResult
 {
     public CocApprovalResultStatus Status { get; set; }
     public List<CocUpdateResult> Items { get; set; }
+    public bool PendingApprovalsExist { get; set; }
 }
 
 public class CocUpdateResult
