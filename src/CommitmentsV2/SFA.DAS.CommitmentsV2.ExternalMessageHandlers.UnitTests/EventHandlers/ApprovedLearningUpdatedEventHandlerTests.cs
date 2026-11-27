@@ -12,11 +12,16 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.UnitOfWork.Context;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers;
 
@@ -233,10 +238,78 @@ public class ApprovedLearningUpdatedEventHandlerTests
             price.AssessmentPrice == 1000 &&
             price.Cost == 15000);
     }
+
+    [TestCase(LearningType.Apprenticeship, "2026-10-15", "2026-11-20", "1.0", "1.1")]
+    [TestCase(LearningType.ApprenticeshipUnit, "2026-10-15", "2026-11-20", "1.0", "1.1")]
+    [TestCase(LearningType.ApprenticeshipUnit, "2026-11-14", "2026-11-15", "1.0", "1.1")]
+    [TestCase(LearningType.Apprenticeship, "2026-11-20", "2026-10-15", "1.1", "1.0")]
+    [TestCase(LearningType.ApprenticeshipUnit, "2026-11-20", "2026-10-15", "1.1", "1.0")]
+    [TestCase(LearningType.Apprenticeship, "2026-08-15", "2026-11-20", "1.0", "1.1")]
+    [TestCase(LearningType.ApprenticeshipUnit, "2026-08-15", "2026-11-20", "1.0", "1.1")]
+    [TestCase(LearningType.Apprenticeship, "2026-10-15", "2026-10-20", "1.0", "1.0")]
+    [TestCase(LearningType.ApprenticeshipUnit, "2026-10-15", "2026-10-20", "1.0", "1.0")]
+    public async Task Handle_WhenApprovedDateLeavesApprenticeWaitingToStart_UsesVersionForTheNewDate(
+        LearningType learningType, string oldDate, string newDate, string previousVersion, string resolvedVersion)
+    {
+        var apprenticeship = _fixture.SetCourse(learningType, oldDate, previousVersion);
+        var courseCode = apprenticeship.CourseCode;
+        var originalStandardUId = apprenticeship.StandardUId;
+        var originalOption = apprenticeship.TrainingCourseOption;
+        _fixture.SetAvailableCourseVersion(learningType, newDate, resolvedVersion);
+
+        await _fixture.SetEventWithStartDate(oldDate, newDate, learningType).Handle();
+
+        var versionChanged = resolvedVersion != previousVersion;
+        apprenticeship.ActualStartDate.Should().Be(_fixture.ParseDate(newDate));
+        apprenticeship.StartDate.Should().Be(_fixture.ParseFirstDayOfMonth(_fixture.ParseDate(newDate)));
+        apprenticeship.GetApprenticeshipStatus(ApprovedLearningUpdatedEventHandlerTestsFixture.Today)
+            .Should().Be(ApprenticeshipStatus.WaitingToStart);
+        apprenticeship.CourseCode.Should().Be(courseCode);
+        apprenticeship.TrainingCourseVersion.Should().Be(resolvedVersion);
+        apprenticeship.StandardUId.Should().Be(versionChanged ? $"resolved_{resolvedVersion}" : originalStandardUId);
+        apprenticeship.TrainingCourseOption.Should().Be(versionChanged ? null : originalOption);
+        _fixture.VerifyNoMessagesSent();
+    }
+
+    [TestCase(LearningType.Apprenticeship)]
+    [TestCase(LearningType.ApprenticeshipUnit)]
+    public async Task Handle_WhenApprovedDateStillLeavesApprenticeStarted_KeepsVersionAndOption(LearningType learningType)
+    {
+        var apprenticeship = _fixture.SetCourse(learningType, "2026-07-15", "1.0");
+
+        await _fixture.SetEventWithStartDate("2026-07-15", "2026-08-20", learningType).Handle();
+
+        apprenticeship.ActualStartDate.Should().Be(new DateTime(2026, 8, 20));
+        apprenticeship.TrainingCourseVersion.Should().Be("1.0");
+        apprenticeship.StandardUId.Should().Be("original_1.0");
+        apprenticeship.TrainingCourseOption.Should().Be("Existing option");
+        _fixture.TrainingProgrammeLookup.VerifyNoOtherCalls();
+        _fixture.ApprovalsOuterApiClient.VerifyNoOtherCalls();
+    }
+
+    [TestCase(LearningType.Apprenticeship)]
+    [TestCase(LearningType.ApprenticeshipUnit)]
+    public async Task Handle_WhenThereIsNoVersionForTheApprovedDate_KeepsVersionAndOption(LearningType learningType)
+    {
+        var apprenticeship = _fixture.SetCourse(learningType, "2026-10-15", "1.0");
+        if (learningType == LearningType.Apprenticeship)
+        {
+            _fixture.SetAvailableCourseVersion(learningType, "2026-11-20", "1.1", new DateTime(2026, 12, 1));
+        }
+
+        await _fixture.SetEventWithStartDate("2026-10-15", "2026-11-20", learningType).Handle();
+
+        apprenticeship.ActualStartDate.Should().Be(new DateTime(2026, 11, 20));
+        apprenticeship.TrainingCourseVersion.Should().Be("1.0");
+        apprenticeship.StandardUId.Should().Be("original_1.0");
+        apprenticeship.TrainingCourseOption.Should().Be("Existing option");
+    }
 }
 
 public class ApprovedLearningUpdatedEventHandlerTestsFixture
 {
+    public static readonly DateTime Today = new(2026, 9, 10);
+
     public Fixture fixture { get; set; }
     private ProviderCommitmentsDbContext _dbContext;
     private readonly Mock<ILogger<ApprovedLearningUpdatedEventHandler>> _mockLogger;
@@ -245,6 +318,8 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
     private Mock<IMessageHandlerContext> _mockContext;
     public UnitOfWorkContext UnitOfWorkContext { get; set; }
     public long apprenticeshipId { get; set; }
+    public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; } = new();
+    public Mock<IApprovalsOuterApiClient> ApprovalsOuterApiClient { get; } = new();
 
     public string format { get; set; } = "yyyy-MM-dd";
 
@@ -293,7 +368,8 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         _dbContext.Apprenticeships.Add(Apprenticeship);
         _dbContext.SaveChanges();
         _handler = new ApprovedLearningUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
-            _mockLogger.Object);
+            TrainingProgrammeLookup.Object, ApprovalsOuterApiClient.Object,
+            Mock.Of<ICurrentDateTime>(clock => clock.UtcNow == Today), _mockLogger.Object);
     }
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventApprenticeshipId(long id)
@@ -343,12 +419,14 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         return this;
     }
 
-    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithStartDate(string oldDate, string newDate)
+    public ApprovedLearningUpdatedEventHandlerTestsFixture SetEventWithStartDate(
+        string oldDate, string newDate, LearningType? learningType = null)
     {
         _event = new ApprovedLearningUpdatedEvent
         {
             ApprenticeshipId = apprenticeshipId,
             LearningKey = Guid.NewGuid(),
+            LearningType = learningType?.ToString(),
             Changes =
             [
                 new()
@@ -396,6 +474,43 @@ public class ApprovedLearningUpdatedEventHandlerTestsFixture
         };
         return this;
     }
+
+    public Apprenticeship SetCourse(LearningType learningType, string oldDate, string version)
+    {
+        var apprenticeship = _dbContext.Apprenticeships.Find(apprenticeshipId);
+        apprenticeship.PaymentStatus = PaymentStatus.Active;
+        apprenticeship.ActualStartDate = ParseDate(oldDate);
+        apprenticeship.StartDate = ParseFirstDayOfMonth(apprenticeship.ActualStartDate);
+        apprenticeship.CourseCode = learningType == LearningType.ApprenticeshipUnit ? "ZSC00001" : "123";
+        apprenticeship.TrainingCourseVersion = version;
+        apprenticeship.StandardUId = $"original_{version}";
+        apprenticeship.TrainingCourseOption = "Existing option";
+        return apprenticeship;
+    }
+
+    public void SetAvailableCourseVersion(
+        LearningType learningType, string newDate, string version, DateTime? earliestStartDate = null)
+    {
+        var courseCode = _dbContext.Apprenticeships.Find(apprenticeshipId).CourseCode;
+        var standardUId = $"resolved_{version}";
+        if (learningType == LearningType.ApprenticeshipUnit)
+        {
+            var url = $"trainingcourses/apprenticeship-units/{courseCode}/version?startDate={newDate}";
+            ApprovalsOuterApiClient
+                .Setup(client => client.Get<GetApprenticeshipUnitVersionResponse>(It.Is<IGetApiRequest>(request => request.GetUrl == url)))
+                .ReturnsAsync(new GetApprenticeshipUnitVersionResponse { Version = version, StandardUId = standardUId });
+            return;
+        }
+
+        TrainingProgrammeLookup
+            .Setup(lookup => lookup.GetCalculatedTrainingProgrammeVersion(courseCode, ParseDate(newDate).Value))
+            .ReturnsAsync(new TrainingProgramme(courseCode, "Test course", version, standardUId, ProgrammeType.Standard, null, null, [], 3)
+            {
+                VersionEarliestStartDate = earliestStartDate
+            });
+    }
+
+    public void VerifyNoMessagesSent() => _mockContext.VerifyNoOtherCalls();
 
     public ApprovedLearningUpdatedEventHandlerTestsFixture SetPriceHistory(params DateTime[] fromDates)
     {
